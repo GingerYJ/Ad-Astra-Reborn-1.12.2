@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:calorite_plating",
+    "count": 64
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#|#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
+    },
+    "|": {
+      "type": "forge:ore_dict",
+      "ore": "rodSteel"
+    }
+  },
+  "result": {
+    "item": "ad_astra:calorite_plateblock",
+    "count": 64
+  }
+}

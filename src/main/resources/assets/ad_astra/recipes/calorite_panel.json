@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#I#",
+    "III",
+    "#I#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
+    },
+    "I": {
+      "type": "forge:ore_dict",
+      "ore": "ingotCalorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:calorite_panel",
+    "count": 64
+  }
+}

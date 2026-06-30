@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#I#",
+    "III",
+    "#I#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
+    },
+    "I": {
+      "type": "forge:ore_dict",
+      "ore": "ingotOstrum"
+    }
+  },
+  "result": {
+    "item": "ad_astra:ostrum_panel",
+    "count": 64
+  }
+}

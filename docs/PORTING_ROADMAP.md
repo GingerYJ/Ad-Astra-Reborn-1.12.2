@@ -22,8 +22,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   `rocket_launch`, `rocket`, `wrench`, `sliding_door_close`, `sliding_door_open`,
   `oxygen_intake`, `oxygen_outtake`, and `gravity_normalizer_idle`.
 - A broad `en_us.lang` has been generated from the copied 1.20 `en_us.json` with 1.12.2 key names.
-- `zh_cn.lang` is aligned with the current English key set and includes the first pass of Chinese player-facing UI,
-  HUD, tooltip, radio, planet selection, space station, and Zip Gun strings.
+- `zh_cn.lang` and `zh_cn.json` are aligned with their current English key sets
+  and include the first pass of Chinese player-facing UI, HUD, tooltip, radio,
+  planet selection, space station, Zip Gun, gas tank, tag, and config strings.
 - The first registered gameplay content is intentionally limited to simple materials, food, and plain blocks.
 - The second registered block batch adds 1.12.2 vanilla-behavior variants where the original asset states already fit:
   stairs, walls, buttons, pressure plates, fences, fence gates, ladders, normal doors, and trapdoors.
@@ -43,7 +44,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   equipment items: iron rod, steel rod, gas tank, engine frame, fan, rocket fin, oxygen gear, tiered engines, and
   etrionic capacitor. The third through eighth direct crafting recipe batches add 87 low-risk Moon, Mars, Mercury,
   Venus, Glacio, and Permafrost terrain/decor conversions covering stone/cobble/brick/polished/chiseled/permafrost
-  variants, slab, stair, wall, tile, and pillar outputs.
+  variants, slab, stair, wall, tile, and pillar outputs. The ninth direct
+  crafting batch adds 20 low-risk metal decorative recipes for iron, steel,
+  desh, ostrum, and calorite plating, plateblock, panel, and pillar blocks.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -400,20 +403,19 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Current 1.12.2 status has registry ids, first-pass mob AI/attributes,
   spawn eggs, planet spawn lists, and renderer factories for all 20 source
   entity ids. The renderer coverage is intentionally incremental: most mobs
-  still use vanilla biped placeholders, Martian Raptors and Star Crawlers now
-  use first-pass 1.12 `ModelBase` ports of their 1.20 hardcoded Java models,
-  sulfur creepers have synced fuse/powered state with creeper swelling and
-  charge visuals, vehicles use textured boxes, Ice Spit renders as an item
-  projectile, and Air Vortex remains a visible debug-style cube. Ice Spit now
-  has first-pass source-like projectile behavior with thrown damage,
+  still use vanilla biped placeholders, Martian Raptors, Star Crawlers, and
+  Glacian Rams now use first-pass 1.12 `ModelBase` ports of their 1.20 hardcoded
+  Java models, sulfur creepers have synced fuse/powered state with creeper
+  swelling and charge visuals, vehicles use textured boxes, Ice Spit renders as
+  an item projectile, and Air Vortex remains a visible debug-style cube. Ice
+  Spit now has first-pass source-like projectile behavior with thrown damage,
   SPIT/SNOWBALL particles, owner/position constructors, broadcast discard event,
   and corrupted Lunarian ranged attack AI integration.
 - Next low-conflict order for this phase:
-  1. `glacian_ram` normal model/texture binding, with shearing deferred.
-  2. Pygro-family and Mogler-family model/renderer bindings.
-  3. Lunarian-family model/default texture bindings, with profession/trade
+  1. Pygro-family and Mogler-family model/renderer bindings.
+  2. Lunarian-family model/default texture bindings, with profession/trade
      behavior deferred.
-  4. Vehicle model renderers: rockets, lander, then rover.
+  3. Vehicle model renderers: rockets, lander, then rover.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -493,6 +495,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the first
   `ModelStarCrawler` renderer binding and Permafrost terrain/decor direct
   crafting recipes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  `ModelGlacianRam` renderer binding, metal decorative direct crafting recipes,
+  and Chinese JSON/lang parity pass.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

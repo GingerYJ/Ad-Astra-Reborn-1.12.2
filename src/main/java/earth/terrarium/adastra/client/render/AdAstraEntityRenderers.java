@@ -80,7 +80,7 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderTexturedMob<ZombifiedMoglerEntity>(manager, new ModelBiped(), texture("mob/zombified_mogler"), 0.65f));
         RenderingRegistry.registerEntityRenderingHandler(SulfurCreeperEntity.class, RenderSulfurCreeper::new);
         RenderingRegistry.registerEntityRenderingHandler(GlacianRamEntity.class,
-            manager -> new RenderTexturedMob<GlacianRamEntity>(manager, new ModelBiped(), texture("mob/glacian_ram/glacian_ram"), 0.55f));
+            manager -> new RenderTexturedMob<GlacianRamEntity>(manager, new ModelGlacianRam(), texture("mob/glacian_ram/glacian_ram"), 0.7f));
 
         RenderingRegistry.registerEntityRenderingHandler(IceSpitEntity.class,
             manager -> new RenderSnowball<IceSpitEntity>(manager, ModItems.ICE_SHARD, Minecraft.getMinecraft().getRenderItem()));
