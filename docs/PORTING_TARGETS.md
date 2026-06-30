@@ -548,7 +548,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 188 files:
+- Direct 1.12 crafting JSON coverage is now 204 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -618,6 +618,8 @@ Current status:
     from generated 1.20 crafting data: planks, stairs, slabs, fences,
     fence gates, doors, trapdoors, ladders where present, plus glacian button
     and pressure plate.
+  - 16 low-risk colored flag recipes converted from generated 1.20 crafting
+    data using 1.12 wool metadata plus Ad Astra steel rods.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
@@ -1088,8 +1090,9 @@ Entity model/render gap snapshot, 2026-07-01:
   Glacian Rams use a first-pass 1.12 `ModelGlacianRam` port with copied normal
   texture, Pygro-family mobs use first-pass 1.12 `ModelBiped` ports of their
   source Java models, Mogler-family mobs use a first-pass 1.12 `ModelMogler`
-  port with copied normal/zombified textures, and most remaining mobs still use
-  `ModelBiped`. Vehicles use
+  port with copied normal/zombified textures, Lunarian-family mobs use
+  first-pass 1.12 `ModelLunarian`/`ModelCorruptedLunarian` ports with copied
+  default textures, and most remaining mobs still use `ModelBiped`. Vehicles use
   `TexturedBoxModel`, `ice_spit` uses `RenderSnowball`, and `air_vortex` uses a
   custom translucent cube.
 - Entity texture resources are copied with source parity under
@@ -1110,9 +1113,9 @@ Per-entity gap matrix:
 | `tier_3_rocket` | Same first-pass base as tier 1 with tier 3 size/fuel values. | Same `Rocket` source class with tier 3 properties and texture/layer. | Same rocket gaps; verify tier reach/fuel/capacity after source-like launch flow exists. |
 | `tier_4_rocket` | Same first-pass base as tier 1 with tier 4 size/fuel values. | Same `Rocket` source class with tier 4 properties, taller model, and different riding offset. | Same rocket gaps plus tier 4-specific model scale/rider offset/fuel behavior. |
 | `lander` | Registered, shared vehicle motion, basic riding, box renderer with copied texture. | `Lander` vehicle with hidden rider, descent thrust, 11-slot inventory/menu, landing safety, fall explosion, sound/particles, model renderer. | Real lander model/renderer, descent controls, rider hiding/offset, inventory/menu, particles/sounds, fall explosion and landing rules. |
-| `lunarian` | Registered, spawn egg, generic placeholder mob AI/attributes, biped renderer using default texture. | Villager-derived Lunarian with custom model, profession-specific textures, head/item layers, breeding, avoidance behavior, and villager data. | Replace generic hostile placeholder behavior, profession/data sync, trades/breeding, correct renderer/model, profession texture selection, held/head layers. |
-| `corrupted_lunarian` | Registered, spawn egg, source-like base health/move/attack attributes, melee plus first-pass ranged `ice_spit` AI, targets players/villagers/Lunarian wandering traders/golems, biped renderer with copied texture. | Monster with melee and ranged `IceSpit`, targets players/villagers/traders/golems, custom extra-arm model and animation. | Real model/animation, exact target parity for all Lunarian trader variants, drops/sounds. |
-| `lunarian_wandering_trader` | Registered, spawn egg, passive placeholder mob, biped renderer with copied texture. | Wandering Trader-derived Lunarian trader with custom Lunarian model/layers and merchant offers/spawner support. | Trader inheritance/AI, offers, spawn manager, renderer/model/layers, exact despawn and interaction behavior. |
+| `lunarian` | Registered, spawn egg, generic placeholder mob AI/attributes, renderer now uses first-pass 1.12 `ModelLunarian` with copied default texture, tall villager-like body, layered head/body/legs, folded arms, and leg/head animation. | Villager-derived Lunarian with custom model, profession-specific textures, head/item layers, breeding, avoidance behavior, and villager data. | Runtime dev-client visual validation, replace generic hostile placeholder behavior, profession/data sync and texture selection, trades/breeding, held/head layers. |
+| `corrupted_lunarian` | Registered, spawn egg, source-like base health/move/attack attributes, melee plus first-pass ranged `ice_spit` AI, targets players/villagers/Lunarian wandering traders/golems, renderer now uses first-pass 1.12 `ModelCorruptedLunarian` with copied texture, crossed arms, extra back-arm geometry, and walking/idle extra-arm animation. | Monster with melee and ranged `IceSpit`, targets players/villagers/traders/golems, custom extra-arm model and animation. | Runtime dev-client visual validation, exact target parity for all Lunarian trader variants, drops/sounds. |
+| `lunarian_wandering_trader` | Registered, spawn egg, passive placeholder mob, renderer now uses first-pass 1.12 `ModelLunarian` with copied wandering-trader texture, folded arms, and leg/head animation. | Wandering Trader-derived Lunarian trader with custom Lunarian model/layers and merchant offers/spawner support. | Runtime dev-client visual validation, trader inheritance/AI, offers, spawn manager, held/head layers, exact despawn and interaction behavior. |
 | `star_crawler` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses a first-pass 1.12 `ModelStarCrawler` port with copied texture, source-like 0.0 shadow, four animated legs, and 0-width detail planes. | Monster with `StarCrawlerModel` and source attack/wander timings. | Runtime dev-client visual validation, source attributes/AI tuning, drops/sounds/spawn predicates. |
 | `martian_raptor` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses a first-pass 1.12 `ModelMartianRaptor` port with copied texture, animated legs, and head yaw/pitch. | Monster with `MartianRaptorModel`, melee AI, leap-at-target behavior, and source attributes. | Runtime dev-client visual validation, leap behavior, source attributes/AI tuning, drops/sounds/spawn predicates. |
 | `pygro` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses first-pass 1.12 `ModelPygro` with copied texture, source-like 0.5 shadow, snout, ears, head planes, enlarged feet, and biped walk/head animation. | Piglin-derived legacy entity with `PygroModel`, held-item layer, and armor layer. | Runtime dev-client visual validation, item/armor layers, piglin-style behavior/equipment, source attributes, drops/sounds. |
@@ -1126,18 +1129,14 @@ Per-entity gap matrix:
 
 Next low-conflict entity/render implementation order:
 
-1. Port Lunarian-family model bindings with default textures:
-   `lunarian`, `corrupted_lunarian`, then `lunarian_wandering_trader`.
-   Profession textures, merchant offers, wandering trader spawning, and
-   corrupted ranged attacks should remain separate follow-up batches.
-2. Port vehicle model renderers after the mob renderers: rockets first, then
+1. Port vehicle model renderers after the mob renderers: rockets first, then
    lander, then rover. Treat item renderers as a separate client-only batch if
    1.12 item rendering needs extra hooks.
-3. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
+2. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
    control, rocket countdown/fuel/launch-pad/menu flow, then lander descent and
    fall explosion. These touch networking, GUI, and travel flow, so they are not
    low-conflict renderer-only work.
-4. Defer full `air_vortex` behavior until Oxygen Distributor coverage is ready
+3. Defer full `air_vortex` behavior until Oxygen Distributor coverage is ready
    to provide source and affected-position data. A small render-parity change to
    make it invisible is safe, but the force behavior depends on oxygen system
    state.

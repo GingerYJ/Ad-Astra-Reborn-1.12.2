@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "|##",
+    "|##",
+    "|  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:wool",
+      "data": 1
+    },
+    "|": {
+      "item": "ad_astra:steel_rod"
+    }
+  },
+  "result": {
+    "item": "ad_astra:orange_flag"
+  }
+}

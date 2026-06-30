@@ -59,11 +59,11 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderTexturedEntity<LanderEntity>(manager, texture("lander/lander"), 1.4f, 2.0f, 1.4f, 0.6f));
 
         RenderingRegistry.registerEntityRenderingHandler(LunarianEntity.class,
-            manager -> new RenderTexturedMob<LunarianEntity>(manager, new ModelBiped(), texture("mob/lunarian/lunarian"), 0.45f));
+            manager -> new RenderTexturedMob<LunarianEntity>(manager, new ModelLunarian(), texture("mob/lunarian/lunarian"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(CorruptedLunarianEntity.class,
-            manager -> new RenderTexturedMob<CorruptedLunarianEntity>(manager, new ModelBiped(), texture("mob/lunarian/corrupted_lunarian"), 0.45f));
+            manager -> new RenderTexturedMob<CorruptedLunarianEntity>(manager, new ModelCorruptedLunarian(), texture("mob/lunarian/corrupted_lunarian"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(LunarianWanderingTraderEntity.class,
-            manager -> new RenderTexturedMob<LunarianWanderingTraderEntity>(manager, new ModelBiped(), texture("mob/lunarian/lunarian_wandering_trader"), 0.45f));
+            manager -> new RenderTexturedMob<LunarianWanderingTraderEntity>(manager, new ModelLunarian(), texture("mob/lunarian/lunarian_wandering_trader"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(StarCrawlerEntity.class,
             manager -> new RenderTexturedMob<StarCrawlerEntity>(manager, new ModelStarCrawler(), texture("mob/star_crawler"), 0.0f));
         RenderingRegistry.registerEntityRenderingHandler(MartianRaptorEntity.class,
