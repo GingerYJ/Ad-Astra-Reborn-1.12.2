@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "blockRawDesh"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:raw_desh",
+    "count": 9
+  }
+}

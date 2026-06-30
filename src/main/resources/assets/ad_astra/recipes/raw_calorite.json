@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "blockRawCalorite"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:raw_calorite",
+    "count": 9
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "ingotSteel"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:steel_nugget",
+    "count": 9
+  }
+}

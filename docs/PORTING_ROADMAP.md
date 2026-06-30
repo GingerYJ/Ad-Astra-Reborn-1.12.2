@@ -1,0 +1,306 @@
+# Ad Astra Reborn 1.12.2 Porting Roadmap
+
+This project is a Cleanroom/Forge 1.12.2 port of the Ad Astra 1.20.x source tree.
+The current goal is feature parity over time, not a narrow compatibility shim.
+
+## Current Foundation
+
+- Mod identity changed from the template placeholder to `ad_astra`.
+- Java package root is `earth.terrarium.adastra`.
+- Main mod entrypoint is `earth.terrarium.adastra.AdAstraReborn`.
+- Coremod loading plugin is `earth.terrarium.adastra.AdAstraLoadingPlugin`.
+- Mixin configs are `ad_astra.default.mixin.json` and `ad_astra.mod.mixin.json`.
+- Access transformer file is `ad_astra_at.cfg`.
+- Forge event registration placeholders exist for blocks, items, entities, sounds, tile entities, GUI, network, config, common events, and client events.
+- The project currently builds successfully with `gradlew.bat build`.
+
+## Current Content Status
+
+- Creative tab exists as `AdAstraCreativeTab`.
+- First-pass client model binding exists in `ClientRegistry`.
+- First-pass sound events are registered for the 1.20 sound keys:
+  `rocket_launch`, `rocket`, `wrench`, `sliding_door_close`, `sliding_door_open`,
+  `oxygen_intake`, `oxygen_outtake`, and `gravity_normalizer_idle`.
+- A broad `en_us.lang` has been generated from the copied 1.20 `en_us.json` with 1.12.2 key names.
+- The first registered gameplay content is intentionally limited to simple materials, food, and plain blocks.
+- The second registered block batch adds 1.12.2 vanilla-behavior variants where the original asset states already fit:
+  stairs, walls, buttons, pressure plates, fences, fence gates, ladders, normal doors, and trapdoors.
+- The third registered block batch adds slabs with hidden double-slab blocks, slab state mapping for the copied
+  1.20 `type=bottom/top/double` blockstates, axis-based pillars/logs, and huge-mushroom-style aeronos/strophar stems.
+- The fourth registered block batch adds vent, metal pillar/glowing pillar/marked pillar variants, and all 32
+  industrial lamp variants with 1.20-compatible `face`/`facing` blockstates.
+- The first loot/drop behavior batch adds a 1.12 ore wrapper and ports drops/experience for registered Ad Astra
+  resource ores with direct 1.12 targets: raw desh, raw ostrum, raw calorite, cheese, ice shard, coal, diamond,
+  and lapis lazuli.
+- The first 1.12 recipe batch adds 24 `assets/ad_astra/recipes` files for material compaction/decompaction:
+  cheese, raw desh/ostrum/calorite blocks, and steel/desh/ostrum/calorite ingot/block/nugget loops.
+- The first OreDictionary batch registers Ad Astra ingots, nuggets, plates, rods, raw materials, raw blocks,
+  resource blocks, ores, cheese, and ice shard entries. The first 24 direct crafting recipes now use
+  `forge:ore_dict` ingredients instead of fixed item-only inputs.
+- The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
+  have direct 1.12.2 equivalents: raw desh/ostrum/calorite, Ad Astra resource ores, vanilla coal/diamond/iron/gold/
+  lapis ore outputs, cobblestone-to-stone conversions, and cracked planetary brick conversions.
+- The first non-machine visual placeholder batch registers launch pad, airlock, reinforced door, aeronos mushroom,
+  and strophar mushroom using copied 1.20 assets while their multi-block/launch/door behavior remains pending.
+- Radio now has a first-pass 1.12.2 block implementation with an eight-direction `facing` property matching the copied
+  1.20 `radio` blockstate variants. The radio GUI, tile entity, streaming audio, and station data remain pending.
+- The first machine visual placeholder batch registers the nine standard `facing`/`lit`/`powered` machine blocks:
+  coal generator, compressor, etrionic blast furnace, NASA workbench, fuel refinery, oxygen loader, solar panel,
+  water pump, and cryo freezer. Their tile entities, containers, recipes, energy/fluid behavior, and GUIs remain pending.
+- The first flag visual placeholder batch registers all 16 flag colors with 1.20-compatible `facing`, `half`, and
+  `waterlogged` blockstates. Flag tile entities, URL/image content, and special renderers remain pending.
+- The first globe visual placeholder batch registers the six planet globes with 1.20-compatible `powered` and
+  `waterlogged` blockstates. Globe tile entities, spinning/special renderers, and rendered item handling remain pending.
+- Cable duct and fluid pipe duct now have simple 1.12.2 visual placeholder blocks using the copied 1.20 cube models.
+  Actual pipe/cable tile entities, transfer networks, and side connection behavior remain pending.
+- The first special machine state placeholder batch registers oxygen distributor, gravity normalizer, energizer, and
+  oxygen sensor with 1.20-compatible blockstate properties. Their TileEntities, menus, recipes, energy/fluid behavior,
+  detection behavior, and GUIs remain pending.
+- The first pipe/cable visual connection batch registers steel cable, desh cable, desh fluid pipe, and ostrum fluid
+  pipe with 1.20-compatible six-sided connection properties. Adjacent pipes render as `normal` connections; insert,
+  extract, transfer networks, side configuration, and TileEntities remain pending.
+- The first cable transfer batch gives steel cable and desh cable TileEntities a simplified Forge Energy buffer and
+  tick-based transfer loop. Steel cable moves up to 150 FE/t and desh cable moves up to 500 FE/t between adjacent
+  Forge Energy handlers, and energy cables now visually connect to adjacent Forge Energy blocks. Full pipe-network
+  controllers and multi-pipe network balancing remain pending.
+- The first fluid pipe transfer batch gives desh fluid pipe and ostrum fluid pipe TileEntities a simplified Forge
+  `FluidTank` buffer and tick-based transfer loop. Desh fluid pipe moves up to 150 mB/t and ostrum fluid pipe moves up
+  to 500 mB/t between adjacent Forge fluid handlers, and fluid pipes now visually connect to adjacent fluid-capable
+  blocks. Full pipe-network controllers, multi-pipe network balancing, and machine-specific fluid recipes remain
+  pending.
+- The first pipe side-mode batch adds per-face `none`/`normal`/`insert`/`extract` state to cable and fluid pipe
+  TileEntities, persists it to NBT, displays configured connection modes in the copied 1.20 pipe blockstates, lets the
+  wrench cycle a clicked pipe face, and makes transfer logic obey those modes. Adjacent pipe-to-pipe connections still
+  render/connect as normal, so full network-aware mode propagation remains pending.
+- The first sliding door state placeholder batch registers iron, steel, desh, ostrum, and calorite sliding doors with
+  1.20-compatible `facing`, `locked`, `open`, `part`, and `powered` blockstates. These are currently single-block
+  state-compatible placeholders; 3x3 placement, synced parts, lock handling, animation, sound, and TileEntities remain
+  pending.
+- The first Forge fluid registration batch adds oxygen, hydrogen, oil, fuel, and cryo fuel as Forge 1.12.2 `Fluid`
+  instances and `BlockFluidClassic` blocks. Fluid buckets, gas tanks, machine tanks, freezing/evaporation behavior,
+  and Botarium container replacement remain pending.
+- The first fluid bucket item batch registers oxygen bucket, hydrogen bucket, oil bucket, fuel bucket, and cryo fuel
+  bucket with copied 1.20 item assets and 1.12 `ItemBucket` behavior. Gas tanks, machine tanks, and stricter
+  oxygen/hydrogen placement rules remain pending.
+- The first standalone utility/equipment item coverage batch registers wrench, zip gun, TI-69, etrionic capacitor,
+  gas tank, large gas tank, all three space suit armor sets, space painting, rocket/rover items, and the 12 spawn egg
+  item ids. Space suit items are currently wearable armor placeholders using copied 1.20 item/entity armor assets.
+  Gas tanks, utility tools, space painting, vehicle items, and spawn eggs are registration/model placeholders until
+  their fluid/energy/entity behavior exists.
+- The first entity registry coverage batch registers all 20 source entity ids with minimal 1.12.2 placeholder classes:
+  air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. These entries preserve registry ids,
+  source dimensions, fire immunity where obvious, tracker settings, and spawn egg colors, but they do not yet implement
+  real vehicle behavior, AI, spawn rules, attributes, drops, projectiles, renderers, or models.
+- The first TileEntity registry coverage batch registers all 19 source block entity ids and connects the machine,
+  globe, flag, sliding door, cable, fluid pipe, and radio block classes to minimal placeholder TileEntity classes.
+  These TileEntities currently preserve ids and world attachment only; inventories, energy, fluids, ticking, networking,
+  GUIs, side configuration, special rendering, and real block behavior remain pending.
+- The first machine storage foundation batch adds a common 1.12.2 machine TileEntity base with item handler inventory,
+  Forge Energy storage, Forge `FluidTank`, NBT persistence, redstone-control state, and per-face item/energy/fluid side
+  mode state. The 13 machine TileEntities now use this base with first-pass slot counts and tier capacities derived from
+  the 1.20 machine constructors/config. Recipe execution, automatic transfer, GUI containers, network sync, and exact
+  machine-specific rules remain pending.
+- The first real machine behavior batch makes the shared machine base tick server-side and ports the Coal Generator's
+  basic fuel-to-energy loop: slot 1 accepts furnace fuel, burn progress persists to NBT, generated energy is inserted
+  internally at 20 FE/t, and the copied `lit` blockstate is synced while the generator runs. Coal Generator GUI,
+  charge-item handling, automatic side transfer, config UI, and network sync remain pending.
+- The first Solar Panel behavior batch adds daylight/sky checks and server-side generation into its internal Forge
+  Energy buffer. It currently uses the copied Earth planet metadata value of 16 FE/t as a fixed fallback until the
+  1.12.2 planet data loader and per-dimension solar power system are ported.
+- The first Water Pump behavior batch ports the core server-side pump loop: when redstone control allows it, the block
+  below is water, at least 20 FE is available, and its tank has room, the pump consumes 20 FE/t and produces 50 mB/t of
+  water into its internal Forge `FluidTank`. Water Pump GUI, particles, fluid container slots, and exact side-config
+  automation remain pending.
+- The first item energy batch replaces the Etrionic Capacitor placeholder with a Forge Energy item capability backed by
+  NBT. It stores 250,000 FE, accepts up to 250 FE/t, extracts up to 500 FE/t, displays a first-pass tooltip and
+  durability bar, supports right-click active toggling, supports shift-right-click sequential/round-robin mode switching,
+  and can distribute energy from the player's inventory to other Forge Energy items every 5 ticks.
+- The first Energizer behavior batch lets the Energizer use its 2,000,000 FE internal buffer to charge Forge Energy
+  items in slot 0 at up to the ostrum-tier 500 FE/t rate while retaining adjacent energy push behavior. Energizer GUI,
+  particles, block item charge persistence, and exact side-config automation remain pending.
+- The first Fuel Refinery behavior batch ports the oil-to-fuel loop with separate 3,000 mB input/output tanks,
+  two-stage fluid-container slot transfers, Forge fluid capability input/output, 30 FE and 5 mB oil consumed per
+  operation, 5 mB fuel produced per operation, NBT persistence for both tanks, and first-pass tank GUI fields. Fuel
+  Refinery GUI, network sync, recipe JSON loading, and exact side-config automation remain pending.
+- The first Oxygen Loader behavior batch ports the water/oxygen-to-oxygen loop with separate 3,000 mB input/output
+  tanks, two-stage fluid-container slot transfers, Forge fluid capability input/output, 30 FE consumed per operation,
+  water-to-oxygen and oxygen-pass-through source recipe semantics, NBT persistence for both tanks, and first-pass tank
+  GUI fields. Oxygen Loader GUI, network sync, recipe JSON loading, and exact side-config automation remain pending.
+- The first machine energy-output batch adds a shared Forge Energy push path based on the existing per-face side mode
+  storage. Coal Generator and Solar Panel now default their energy sides to `PUSH` and attempt to send up to their tier
+  max output to adjacent Forge Energy receivers each tick. Full cable networks, side-configuration GUI, and item
+  charge-slot transfer remain pending.
+- The first wrench behavior batch replaces the wrench placeholder with a 1.12.2 item implementation. Right-clicking a
+  machine TileEntity cycles the clicked face's energy side mode and plays the copied wrench sound; sneaking cycles
+  backwards, or cycles fluid mode on machines with fluid tanks. Wrench also cycles cable/fluid-pipe face modes between
+  `none`, `normal`, `insert`, and `extract`. Sliding-door locking, client/server side-config packets, and full GUI
+  configuration remain pending.
+- Current Java registration count is 333 visible blocks and 82 standalone items.
+- The current visible block registry has matching copied blockstate files. All non-fluid visible block items have
+  matching copied item model files; fluid block item models are intentionally absent because access should go through
+  buckets/tanks rather than ordinary `ItemBlock`s.
+- Iron, gold, and copper planetary ores still drop themselves until the 1.20 raw vanilla items are mapped to a
+  deliberate 1.12 equivalent.
+- Glacio copper ore also intentionally has no smelting output yet because vanilla Minecraft 1.12.2 has no copper
+  ingot target.
+- Functional equipment behavior, machine logic, vehicles, transfer-capable pipes/cables, flag/globe tile
+  entities, full sliding-door behavior, spawn eggs, and entity-backed items remain intentionally incomplete until their
+  1.12.2 behavior exists. The 1.20 block registration gap is now 0 block ids after the fluid registration batch.
+  The remaining 1.20 item registration gap, excluding automatically registered block items, is now 0 item ids after the
+  first standalone utility/equipment/vehicle/spawn-egg item coverage batch. The remaining 1.20 entity registration gap
+  is now 0 entity ids after the first entity registry coverage batch. The remaining 1.20 block entity registration gap
+  is now 0 block entity ids after the first TileEntity registry coverage batch.
+
+## Asset Sources Already Copied
+
+The 1.12.2 resource tree now contains assets copied from:
+
+- `Ad-Astra-1.20.x/Ad-Astra-1.20.x/common/src/main/resources/assets`
+- `Ad-Astra-1.20.x/Ad-Astra-1.20.x/common/src/main/resources/data`
+- `Ad-Astra-1.20.x/Ad-Astra-1.20.x/common/src/main/generated/resources/assets`
+- `Ad-Astra-1.20.x/Ad-Astra-1.20.x/common/src/main/generated/resources/data`
+
+Important note: the copied `data` files are source material from Minecraft 1.20 data packs.
+They are not all directly loadable by Minecraft 1.12.2 and must be converted system by system.
+
+## Major Port Targets
+
+### Phase 1: 1.12.2 Runtime Foundation
+
+- Replace remaining template-only scaffolding with real Ad Astra package structure.
+- Add a stable `AdAstraCreativeTab`.
+- Add registration helpers for 1.12.2 `Block`, `Item`, `SoundEvent`, `EntityEntry`, `TileEntity`, and GUI IDs.
+- Add common constants for registry names copied from the 1.20 registries.
+- Add a first pass of config categories for machines, oxygen, temperature, gravity, and dimensions.
+
+### Phase 2: Assets and Data Conversion
+
+- Keep `assets/ad_astra/textures`, `models`, `blockstates`, `sounds`, `lang`, and GUI textures as canonical source assets.
+- Convert 1.20 `sounds.json` and sound events into 1.12.2 `SoundEvent` registrations.
+- Convert 1.20 generated recipes into 1.12.2 crafting/smelting/custom recipe loaders. The first direct crafting
+  conversion is started in `assets/ad_astra/recipes`; its material inputs now use Forge 1.12 OreDictionary
+  ingredients where the 1.20 source used tags. The first smelting conversion is started in `ModSmeltingRecipes`;
+  1.20 blasting is folded into normal furnace smelting because Minecraft 1.12.2 has no vanilla blast furnace.
+- Convert 1.20 loot tables into 1.12.2 block drop code or compatible loot tables where practical. Ore drops for
+  currently registered non-raw-vanilla resources are started.
+- Replace tag usage with 1.12.2 OreDictionary, explicit registries, or custom sets.
+
+### Phase 3: Basic Content
+
+- Port simple materials and components first: ingots, nuggets, plates, rods, raw materials, engines, tanks, oxygen gear, wheel, fan, rocket fins, nose cone, cheese, ice shard. Basic material items are started.
+- Port simple decorative blocks: metal blocks, raw blocks, factory blocks, panels, plateblocks, plating, pillars, stairs, slabs, buttons, pressure plates, lamps. Plain cube variants, stairs, slabs, buttons, pressure plates, walls, axis variants, vent, industrial lamps, launch pad visual placeholder, airlock/reinforced door visual placeholders, small mushrooms, radio visual/orientation behavior, flags, globes, duct visuals, pipe/cable visual connections, sliding-door state placeholders, standard machine visual placeholders, special machine state placeholders, and Forge fluid blocks are started; transfer-capable pipe/cable TileEntities, true sliding-door behavior, special rendered machine blocks, and machine behavior are pending work.
+- Port planetary terrain blocks and ores for moon, mars, mercury, venus, and glacio. Plain cube variants, ores, stairs, slabs, walls, and pillar variants are started.
+- Port wood and plant sets: aeronos, strophar, and glacian. Plain planks/caps/leaves/fur plus stems/logs, stairs, slabs, fences, fence gates, ladders, doors, trapdoors, buttons, and pressure plates are started.
+
+### Phase 4: Fluids and Transfer
+
+- Rebuild oxygen, hydrogen, oil, fuel, and cryo fuel with Forge 1.12.2 fluids. The first Forge `Fluid` and fluid
+  block registration batch is started.
+- Rebuild buckets and tank items. The first fluid bucket item batch is started; gas tanks and machine tank integration
+  remain pending.
+- Replace Botarium fluid containers with Forge `FluidTank` backed implementations.
+- Rebuild cable and fluid pipe blocks, their tile entities, side modes, extraction, insertion, and wrench behavior.
+
+### Phase 5: Machines and Containers
+
+- Port machine base classes: inventory, energy, fluid, redstone control, side configuration, ticking, recipes, and NBT sync.
+- Port tile entities and GUIs for:
+  - Coal Generator
+  - Compressor
+  - Etrionic Blast Furnace
+  - NASA Workbench
+  - Fuel Refinery
+  - Oxygen Loader
+  - Solar Panel
+  - Water Pump
+  - Oxygen Distributor
+  - Gravity Normalizer
+  - Energizer
+  - Cryo Freezer
+  - Oxygen Sensor
+- Rebuild GUI screens using 1.12.2 `Container`, `GuiContainer`, and `GuiScreen`.
+
+### Phase 6: Core Space Systems
+
+- Port oxygen checks, oxygen distribution, suit oxygen storage, and oxygen HUD.
+- Port temperature checks, heat/cold protection, and environmental damage.
+- Port gravity multipliers, zero/low gravity motion, and gravity normalizer effects.
+- Port destroyed-in-space item/entity behavior and fluid freezing/evaporation.
+- Port TI-69 environmental readout.
+- Port zip gun and jet suit movement.
+
+### Phase 7: Vehicles and Launch Flow
+
+- Port rocket, rover, lander, vehicle inventory, fuel storage, controls, sounds, and renderers.
+- Port launch pad placement and validation.
+- Port launch, landing, orbit selection, and station landing packets.
+- Port planets screen and station construction flow.
+
+### Phase 8: Dimensions and World Generation
+
+- Rebuild dimensions in 1.12.2 using `DimensionType`, `WorldProvider`, `BiomeProvider`, and `IChunkGenerator`.
+- Port five planets: moon, mars, mercury, venus, and glacio.
+- Convert 1.20 worldgen JSON and NBT structures into 1.12.2 generators.
+- Rebuild craters, noise settings, ores, meteorites, oil wells, villages, moon dungeon, mars temple, venus structures, and space station placement.
+
+### Phase 9: Mobs and Renderers
+
+- Port entity registrations, attributes, AI, spawn rules, models, textures, and renderers for:
+  - Lunarian
+  - Corrupted Lunarian
+  - Lunarian Wandering Trader
+  - Star Crawler
+  - Martian Raptor
+  - Pygro
+  - Zombified Pygro
+  - Pygro Brute
+  - Mogler
+  - Zombified Mogler
+  - Sulfur Creeper
+  - Glacian Ram
+  - Ice Spit
+  - Air Vortex
+
+### Phase 10: Client Polish and Compatibility
+
+- Port custom skies, planet renderers, acid rain, particles, overlays, and block entity renderers.
+- Port flags, globes, sliding doors, radio, and rendered items.
+- Port Patchouli guide content if a 1.12.2-compatible dependency is selected.
+- Rebuild JEI/HEI integration for machine recipes.
+- Treat Create, Mekanism, Thermal, Immersive Engineering, and Tech Reborn integration recipes as optional later work.
+
+## Verification Gates
+
+- `gradlew.bat build` must pass after each foundation change.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the vent, metal pillar, and industrial lamp batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first ore loot/drop behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first direct 1.12 recipe batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first OreDictionary and ore-dictionary recipe batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first smelting conversion batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first non-machine visual placeholder and radio batches.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first standard machine visual placeholder batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the flag, globe, and duct visual placeholder batches.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first special machine state placeholder batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first pipe/cable visual connection batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first sliding-door state placeholder batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Forge fluid registration batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first fluid bucket item batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first standalone utility/equipment/vehicle/spawn-egg
+  item coverage batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first entity registry coverage batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first TileEntity registry coverage batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first machine storage foundation batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Coal Generator ticking behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Solar Panel generation behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first machine Forge Energy output batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first wrench machine side-config behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first cable Forge Energy transfer batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first fluid pipe Forge Fluid transfer batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Water Pump behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first item energy and Energizer behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Etrionic Capacitor inventory distribution batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first pipe side-mode and wrench connection batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Fuel Refinery and Oxygen Loader behavior batches.
+- Every content phase should add a minimal in-game smoke test checklist.
+- Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
+- Worldgen and vehicle phases require manual runtime testing in a dev client.

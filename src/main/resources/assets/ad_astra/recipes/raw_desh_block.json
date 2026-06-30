@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "rawDesh"
+    }
+  },
+  "result": {
+    "item": "ad_astra:raw_desh_block"
+  }
+}

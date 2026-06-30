@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "nuggetCalorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:calorite_ingot"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Cables",
+  "icon": "ad_astra:desh_cable",
+  "sortnum": 6,
+  "category": "ad_astra:the_moon",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "title": "Cables",
+      "item": "ad_astra:desh_cable",
+      "text": "Cables allow for long-range energy transfer. There are two variants: steel and desh – desh, having a higher transfer rate. When used with a wrench, cables can be configured to extend in directions or to disconnect from nodes in the network."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ad_astra:steel_cable",
+      "recipe2": "ad_astra:desh_cable"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ad_astra:wrench"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cable ducts",
+      "text": "Cables are not solid blocks. As such, they will not seal a structure which prevents oxygen distributors and gravity normalizers from functioning. The cable duct is a full block that works exactly like cables while preventing leaks."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ad_astra:cable_duct"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "blockCheese"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:cheese",
+    "count": 9
+  }
+}

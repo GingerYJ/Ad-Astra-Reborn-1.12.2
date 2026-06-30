@@ -1,0 +1,23 @@
+{
+  "values": [
+    "#minecraft:saplings",
+    "#minecraft:leaves",
+    "#minecraft:flowers",
+    "#minecraft:candles",
+    "minecraft:torch",
+    "minecraft:lantern",
+    "minecraft:campfire",
+    "minecraft:jack_o_lantern",
+    "minecraft:cocoa_beans",
+    "minecraft:vine",
+    "minecraft:brown_mushroom_block",
+    "minecraft:red_mushroom_block",
+    "minecraft:big_dripleaf",
+    "minecraft:small_dripleaf",
+    "minecraft:short_grass",
+    "minecraft:tall_grass",
+    "minecraft:tall_grass",
+    "minecraft:sweet_berries",
+    "minecraft:bamboo"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "earth.terrarium.adastra.mixin.mod",
+  "plugin": "earth.terrarium.adastra.AdAstraMixinConfigPlugin",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(MOD)",
+  "client": [],
+  "mixins": [],
+  "server": [],
+  "setSourceFile": true,
+  "minVersion": "0.8.7"
+}

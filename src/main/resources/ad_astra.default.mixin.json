@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "earth.terrarium.adastra.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(DEFAULT)",
+  "client": [],
+  "mixins": [],
+  "server": [],
+  "setSourceFile": true,
+  "minVersion": "0.8.7"
+}

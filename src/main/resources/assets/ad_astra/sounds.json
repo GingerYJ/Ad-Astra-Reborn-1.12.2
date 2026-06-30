@@ -1,0 +1,56 @@
+{
+  "rocket_launch": {
+    "sounds": [
+      "ad_astra:rocket_launch"
+    ],
+    "subtitle": "subtitles.ad_astra.entity.rocket_launch"
+  },
+  "rocket": {
+    "sounds": [
+      "ad_astra:rocket"
+    ],
+    "subtitle": "subtitles.ad_astra.entity.rocket"
+  },
+  "wrench": {
+    "sounds": [
+      "ad_astra:wrench"
+    ],
+    "subtitle": "subtitles.ad_astra.block.wrench"
+  },
+  "sliding_door_open": {
+    "sounds": [
+      "ad_astra:sliding_door_open"
+    ],
+    "subtitle": "subtitles.ad_astra.block.sliding_door_open"
+  },
+  "sliding_door_close": {
+    "sounds": [
+      "ad_astra:sliding_door_close"
+    ],
+    "subtitle": "subtitles.ad_astra.block.sliding_door_close"
+  },
+  "oxygen_intake": {
+    "sounds": [
+      "ad_astra:oxygen/intake_1",
+      "ad_astra:oxygen/intake_2",
+      "ad_astra:oxygen/intake_3"
+    ],
+    "subtitle": "subtitles.ad_astra.entity.oxygen_intake"
+  },
+  "oxygen_outtake": {
+      "sounds": [
+      "ad_astra:oxygen/outtake_1",
+      "ad_astra:oxygen/outtake_2",
+      "ad_astra:oxygen/outtake_3"
+      ],
+      "subtitle": "subtitles.ad_astra.entity.oxygen_outtake"
+  },
+  "gravity_normalizer_idle": {
+      "sounds": [
+      "ad_astra:gravity/idle_1",
+      "ad_astra:gravity/idle_2",
+      "ad_astra:gravity/idle_3"
+      ],
+      "subtitle": "subtitles.ad_astra.entity.gravity_normalizer_idle"
+  }
+}

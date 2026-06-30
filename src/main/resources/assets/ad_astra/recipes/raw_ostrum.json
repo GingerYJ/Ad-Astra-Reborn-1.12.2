@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "blockRawOstrum"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:raw_ostrum",
+    "count": 9
+  }
+}
