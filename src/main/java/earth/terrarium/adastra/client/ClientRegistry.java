@@ -4,6 +4,7 @@ import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.block.Block;
@@ -40,6 +41,8 @@ public final class ClientRegistry {
             ModelLoader.setCustomStateMapper(block, new AdAstraSlabStateMapper());
         } else if (block instanceof AdAstraFluidBlock) {
             ModelLoader.setCustomStateMapper(block, new AdAstraFluidStateMapper());
+        } else if (block instanceof AdAstraSlidingDoorBlock) {
+            ModelLoader.setCustomStateMapper(block, new AdAstraSlidingDoorStateMapper());
         }
     }
 
@@ -89,6 +92,17 @@ public final class ClientRegistry {
         @Override
         protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
             return new ModelResourceLocation("forge:fluid", state.getBlock().getRegistryName().getPath());
+        }
+    }
+
+    private static class AdAstraSlidingDoorStateMapper extends StateMapperBase {
+
+        @Override
+        protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
+            Block block = state.getBlock();
+            return new ModelResourceLocation(
+                Reference.MOD_ID + ":" + block.getRegistryName().getPath(),
+                "facing=north,locked=false,open=false,part=bottom,powered=false");
         }
     }
 }

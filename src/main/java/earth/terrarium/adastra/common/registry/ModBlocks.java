@@ -143,8 +143,8 @@ public final class ModBlocks {
     public static final Block STEEL_SLIDING_DOOR = slidingDoor("steel_sliding_door", 5.0f, 12.0f);
     public static final Block STEEL_DOOR = door("steel_door", Material.IRON);
     public static final Block STEEL_TRAPDOOR = trapDoor("steel_trapdoor", Material.IRON);
-    public static final Block AIRLOCK = model("airlock", Material.IRON, 5.0f, 18.0f);
-    public static final Block REINFORCED_DOOR = model("reinforced_door", Material.IRON, 25.0f, 40.0f);
+    public static final Block AIRLOCK = slidingDoor("airlock", 5.0f, 18.0f);
+    public static final Block REINFORCED_DOOR = slidingDoor("reinforced_door", 25.0f, 40.0f);
 
     public static final Block ETRIUM_FACTORY_BLOCK = metal("etrium_factory_block", 5.0f, 5.0f);
     public static final Block ENCASED_ETRIUM_BLOCK = metal("encased_etrium_block", 5.0f, 5.0f);

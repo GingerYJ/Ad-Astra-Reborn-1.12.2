@@ -196,13 +196,15 @@ Current status:
 
 Remaining behavior work:
 
-- True 3x3 sliding doors, synced parts, lock state, animation, sounds, and tile
-  entity logic.
+- Full sliding-door BER animation/rendering polish. First-pass 3x3 placement,
+  synced parts, lock/open/powered state, sounds, collision, and TileEntity
+  persistence are implemented.
 - Launch pad structure validation and rocket integration.
-- Airlock and reinforced door functional behavior.
-- Radio tile entity, station list, GUI, audio playback, and persistence.
-- Flag tile entity, custom URL/image support, networking, renderer.
-- Globe tile entity, spinning/special renderer, item renderer.
+- Airlock and reinforced door full 1.20 renderer polish. First-pass functional
+  3x3 door behavior is implemented.
+- Radio station list, GUI, audio playback packets, and streaming implementation.
+- Flag custom URL/image GUI, networking, image loading, and renderer.
+- Globe special renderer and item renderer.
 - Pipe and cable transfer networks. Energy cables and fluid pipes have
   first-pass adjacent Forge Energy/Fluid transfer TileEntities, per-face
   `none`/`normal`/`insert`/`extract` modes, and wrench mode cycling, but not the
@@ -444,7 +446,13 @@ Current status:
   sides to `PUSH` and can send power to adjacent Forge Energy receivers.
 - The wrench can now mutate saved machine side modes in-world, giving the
   side-configuration state a gameplay entry point before the GUI screens and
-  side-config packets are ported.
+  side-config packets are ported. The held wrench stores a selected machine
+  config type and can switch between item, energy, and fluid side modes.
+- The shared machine base now has first-pass automatic side transfer. Saved
+  item side modes drive item import/export through sided handlers, energy pull
+  modes draw Forge Energy from adjacent extractors, and fluid modes move fluids
+  through each machine's exposed fluid capability. Exact 1.20 side-config GUI,
+  network packets, and per-machine transfer tuning remain pending.
 - Steel cable and desh cable TileEntities now have first-pass Forge Energy
   transfer behavior with 1.20-derived rates of 150 FE/t and 500 FE/t, plus
   visual connections to adjacent Forge Energy blocks.
@@ -454,8 +462,21 @@ Current status:
 - Cable and fluid pipe TileEntities now persist per-face pipe modes, render
   configured modes on adjacent capability connections, can be cycled with the
   wrench, and obey insert/extract/normal/none when moving energy or fluids.
+- Globe TileEntities now persist torque/Y rotation, rotate on right-click, keep
+  rotating while redstone-powered, and sync state to clients for a later special
+  renderer.
+- Flag TileEntities now persist owner/name, URL, base color, and pattern
+  placeholder fields, sync them to clients, and expose right-click status/reset
+  feedback for later GUI and TESR work.
+- Radio TileEntities now persist a station URL field and playing state, sync
+  them to clients, and expose right-click status/toggle feedback until the 1.20
+  radio screen, station packets, and audio stream are ported.
+- Sliding doors, airlocks, and reinforced doors now have first-pass 3x3
+  placement/removal, right-click and redstone open/close behavior, wrench lock
+  toggling, passable open collision, sounds, and TileEntity persistence for
+  part, lock/open/powered state, and slide progress.
 - Recipe execution for remaining machines, recipe JSON loading for hardcoded
-  first-pass machines, automatic transfer, exact side configuration semantics,
+  first-pass machines, exact side configuration semantics,
   networking, full GUI controls/overlays, special renderer, charge-slot GUI/sync
   polish, and most real block behavior remain pending.
 

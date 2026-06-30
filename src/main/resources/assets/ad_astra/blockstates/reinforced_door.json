@@ -1,6 +1,6 @@
 {
   "variants": {
-    "": {
+    "facing=north,locked=false,open=false,part=bottom,powered=false": {
       "model": "ad_astra:block/reinforced_door"
     }
   }

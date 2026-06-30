@@ -42,15 +42,19 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   lapis ore outputs, cobblestone-to-stone conversions, and cracked planetary brick conversions.
 - The first non-machine visual placeholder batch registers launch pad, airlock, reinforced door, aeronos mushroom,
   and strophar mushroom using copied 1.20 assets while their multi-block/launch/door behavior remains pending.
-- Radio now has a first-pass 1.12.2 block implementation with an eight-direction `facing` property matching the copied
-  1.20 `radio` blockstate variants. The radio GUI, tile entity, streaming audio, and station data remain pending.
+- Radio now has a first-pass 1.12.2 block and TileEntity implementation with an eight-direction `facing` property,
+  persisted station URL field, persisted playing state, vanilla TileEntity client sync, and right-click status/toggle
+  feedback. Radio GUI, streaming audio, packets, and station data remain pending.
 - The first machine visual placeholder batch registers the nine standard `facing`/`lit`/`powered` machine blocks:
   coal generator, compressor, etrionic blast furnace, NASA workbench, fuel refinery, oxygen loader, solar panel,
   water pump, and cryo freezer. Their tile entities, containers, recipes, energy/fluid behavior, and GUIs remain pending.
-- The first flag visual placeholder batch registers all 16 flag colors with 1.20-compatible `facing`, `half`, and
-  `waterlogged` blockstates. Flag tile entities, URL/image content, and special renderers remain pending.
-- The first globe visual placeholder batch registers the six planet globes with 1.20-compatible `powered` and
-  `waterlogged` blockstates. Globe tile entities, spinning/special renderers, and rendered item handling remain pending.
+- The first flag TileEntity behavior batch registers all 16 flag colors with 1.20-compatible `facing`, `half`, and
+  `waterlogged` blockstates, persists owner/name, URL, base color, and pattern placeholder fields, syncs them to
+  clients, and adds right-click status/reset feedback for the later URL GUI and TESR. Flag image loading and special
+  renderers remain pending.
+- The first globe TileEntity behavior batch registers the six planet globes with 1.20-compatible `powered` and
+  `waterlogged` blockstates, persists 1.20-style torque/Y rotation state, rotates on right click, and keeps spinning
+  while redstone-powered. Special renderers and rendered item handling remain pending.
 - Cable duct and fluid pipe duct now have simple 1.12.2 visual placeholder blocks using the copied 1.20 cube models.
   Actual pipe/cable tile entities, transfer networks, and side connection behavior remain pending.
 - The first special machine state placeholder batch registers oxygen distributor, gravity normalizer, energizer, and
@@ -72,10 +76,11 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   TileEntities, persists it to NBT, displays configured connection modes in the copied 1.20 pipe blockstates, lets the
   wrench cycle a clicked pipe face, and makes transfer logic obey those modes. Adjacent pipe-to-pipe connections still
   render/connect as normal, so full network-aware mode propagation remains pending.
-- The first sliding door state placeholder batch registers iron, steel, desh, ostrum, and calorite sliding doors with
-  1.20-compatible `facing`, `locked`, `open`, `part`, and `powered` blockstates. These are currently single-block
-  state-compatible placeholders; 3x3 placement, synced parts, lock handling, animation, sound, and TileEntities remain
-  pending.
+- The sliding door/airlock first-pass behavior now covers iron, steel, desh, ostrum, calorite, airlock, and reinforced
+  door variants as 3x3 structures. Placement fills all parts, breaking any part removes the full door without duplicate
+  drops, right-click toggles open/closed, Shift+right-click with a wrench toggles the saved lock flag, redstone syncs
+  the powered state, collision becomes passable while open, and TileEntities persist part, lock/open/powered state, and
+  slide progress. Full 1.20 animated BER rendering remains a later polish pass.
 - The first Forge fluid registration batch adds oxygen, hydrogen, oil, fuel, and cryo fuel as Forge 1.12.2 `Fluid`
   instances and `BlockFluidClassic` blocks. Fluid buckets, gas tanks, machine tanks, freezing/evaporation behavior,
   and Botarium container replacement remain pending.
@@ -98,8 +103,8 @@ The current goal is feature parity over time, not a narrow compatibility shim.
 - The first machine storage foundation batch adds a common 1.12.2 machine TileEntity base with item handler inventory,
   Forge Energy storage, Forge `FluidTank`, NBT persistence, redstone-control state, and per-face item/energy/fluid side
   mode state. The 13 machine TileEntities now use this base with first-pass slot counts and tier capacities derived from
-  the 1.20 machine constructors/config. Recipe execution, automatic transfer, GUI containers, network sync, and exact
-  machine-specific rules remain pending.
+  the 1.20 machine constructors/config. Recipe execution, GUI containers, network sync, and exact machine-specific rules
+  remain pending.
 - The first real machine behavior batch makes the shared machine base tick server-side and ports the Coal Generator's
   basic fuel-to-energy loop: slot 1 accepts furnace fuel, burn progress persists to NBT, generated energy is inserted
   internally at 20 FE/t, and the copied `lit` blockstate is synced while the generator runs. Coal Generator GUI,
@@ -185,10 +190,15 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   max output to adjacent Forge Energy receivers each tick. Full cable networks, side-configuration GUI, and item
   charge-slot GUI/sync polish remain pending.
 - The first wrench behavior batch replaces the wrench placeholder with a 1.12.2 item implementation. Right-clicking a
-  machine TileEntity cycles the clicked face's energy side mode and plays the copied wrench sound; sneaking cycles
-  backwards, or cycles fluid mode on machines with fluid tanks. Wrench also cycles cable/fluid-pipe face modes between
-  `none`, `normal`, `insert`, and `extract`. Sliding-door locking, client/server side-config packets, and full GUI
-  configuration remain pending.
+  machine TileEntity cycles the clicked face's selected side-mode type and plays the copied wrench sound. Air-right-click
+  changes the selected machine mode type between item, energy, and fluid; sneaking cycles backwards. Wrench also cycles
+  cable/fluid-pipe face modes between `none`, `normal`, `insert`, and `extract`. Sliding-door locking, client/server
+  side-config packets, and full GUI configuration remain pending.
+- The first machine automatic side-transfer batch makes saved side modes active for item, energy, and fluid automation.
+  Machines pull items, FE, and fluids from faces set to `PULL`/`PUSH_PULL`, push items and fluids to faces set to
+  `PUSH`/`PUSH_PULL`, expose sided item handlers that honor each machine's slot rules, and keep existing generator energy
+  output paths. Exact 1.20 side configuration screens, per-machine transfer rates, and server/client config packets remain
+  pending.
 - Current Java registration count is 333 visible blocks and 82 standalone items.
 - The current visible block registry has matching copied blockstate files. All non-fluid visible block items have
   matching copied item model files; fluid block item models are intentionally absent because access should go through
@@ -197,8 +207,8 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   deliberate 1.12 equivalent.
 - Glacio copper ore also intentionally has no smelting output yet because vanilla Minecraft 1.12.2 has no copper
   ingot target.
-- Functional equipment behavior, machine logic, vehicles, transfer-capable pipes/cables, flag/globe tile
-  entities, full sliding-door behavior, spawn eggs, and entity-backed items remain intentionally incomplete until their
+- Functional equipment behavior, machine logic, vehicles, full flag/globe rendering and radio UI/audio, full
+  sliding-door animation/rendering polish, spawn eggs, and entity-backed items remain intentionally incomplete until their
   1.12.2 behavior exists. The 1.20 block registration gap is now 0 block ids after the fluid registration batch.
   The remaining 1.20 item registration gap, excluding automatically registered block items, is now 0 item ids after the
   first standalone utility/equipment/vehicle/spawn-egg item coverage batch. The remaining 1.20 entity registration gap
@@ -365,6 +375,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first gas tank oxygen storage item batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Gravity Normalizer behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Oxygen Sensor/Detector behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first flag/globe/radio TileEntity behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first sliding-door/airlock behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first machine automatic side-transfer batch.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.blocks;
 
 import earth.terrarium.adastra.common.registry.ModTileEntities;
+import earth.terrarium.adastra.common.tile.FlagTileEntity;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -9,11 +10,14 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import java.util.Locale;
@@ -60,7 +64,48 @@ public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityPr
         if (world.isAirBlock(pos.up())) {
             world.setBlockState(pos, state.withProperty(HALF, Half.LOWER), 2);
             world.setBlockState(pos.up(), state.withProperty(HALF, Half.UPPER), 2);
+            if (!world.isRemote && placer instanceof EntityPlayer) {
+                TileEntity tile = world.getTileEntity(pos.up());
+                if (tile instanceof FlagTileEntity) {
+                    EntityPlayer player = (EntityPlayer) placer;
+                    ((FlagTileEntity) tile).setOwner(player.getUniqueID(), player.getName());
+                }
+            }
         }
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        BlockPos tilePos = state.getValue(HALF) == Half.LOWER ? pos.up() : pos;
+        TileEntity tile = world.getTileEntity(tilePos);
+        if (!(tile instanceof FlagTileEntity)) {
+            return false;
+        }
+
+        if (!world.isRemote) {
+            FlagTileEntity flag = (FlagTileEntity) tile;
+            if (player.isSneaking()) {
+                flag.setFlagUrl("");
+                flag.setPattern("");
+                flag.setBaseColor(0xFFFFFF);
+                player.sendStatusMessage(new TextComponentString("Flag content reset"), true);
+            } else {
+                String owner = flag.getOwnerName().isEmpty() ? "unknown owner" : flag.getOwnerName();
+                String content = flag.hasCustomContent() ? describeContent(flag) : "default flag";
+                player.sendStatusMessage(new TextComponentString("Flag: " + content + " (" + owner + ")"), true);
+            }
+        }
+        return true;
+    }
+
+    private static String describeContent(FlagTileEntity flag) {
+        if (!flag.getFlagUrl().isEmpty()) {
+            return flag.getFlagUrl();
+        }
+        if (!flag.getPattern().isEmpty()) {
+            return flag.getPattern();
+        }
+        return String.format(Locale.ROOT, "#%06X", flag.getBaseColor());
     }
 
     @Override

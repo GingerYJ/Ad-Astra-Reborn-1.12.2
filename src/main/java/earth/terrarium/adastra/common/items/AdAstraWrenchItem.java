@@ -12,6 +12,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class AdAstraWrenchItem extends Item {
+
+    private static final String TAG_CONFIG_TYPE = "ConfigType";
 
     public AdAstraWrenchItem(String name) {
         setRegistryName(Reference.MOD_ID, name);
@@ -49,23 +52,29 @@ public class AdAstraWrenchItem extends Item {
             return EnumActionResult.PASS;
         }
         if (!world.isRemote) {
-            configureMachineSide((AdAstraMachineTileEntity) tile, player, world, pos, facing);
+            configureMachineSide((AdAstraMachineTileEntity) tile, player, world, pos, facing, player.getHeldItem(hand));
         }
         return EnumActionResult.SUCCESS;
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        return new ActionResult<>(EnumActionResult.PASS, player.getHeldItem(hand));
+        ItemStack stack = player.getHeldItem(hand);
+        if (!world.isRemote) {
+            SideConfigType next = cycleSelectedConfigType(stack, player.isSneaking());
+            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.wrench.config_type", localizeType(next)), true);
+        }
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(new TextComponentTranslation("info.ad_astra.wrench").getFormattedText());
+        tooltip.add(new TextComponentTranslation("side_config.ad_astra.type.type", localizeType(getSelectedConfigType(stack))).getFormattedText());
     }
 
-    private void configureMachineSide(AdAstraMachineTileEntity machine, EntityPlayer player, World world, BlockPos pos, EnumFacing facing) {
-        SideConfigType type = getConfigType(machine, player);
+    private void configureMachineSide(AdAstraMachineTileEntity machine, EntityPlayer player, World world, BlockPos pos, EnumFacing facing, ItemStack stack) {
+        SideConfigType type = getSelectedConfigType(stack);
         AdAstraSideMode current = machine.getSideMode(facing, type);
         AdAstraSideMode next = player.isSneaking() ? current.previous() : current.next();
         machine.setSideMode(facing, type, next);
@@ -78,11 +87,37 @@ public class AdAstraWrenchItem extends Item {
             localizeMode(next)), true);
     }
 
-    private SideConfigType getConfigType(AdAstraMachineTileEntity machine, EntityPlayer player) {
-        if (player.isSneaking() && machine.getFluidTank() != null) {
-            return SideConfigType.FLUID;
+    private SideConfigType cycleSelectedConfigType(ItemStack stack, boolean reverse) {
+        SideConfigType current = getSelectedConfigType(stack);
+        SideConfigType[] values = SideConfigType.values();
+        int next = reverse ? current.ordinal() - 1 : current.ordinal() + 1;
+        if (next < 0) {
+            next = values.length - 1;
+        } else if (next >= values.length) {
+            next = 0;
         }
-        return SideConfigType.ENERGY;
+        SideConfigType type = values[next];
+        setSelectedConfigType(stack, type);
+        return type;
+    }
+
+    private SideConfigType getSelectedConfigType(ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasTagCompound()) {
+            return SideConfigType.ENERGY;
+        }
+        return SideConfigType.byOrdinal(stack.getTagCompound().getByte(TAG_CONFIG_TYPE));
+    }
+
+    private void setSelectedConfigType(ItemStack stack, SideConfigType type) {
+        if (stack.isEmpty()) {
+            return;
+        }
+        NBTTagCompound tag = stack.getTagCompound();
+        if (tag == null) {
+            tag = new NBTTagCompound();
+            stack.setTagCompound(tag);
+        }
+        tag.setByte(TAG_CONFIG_TYPE, (byte) type.ordinal());
     }
 
     private TextComponentTranslation localizeType(SideConfigType type) {

@@ -12,10 +12,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISidedInventory, ITickable {
 
@@ -35,6 +39,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     protected final ItemStackHandler items;
     protected final AdAstraEnergyStorage energy;
     protected final FluidTank fluidTank;
+    protected final IItemHandler[] itemHandlers = new IItemHandler[EnumFacing.values().length];
     protected AdAstraRedstoneControl redstoneControl = AdAstraRedstoneControl.ALWAYS_ON;
     protected final AdAstraSideMode[][] sideModes = new AdAstraSideMode[EnumFacing.values().length][SideConfigType.values().length];
 
@@ -63,6 +68,9 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
                 markDirty();
             }
         } : null;
+        for (EnumFacing facing : EnumFacing.values()) {
+            itemHandlers[facing.getIndex()] = new SidedInvWrapper(this, facing);
+        }
     }
 
     public String getMachineName() {
@@ -94,7 +102,9 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     public void update() {
         if (world != null && !world.isRemote) {
             pullEnergyFromBatterySlot();
+            pullFromSides();
             tickMachine();
+            pushToSides();
         }
     }
 
@@ -213,6 +223,252 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
         }
     }
 
+    protected void pullFromSides() {
+        pullItemsFromSides();
+        pullEnergyFromSides();
+        pullFluidFromSides();
+    }
+
+    protected void pushToSides() {
+        pushItemsToSides();
+        pushFluidToSides();
+    }
+
+    protected int getMaxItemTransferPerSide() {
+        return 8;
+    }
+
+    protected int getMaxFluidTransferPerSide() {
+        FluidTank tank = getFluidTank();
+        return tank == null ? 0 : Math.min(250, tank.getCapacity());
+    }
+
+    protected void pullItemsFromSides() {
+        if (world == null || pos == null || getMaxItemTransferPerSide() <= 0) {
+            return;
+        }
+
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (!getSideMode(facing, SideConfigType.ITEM).canPull()) {
+                continue;
+            }
+            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            if (sourceTile == null || !sourceTile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite())) {
+                continue;
+            }
+            IItemHandler source = sourceTile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite());
+            if (source != null && pullOneItemStackFrom(source, facing)) {
+                sourceTile.markDirty();
+                markDirty();
+            }
+        }
+    }
+
+    private boolean pullOneItemStackFrom(IItemHandler source, EnumFacing side) {
+        for (int sourceSlot = 0; sourceSlot < source.getSlots(); sourceSlot++) {
+            ItemStack simulatedExtract = source.extractItem(sourceSlot, getMaxItemTransferPerSide(), true);
+            if (simulatedExtract.isEmpty()) {
+                continue;
+            }
+            ItemStack remainder = insertItemFromSide(simulatedExtract, side, true);
+            int accepted = simulatedExtract.getCount() - remainder.getCount();
+            if (accepted <= 0) {
+                continue;
+            }
+            ItemStack extracted = source.extractItem(sourceSlot, accepted, false);
+            if (!extracted.isEmpty()) {
+                insertItemFromSide(extracted, side, false);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void pushItemsToSides() {
+        if (world == null || pos == null || getMaxItemTransferPerSide() <= 0) {
+            return;
+        }
+
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (!getSideMode(facing, SideConfigType.ITEM).canPush()) {
+                continue;
+            }
+            TileEntity targetTile = world.getTileEntity(pos.offset(facing));
+            if (targetTile == null || !targetTile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite())) {
+                continue;
+            }
+            IItemHandler target = targetTile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite());
+            if (target != null && pushOneItemStackTo(target, facing)) {
+                targetTile.markDirty();
+                markDirty();
+            }
+        }
+    }
+
+    private boolean pushOneItemStackTo(IItemHandler target, EnumFacing side) {
+        int[] slots = getSlotsForFace(side);
+        for (int slot : slots) {
+            ItemStack stored = items.getStackInSlot(slot);
+            if (stored.isEmpty() || !canExtractItem(slot, stored, side)) {
+                continue;
+            }
+            ItemStack offer = stored.copy();
+            offer.setCount(Math.min(offer.getCount(), getMaxItemTransferPerSide()));
+            ItemStack remainder = insertIntoHandler(target, offer, true);
+            int accepted = offer.getCount() - remainder.getCount();
+            if (accepted <= 0) {
+                continue;
+            }
+            ItemStack extracted = items.extractItem(slot, accepted, false);
+            if (!extracted.isEmpty()) {
+                insertIntoHandler(target, extracted, false);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ItemStack insertItemFromSide(ItemStack stack, EnumFacing side, boolean simulate) {
+        ItemStack remainder = stack.copy();
+        int[] slots = getSlotsForFace(side);
+        for (int slot : slots) {
+            if (remainder.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            if (!canInsertItem(slot, remainder, side)) {
+                continue;
+            }
+            remainder = items.insertItem(slot, remainder, simulate);
+        }
+        return remainder;
+    }
+
+    private ItemStack insertIntoHandler(IItemHandler target, ItemStack stack, boolean simulate) {
+        ItemStack remainder = stack.copy();
+        for (int slot = 0; slot < target.getSlots(); slot++) {
+            if (remainder.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            remainder = target.insertItem(slot, remainder, simulate);
+        }
+        return remainder;
+    }
+
+    protected void pullEnergyFromSides() {
+        if (energy == null || energy.getMaxReceive() <= 0 || world == null || pos == null) {
+            return;
+        }
+
+        int room = energy.getMaxEnergyStored() - energy.getEnergyStored();
+        if (room <= 0) {
+            return;
+        }
+
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (!getSideMode(facing, SideConfigType.ENERGY).canPull()) {
+                continue;
+            }
+            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            if (sourceTile == null || !sourceTile.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite())) {
+                continue;
+            }
+            IEnergyStorage source = sourceTile.getCapability(CapabilityEnergy.ENERGY, facing.getOpposite());
+            if (source == null || !source.canExtract()) {
+                continue;
+            }
+            int requested = Math.min(energy.getMaxReceive(), energy.getMaxEnergyStored() - energy.getEnergyStored());
+            if (requested <= 0) {
+                return;
+            }
+            int extractable = source.extractEnergy(requested, true);
+            int receivable = energy.receiveEnergy(extractable, true);
+            if (receivable <= 0) {
+                continue;
+            }
+            int extracted = source.extractEnergy(receivable, false);
+            int received = energy.receiveEnergy(extracted, false);
+            if (received > 0) {
+                sourceTile.markDirty();
+                markDirty();
+            }
+        }
+    }
+
+    protected void pullFluidFromSides() {
+        IFluidHandler self = getSideFluidHandler();
+        if (self == null || world == null || pos == null || getMaxFluidTransferPerSide() <= 0) {
+            return;
+        }
+
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (!getSideMode(facing, SideConfigType.FLUID).canPull()) {
+                continue;
+            }
+            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            if (sourceTile == null || !sourceTile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite())) {
+                continue;
+            }
+            IFluidHandler source = sourceTile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
+            if (source == null) {
+                continue;
+            }
+            FluidStack simulated = source.drain(getMaxFluidTransferPerSide(), false);
+            if (simulated == null || simulated.amount <= 0) {
+                continue;
+            }
+            int fillable = self.fill(simulated, false);
+            if (fillable <= 0) {
+                continue;
+            }
+            FluidStack drained = source.drain(fillable, true);
+            if (drained != null && drained.amount > 0 && self.fill(drained, true) > 0) {
+                sourceTile.markDirty();
+                markDirty();
+            }
+        }
+    }
+
+    protected void pushFluidToSides() {
+        IFluidHandler self = getSideFluidHandler();
+        if (self == null || world == null || pos == null || getMaxFluidTransferPerSide() <= 0) {
+            return;
+        }
+
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (!getSideMode(facing, SideConfigType.FLUID).canPush()) {
+                continue;
+            }
+            TileEntity targetTile = world.getTileEntity(pos.offset(facing));
+            if (targetTile == null || !targetTile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite())) {
+                continue;
+            }
+            IFluidHandler target = targetTile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
+            if (target == null) {
+                continue;
+            }
+            FluidStack simulated = self.drain(getMaxFluidTransferPerSide(), false);
+            if (simulated == null || simulated.amount <= 0) {
+                continue;
+            }
+            int accepted = target.fill(simulated, false);
+            if (accepted <= 0) {
+                continue;
+            }
+            FluidStack drained = self.drain(accepted, true);
+            if (drained != null && drained.amount > 0 && target.fill(drained, true) > 0) {
+                targetTile.markDirty();
+                markDirty();
+            }
+        }
+    }
+
+    protected IFluidHandler getSideFluidHandler() {
+        if (getFluidTank() == null) {
+            return null;
+        }
+        return getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+    }
+
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
@@ -278,7 +534,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     @SuppressWarnings("unchecked")
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return (T) items;
+            return (T) (facing == null ? items : itemHandlers[facing.getIndex()]);
         }
         if (energy != null && capability == CapabilityEnergy.ENERGY) {
             return (T) energy;
@@ -430,6 +686,11 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
 
         public String getKey() {
             return key;
+        }
+
+        public static SideConfigType byOrdinal(int ordinal) {
+            SideConfigType[] values = values();
+            return ordinal >= 0 && ordinal < values.length ? values[ordinal] : ENERGY;
         }
     }
 }
