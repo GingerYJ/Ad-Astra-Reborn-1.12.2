@@ -552,7 +552,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 270 files:
+- Direct 1.12 crafting JSON coverage is now 279 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -634,6 +634,13 @@ Current status:
     polished conglomerate, sky stone, radio, TI-69, and space helmet recipes
     converted from generated 1.20 crafting data using direct registered inputs
     and existing OreDictionary mappings.
+  - 9 low-risk glowing pillar, marked pillar, and basic space suit recipes
+    converted from generated 1.20 crafting data: `glowing_iron_pillar`,
+    `glowing_steel_pillar`, `glowing_desh_pillar`, `glowing_ostrum_pillar`,
+    `glowing_calorite_pillar`, `marked_iron_pillar`, `space_suit`,
+    `space_pants`, and `space_boots`. The 1.20 `ad_astra:steel_plates` tag is
+    mapped to `plateSteel`; the 1.20 `minecraft:wool` tag is mapped to
+    `blockWool`; 1.20 yellow/black dye ids are mapped to 1.12 dye metadata.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
@@ -642,9 +649,8 @@ Current status:
   copper/lightning-rod/tank-NBT cases unless an explicit 1.12 mapping is chosen:
   `steel_cable`, `desh_cable`, `cable_duct`, and `fluid_pipe_duct` need a
   copper ingot policy, `rocket_nose_cone` needs a replacement for the 1.20
-  lightning rod, tank and zip gun recipes should wait for a deliberate decision
-  about using NBT-capable gas tanks as ordinary crafting ingredients, and the
-  remaining suit recipes need an explicit 1.12 wool/tag policy.
+  lightning rod, and tank/zip gun/rover recipes should wait for a deliberate
+  decision about using NBT-capable gas tanks as ordinary crafting ingredients.
 - Deferred recipe categories remain custom machine JSON loaders
   (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
   `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
@@ -947,8 +953,9 @@ Ore vein implementation snapshot, 2026-07-01:
     vanilla deepslate nor vanilla copper. Do not generate these until a
     deliberate 1.12 deepslate/copper policy exists.
   - `moon_soul_soil` is a configured ore feature in 1.20 data, but it outputs
-    vanilla soul soil, not an Ad Astra ore block. Keep it for the later simple
-    non-NBT feature batch.
+    vanilla soul soil, not an Ad Astra ore block. The first 1.12.2 runtime pass
+    maps it to vanilla `minecraft:soul_sand` because 1.12.2 has no soul soil
+    block; revisit this if a dedicated compat block is added later.
 
 Low-risk worldgen implementation order:
 
@@ -957,8 +964,9 @@ Low-risk worldgen implementation order:
    tune counts only after seeing actual density in the flat terrain.
 2. Decide the Glacio copper policy before enabling `GLACIO_COPPER_ORE`
    generation, because vanilla 1.12.2 has no copper ingot target.
-3. Add non-NBT simple surface features next: `moon_soul_soil`, `mars_rock` as a
-   small blob feature, then small/large infernal spire columns.
+3. Validate non-NBT simple features now started in runtime generation:
+   `moon_soul_soil` as Moon soul-sand clusters and `mars_rock` as conglomerate
+   blobs on Mars sand, then add small/large infernal spire columns.
 4. Add a minimal NBT template loading/placement path and validate it with meteor
    variants or the size-1 oil well template.
 5. Leave deepslate variants, large structures, and crater/noise terrain out of
@@ -1017,9 +1025,10 @@ Low-conflict worldgen implementation order:
    as explicit follow-up decisions because 1.12.2 has no vanilla copper/deepslate
    equivalents. Clamp or remap 1.20 negative-Y height ranges to the current
    1.12.2 terrain height instead of copying them literally.
-3. Add non-NBT simple surface features: `moon_soul_soil`, `mars_rock` as a
-   small blob feature, then small/large infernal spire columns. These are
-   isolated from structure code and exercise planet-specific feature dispatch.
+3. Validate non-NBT simple features: `moon_soul_soil` now generates as Moon
+   soul-sand clusters and `mars_rock` now generates as conglomerate blobs on
+   Mars sand. Add small/large infernal spire columns next. These are isolated
+   from structure code and exercise planet-specific feature dispatch.
 4. Add a minimal NBT template loading/placement path and validate it with
    meteor variants or the size-1 oil well template. This should include
    rotation, ground projection, bounding-box checks, and block/entity NBT

@@ -68,14 +68,12 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     public void populate(int chunkX, int chunkZ) {
         Random random = createChunkRandom(chunkX, chunkZ);
         List<PlanetOreSpec> specs = getOreSpecs(properties.getName());
-        if (specs.isEmpty()) {
-            return;
-        }
-
         BlockPos chunkOrigin = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         for (PlanetOreSpec spec : specs) {
             generateOre(spec, chunkOrigin, random);
         }
+
+        generateSimpleFeatures(chunkOrigin, random);
     }
 
     @Override
@@ -172,6 +170,74 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         IBlockState current = world.getBlockState(pos);
         if (spec.canReplace(current.getBlock())) {
             world.setBlockState(pos, spec.oreState, 2);
+        }
+    }
+
+    private void generateSimpleFeatures(BlockPos chunkOrigin, Random random) {
+        String planetName = properties.getName();
+        if ("moon".equals(planetName)) {
+            generateMoonSoulSand(chunkOrigin, random);
+        } else if ("mars".equals(planetName)) {
+            generateMarsRockBlobs(chunkOrigin, random);
+        }
+    }
+
+    private void generateMoonSoulSand(BlockPos chunkOrigin, Random random) {
+        PlanetOreSpec soulSand = new PlanetOreSpec(
+            "moon",
+            Blocks.SOUL_SAND.getDefaultState(),
+            60,
+            20,
+            MIN_GENERATION_Y,
+            MAX_GENERATION_Y,
+            new Block[]{ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE}
+        );
+        generateOre(soulSand, chunkOrigin, random);
+    }
+
+    private void generateMarsRockBlobs(BlockPos chunkOrigin, Random random) {
+        for (int i = 0; i < 2; i++) {
+            int x = chunkOrigin.getX() + random.nextInt(16);
+            int z = chunkOrigin.getZ() + random.nextInt(16);
+            BlockPos surface = findSurface(new BlockPos(x, SURFACE_Y + 8, z), ModBlocks.MARS_SAND);
+            if (surface != null) {
+                generateMarsRockBlob(surface.up(), random);
+            }
+        }
+    }
+
+    @Nullable
+    private BlockPos findSurface(BlockPos start, Block groundBlock) {
+        BlockPos pos = start;
+        while (pos.getY() > MIN_GENERATION_Y + 3) {
+            if (!world.isAirBlock(pos.down()) && world.getBlockState(pos.down()).getBlock() == groundBlock) {
+                return pos.down();
+            }
+            pos = pos.down();
+        }
+        return null;
+    }
+
+    private void generateMarsRockBlob(BlockPos origin, Random random) {
+        BlockPos center = origin;
+        for (int i = 0; i < 3; i++) {
+            int radiusX = random.nextInt(2);
+            int radiusY = random.nextInt(2);
+            int radiusZ = random.nextInt(2);
+            float radius = (float) (radiusX + radiusY + radiusZ) * 0.333F + 0.5F;
+
+            for (int x = center.getX() - radiusX; x <= center.getX() + radiusX; x++) {
+                for (int y = center.getY() - radiusY; y <= center.getY() + radiusY; y++) {
+                    for (int z = center.getZ() - radiusZ; z <= center.getZ() + radiusZ; z++) {
+                        BlockPos pos = new BlockPos(x, y, z);
+                        if (pos.distanceSq(center) <= (double) (radius * radius)) {
+                            world.setBlockState(pos, ModBlocks.CONGLOMERATE.getDefaultState(), 2);
+                        }
+                    }
+                }
+            }
+
+            center = center.add(-1 + random.nextInt(2), -random.nextInt(2), -1 + random.nextInt(2));
         }
     }
 

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ad_astra:iron_pillar"
+    },
+    {
+      "item": "minecraft:dye",
+      "data": 11
+    },
+    {
+      "item": "minecraft:dye",
+      "data": 0
+    }
+  ],
+  "result": {
+    "item": "ad_astra:marked_iron_pillar"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "W W",
+    "# #"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    },
+    "W": {
+      "type": "forge:ore_dict",
+      "ore": "blockWool"
+    }
+  },
+  "result": {
+    "item": "ad_astra:space_pants"
+  }
+}

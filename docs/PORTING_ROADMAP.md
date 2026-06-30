@@ -57,7 +57,10 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   encased block, pipe, launch pad, vent, photovoltaic cell, wheel, and wrench
   recipes. The fifteenth direct crafting batch adds 17 airlock, door, sliding
   door, Venus sandstone, polished conglomerate, sky stone, radio, TI-69, and
-  space helmet recipes.
+  space helmet recipes. The sixteenth direct crafting batch adds 9 low-risk
+  generated conversions for glowing metal pillars, marked iron pillar, and the
+  three basic space suit armor pieces using `blockWool` and `plateSteel`
+  OreDictionary mappings.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -388,10 +391,16 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   Glacio copper remains deferred because its gameplay output is still a separate
   copper policy. Glacio deepslate vanilla ore features and Moon soul soil are
   still deferred from this first Ad Astra ore pass.
+- 2026-07-01 simple feature implementation pass: `AdAstraChunkGenerator.populate`
+  now also dispatches non-ore planet features. Moon `moon_soul_soil` is
+  generated as large deterministic underground `minecraft:soul_sand` clusters
+  replacing Moon stone/deepslate, because Minecraft 1.12.2 has no soul soil
+  block. Mars `mars_rock` now places source-inspired conglomerate blobs on
+  Mars sand using the copied feature's three-step blob shape.
 - Next low-conflict Phase 8 order:
   1. Validate and tune the runtime ore pass in a dev planet world; keep Glacio copper disabled until a copper output
      policy exists.
-  2. Add simple non-NBT features: Moon soul soil, Mars rock blobs, then Venus infernal spire columns.
+  2. Validate and tune Moon soul-sand clusters and Mars rock blobs in dev planet worlds, then add Venus infernal spire columns.
   3. Add a minimal NBT template loader/placer and validate it with meteor variants or the size-1 oil well template.
   4. Add simple single-start structure predicates for oil well, lunar tower, and Mars temple.
   5. Defer Moon dungeon, Lunarian village, Pygro/crimson structures, Venus bullet/tower, and biome-tagged structure
@@ -538,6 +547,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the first
   Space Painting hanging entity and airlock/door/sandstone utility direct
   crafting recipes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the Moon
+  soul-sand/Mars rock simple worldgen feature pass and the glowing pillar/basic
+  space suit direct crafting recipes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

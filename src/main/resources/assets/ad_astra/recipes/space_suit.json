@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "# #",
+    "TOT",
+    "#W#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    },
+    "O": {
+      "item": "ad_astra:oxygen_gear"
+    },
+    "T": {
+      "item": "ad_astra:gas_tank"
+    },
+    "W": {
+      "type": "forge:ore_dict",
+      "ore": "blockWool"
+    }
+  },
+  "result": {
+    "item": "ad_astra:space_suit"
+  }
+}
