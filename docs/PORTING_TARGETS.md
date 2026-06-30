@@ -403,6 +403,10 @@ Current status:
   compressing recipes that map directly to 1.12.2: iron, steel, desh, ostrum,
   and calorite ingots/blocks become plates while consuming 20 FE/t and tracking
   cook progress.
+- Etrionic Blast Furnace now has a first-pass alloying loop for the copied
+  steel recipe that maps directly to 1.12.2: iron ingot plus coal/charcoal in
+  slots 1-4 becomes steel ingot in slots 5-8 while consuming 20 FE/t for 100
+  ticks. Blasting mode is persisted but remains behaviorally pending.
 - The shared machine base now has a first-pass Forge Energy push helper that
   uses saved per-face side modes. Coal Generator and Solar Panel default energy
   sides to `PUSH` and can send power to adjacent Forge Energy receivers.
