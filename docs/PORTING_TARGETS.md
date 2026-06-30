@@ -559,6 +559,18 @@ Target:
 
 Current status:
 
+- A shared `EnvironmentUtils` helper now checks world-provider oxygen and local
+  Oxygen Distributor coverage.
+- Space suit, netherite space suit, and jet suit chest pieces now expose an
+  oxygen-only Forge fluid item capability with empty/filled creative variants,
+  oxygen tooltip, and oxygen durability bar.
+- Server-side player ticks now drain suit oxygen in airless environments or
+  apply oxygen suffocation damage when the player has no usable suit oxygen.
+- Exact 1.20 temperature damage, gravity movement, fluid freezing/evaporation,
+  item destruction, TI-69 runtime UI, and HUD warning polish remain pending.
+
+Current status:
+
 - System APIs are not functionally ported yet.
 - Client HUD has a first-pass display for oxygen, temperature, gravity, and
   energy. It currently uses inventory gas tanks/Forge Energy items and

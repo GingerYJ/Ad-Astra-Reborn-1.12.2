@@ -227,9 +227,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   deliberate 1.12 equivalent.
 - Glacio copper ore also intentionally has no smelting output yet because vanilla Minecraft 1.12.2 has no copper
   ingot target.
-- Functional equipment behavior, machine logic, vehicles, full flag/globe rendering and radio UI/audio, full
-  sliding-door animation/rendering polish, spawn eggs, and entity-backed items remain intentionally incomplete until their
-  1.12.2 behavior exists. The 1.20 block registration gap is now 0 block ids after the fluid registration batch.
+- Functional equipment behavior, machine logic, full flag/globe rendering and radio UI/audio, full sliding-door
+  animation/rendering polish, exact vehicle launch flow, and richer entity-backed items remain intentionally incomplete
+  until their 1.12.2 behavior exists. The 1.20 block registration gap is now 0 block ids after the fluid registration batch.
   The remaining 1.20 item registration gap, excluding automatically registered block items, is now 0 item ids after the
   first standalone utility/equipment/vehicle/spawn-egg item coverage batch. The remaining 1.20 entity registration gap
   is now 0 entity ids after the first entity registry coverage batch. The remaining 1.20 block entity registration gap
