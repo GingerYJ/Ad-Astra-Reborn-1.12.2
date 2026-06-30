@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#|#",
+    "|S|",
+    "#|#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    },
+    "|": {
+      "type": "forge:ore_dict",
+      "ore": "rodSteel"
+    },
+    "S": {
+      "item": "ad_astra:steel_cable"
+    }
+  },
+  "result": {
+    "item": "ad_astra:cable_duct",
+    "count": 2
+  }
+}

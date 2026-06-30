@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " N ",
+    "D D",
+    "# #"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
+    },
+    "D": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "N": {
+      "item": "minecraft:diamond_boots"
+    }
+  },
+  "result": {
+    "item": "ad_astra:netherite_space_boots"
+  }
+}

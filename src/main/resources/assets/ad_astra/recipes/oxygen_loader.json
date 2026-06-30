@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#F#",
+    "G|G",
+    "#R#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    },
+    "F": {
+      "item": "ad_astra:fan"
+    },
+    "G": {
+      "item": "ad_astra:gas_tank"
+    },
+    "|": {
+      "type": "forge:ore_dict",
+      "ore": "rodSteel"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "item": "ad_astra:oxygen_loader"
+  }
+}

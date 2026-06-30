@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#G#",
+    "GSG",
+    "#G#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "S": {
+      "item": "ad_astra:desh_fluid_pipe"
+    }
+  },
+  "result": {
+    "item": "ad_astra:fluid_pipe_duct",
+    "count": 2
+  }
+}

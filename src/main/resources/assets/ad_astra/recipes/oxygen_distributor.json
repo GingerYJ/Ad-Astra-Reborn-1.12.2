@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FGF",
+    "FLF",
+    "#O#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "F": {
+      "item": "ad_astra:fan"
+    },
+    "G": {
+      "item": "ad_astra:large_gas_tank"
+    },
+    "L": {
+      "item": "ad_astra:oxygen_loader"
+    },
+    "O": {
+      "item": "ad_astra:oxygen_gear"
+    }
+  },
+  "result": {
+    "item": "ad_astra:oxygen_distributor"
+  }
+}

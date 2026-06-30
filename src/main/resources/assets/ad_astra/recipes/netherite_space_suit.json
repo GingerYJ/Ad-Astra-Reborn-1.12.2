@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "# #",
+    "TOT",
+    "#N#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
+    },
+    "N": {
+      "item": "minecraft:diamond_chestplate"
+    },
+    "O": {
+      "item": "ad_astra:oxygen_gear"
+    },
+    "T": {
+      "item": "ad_astra:large_gas_tank"
+    }
+  },
+  "result": {
+    "item": "ad_astra:netherite_space_suit"
+  }
+}

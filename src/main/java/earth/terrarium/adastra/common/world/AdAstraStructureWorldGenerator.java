@@ -50,6 +50,8 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private static final int METEOR_SEPARATION = 32;
     private static final int METEOR_SALT = 734154559;
     private static final int METEOR_ORIGIN_Y = AdAstraChunkGenerator.SURFACE_Y - 12;
+    private static final String LEGACY_METEOR_LOOT_TABLE = "minecraft:loot";
+    private static final String METEOR_LOOT_TABLE = Reference.MOD_ID + ":chests/meteor";
     private static final ITemplateProcessor SKIP_AIR_PROCESSOR = new ITemplateProcessor() {
         @Override
         public Template.BlockInfo processBlock(World world, BlockPos pos, Template.BlockInfo blockInfo) {
@@ -211,6 +213,7 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             tag = world.getMinecraftServer().getDataFixer().process(FixTypes.STRUCTURE, tag);
             if (isMeteorTemplate(location)) {
                 remapMeteorPalette(tag);
+                remapMeteorLootTables(tag);
             }
             Template template = new Template();
             template.read(tag);
@@ -237,6 +240,21 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             if (!originalName.equals(remappedName)) {
                 state.setString("Name", remappedName);
                 state.removeTag("Properties");
+            }
+        }
+    }
+
+    private void remapMeteorLootTables(NBTTagCompound tag) {
+        NBTTagList blocks = tag.getTagList("blocks", 10);
+        for (int i = 0; i < blocks.tagCount(); i++) {
+            NBTTagCompound block = blocks.getCompoundTagAt(i);
+            if (!block.hasKey("nbt", 10)) {
+                continue;
+            }
+
+            NBTTagCompound blockEntity = block.getCompoundTag("nbt");
+            if (LEGACY_METEOR_LOOT_TABLE.equals(blockEntity.getString("LootTable"))) {
+                blockEntity.setString("LootTable", METEOR_LOOT_TABLE);
             }
         }
     }

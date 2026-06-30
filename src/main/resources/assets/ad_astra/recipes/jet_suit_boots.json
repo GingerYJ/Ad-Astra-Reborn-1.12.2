@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " N ",
+    "# #",
+    "B B"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockCalorite"
+    },
+    "N": {
+      "item": "ad_astra:netherite_space_boots"
+    }
+  },
+  "result": {
+    "item": "ad_astra:jet_suit_boots"
+  }
+}

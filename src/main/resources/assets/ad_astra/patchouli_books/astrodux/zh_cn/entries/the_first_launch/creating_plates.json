@@ -5,13 +5,13 @@
   "category": "ad_astra:the_first_launch",
   "pages": [
     {
-      "type": "patchouli:spotlight",
+      "type": "spotlight",
       "title": "压缩机",
       "item": "ad_astra:compressor",
       "text": "一旦你获得了电能，你就会想要制作一个压缩机。这台机器可以将锭和块压缩成板，这是制作许多东西所必需的。"
     },
     {
-      "type": "patchouli:crafting",
+      "type": "crafting",
       "recipe": "ad_astra:compressor"
     }
   ]

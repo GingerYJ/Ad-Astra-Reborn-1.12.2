@@ -5,13 +5,13 @@
   "category": "ad_astra:the_first_launch",
   "pages": [
     {
-      "type": "patchouli:spotlight",
+      "type": "spotlight",
       "title": "Compressor",
       "item": "ad_astra:compressor",
       "text": "Once you've got energy, you'll want to craft a compressor. This machine can compress ingots and blocks into plates, which are needed to craft many things."
     },
     {
-      "type": "patchouli:crafting",
+      "type": "crafting",
       "recipe": "ad_astra:compressor"
     }
   ]

@@ -5,13 +5,13 @@
   "category": "ad_astra:the_moon",
   "pages": [
     {
-      "type": "patchouli:spotlight",
+      "type": "spotlight",
       "title": "Ti-69",
       "item": "ad_astra:ti_69",
       "text": "Ti-69是一种移动设备，可以显示局部的氧气、温度和重力信息。用来检查该区域是否安全。"
     },
     {
-      "type": "patchouli:crafting",
+      "type": "crafting",
       "title": "Ti-69 配方",
       "recipe": "ad_astra:ti_69"
     }

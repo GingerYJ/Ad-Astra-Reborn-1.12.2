@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "D |",
+    "GR#",
+    "WPW"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:desh_engine"
+    },
+    "D": {
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
+    },
+    "G": {
+      "item": "ad_astra:large_gas_tank"
+    },
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "R": {
+      "item": "ad_astra:radio"
+    },
+    "W": {
+      "item": "ad_astra:wheel"
+    },
+    "|": {
+      "type": "forge:ore_dict",
+      "ore": "rodSteel"
+    }
+  },
+  "result": {
+    "item": "ad_astra:tier_1_rover"
+  }
+}

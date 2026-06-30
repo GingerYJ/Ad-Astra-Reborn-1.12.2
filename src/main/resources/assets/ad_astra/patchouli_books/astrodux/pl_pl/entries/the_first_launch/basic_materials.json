@@ -5,25 +5,24 @@
   "category": "ad_astra:the_first_launch",
   "pages": [
     {
-      "type": "patchouli:spotlight",
+      "type": "spotlight",
       "title": "Płyty żelazne",
       "item": "ad_astra:iron_plate",
-      "text": "Płyty żelazne są najbardziej podstawowym materiałem w Ad Astra. Są tworzone poprzez połączenie sztabek żelaza i młota na stole rzemieślniczym. Służą do tworzenia najprostszych maszyn niezbędnych do budowy rakiety i podróży w kosmos."
+      "text": "Płyty żelazne są najbardziej podstawowym materiałem w Ad Astra. Są tworzone przez sprasowanie sztabek lub bloków żelaza w kompresorze. Służą do tworzenia najprostszych maszyn niezbędnych do budowy rakiety i podróży w kosmos."
     },
     {
-      "type": "patchouli:crafting",
-      "title": "Młotek i płyty",
-      "recipe": "ad_astra:hammer",
-      "recipe2": "ad_astra:hammering/iron_plate"
+      "type": "text",
+      "title": "Kompresor",
+      "text": "Najpierw przygotuj generator węglowy i kompresor. Kompresor zużywa energię, aby zamieniać metalowe sztabki w płyty; płyty żelazne i stalowe będą potrzebne na początku programu kosmicznego."
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "spotlight",
       "title": "Płyty stalowe",
       "item": "ad_astra:steel_plate",
       "text": "Płyty stalowe są głównym składnikiem rakiety pierwszego poziomu oraz wielu ważnych maszyn. Są one tworzone poprzez sprasowanie sztabek stali w kompresorze, który może być zasilany przez generator węglowy. Upewnij się, że zbierzesz dużo płyt stalowych, ponieważ będą one potrzebne w trakcie podróży kosmicznych."
     },
     {
-      "type": "patchouli:crafting",
+      "type": "crafting",
       "title": "Generator, Kompresor",
       "recipe": "ad_astra:coal_generator",
       "recipe2": "ad_astra:compressor"

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#N#",
+    "#G#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "N": {
+      "item": "ad_astra:netherite_space_helmet"
+    }
+  },
+  "result": {
+    "item": "ad_astra:jet_suit_helmet"
+  }
+}

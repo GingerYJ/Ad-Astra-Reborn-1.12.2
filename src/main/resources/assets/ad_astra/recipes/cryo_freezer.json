@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "IGI",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
+    },
+    "G": {
+      "item": "ad_astra:large_gas_tank"
+    },
+    "I": {
+      "item": "minecraft:packed_ice"
+    }
+  },
+  "result": {
+    "item": "ad_astra:cryo_freezer"
+  }
+}
