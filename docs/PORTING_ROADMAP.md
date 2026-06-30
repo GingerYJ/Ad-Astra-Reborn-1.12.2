@@ -126,6 +126,12 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   tanks, two-stage fluid-container slot transfers, Forge fluid capability input/output, 30 FE consumed per operation,
   water-to-oxygen and oxygen-pass-through source recipe semantics, NBT persistence for both tanks, and first-pass tank
   GUI fields. Oxygen Loader GUI, network sync, recipe JSON loading, and exact side-config automation remain pending.
+- The first Cryo Freezer behavior batch ports the item-to-cryo-fuel loop: slot 1 accepts 1.12-mapped cryo-freezing
+  inputs, the machine consumes 40 FE/t while progressing recipes, outputs cryo fuel into a 10,000 mB extract-only tank,
+  supports slot 2 to slot 3 fluid container filling, persists cook progress and tank contents to NBT, and exposes
+  first-pass progress/tank GUI fields. The 1.20 `blue_ice` recipe is intentionally deferred because vanilla 1.12.2 has
+  no blue ice item; Cryo Freezer GUI, network sync, recipe JSON loading, and exact side-config automation remain
+  pending.
 - The first machine energy-output batch adds a shared Forge Energy push path based on the existing per-face side mode
   storage. Coal Generator and Solar Panel now default their energy sides to `PUSH` and attempt to send up to their tier
   max output to adjacent Forge Energy receivers each tick. Full cable networks, side-configuration GUI, and item
@@ -301,6 +307,7 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Etrionic Capacitor inventory distribution batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first pipe side-mode and wrench connection batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Fuel Refinery and Oxygen Loader behavior batches.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Cryo Freezer behavior batch.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

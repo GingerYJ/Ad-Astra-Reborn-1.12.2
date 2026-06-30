@@ -394,6 +394,11 @@ Current status:
   through Forge fluid capability or slot 1 fluid containers, 30 FE is consumed
   per operation, water produces oxygen at the copied 1.20 ratio, and oxygen can
   exit through Forge fluid capability or slot 3 fluid containers.
+- Cryo Freezer now has a first-pass item-to-fluid loop: ice, packed ice, and
+  Ad Astra ice shards consume 40 FE/t, progress for their 1.20-derived cook
+  times, and output cryo fuel to an extract-only Forge `FluidTank` or slot 2
+  fluid containers. The 1.20 blue ice recipe is deferred because vanilla
+  Minecraft 1.12.2 has no blue ice item.
 - The shared machine base now has a first-pass Forge Energy push helper that
   uses saved per-face side modes. Coal Generator and Solar Panel default energy
   sides to `PUSH` and can send power to adjacent Forge Energy receivers.
