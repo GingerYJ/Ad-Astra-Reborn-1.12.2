@@ -130,17 +130,20 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
+        if (isValidBatterySlotItem(index, stack)) {
+            return true;
+        }
         return index == INPUT_SLOT && getRecipe(stack) != null;
     }
 
     @Override
     public int[] getSlotsForFace(EnumFacing side) {
-        return new int[]{INPUT_SLOT, OUTPUT_SLOT};
+        return new int[]{getBatterySlot(), INPUT_SLOT, OUTPUT_SLOT};
     }
 
     @Override
     public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
-        return index == INPUT_SLOT && isItemValidForSlot(index, itemStackIn);
+        return (isBatterySlot(index) || index == INPUT_SLOT) && isItemValidForSlot(index, itemStackIn);
     }
 
     @Override

@@ -170,6 +170,9 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
         if (stack.isEmpty()) {
             return false;
         }
+        if (isValidBatterySlotItem(index, stack)) {
+            return true;
+        }
         if (index == INPUT_SLOT) {
             return getRecipe(stack) != null;
         }
@@ -181,12 +184,12 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     public int[] getSlotsForFace(EnumFacing side) {
-        return new int[]{INPUT_SLOT, EMPTY_CONTAINER_SLOT, FILLED_CONTAINER_SLOT};
+        return new int[]{getBatterySlot(), INPUT_SLOT, EMPTY_CONTAINER_SLOT, FILLED_CONTAINER_SLOT};
     }
 
     @Override
     public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
-        return (index == INPUT_SLOT || index == EMPTY_CONTAINER_SLOT) && isItemValidForSlot(index, itemStackIn);
+        return (isBatterySlot(index) || index == INPUT_SLOT || index == EMPTY_CONTAINER_SLOT) && isItemValidForSlot(index, itemStackIn);
     }
 
     @Override

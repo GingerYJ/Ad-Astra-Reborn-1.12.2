@@ -171,6 +171,9 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
         if (stack.isEmpty()) {
             return false;
         }
+        if (isValidBatterySlotItem(index, stack)) {
+            return true;
+        }
         if (index == INPUT_CONTAINER_SLOT) {
             FluidStack contained = FluidUtil.getFluidContained(stack);
             return isValidInputFluid(contained);
@@ -187,12 +190,12 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     public int[] getSlotsForFace(EnumFacing side) {
-        return new int[]{INPUT_CONTAINER_SLOT, EMPTY_CONTAINER_SLOT, OUTPUT_CONTAINER_SLOT, FILLED_CONTAINER_SLOT};
+        return new int[]{getBatterySlot(), INPUT_CONTAINER_SLOT, EMPTY_CONTAINER_SLOT, OUTPUT_CONTAINER_SLOT, FILLED_CONTAINER_SLOT};
     }
 
     @Override
     public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
-        return (index == INPUT_CONTAINER_SLOT || index == OUTPUT_CONTAINER_SLOT) && isItemValidForSlot(index, itemStackIn);
+        return (isBatterySlot(index) || index == INPUT_CONTAINER_SLOT || index == OUTPUT_CONTAINER_SLOT) && isItemValidForSlot(index, itemStackIn);
     }
 
     @Override

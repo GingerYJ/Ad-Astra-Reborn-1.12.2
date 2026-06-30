@@ -14,6 +14,11 @@ public class SolarPanelTileEntity extends AdAstraMachineTileEntity {
     }
 
     @Override
+    protected boolean canExtractEnergyFromBatterySlot() {
+        return false;
+    }
+
+    @Override
     protected void tickMachine() {
         if (energy == null || !canFunction() || !isDay()) {
             pushEnergyToSides();

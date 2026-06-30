@@ -407,6 +407,12 @@ Current status:
   steel recipe that maps directly to 1.12.2: iron ingot plus coal/charcoal in
   slots 1-4 becomes steel ingot in slots 5-8 while consuming 20 FE/t for 100
   ticks. Blasting mode is persisted but remains behaviorally pending.
+- The shared machine base now ports the 1.20 `POWER_MACHINE` battery slot
+  behavior with Forge Energy: machines that can receive energy pull from
+  FE-capable items in slot 0 before their server tick, and exposed item
+  handlers use the same slot validation as sided inventory insertion. Energizer
+  keeps slot 0 as an item-charging slot, while Coal Generator and Solar Panel
+  remain generator-only.
 - The shared machine base now has a first-pass Forge Energy push helper that
   uses saved per-face side modes. Coal Generator and Solar Panel default energy
   sides to `PUSH` and can send power to adjacent Forge Energy receivers.
@@ -422,9 +428,10 @@ Current status:
 - Cable and fluid pipe TileEntities now persist per-face pipe modes, render
   configured modes on adjacent capability connections, can be cycled with the
   wrench, and obey insert/extract/normal/none when moving energy or fluids.
-- Recipe execution for other machines, automatic transfer, exact side
+- Recipe execution for remaining machines, automatic transfer, exact side
   configuration semantics, networking, containers, GUI screens, special
-  renderer, charge-item handling, and most real block behavior remain pending.
+  renderer, charge-slot GUI/sync polish, and most real block behavior remain
+  pending.
 
 ### 7. Recipes, Loot, Tags, and Advancements
 

@@ -50,6 +50,11 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             protected void onContentsChanged(int slot) {
                 markDirty();
             }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return AdAstraMachineTileEntity.this.isItemValidForSlot(slot, stack);
+            }
         };
         this.energy = energyCapacity > 0 ? new AdAstraEnergyStorage(energyCapacity, maxReceive, maxExtract) : null;
         this.fluidTank = fluidCapacity > 0 ? new FluidTank(fluidCapacity) {
@@ -88,11 +93,69 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     @Override
     public void update() {
         if (world != null && !world.isRemote) {
+            pullEnergyFromBatterySlot();
             tickMachine();
         }
     }
 
     protected void tickMachine() {
+    }
+
+    protected int getBatterySlot() {
+        return 0;
+    }
+
+    protected boolean hasBatterySlot() {
+        int slot = getBatterySlot();
+        return slot >= 0 && slot < items.getSlots();
+    }
+
+    protected boolean canExtractEnergyFromBatterySlot() {
+        return energy != null && energy.getMaxReceive() > 0 && hasBatterySlot();
+    }
+
+    protected boolean isBatterySlot(int index) {
+        return hasBatterySlot() && index == getBatterySlot();
+    }
+
+    protected boolean isBatterySlotItem(ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
+            return false;
+        }
+        IEnergyStorage itemEnergy = stack.getCapability(CapabilityEnergy.ENERGY, null);
+        return itemEnergy != null && itemEnergy.canExtract();
+    }
+
+    protected boolean isValidBatterySlotItem(int index, ItemStack stack) {
+        return canExtractEnergyFromBatterySlot() && isBatterySlot(index) && isBatterySlotItem(stack);
+    }
+
+    protected void pullEnergyFromBatterySlot() {
+        if (!canExtractEnergyFromBatterySlot()) {
+            return;
+        }
+
+        ItemStack stack = items.getStackInSlot(getBatterySlot());
+        if (!isBatterySlotItem(stack)) {
+            return;
+        }
+
+        IEnergyStorage itemEnergy = stack.getCapability(CapabilityEnergy.ENERGY, null);
+        if (itemEnergy == null) {
+            return;
+        }
+
+        int extractable = itemEnergy.extractEnergy(energy.getMaxReceive(), true);
+        int receivable = energy.receiveEnergy(extractable, true);
+        if (receivable <= 0) {
+            return;
+        }
+
+        int extracted = itemEnergy.extractEnergy(receivable, false);
+        int received = energy.receiveEnergy(extracted, false);
+        if (received > 0) {
+            markDirty();
+        }
     }
 
     protected void setLit(boolean lit) {
@@ -283,6 +346,9 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
+        if (isBatterySlot(index) && canExtractEnergyFromBatterySlot()) {
+            return isBatterySlotItem(stack);
+        }
         return true;
     }
 

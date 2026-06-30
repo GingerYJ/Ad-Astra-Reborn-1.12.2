@@ -141,6 +141,9 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
+        if (isValidBatterySlotItem(index, stack)) {
+            return true;
+        }
         if (stack.isEmpty() || index < FIRST_INPUT_SLOT || index > LAST_INPUT_SLOT) {
             return false;
         }
@@ -149,12 +152,12 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     public int[] getSlotsForFace(EnumFacing side) {
-        return new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+        return new int[]{getBatterySlot(), 1, 2, 3, 4, 5, 6, 7, 8};
     }
 
     @Override
     public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
-        return index >= FIRST_INPUT_SLOT && index <= LAST_INPUT_SLOT && isItemValidForSlot(index, itemStackIn);
+        return (isBatterySlot(index) || index >= FIRST_INPUT_SLOT && index <= LAST_INPUT_SLOT) && isItemValidForSlot(index, itemStackIn);
     }
 
     @Override

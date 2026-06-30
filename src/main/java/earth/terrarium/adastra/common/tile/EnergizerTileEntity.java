@@ -25,6 +25,11 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
         setLit(chargedItem || energy.getEnergyStored() > 0);
     }
 
+    @Override
+    protected boolean canExtractEnergyFromBatterySlot() {
+        return false;
+    }
+
     private boolean chargeItem() {
         ItemStack stack = items.getStackInSlot(CHARGE_SLOT);
         if (stack.isEmpty() || !stack.hasCapability(CapabilityEnergy.ENERGY, null)) {

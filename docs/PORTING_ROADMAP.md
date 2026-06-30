@@ -143,10 +143,16 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   progress/mode GUI fields. Blasting mode is retained in NBT/fields but remains a placeholder until 1.20 blasting
   recipes are deliberately mapped to 1.12.2 furnace-style recipes; GUI, network sync, recipe JSON loading, and exact
   side-config automation remain pending.
+- The first machine battery-slot batch ports the 1.20 `POWER_MACHINE` charge-slot behavior into the shared 1.12.2
+  machine base: supported machines pull Forge Energy from FE-capable items in slot 0 before ticking. Compressor, Cryo
+  Freezer, Fuel Refinery, Oxygen Loader, Etrionic Blast Furnace, Water Pump, Oxygen Distributor, and Gravity Normalizer
+  can now reserve slot 0 for machine power; Energizer, Coal Generator, and Solar Panel are explicitly excluded because
+  they charge items or generate energy. The Forge item handler now also delegates insertion validity to machine slot
+  rules so automation cannot bypass the battery/input/output distinction.
 - The first machine energy-output batch adds a shared Forge Energy push path based on the existing per-face side mode
   storage. Coal Generator and Solar Panel now default their energy sides to `PUSH` and attempt to send up to their tier
   max output to adjacent Forge Energy receivers each tick. Full cable networks, side-configuration GUI, and item
-  charge-slot transfer remain pending.
+  charge-slot GUI/sync polish remain pending.
 - The first wrench behavior batch replaces the wrench placeholder with a 1.12.2 item implementation. Right-clicking a
   machine TileEntity cycles the clicked face's energy side mode and plays the copied wrench sound; sneaking cycles
   backwards, or cycles fluid mode on machines with fluid tanks. Wrench also cycles cable/fluid-pipe face modes between
@@ -321,6 +327,7 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Cryo Freezer behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Compressor behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Etrionic Blast Furnace alloying behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first machine battery-slot behavior batch.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
