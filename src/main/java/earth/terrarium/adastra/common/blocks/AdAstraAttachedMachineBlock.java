@@ -12,8 +12,10 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
@@ -91,6 +93,11 @@ public class AdAstraAttachedMachineBlock extends AdAstraModelBlock implements IT
     @Override
     protected BlockStateContainer createBlockState() {
         return new BlockStateContainer(this, FACE, FACING, LIT, POWERED);
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        return AdAstraMachineGuiHelper.openMachineGui(world, pos, player, hand);
     }
 
     @Override

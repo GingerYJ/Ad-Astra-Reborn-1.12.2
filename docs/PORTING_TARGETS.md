@@ -407,6 +407,16 @@ Current status:
   steel recipe that maps directly to 1.12.2: iron ingot plus coal/charcoal in
   slots 1-4 becomes steel ingot in slots 5-8 while consuming 20 FE/t for 100
   ticks. Blasting mode is persisted but remains behaviorally pending.
+- NASA Workbench now has a first-pass 15-slot TileEntity behavior matching the
+  copied 1.20 rocket assembly layout: slots 0-13 accept the fixed tier 1-4
+  rocket ingredients, slot 14 exposes the output rocket, and completed recipes
+  are consumed server-side using hardcoded 1.12.2 item/block mappings.
+- The first machine GUI/container foundation is in place. The 1.12 GUI handler
+  opens supported machine TileEntities from their blocks, uses copied
+  `textures/gui/container` assets at native size, syncs machine fields through
+  a reusable `Container`, and currently covers Coal Generator, Compressor,
+  Etrionic Blast Furnace, Fuel Refinery, Oxygen Loader, Solar Panel, Water Pump,
+  Energizer, Cryo Freezer, and NASA Workbench.
 - The shared machine base now ports the 1.20 `POWER_MACHINE` battery slot
   behavior with Forge Energy: machines that can receive energy pull from
   FE-capable items in slot 0 before their server tick, and exposed item
@@ -428,10 +438,10 @@ Current status:
 - Cable and fluid pipe TileEntities now persist per-face pipe modes, render
   configured modes on adjacent capability connections, can be cycled with the
   wrench, and obey insert/extract/normal/none when moving energy or fluids.
-- Recipe execution for remaining machines, automatic transfer, exact side
-  configuration semantics, networking, containers, GUI screens, special
-  renderer, charge-slot GUI/sync polish, and most real block behavior remain
-  pending.
+- Recipe execution for remaining machines, recipe JSON loading for hardcoded
+  first-pass machines, automatic transfer, exact side configuration semantics,
+  networking, full GUI controls/overlays, special renderer, charge-slot GUI/sync
+  polish, and most real block behavior remain pending.
 
 ### 7. Recipes, Loot, Tags, and Advancements
 

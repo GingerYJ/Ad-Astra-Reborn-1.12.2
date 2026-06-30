@@ -126,6 +126,12 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   tanks, two-stage fluid-container slot transfers, Forge fluid capability input/output, 30 FE consumed per operation,
   water-to-oxygen and oxygen-pass-through source recipe semantics, NBT persistence for both tanks, and first-pass tank
   GUI fields. Oxygen Loader GUI, network sync, recipe JSON loading, and exact side-config automation remain pending.
+- The first Oxygen Distributor behavior batch gives the Distributor a usable server-side maintenance loop: slot 0 can
+  pull FE from batteries, slot 1 accepts oxygen or water fluid containers, the inherited DESH tank stores oxygen or
+  water, and the machine consumes FE plus oxygen-equivalent fluid to maintain a radius/count state. It persists working
+  state/radius/count/consumption data, exposes first-pass GUI fields, and leaves `isProvidingOxygen`/`getWorkingRadius`
+  hooks for the later global oxygen system. Sealed-room flood fill, player oxygen effects, particles, TESR, GUI screens,
+  recipe JSON loading, and exact side-config automation remain pending.
 - The first Cryo Freezer behavior batch ports the item-to-cryo-fuel loop: slot 1 accepts 1.12-mapped cryo-freezing
   inputs, the machine consumes 40 FE/t while progressing recipes, outputs cryo fuel into a 10,000 mB extract-only tank,
   supports slot 2 to slot 3 fluid container filling, persists cook progress and tank contents to NBT, and exposes
@@ -143,6 +149,17 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   progress/mode GUI fields. Blasting mode is retained in NBT/fields but remains a placeholder until 1.20 blasting
   recipes are deliberately mapped to 1.12.2 furnace-style recipes; GUI, network sync, recipe JSON loading, and exact
   side-config automation remain pending.
+- The first NASA Workbench behavior batch ports the copied 15-slot rocket assembly layout into the 1.12.2 TileEntity:
+  slots 0-13 are fixed recipe inputs, slot 14 is the rocket output, and the four copied tier 1-4 rocket recipes are
+  hardcoded against the directly mapped Ad Astra blocks/components. Matching inputs are consumed server-side and the
+  corresponding rocket item is placed in the output slot. GUI, recipe JSON loading, particles/sounds, preview-only
+  output semantics, and exact side-config automation remain pending.
+- The first machine GUI/container batch wires the Forge 1.12 GUI handler into supported machine blocks and adds a
+  reusable `Container`/`GuiContainer` pair that draws the copied 1.20 machine GUI textures at their native dimensions.
+  Coal Generator, Compressor, Etrionic Blast Furnace, Fuel Refinery, Oxygen Loader, Solar Panel, Water Pump, Energizer,
+  Cryo Freezer, and NASA Workbench now have first-pass right-click inventory screens with player inventory transfer and
+  machine field sync. Progress/tank/energy overlays, redstone/side-configuration controls, buttons, tooltips, and exact
+  1.20 screen behavior remain pending.
 - The first machine battery-slot batch ports the 1.20 `POWER_MACHINE` charge-slot behavior into the shared 1.12.2
   machine base: supported machines pull Forge Energy from FE-capable items in slot 0 before ticking. Compressor, Cryo
   Freezer, Fuel Refinery, Oxygen Loader, Etrionic Blast Furnace, Water Pump, Oxygen Distributor, and Gravity Normalizer
@@ -327,7 +344,10 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Cryo Freezer behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Compressor behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Etrionic Blast Furnace alloying behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first NASA Workbench TileEntity behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first machine battery-slot behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Oxygen Distributor behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first machine GUI/container batch.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
