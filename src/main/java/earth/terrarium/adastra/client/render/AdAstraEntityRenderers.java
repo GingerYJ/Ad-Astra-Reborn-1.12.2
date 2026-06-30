@@ -2,6 +2,7 @@ package earth.terrarium.adastra.client.render;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.entities.misc.AirVortexEntity;
+import earth.terrarium.adastra.common.entities.misc.SpacePaintingEntity;
 import earth.terrarium.adastra.common.entities.mob.CorruptedLunarianEntity;
 import earth.terrarium.adastra.common.entities.mob.GlacianRamEntity;
 import earth.terrarium.adastra.common.entities.mob.LunarianEntity;
@@ -45,6 +46,7 @@ public final class AdAstraEntityRenderers {
         registered = true;
 
         RenderingRegistry.registerEntityRenderingHandler(AirVortexEntity.class, RenderAirVortex::new);
+        RenderingRegistry.registerEntityRenderingHandler(SpacePaintingEntity.class, RenderSpacePainting::new);
         RenderingRegistry.registerEntityRenderingHandler(Tier1RoverEntity.class,
             manager -> new RenderRover(manager, texture("rover/tier_1_rover")));
         RenderingRegistry.registerEntityRenderingHandler(Tier1RocketEntity.class,

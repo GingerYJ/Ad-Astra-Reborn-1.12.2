@@ -3,6 +3,7 @@ package earth.terrarium.adastra.common.registry;
 import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.entities.misc.AirVortexEntity;
+import earth.terrarium.adastra.common.entities.misc.SpacePaintingEntity;
 import earth.terrarium.adastra.common.entities.mob.CorruptedLunarianEntity;
 import earth.terrarium.adastra.common.entities.mob.GlacianRamEntity;
 import earth.terrarium.adastra.common.entities.mob.LunarianEntity;
@@ -61,6 +62,7 @@ public final class ModEntities {
     public static final EntityEntry SULFUR_CREEPER = egg("sulfur_creeper", SulfurCreeperEntity.class, 128, 0xd48f30, 0xac791c);
     public static final EntityEntry GLACIAN_RAM = egg("glacian_ram", GlacianRamEntity.class, 160, 0xffe6ff, 0x433d3d);
     public static final EntityEntry ICE_SPIT = entity("ice_spit", IceSpitEntity.class, 64, 10, true);
+    public static final EntityEntry SPACE_PAINTING = entity("space_painting", SpacePaintingEntity.class, 160, Integer.MAX_VALUE, false);
 
     private static int nextId;
 

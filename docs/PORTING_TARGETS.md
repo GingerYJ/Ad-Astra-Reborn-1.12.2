@@ -263,6 +263,10 @@ Current status:
   registered.
 - Rocket and rover items now place first-pass vehicle entities, and the 12
   spawn egg items now create their matching Ad Astra mob entities on block use.
+- Space Painting now has a first-pass 1.12.2 hanging entity and item behavior:
+  right-clicking a horizontal face places the largest valid Ad Astra space
+  painting variant, persists the chosen variant to NBT, drops the Space Painting
+  item when broken, and renders the copied per-variant painting textures.
 - Wrench has a first-pass 1.12.2 implementation for machine side modes:
   right-click cycles the clicked face's energy mode, and sneaking cycles
   backwards or fluid mode on machines with tanks.
@@ -300,8 +304,8 @@ Implementation notes:
   glide parity, config persistence, and runtime gameplay testing.
 - Gas tank machine filling, suit oxygen consumption, and exact capacity/config
   parity remain pending.
-- Vehicle items should spawn 1.12 entity classes, not just exist as icons.
-- Spawn eggs should wait for entity classes and registry ids.
+- Space Painting still needs runtime visual placement validation, item-renderer
+  polish, and closer vanilla painting title/author integration.
 
 ### 5. Fluids and Transfer
 
@@ -548,7 +552,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 253 files:
+- Direct 1.12 crafting JSON coverage is now 270 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -626,6 +630,10 @@ Current status:
   - 17 low-risk factory, encased block, pipe, launch pad, vent, photovoltaic
     cell, wheel, and wrench recipes converted from generated 1.20 crafting data
     using direct registered inputs and existing OreDictionary mappings.
+  - 17 low-risk airlock, steel door/trapdoor, sliding door, Venus sandstone,
+    polished conglomerate, sky stone, radio, TI-69, and space helmet recipes
+    converted from generated 1.20 crafting data using direct registered inputs
+    and existing OreDictionary mappings.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
@@ -634,8 +642,9 @@ Current status:
   copper/lightning-rod/tank-NBT cases unless an explicit 1.12 mapping is chosen:
   `steel_cable`, `desh_cable`, `cable_duct`, and `fluid_pipe_duct` need a
   copper ingot policy, `rocket_nose_cone` needs a replacement for the 1.20
-  lightning rod, and `tier_1_rover` should wait for a deliberate decision about
-  using NBT-capable gas tanks as ordinary crafting ingredients.
+  lightning rod, tank and zip gun recipes should wait for a deliberate decision
+  about using NBT-capable gas tanks as ordinary crafting ingredients, and the
+  remaining suit recipes need an explicit 1.12 wool/tag policy.
 - Deferred recipe categories remain custom machine JSON loaders
   (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
   `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
@@ -1215,8 +1224,9 @@ Current status:
   warning states, vehicle overlays, and config-positioned bars remain pending.
 - Entity render factory coverage is present for all 20 registered Ad Astra
   entities using safe first-pass placeholder renderers and copied textures where
-  available. Screens, special block renderers, particles, and real entity models
-  remain mostly pending.
+  available, plus a first-pass 1.12-only `space_painting` hanging entity renderer
+  for the copied painting textures. Screens, special block renderers, particles,
+  and real entity models remain mostly pending.
 
 ### 13. Networking
 

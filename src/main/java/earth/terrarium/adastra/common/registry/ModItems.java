@@ -20,6 +20,7 @@ import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.items.SpacePaintingItem;
 import earth.terrarium.adastra.common.items.Ti69Item;
 import earth.terrarium.adastra.common.items.VehicleItem;
 import earth.terrarium.adastra.common.items.ZipGunItem;
@@ -120,7 +121,7 @@ public final class ModItems {
     public static final Item JET_SUIT_PANTS = armor("jet_suit_pants", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.LEGS);
     public static final Item JET_SUIT_BOOTS = armor("jet_suit_boots", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.FEET);
 
-    public static final Item SPACE_PAINTING = item("space_painting");
+    public static final Item SPACE_PAINTING = spacePainting("space_painting");
     public static final Item TIER_1_ROCKET = vehicle("tier_1_rocket", Tier1RocketEntity::new);
     public static final Item TIER_2_ROCKET = vehicle("tier_2_rocket", Tier2RocketEntity::new);
     public static final Item TIER_3_ROCKET = vehicle("tier_3_rocket", Tier3RocketEntity::new);
@@ -211,6 +212,12 @@ public final class ModItems {
 
     private static Item zipGun(String name) {
         Item item = new ZipGunItem(name);
+        INTERNAL_ITEMS.add(item);
+        return item;
+    }
+
+    private static Item spacePainting(String name) {
+        Item item = new SpacePaintingItem(name);
         INTERNAL_ITEMS.add(item);
         return item;
     }

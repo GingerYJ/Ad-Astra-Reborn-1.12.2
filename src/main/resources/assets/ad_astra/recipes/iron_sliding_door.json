@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "PBP",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:iron_plating"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
+    },
+    "P": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "result": {
+    "item": "ad_astra:iron_sliding_door"
+  }
+}

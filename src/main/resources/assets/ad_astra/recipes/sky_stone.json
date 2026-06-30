@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#M#",
+    "M#M",
+    "#M#"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:moon_stone"
+    },
+    "M": {
+      "item": "ad_astra:mars_stone"
+    }
+  },
+  "result": {
+    "item": "ad_astra:sky_stone",
+    "count": 9
+  }
+}

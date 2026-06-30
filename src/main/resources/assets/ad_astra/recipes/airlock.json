@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "##B",
+    "###",
+    "B##"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
+    }
+  },
+  "result": {
+    "item": "ad_astra:airlock"
+  }
+}

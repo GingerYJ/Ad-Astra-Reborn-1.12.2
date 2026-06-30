@@ -55,7 +55,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   recipes using 1.12 dye metadata and the existing `ingotSteel` OreDictionary
   mapping. The fourteenth direct crafting batch adds 17 low-risk factory block,
   encased block, pipe, launch pad, vent, photovoltaic cell, wheel, and wrench
-  recipes.
+  recipes. The fifteenth direct crafting batch adds 17 airlock, door, sliding
+  door, Venus sandstone, polished conglomerate, sky stone, radio, TI-69, and
+  space helmet recipes.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -114,11 +116,14 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   item ids. Space suit items are currently wearable armor placeholders using copied 1.20 item/entity armor assets.
   Rocket/rover items place first-pass vehicles, and the 12 spawn eggs create their matching first-pass mob entities.
   TI-69 now has a first-pass local environment readout. Zip gun now has first-pass Forge fluid propellant storage and
-  right-click propulsion using oxygen or hydrogen; particle/audio parity, exact zero-gravity tuning, space painting,
+  right-click propulsion using oxygen or hydrogen; Space Painting now places a first-pass 1.12 hanging entity with
+  copied variant textures. Particle/audio parity, exact zero-gravity tuning, exact painting title/author polish,
   exact vehicle flow, and exact spawn egg behavior still need follow-up behavior. Jet Suit chest pieces now expose
   Forge Energy storage and first-pass server-validated powered flight via synced jump/sprint/toggle key state.
 - The first entity registry coverage batch registers all 20 source entity ids with minimal 1.12.2 placeholder classes:
-  air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. These entries preserve registry ids,
+  air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. A 1.12-only `space_painting`
+  hanging entity is also registered to carry the 1.20 painting variants that no longer have a painting-variant registry
+  in this runtime. These entries preserve registry ids,
   source dimensions, fire immunity where obvious, tracker settings, and spawn egg colors, but they do not yet implement
   real vehicle behavior, AI, spawn rules, attributes, drops, projectiles, renderers, or models.
 - The first mob AI/attribute batch gives the 12 Ad Astra mob ids baseline 1.12.2 movement, swimming, wandering,
@@ -250,10 +255,11 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   tanks and Forge Energy items where available, plus local visible oxygen distributor/gravity normalizer state as a
   best-effort environment hint. The real environment systems, dedicated sync packets, warning behavior, vehicle HUD, and
   exact 1.20 overlay layout remain pending.
-- The first client entity renderer pass registers Forge 1.12 render factories for all 20 Ad Astra entity ids. Mobs use
-  safe vanilla-model first-pass renderers with copied Ad Astra textures, vehicles use simple textured box placeholders,
-  Ice Spit uses an item projectile renderer, and Air Vortex uses a small translucent placeholder renderer. Real Java
-  models, animation, layers, vehicle render fidelity, and special projectile effects remain pending.
+- The first client entity renderer pass registers Forge 1.12 render factories for all 20 source Ad Astra entity ids,
+  plus the 1.12-only `space_painting` hanging entity. Mobs use incremental copied-texture/model renderers, vehicles
+  have first-pass source-inspired model renderers, Ice Spit uses an item projectile renderer, Air Vortex uses a small
+  translucent placeholder renderer, and Space Painting renders copied per-variant painting textures. Runtime visual
+  validation, exact model geometry polish, animation layers, and special projectile effects remain pending.
 - Current Java registration count is 333 visible blocks and 82 standalone items.
 - The current visible block registry has matching copied blockstate files. All non-fluid visible block items have
   matching copied item model files; fluid block item models are intentionally absent because access should go through
@@ -529,6 +535,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the first
   vehicle model renderer trio and factory/encased/pipe utility direct crafting
   recipes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  Space Painting hanging entity and airlock/door/sandstone utility direct
+  crafting recipes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
