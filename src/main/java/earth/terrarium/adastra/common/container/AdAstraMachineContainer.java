@@ -8,6 +8,7 @@ import earth.terrarium.adastra.common.tile.CryoFreezerTileEntity;
 import earth.terrarium.adastra.common.tile.EnergizerTileEntity;
 import earth.terrarium.adastra.common.tile.EtrionicBlastFurnaceTileEntity;
 import earth.terrarium.adastra.common.tile.FuelRefineryTileEntity;
+import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.NasaWorkbenchTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenLoaderTileEntity;
 import earth.terrarium.adastra.common.tile.SolarPanelTileEntity;
@@ -204,6 +205,9 @@ public class AdAstraMachineContainer extends Container {
                     .slot(12, 80, 99, true)
                     .slot(13, 125, 99, true)
                     .slot(14, 80, 120, false);
+            case ModGuiIds.GRAVITY_NORMALIZER:
+                return new Layout("gravity_normalizer", 184, 215, 12, 130)
+                    .slot(0, 80, 74, true);
             default:
                 return null;
         }
@@ -239,6 +243,9 @@ public class AdAstraMachineContainer extends Container {
         }
         if (machine instanceof NasaWorkbenchTileEntity) {
             return ModGuiIds.NASA_WORKBENCH;
+        }
+        if (machine instanceof GravityNormalizerTileEntity) {
+            return ModGuiIds.GRAVITY_NORMALIZER;
         }
         return -1;
     }

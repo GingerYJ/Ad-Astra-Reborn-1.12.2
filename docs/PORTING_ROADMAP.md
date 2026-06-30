@@ -80,13 +80,13 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   instances and `BlockFluidClassic` blocks. Fluid buckets, gas tanks, machine tanks, freezing/evaporation behavior,
   and Botarium container replacement remain pending.
 - The first fluid bucket item batch registers oxygen bucket, hydrogen bucket, oil bucket, fuel bucket, and cryo fuel
-  bucket with copied 1.20 item assets and 1.12 `ItemBucket` behavior. Gas tanks, machine tanks, and stricter
-  oxygen/hydrogen placement rules remain pending.
+  bucket with copied 1.20 item assets and 1.12 `ItemBucket` behavior. Machine tanks and stricter oxygen/hydrogen
+  placement rules remain pending.
 - The first standalone utility/equipment item coverage batch registers wrench, zip gun, TI-69, etrionic capacitor,
   gas tank, large gas tank, all three space suit armor sets, space painting, rocket/rover items, and the 12 spawn egg
   item ids. Space suit items are currently wearable armor placeholders using copied 1.20 item/entity armor assets.
-  Gas tanks, utility tools, space painting, vehicle items, and spawn eggs are registration/model placeholders until
-  their fluid/energy/entity behavior exists.
+  TI-69, zip gun, space painting, vehicle items, and spawn eggs are registration/model placeholders until their
+  environment/fluid/entity behavior exists.
 - The first entity registry coverage batch registers all 20 source entity ids with minimal 1.12.2 placeholder classes:
   air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. These entries preserve registry ids,
   source dimensions, fire immunity where obvious, tracker settings, and spawn egg colors, but they do not yet implement
@@ -115,6 +115,10 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   NBT. It stores 250,000 FE, accepts up to 250 FE/t, extracts up to 500 FE/t, displays a first-pass tooltip and
   durability bar, supports right-click active toggling, supports shift-right-click sequential/round-robin mode switching,
   and can distribute energy from the player's inventory to other Forge Energy items every 5 ticks.
+- The first gas tank item batch replaces the gas tank and large gas tank placeholders with Forge fluid item capabilities
+  backed by item NBT. Gas tanks only accept Ad Astra oxygen, store 1,000 mB and 3,000 mB respectively, show oxygen
+  tooltip/durability-bar state, expose static oxygen drain helpers for later suit integration, and can distribute oxygen
+  to other Forge fluid item containers while held.
 - The first Energizer behavior batch lets the Energizer use its 2,000,000 FE internal buffer to charge Forge Energy
   items in slot 0 at up to the ostrum-tier 500 FE/t rate while retaining adjacent energy push behavior. Energizer GUI,
   particles, block item charge persistence, and exact side-config automation remain pending.
@@ -132,6 +136,16 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   state/radius/count/consumption data, exposes first-pass GUI fields, and leaves `isProvidingOxygen`/`getWorkingRadius`
   hooks for the later global oxygen system. Sealed-room flood fill, player oxygen effects, particles, TESR, GUI screens,
   recipe JSON loading, and exact side-config automation remain pending.
+- The first Oxygen Sensor/Detector behavior batch gives the sensor a server-side scan loop that checks nearby Oxygen
+  Distributors through `isProvidingOxygen(BlockPos)`, persists detection/cooldown/radius state, exposes first-pass GUI
+  fields, drives the copied `lit`/`powered` blockstates, and emits redstone power. Temperature and gravity detection
+  modes are explicit placeholders until the global systems are ported.
+- The first Gravity Normalizer behavior batch gives the normalizer a matching first-pass server-side maintenance loop:
+  slot 0 can pull FE from batteries, the machine estimates a bounded spherical working area, consumes FE based on the
+  covered block count, persists radius/count/energy/target-gravity state, exposes GUI fields, and leaves
+  `isNormalizingGravity`/`getTargetGravity` hooks for the later global gravity system. Sealed-room flood fill, actual
+  entity motion overrides, idle sound, particles, TESR, target-gravity controls, and exact side-config automation remain
+  pending.
 - The first Cryo Freezer behavior batch ports the item-to-cryo-fuel loop: slot 1 accepts 1.12-mapped cryo-freezing
   inputs, the machine consumes 40 FE/t while progressing recipes, outputs cryo fuel into a 10,000 mB extract-only tank,
   supports slot 2 to slot 3 fluid container filling, persists cook progress and tank contents to NBT, and exposes
@@ -157,9 +171,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
 - The first machine GUI/container batch wires the Forge 1.12 GUI handler into supported machine blocks and adds a
   reusable `Container`/`GuiContainer` pair that draws the copied 1.20 machine GUI textures at their native dimensions.
   Coal Generator, Compressor, Etrionic Blast Furnace, Fuel Refinery, Oxygen Loader, Solar Panel, Water Pump, Energizer,
-  Cryo Freezer, and NASA Workbench now have first-pass right-click inventory screens with player inventory transfer and
-  machine field sync. Progress/tank/energy overlays, redstone/side-configuration controls, buttons, tooltips, and exact
-  1.20 screen behavior remain pending.
+  Cryo Freezer, NASA Workbench, and Gravity Normalizer now have first-pass right-click inventory screens with player
+  inventory transfer and machine field sync. Progress/tank/energy overlays, redstone/side-configuration controls,
+  buttons, tooltips, and exact 1.20 screen behavior remain pending.
 - The first machine battery-slot batch ports the 1.20 `POWER_MACHINE` charge-slot behavior into the shared 1.12.2
   machine base: supported machines pull Forge Energy from FE-capable items in slot 0 before ticking. Compressor, Cryo
   Freezer, Fuel Refinery, Oxygen Loader, Etrionic Blast Furnace, Water Pump, Oxygen Distributor, and Gravity Normalizer
@@ -236,8 +250,8 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 
 - Rebuild oxygen, hydrogen, oil, fuel, and cryo fuel with Forge 1.12.2 fluids. The first Forge `Fluid` and fluid
   block registration batch is started.
-- Rebuild buckets and tank items. The first fluid bucket item batch is started; gas tanks and machine tank integration
-  remain pending.
+- Rebuild buckets and tank items. The first fluid bucket and gas tank item batches are started; machine tank integration
+  remains pending.
 - Replace Botarium fluid containers with Forge `FluidTank` backed implementations.
 - Rebuild cable and fluid pipe blocks, their tile entities, side modes, extraction, insertion, and wrench behavior.
 
@@ -348,6 +362,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first machine battery-slot behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Oxygen Distributor behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first machine GUI/container batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first gas tank oxygen storage item batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Gravity Normalizer behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Oxygen Sensor/Detector behavior batch.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

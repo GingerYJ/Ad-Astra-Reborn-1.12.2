@@ -259,6 +259,11 @@ Current status:
   durability bar, right-click active toggling, shift-right-click
   sequential/round-robin mode switching, and inventory energy distribution to
   other Forge Energy items.
+- Gas Tank and Large Gas Tank now have first-pass Forge fluid item capabilities
+  backed by item NBT. They only accept Ad Astra oxygen, expose empty and filled
+  creative variants, show oxygen tooltip/durability-bar state, provide static
+  oxygen drain helpers for later suit integration, and can distribute oxygen to
+  other Forge fluid item containers while held.
 - All source item ids are currently covered by standalone item registrations or
   automatically registered block items.
 - Independent item model coverage is currently clean: 0 missing models.
@@ -269,7 +274,8 @@ Implementation notes:
   texture layers, dye/NBT behavior, and environmental protection hooks.
 - Jet suit movement and energy storage require custom per-tick input handling
   and server validation.
-- Gas tanks should use Forge fluid or a custom gas capability/NBT model.
+- Gas tank machine filling, suit oxygen consumption, and exact capacity/config
+  parity remain pending.
 - Vehicle items should spawn 1.12 entity classes, not just exist as icons.
 - Spawn eggs should wait for entity classes and registry ids.
 
@@ -301,7 +307,8 @@ Target:
 Current status:
 
 - Forge fluids, fluid blocks, and buckets exist as first-pass registrations.
-- Machine tanks and gas tanks are pending.
+- Machine tanks and gas tank item capabilities are started. Suit integration
+  and exact machine filling behavior remain pending.
 
 ### 6. Machines, Tile Entities, Menus, and GUIs
 
@@ -416,7 +423,16 @@ Current status:
   `textures/gui/container` assets at native size, syncs machine fields through
   a reusable `Container`, and currently covers Coal Generator, Compressor,
   Etrionic Blast Furnace, Fuel Refinery, Oxygen Loader, Solar Panel, Water Pump,
-  Energizer, Cryo Freezer, and NASA Workbench.
+  Energizer, Cryo Freezer, NASA Workbench, and Gravity Normalizer.
+- Gravity Normalizer now has a first-pass maintenance loop with FE battery-slot
+  input, bounded radius/count state, target-gravity persistence, energy-per-tick
+  accounting, GUI fields, and query hooks for the later global gravity motion
+  system.
+- Oxygen Sensor/Detector now has a first-pass scan loop that checks nearby
+  Oxygen Distributors, updates copied `lit`/`powered` blockstate properties,
+  emits redstone power, persists scan state, and exposes detection fields.
+  Temperature and gravity sensor modes are explicit placeholders until those
+  global systems exist.
 - The shared machine base now ports the 1.20 `POWER_MACHINE` battery slot
   behavior with Forge Energy: machines that can receive energy pull from
   FE-capable items in slot 0 before their server tick, and exposed item

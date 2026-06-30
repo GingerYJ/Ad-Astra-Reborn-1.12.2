@@ -6,6 +6,7 @@ import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
+import earth.terrarium.adastra.common.items.GasTankItem;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.init.Items;
@@ -80,8 +81,8 @@ public final class ModItems {
     public static final Item WRENCH = wrench("wrench");
     public static final Item ZIP_GUN = item("zip_gun", 1);
     public static final Item ETRIONIC_CAPACITOR = energyItem("etrionic_capacitor", 250_000, 250, 500);
-    public static final Item GAS_TANK = item("gas_tank", 1);
-    public static final Item LARGE_GAS_TANK = item("large_gas_tank", 1);
+    public static final Item GAS_TANK = gasTank("gas_tank", GasTankItem.GAS_TANK_CAPACITY, GasTankItem.GAS_TANK_DISTRIBUTION_AMOUNT);
+    public static final Item LARGE_GAS_TANK = gasTank("large_gas_tank", GasTankItem.LARGE_GAS_TANK_CAPACITY, GasTankItem.LARGE_GAS_TANK_DISTRIBUTION_AMOUNT);
 
     public static final Item SPACE_HELMET = armor("space_helmet", AdAstraArmorItem.SuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
     public static final Item SPACE_SUIT = armor("space_suit", AdAstraArmorItem.SuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
@@ -171,6 +172,12 @@ public final class ModItems {
 
     private static Item energyItem(String name, int capacity, int maxReceive, int maxExtract) {
         Item item = new AdAstraEnergyItem(name, capacity, maxReceive, maxExtract);
+        INTERNAL_ITEMS.add(item);
+        return item;
+    }
+
+    private static Item gasTank(String name, int capacity, int distributionAmount) {
+        Item item = new GasTankItem(name, capacity, distributionAmount);
         INTERNAL_ITEMS.add(item);
         return item;
     }
