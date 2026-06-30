@@ -406,12 +406,22 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   `infernal_spire_block` column clusters on Venus sand. The first pass mirrors
   the 1.20 configured height/reach ranges and placed-feature counts in the
   current flat 1.12 terrain; visual density still needs dev-world tuning.
+- 2026-07-01 first NBT template placement pass: a Forge 1.12
+  `IWorldGenerator` now loads the copied `data/ad_astra/structures/oil.nbt`
+  template through the 1.12 `TemplateManager` path first, then a `data/`
+  resource fallback because the copied 1.20 assets live outside the 1.12
+  default `assets/<modid>/structures` lookup. It places first-pass Overworld
+  oil wells in ocean biomes, mirrors the 1.20 `oil_well` structure set's
+  spacing 20, separation 14, and salt `1922601463`, projects to the ocean
+  surface, and offsets the template down by 10 blocks like the source structure
+  start.
 - Next low-conflict Phase 8 order:
   1. Validate and tune the runtime ore pass in a dev planet world; keep Glacio copper disabled until a copper output
      policy exists.
   2. Validate and tune Moon soul-sand clusters, Mars rock blobs, and Venus infernal spire columns in dev planet worlds.
-  3. Add a minimal NBT template loader/placer and validate it with meteor variants or the size-1 oil well template.
-  4. Add simple single-start structure predicates for oil well, lunar tower, and Mars temple.
+  3. Validate the oil well template path in an Overworld ocean, then reuse the path for meteor variants or another
+     single-template structure.
+  4. Add simple single-start structure predicates for lunar tower and Mars temple.
   5. Defer Moon dungeon, Lunarian village, Pygro/crimson structures, Venus bullet/tower, and biome-tagged structure
      distribution until a 1.12.2 jigsaw/template-pool equivalent or explicit piece connector exists.
   6. Defer crater/noise terrain and orbit/space-station placement until after feature and NBT placement smoke tests.

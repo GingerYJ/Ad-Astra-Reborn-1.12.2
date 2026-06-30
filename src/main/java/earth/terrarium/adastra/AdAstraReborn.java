@@ -7,6 +7,7 @@ import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModOreDictionary;
 import earth.terrarium.adastra.common.registry.ModSmeltingRecipes;
 import earth.terrarium.adastra.common.registry.ModTileEntities;
+import earth.terrarium.adastra.common.world.AdAstraStructureWorldGenerator;
 import earth.terrarium.adastra.proxy.IProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,6 +49,7 @@ public class AdAstraReborn {
     public void init(FMLInitializationEvent event) {
         ModOreDictionary.register();
         ModSmeltingRecipes.register();
+        GameRegistry.registerWorldGenerator(new AdAstraStructureWorldGenerator(), 0);
         proxy.init(event);
     }
 

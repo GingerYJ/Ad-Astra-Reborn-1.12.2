@@ -661,6 +661,10 @@ Current status:
   `cryo_freezer` depends on 1.20 blue ice, and zip gun/rover recipes should
   wait for a deliberate decision about using NBT-capable filled tanks as
   ordinary crafting ingredients.
+- The latest direct-crafting sweep found no additional safe vanilla crafting
+  conversions beyond the current 294 files. Remaining top-level candidates are
+  blocked by explicit 1.20-only dependencies, custom recipe loaders, Patchouli
+  recipe types, or unstable gameplay chains.
 - Deferred recipe categories remain custom machine JSON loaders
   (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
   `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
@@ -1041,13 +1045,18 @@ Low-conflict worldgen implementation order:
    sand, and small/large Venus `infernal_spire_column` features now generate as
    infernal-spire block clusters on Venus sand. These are isolated from
    structure code and exercise planet-specific feature dispatch.
-4. Add a minimal NBT template loading/placement path and validate it with
-   meteor variants or the size-1 oil well template. This should include
-   rotation, ground projection, bounding-box checks, and block/entity NBT
-   compatibility checks before larger structures use it.
-5. Port single-start structures after the template path is reliable: oil well
-   if not already used as the loader test, then lunar tower and Mars temple.
-   Wire spacing/separation only as simple 1.12.2 chunk predicates at first.
+4. Validate the minimal NBT template loading/placement path now started with
+   `oil.nbt`: `AdAstraStructureWorldGenerator` loads `ad_astra:oil` through the
+   1.12 `TemplateManager` first and falls back to the copied
+   `data/ad_astra/structures` resource path, gates placement to Overworld ocean
+   biomes, mirrors the 1.20 oil-well spacing/separation/salt values, and
+   projects the template to the ocean surface with the source's -10 Y offset.
+   Runtime ocean-world smoke testing is still required before larger
+   structures use it.
+5. Port additional single-start structures after the template path is reliable:
+   meteor variants as the next small resource-only test, then lunar tower and
+   Mars temple. Wire spacing/separation only as simple 1.12.2 chunk predicates
+   at first.
 6. Port multi-piece structure assembly later: Moon dungeon, Lunarian village,
    Pygro/crimson village and towers, Venus bullet/tower, and their biome-gate
    tags. These require either a 1.12.2 jigsaw-like assembler or hand-authored
