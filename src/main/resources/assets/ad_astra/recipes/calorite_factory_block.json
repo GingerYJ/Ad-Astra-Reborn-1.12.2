@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#C#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
+    },
+    "C": {
+      "type": "forge:ore_dict",
+      "ore": "ingotCalorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:calorite_factory_block",
+    "count": 64
+  }
+}

@@ -46,7 +46,7 @@ public final class AdAstraEntityRenderers {
 
         RenderingRegistry.registerEntityRenderingHandler(AirVortexEntity.class, RenderAirVortex::new);
         RenderingRegistry.registerEntityRenderingHandler(Tier1RoverEntity.class,
-            manager -> new RenderTexturedEntity<Tier1RoverEntity>(manager, texture("rover/tier_1_rover"), 2.2f, 0.75f, 1.4f, 0.4f));
+            manager -> new RenderRover(manager, texture("rover/tier_1_rover")));
         RenderingRegistry.registerEntityRenderingHandler(Tier1RocketEntity.class,
             manager -> new RenderRocket<Tier1RocketEntity>(manager, 1, texture("rocket/tier_1_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier2RocketEntity.class,
@@ -56,7 +56,7 @@ public final class AdAstraEntityRenderers {
         RenderingRegistry.registerEntityRenderingHandler(Tier4RocketEntity.class,
             manager -> new RenderRocket<Tier4RocketEntity>(manager, 4, texture("rocket/tier_4_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(LanderEntity.class,
-            manager -> new RenderTexturedEntity<LanderEntity>(manager, texture("lander/lander"), 1.4f, 2.0f, 1.4f, 0.6f));
+            manager -> new RenderLander(manager, texture("lander/lander")));
 
         RenderingRegistry.registerEntityRenderingHandler(LunarianEntity.class,
             manager -> new RenderTexturedMob<LunarianEntity>(manager, new ModelLunarian(), texture("mob/lunarian/lunarian"), 0.5f));

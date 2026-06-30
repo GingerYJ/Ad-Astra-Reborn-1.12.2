@@ -548,7 +548,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 236 files:
+- Direct 1.12 crafting JSON coverage is now 253 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -623,16 +623,19 @@ Current status:
   - 32 low-risk normal and small industrial lamp recipes converted from
     generated 1.20 crafting data using 1.12 dye metadata plus the existing
     `ingotSteel` OreDictionary mapping.
+  - 17 low-risk factory, encased block, pipe, launch pad, vent, photovoltaic
+    cell, wheel, and wrench recipes converted from generated 1.20 crafting data
+    using direct registered inputs and existing OreDictionary mappings.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
   item id or an explicit OreDictionary/tag replacement.
-- Next direct-crafting candidates are the remaining simple Ad Astra decorative
-  families whose inputs are already registered blocks/items or established
-  ore-dict materials, plus any metal or wood-family recipes not already covered
-  by the direct crafting batches. Review
-  vanilla 1.12 metadata mappings before converting colored wool flags or
-  recipes that reference 1.20-only vanilla ids.
+- Next direct-crafting candidates should avoid the currently skipped
+  copper/lightning-rod/tank-NBT cases unless an explicit 1.12 mapping is chosen:
+  `steel_cable`, `desh_cable`, `cable_duct`, and `fluid_pipe_duct` need a
+  copper ingot policy, `rocket_nose_cone` needs a replacement for the 1.20
+  lightning rod, and `tier_1_rover` should wait for a deliberate decision about
+  using NBT-capable gas tanks as ordinary crafting ingredients.
 - Deferred recipe categories remain custom machine JSON loaders
   (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
   `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
@@ -1077,10 +1080,9 @@ Current status:
 - Forge 1.12 client render factories are registered for all 20 entity ids.
   Most mobs use copied Ad Astra textures on safe vanilla-model placeholders,
   sulfur creepers use a creeper-shaped renderer with swelling/charge visuals,
-  rockets use first-pass source-inspired 1.12 `ModelBase` renderers with copied
-  tier textures, the rover and lander still use simple textured box
-  placeholders, Ice Spit renders as an item projectile, and Air Vortex has a
-  small translucent placeholder renderer.
+  rockets, the lander, and the rover use first-pass source-inspired 1.12
+  `ModelBase` renderers with copied textures, Ice Spit renders as an item
+  projectile, and Air Vortex has a small translucent placeholder renderer.
 - Exact source AI, spawn placement predicates, mob charges, drops, full projectile launch behavior, vehicle
   behavior, real renderers, animation layers, and models remain pending.
 
@@ -1099,9 +1101,11 @@ Entity model/render gap snapshot, 2026-07-01:
   first-pass 1.12 `ModelLunarian`/`ModelCorruptedLunarian` ports with copied
   default textures, and most remaining mobs still use `ModelBiped`. Tier 1-4
   rockets now use first-pass source-inspired `ModelRocket`/`RenderRocket`
-  bindings with copied tier textures, the rover and lander still use
-  `TexturedBoxModel`, `ice_spit` uses `RenderSnowball`, and `air_vortex` uses a
-  custom translucent cube.
+  bindings with copied tier textures, the lander uses a first-pass
+  `ModelLander`/`RenderLander` binding with copied texture, the rover uses a
+  first-pass `ModelRover`/`RenderRover` binding with copied texture and wheel
+  animation, `ice_spit` uses `RenderSnowball`, and `air_vortex` uses a custom
+  translucent cube.
 - Entity texture resources are copied with source parity under
   `assets/ad_astra/textures/entity`: 35 source files and 35 target files.
   Several copied textures are not selected by current renderers yet, including
@@ -1114,12 +1118,12 @@ Per-entity gap matrix:
 | Entity id | Current 1.12.2 status | 1.20 source target | Remaining gaps |
 | --- | --- | --- | --- |
 | `air_vortex` | Registered class, size, tracker, visible translucent cube renderer. No force behavior. | Invisible/no-op renderer, no summon/save, 600 tick lifetime, source block and affected-position set, pulls entities unless ignored. | Tie to Oxygen Distributor output, lifetime/discard rules, ignore tag logic, force math, and render parity. The current visible cube is only a debug-style placeholder. |
-| `tier_1_rover` | Registered, item places it, basic single-rider steering, box renderer with copied texture. | `Rover` vehicle with 18-slot inventory, fuel fluid tank, two passengers, radio/inventory multipart hitboxes, collision damage, wheel animation, model and item renderer. | Real `RoverModel` port, wheel animation, fuel/inventory GUI, two-passenger seating, multipart interactions, radio station handoff, run-over damage, item renderer. |
+| `tier_1_rover` | Registered, item places it, basic single-rider steering, first-pass source-inspired rover model renderer with copied texture, frame, seats, rear storage, antenna, and wheel animation. | `Rover` vehicle with 18-slot inventory, fuel fluid tank, two passengers, radio/inventory multipart hitboxes, collision damage, wheel animation, model and item renderer. | Runtime dev-client visual validation, exact 1.20 geometry polish, fuel/inventory GUI, two-passenger seating, multipart interactions, radio station handoff, run-over damage, item renderer. |
 | `tier_1_rocket` | Registered, item places it, simplified fuel integer, riding/ascent, first-pass planet screen trigger, first-pass source-inspired rocket model renderer with copied tier texture. | `Rocket` vehicle with tier properties, fluid fuel tank, 10-slot inventory, launch-pad binding, countdown, launch sound, smoke/flame particles, burn/explosion logic, model and item renderer. | Runtime dev-client visual validation, exact 1.20 geometry polish, launch countdown/pad validation, fuel container, inventory/menu, particles/sounds, obstruction/explosion, return vehicle transfer, item renderer. |
 | `tier_2_rocket` | Same first-pass base as tier 1 with tier 2 size/fuel values and tier-specific model/texture binding. | Same `Rocket` source class with tier 2 properties and texture/layer. | Same rocket gaps; verify tier reach/fuel/capacity after source-like launch flow exists. |
 | `tier_3_rocket` | Same first-pass base as tier 1 with tier 3 size/fuel values plus side booster geometry in the model renderer. | Same `Rocket` source class with tier 3 properties and texture/layer. | Same rocket gaps; verify tier reach/fuel/capacity after source-like launch flow exists. |
 | `tier_4_rocket` | Same first-pass base as tier 1 with tier 4 size/fuel values, taller model geometry, and side boosters. | Same `Rocket` source class with tier 4 properties, taller model, and different riding offset. | Same rocket gaps plus runtime validation of tier 4 scale/rider offset/fuel behavior. |
-| `lander` | Registered, shared vehicle motion, basic riding, box renderer with copied texture. | `Lander` vehicle with hidden rider, descent thrust, 11-slot inventory/menu, landing safety, fall explosion, sound/particles, model renderer. | Real lander model/renderer, descent controls, rider hiding/offset, inventory/menu, particles/sounds, fall explosion and landing rules. |
+| `lander` | Registered, shared vehicle motion, basic riding, first-pass source-inspired lander model renderer with copied texture, octagonal raft, cabin, upper cap, and landing legs. | `Lander` vehicle with hidden rider, descent thrust, 11-slot inventory/menu, landing safety, fall explosion, sound/particles, model renderer. | Runtime dev-client visual validation, exact 1.20 geometry polish, descent controls, rider hiding/offset, inventory/menu, particles/sounds, fall explosion and landing rules. |
 | `lunarian` | Registered, spawn egg, generic placeholder mob AI/attributes, renderer now uses first-pass 1.12 `ModelLunarian` with copied default texture, tall villager-like body, layered head/body/legs, folded arms, and leg/head animation. | Villager-derived Lunarian with custom model, profession-specific textures, head/item layers, breeding, avoidance behavior, and villager data. | Runtime dev-client visual validation, replace generic hostile placeholder behavior, profession/data sync and texture selection, trades/breeding, held/head layers. |
 | `corrupted_lunarian` | Registered, spawn egg, source-like base health/move/attack attributes, melee plus first-pass ranged `ice_spit` AI, targets players/villagers/Lunarian wandering traders/golems, renderer now uses first-pass 1.12 `ModelCorruptedLunarian` with copied texture, crossed arms, extra back-arm geometry, and walking/idle extra-arm animation. | Monster with melee and ranged `IceSpit`, targets players/villagers/traders/golems, custom extra-arm model and animation. | Runtime dev-client visual validation, exact target parity for all Lunarian trader variants, drops/sounds. |
 | `lunarian_wandering_trader` | Registered, spawn egg, passive placeholder mob, renderer now uses first-pass 1.12 `ModelLunarian` with copied wandering-trader texture, folded arms, and leg/head animation. | Wandering Trader-derived Lunarian trader with custom Lunarian model/layers and merchant offers/spawner support. | Runtime dev-client visual validation, trader inheritance/AI, offers, spawn manager, held/head layers, exact despawn and interaction behavior. |
@@ -1136,9 +1140,9 @@ Per-entity gap matrix:
 
 Next low-conflict entity/render implementation order:
 
-1. Continue vehicle model renderers after the first rocket pass: lander next,
-   then rover. Treat item renderers as a separate client-only batch if 1.12
-   item rendering needs extra hooks.
+1. Continue vehicle rendering after the first rocket, lander, and rover passes:
+   exact geometry polish and vehicle item renderers are the next client-only
+   visual follow-ups.
 2. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
    control, rocket countdown/fuel/launch-pad/menu flow, then lander descent and
    fall explosion. These touch networking, GUI, and travel flow, so they are not

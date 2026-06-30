@@ -53,7 +53,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   direct crafting batch adds 16 colored flag recipes using 1.12 wool metadata.
   The thirteenth direct crafting batch adds 32 normal and small industrial lamp
   recipes using 1.12 dye metadata and the existing `ingotSteel` OreDictionary
-  mapping.
+  mapping. The fourteenth direct crafting batch adds 17 low-risk factory block,
+  encased block, pipe, launch pad, vent, photovoltaic cell, wheel, and wrench
+  recipes.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -415,15 +417,18 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   first-pass 1.12 `ModelBase`/`ModelBiped` ports of their 1.20 hardcoded Java
   models, sulfur creepers have synced fuse/powered state with creeper swelling
   and charge visuals, tier 1-4 rockets now use first-pass source-inspired
-  `ModelRocket`/`RenderRocket` bindings with copied tier textures, the rover and
-  lander still use textured boxes, Ice Spit renders as an item projectile, and
-  Air Vortex remains a visible debug-style cube. Ice Spit now has first-pass
-  source-like projectile behavior with thrown damage,
+  `ModelRocket`/`RenderRocket` bindings with copied tier textures, the lander
+  now uses a first-pass source-inspired `ModelLander`/`RenderLander` binding
+  with copied texture, the rover now uses a first-pass source-inspired
+  `ModelRover`/`RenderRover` binding with copied texture and wheel animation,
+  Ice Spit renders as an item projectile, and Air Vortex remains a visible
+  debug-style cube. Ice Spit now has first-pass source-like projectile behavior
+  with thrown damage,
   SPIT/SNOWBALL particles, owner/position constructors, broadcast discard event,
   and corrupted Lunarian ranged attack AI integration.
 - Next low-conflict order for this phase:
-  1. Vehicle model renderers: lander, then rover; keep rocket item renderer and
-     exact geometry polish as a later client-only pass.
+  1. Vehicle client polish: exact geometry passes for rocket/lander/rover and
+     vehicle item renderers.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -516,6 +521,13 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   Lunarian-family renderer bindings and colored flag direct crafting recipes.
 - Last verified with `gradlew.bat build` on 2026-07-01 after the first
   tier 1-4 rocket model renderer bindings and industrial lamp direct crafting
+  recipes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  `ModelLander` renderer binding.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  `ModelRover` renderer binding.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  vehicle model renderer trio and factory/encased/pipe utility direct crafting
   recipes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.

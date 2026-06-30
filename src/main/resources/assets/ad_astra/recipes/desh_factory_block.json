@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#D#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "D": {
+      "type": "forge:ore_dict",
+      "ore": "ingotDesh"
+    }
+  },
+  "result": {
+    "item": "ad_astra:desh_factory_block",
+    "count": 64
+  }
+}

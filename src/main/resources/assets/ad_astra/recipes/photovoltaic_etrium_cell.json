@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "#D#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "minecraft:stained_glass",
+      "data": 11
+    }
+  },
+  "result": {
+    "item": "ad_astra:photovoltaic_etrium_cell"
+  }
+}
