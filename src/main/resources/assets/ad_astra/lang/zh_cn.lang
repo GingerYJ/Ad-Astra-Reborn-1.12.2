@@ -805,6 +805,7 @@ tooltip.ad_astra.energy_generation_per_tick=每刻产生 %s ⚡
 tooltip.ad_astra.energy_in=输入：%s ⚡/t
 tooltip.ad_astra.energy_out=输出：%s ⚡/t
 tooltip.ad_astra.energy_per_tick=%s ⚡/t
+tooltip.ad_astra.energy_stored=电能：%s / %s FE
 tooltip.ad_astra.energy_transfer_tick=传输：%s ⚡/t
 tooltip.ad_astra.energy_use_per_tick=每刻消耗 %s ⚡
 tooltip.ad_astra.eta=预计剩余：%s 秒

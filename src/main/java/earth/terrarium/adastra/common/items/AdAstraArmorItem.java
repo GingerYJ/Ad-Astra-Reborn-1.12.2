@@ -16,12 +16,17 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -29,6 +34,8 @@ import java.util.List;
 public class AdAstraArmorItem extends ItemArmor {
 
     private static final int OXYGEN_BAR_COLOR = 0x99ccff;
+    private static final int ENERGY_BAR_COLOR = 0xffdd66;
+    private static final int JET_SUIT_MAX_ENERGY_IN = 1000;
 
     private final SuitMaterial suitMaterial;
     private final String texture;
@@ -50,6 +57,9 @@ public class AdAstraArmorItem extends ItemArmor {
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt) {
+        if (isJetSuitChestPiece()) {
+            return new JetSuitCapabilityProvider(stack, suitMaterial.oxygenCapacity, suitMaterial.energyCapacity);
+        }
         return isOxygenChestPiece() ? new OxygenSuitFluidHandler(stack, suitMaterial.oxygenCapacity) : super.initCapabilities(stack, nbt);
     }
 
@@ -60,25 +70,36 @@ public class AdAstraArmorItem extends ItemArmor {
                 "tooltip.ad_astra.gas_tank.oxygen",
                 GasTankItem.getStoredOxygen(stack),
                 GasTankItem.getOxygenCapacity(stack)).getFormattedText());
+        }
+        if (hasEnergyStorage()) {
+            tooltip.add(new TextComponentTranslation(
+                "tooltip.ad_astra.energy_stored",
+                getEnergyStored(stack),
+                suitMaterial.energyCapacity).getFormattedText());
+            tooltip.add(new TextComponentTranslation(
+                "tooltip.ad_astra.max_energy_in",
+                JET_SUIT_MAX_ENERGY_IN).getFormattedText());
+        }
+        if (isOxygenChestPiece()) {
             tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("info.ad_astra.space_suit.oxygen").getFormattedText());
         }
     }
 
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
-        return isOxygenChestPiece() && GasTankItem.getOxygenCapacity(stack) > 0;
+        return (isOxygenChestPiece() && GasTankItem.getOxygenCapacity(stack) > 0) || (hasEnergyStorage() && getEnergyStored(stack) > 0);
     }
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        int stored = GasTankItem.getStoredOxygen(stack);
-        int capacity = GasTankItem.getOxygenCapacity(stack);
+        int stored = isOxygenChestPiece() ? GasTankItem.getStoredOxygen(stack) : getEnergyStored(stack);
+        int capacity = isOxygenChestPiece() ? GasTankItem.getOxygenCapacity(stack) : suitMaterial.energyCapacity;
         return capacity <= 0 ? 1.0d : 1.0d - (stored / (double) capacity);
     }
 
     @Override
     public int getRGBDurabilityForDisplay(ItemStack stack) {
-        return OXYGEN_BAR_COLOR;
+        return isOxygenChestPiece() ? OXYGEN_BAR_COLOR : ENERGY_BAR_COLOR;
     }
 
     @Override
@@ -96,24 +117,75 @@ public class AdAstraArmorItem extends ItemArmor {
                 items.add(handler.getContainer());
             }
         }
+        if (hasEnergyStorage()) {
+            ItemStack charged = new ItemStack(this);
+            receiveEnergy(charged, suitMaterial.energyCapacity, false);
+            items.add(charged);
+
+            if (isOxygenChestPiece()) {
+                ItemStack ready = charged.copy();
+                IFluidHandlerItem handler = FluidUtil.getFluidHandler(ready);
+                if (handler != null) {
+                    handler.fill(new FluidStack(ModFluids.OXYGEN, suitMaterial.oxygenCapacity), true);
+                    items.add(handler.getContainer());
+                }
+            }
+        }
     }
 
     public boolean isOxygenChestPiece() {
         return armorType == EntityEquipmentSlot.CHEST && suitMaterial.oxygenCapacity > 0;
     }
 
+    public boolean isJetSuitChestPiece() {
+        return hasEnergyStorage();
+    }
+
+    public boolean hasEnergyStorage() {
+        return armorType == EntityEquipmentSlot.CHEST && suitMaterial.energyCapacity > 0;
+    }
+
+    public static boolean isJetSuitChest(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() instanceof AdAstraArmorItem && ((AdAstraArmorItem) stack.getItem()).isJetSuitChestPiece();
+    }
+
+    public static int getJetSuitEnergyStored(ItemStack stack) {
+        if (!isJetSuitChest(stack)) {
+            return 0;
+        }
+        return ((AdAstraArmorItem) stack.getItem()).getEnergyStored(stack);
+    }
+
+    public static int consumeJetSuitEnergy(ItemStack stack, int amount, boolean simulate) {
+        if (!isJetSuitChest(stack) || amount <= 0) {
+            return 0;
+        }
+        AdAstraArmorItem item = (AdAstraArmorItem) stack.getItem();
+        return new ItemStackEnergyStorage(stack, item.suitMaterial.energyCapacity, JET_SUIT_MAX_ENERGY_IN, amount).extractEnergy(amount, simulate);
+    }
+
+    private int getEnergyStored(ItemStack stack) {
+        return new ItemStackEnergyStorage(stack, suitMaterial.energyCapacity, JET_SUIT_MAX_ENERGY_IN, 0).getEnergyStored();
+    }
+
+    private int receiveEnergy(ItemStack stack, int amount, boolean simulate) {
+        return new ItemStackEnergyStorage(stack, suitMaterial.energyCapacity, suitMaterial.energyCapacity, 0).receiveEnergy(amount, simulate);
+    }
+
     public enum SuitMaterial {
-        SPACE("space_suit", 37, new int[]{2, 6, 5, 2}, 14, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0f, 1000),
-        NETHERITE_SPACE("netherite_space_suit", 37, new int[]{3, 8, 6, 3}, 15, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 3.0f, 2000),
-        JET("jet_suit", 37, new int[]{4, 9, 7, 4}, 15, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 5.0f, 3000);
+        SPACE("space_suit", 37, new int[]{2, 6, 5, 2}, 14, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0f, 1000, 0),
+        NETHERITE_SPACE("netherite_space_suit", 37, new int[]{3, 8, 6, 3}, 15, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 3.0f, 2000, 0),
+        JET("jet_suit", 37, new int[]{4, 9, 7, 4}, 15, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 5.0f, 3000, 1_000_000);
 
         private final ArmorMaterial armorMaterial;
         private final String texture;
         private final int oxygenCapacity;
+        private final int energyCapacity;
 
-        SuitMaterial(String texture, int durability, int[] reductions, int enchantability, SoundEvent equipSound, float toughness, int oxygenCapacity) {
+        SuitMaterial(String texture, int durability, int[] reductions, int enchantability, SoundEvent equipSound, float toughness, int oxygenCapacity, int energyCapacity) {
             this.texture = texture;
             this.oxygenCapacity = oxygenCapacity;
+            this.energyCapacity = energyCapacity;
             this.armorMaterial = EnumHelper.addArmorMaterial(
                 Reference.MOD_ID + "_" + texture,
                 Reference.MOD_ID + ":" + texture,
@@ -139,6 +211,34 @@ public class AdAstraArmorItem extends ItemArmor {
         @Override
         public boolean canDrainFluidType(FluidStack fluid) {
             return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+        }
+    }
+
+    private static final class JetSuitCapabilityProvider implements ICapabilityProvider {
+
+        private final OxygenSuitFluidHandler fluidHandler;
+        private final IEnergyStorage energyStorage;
+
+        private JetSuitCapabilityProvider(ItemStack stack, int oxygenCapacity, int energyCapacity) {
+            this.fluidHandler = new OxygenSuitFluidHandler(stack, oxygenCapacity);
+            this.energyStorage = new ItemStackEnergyStorage(stack, energyCapacity, JET_SUIT_MAX_ENERGY_IN, 0);
+        }
+
+        @Override
+        public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+            return capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY || capability == CapabilityEnergy.ENERGY;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+            if (capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY) {
+                return (T) fluidHandler;
+            }
+            if (capability == CapabilityEnergy.ENERGY) {
+                return (T) energyStorage;
+            }
+            return null;
         }
     }
 }

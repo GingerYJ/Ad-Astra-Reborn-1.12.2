@@ -278,6 +278,11 @@ Current status:
   creative variants, shows propellant tooltip/durability-bar state, consumes
   propellant while used, supports dual-wield boost, and applies low-gravity
   movement using the current dimension gravity hook.
+- Jet Suit chest pieces now expose both oxygen and Forge Energy item
+  capabilities, show oxygen and energy tooltip state, expose charged creative
+  variants, and support a first-pass server-validated flight loop. Pressing the
+  suit-flight key toggles flight, holding jump provides upward thrust, and
+  holding jump plus sprint applies forward thrust while consuming FE.
 - All source item ids are currently covered by standalone item registrations or
   automatically registered block items.
 - Independent item model coverage is currently clean: 0 missing models.
@@ -288,8 +293,8 @@ Implementation notes:
   texture layers, dye/NBT behavior, and environmental protection hooks.
 - Zip Gun still needs exact 1.20 particle/audio parity, better zero-gravity
   tuning, and runtime gameplay testing.
-- Jet suit movement and energy storage require custom per-tick input handling
-  and server validation.
+- Jet suit still needs exact 1.20 particles, model animation, Elytra-like
+  glide parity, config persistence, and runtime gameplay testing.
 - Gas tank machine filling, suit oxygen consumption, and exact capacity/config
   parity remain pending.
 - Vehicle items should spawn 1.12 entity classes, not just exist as icons.
@@ -540,7 +545,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 36 files:
+- Direct 1.12 crafting JSON coverage is now 51 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -548,17 +553,25 @@ Current status:
     crafting data: `iron_rod`, `steel_rod`, `gas_tank`, `engine_frame`, `fan`,
     `rocket_fin`, `oxygen_gear`, `steel_engine`, `desh_engine`,
     `ostrum_engine`, `calorite_engine`, and `etrionic_capacitor`.
+  - 15 low-risk Moon terrain/decor recipes converted from generated 1.20
+    crafting data: `moon_stone_slab`, `moon_stone_stairs`,
+    `moon_cobblestone_slab`, `moon_cobblestone_stairs`, `moon_stone_bricks`,
+    `moon_stone_brick_slab`, `moon_stone_brick_stairs`,
+    `moon_stone_brick_wall`, `polished_moon_stone`,
+    `polished_moon_stone_slab`, `polished_moon_stone_stairs`,
+    `chiseled_moon_stone_bricks`, `chiseled_moon_stone_slab`,
+    `chiseled_moon_stone_stairs`, and `moon_pillar`.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
   item id or an explicit OreDictionary/tag replacement.
-- Next direct-crafting candidates are the simple Ad Astra decorative families
-  whose inputs are already registered blocks/items or established ore-dict
-  materials: metal panels/plateblocks/plating/button/pressure-plate/slab/stair
-  variants, planetary stone/cobble/brick/polished/chiseled variants, and
-  aeronos/strophar/glacian wood-family recipes. Review vanilla 1.12 metadata
-  mappings before converting colored wool flags or recipes that reference
-  1.20-only vanilla ids.
+- Next direct-crafting candidates are the remaining simple Ad Astra decorative
+  families whose inputs are already registered blocks/items or established
+  ore-dict materials: Mars/Mercury/Venus/Glacio stone/cobble/brick/polished/
+  chiseled variants, metal panels/plateblocks/plating/button/pressure-plate/
+  slab/stair variants, and aeronos/strophar/glacian wood-family recipes. Review
+  vanilla 1.12 metadata mappings before converting colored wool flags or
+  recipes that reference 1.20-only vanilla ids.
 - Deferred recipe categories remain custom machine JSON loaders
   (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
   `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
@@ -598,11 +611,15 @@ Current status:
 
 - A shared `EnvironmentUtils` helper now checks world-provider oxygen and local
   Oxygen Distributor coverage.
-- Space suit, netherite space suit, and jet suit chest pieces now expose an
-  oxygen-only Forge fluid item capability with empty/filled creative variants,
-  oxygen tooltip, and oxygen durability bar.
+- Space suit, netherite space suit, and jet suit chest pieces now expose Forge
+  fluid oxygen item capabilities with empty/filled creative variants, oxygen
+  tooltip, and oxygen durability bar. Jet Suit chest pieces additionally expose
+  a Forge Energy item capability for powered flight.
 - Server-side player ticks now drain suit oxygen in airless environments or
   apply oxygen suffocation damage when the player has no usable suit oxygen.
+- Server-side player ticks now also apply first-pass Jet Suit flight using
+  client-synced jump/sprint/toggle key state and consume FE from the chest
+  piece before applying upward or forward thrust.
 - TI-69 now has a first-pass right-click environment readout for local oxygen,
   temperature, and gravity.
 - Exact 1.20 temperature damage, gravity movement, fluid freezing/evaporation,
@@ -770,6 +787,81 @@ Current status:
   and Air Vortex has a small translucent placeholder renderer.
 - Exact source AI, spawn placement predicates, mob charges, drops, projectile behavior, vehicle
   behavior, real renderers, animation layers, and models remain pending.
+
+Entity model/render gap snapshot, 2026-06-30:
+
+- 1.12.2 entity registry coverage is complete for the 20 source ids, but this
+  is still mostly placeholder gameplay coverage.
+- 1.12.2 client renderer factory coverage is complete for the 20 source ids,
+  but no 1.20 Java entity model class has been ported yet. Current mobs use
+  `ModelBiped`, vehicles use `TexturedBoxModel`, `ice_spit` uses
+  `RenderSnowball`, and `air_vortex` uses a custom translucent cube.
+- Entity texture resources are copied with source parity under
+  `assets/ad_astra/textures/entity`: 35 source files and 35 target files.
+  Several copied textures are not selected by current renderers yet, including
+  Lunarian profession variants and `sheared_glacian_ram`.
+- Current natural spawns are first-pass planet biome lists only. Source spawn
+  placement predicates and exact biome distribution remain pending.
+
+Per-entity gap matrix:
+
+| Entity id | Current 1.12.2 status | 1.20 source target | Remaining gaps |
+| --- | --- | --- | --- |
+| `air_vortex` | Registered class, size, tracker, visible translucent cube renderer. No force behavior. | Invisible/no-op renderer, no summon/save, 600 tick lifetime, source block and affected-position set, pulls entities unless ignored. | Tie to Oxygen Distributor output, lifetime/discard rules, ignore tag logic, force math, and render parity. The current visible cube is only a debug-style placeholder. |
+| `tier_1_rover` | Registered, item places it, basic single-rider steering, box renderer with copied texture. | `Rover` vehicle with 18-slot inventory, fuel fluid tank, two passengers, radio/inventory multipart hitboxes, collision damage, wheel animation, model and item renderer. | Real `RoverModel` port, wheel animation, fuel/inventory GUI, two-passenger seating, multipart interactions, radio station handoff, run-over damage, item renderer. |
+| `tier_1_rocket` | Registered, item places it, simplified fuel integer, riding/ascent, first-pass planet screen trigger, box renderer. | `Rocket` vehicle with tier properties, fluid fuel tank, 10-slot inventory, launch-pad binding, countdown, launch sound, smoke/flame particles, burn/explosion logic, model and item renderer. | Real model/renderer, launch countdown/pad validation, fuel container, inventory/menu, particles/sounds, obstruction/explosion, return vehicle transfer, item renderer. |
+| `tier_2_rocket` | Same first-pass base as tier 1 with tier 2 size/fuel values. | Same `Rocket` source class with tier 2 properties and texture/layer. | Same rocket gaps; verify tier reach/fuel/capacity after source-like launch flow exists. |
+| `tier_3_rocket` | Same first-pass base as tier 1 with tier 3 size/fuel values. | Same `Rocket` source class with tier 3 properties and texture/layer. | Same rocket gaps; verify tier reach/fuel/capacity after source-like launch flow exists. |
+| `tier_4_rocket` | Same first-pass base as tier 1 with tier 4 size/fuel values. | Same `Rocket` source class with tier 4 properties, taller model, and different riding offset. | Same rocket gaps plus tier 4-specific model scale/rider offset/fuel behavior. |
+| `lander` | Registered, shared vehicle motion, basic riding, box renderer with copied texture. | `Lander` vehicle with hidden rider, descent thrust, 11-slot inventory/menu, landing safety, fall explosion, sound/particles, model renderer. | Real lander model/renderer, descent controls, rider hiding/offset, inventory/menu, particles/sounds, fall explosion and landing rules. |
+| `lunarian` | Registered, spawn egg, generic placeholder mob AI/attributes, biped renderer using default texture. | Villager-derived Lunarian with custom model, profession-specific textures, head/item layers, breeding, avoidance behavior, and villager data. | Replace generic hostile placeholder behavior, profession/data sync, trades/breeding, correct renderer/model, profession texture selection, held/head layers. |
+| `corrupted_lunarian` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Monster with melee and ranged `IceSpit`, targets players/villagers/traders/golems, custom extra-arm model and animation. | Real model/animation, ranged attack using `ice_spit`, target list parity, source attributes, drops/sounds. |
+| `lunarian_wandering_trader` | Registered, spawn egg, passive placeholder mob, biped renderer with copied texture. | Wandering Trader-derived Lunarian trader with custom Lunarian model/layers and merchant offers/spawner support. | Trader inheritance/AI, offers, spawn manager, renderer/model/layers, exact despawn and interaction behavior. |
+| `star_crawler` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Monster with `StarCrawlerModel` and source attack/wander timings. | Real model/animation, source attributes/AI tuning, drops/sounds/spawn predicates. |
+| `martian_raptor` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Monster with `MartianRaptorModel`, melee AI, leap-at-target behavior, and source attributes. | Real model/animation, leap behavior, source attributes/AI tuning, drops/sounds/spawn predicates. |
+| `pygro` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Piglin-derived legacy entity with `PygroModel`, held-item layer, and armor layer. | Real model, item/armor layers, piglin-style behavior/equipment, source attributes, drops/sounds. |
+| `zombified_pygro` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Zombified Piglin-derived entity with `ZombifiedPygroModel`, held-item layer, and armor layer. | Real model, item/armor layers, zombified anger/equipment behavior, source attributes, drops/sounds. |
+| `pygro_brute` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Piglin Brute-derived entity with `PygroBruteModel`, held-item layer, and armor layer. | Real model, item/armor layers, brute AI/equipment behavior, source attributes, drops/sounds. |
+| `mogler` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Hoglin-derived entity with `MoglerModel`, high health, knockback, and hoglin-style combat. | Real model, hoglin-style AI/knockback, source attributes, drops/sounds. |
+| `zombified_mogler` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Zoglin-derived entity rendered with `MoglerModel` and zombified texture. | Real model, zoglin-style AI/knockback, source attributes, drops/sounds. |
+| `sulfur_creeper` | Registered, spawn egg, simple server-side fuse/explosion behavior, biped renderer with copied texture. | Creeper-derived entity with swelling scale, powered/charge layer, source model, effect cloud behavior, and suit oxygen drain on explosion. | Data sync for swelling/powered state, real model/renderer, charge layer, source explosion side effects, drops/sounds/spawn predicates. |
+| `glacian_ram` | Registered, spawn egg, generic neutral melee placeholder, biped renderer using normal texture. | Animal and `Shearable` entity with `GlacianRamModel`, sheared texture, ice-shard food, breeding, milking, permafrost eating, neck/head animation. | Real animal behavior, sheared state/data sync, shearing/milking/breeding, eat-permafrost goal, model/normal/sheared texture selection, sounds. |
+| `ice_spit` | Registered projectile, `RenderSnowball` with `ice_shard`, impact only discards. | Throwable item projectile with ice shard default item, item/snowball particles every tick, 4 thrown damage on entity hit, discard event. | Add damage, particles, owner constructors/throw setup, event/broadcast parity. This is the smallest isolated behavior gap. |
+
+Next low-conflict entity/render implementation order:
+
+1. Port `ice_spit` behavior first: damage on entity hit, copied particle trail
+   semantics using 1.12 particles, owner constructors, and discard event parity.
+   The existing `RenderSnowball` binding can stay.
+2. Add a contained `sulfur_creeper` render pass: creeper-shaped or source-shaped
+   model, swelling flash/scale, and charged overlay. Keep the existing simple
+   explosion behavior until suit oxygen drain/effect-cloud parity is tackled.
+3. Port renderer/model bindings for `star_crawler` and `martian_raptor`.
+   These are hostile mobs with no inventory, passenger, or merchant systems.
+   Add the raptor leap AI only after the model render pass is stable.
+4. Port `glacian_ram` model with normal texture first. Defer sheared texture
+   selection, shearing, milking, breeding, and eat-permafrost animation until a
+   data-watched sheared/eating state is added.
+5. Port Pygro-family model bindings in this order: `pygro`,
+   `zombified_pygro`, `pygro_brute`. Defer item/armor layers and piglin-style
+   AI until the base model renderers are stable.
+6. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
+   Defer Hoglin/Zoglin knockback and behavior parity.
+7. Port Lunarian-family model bindings with default textures:
+   `lunarian`, `corrupted_lunarian`, then `lunarian_wandering_trader`.
+   Profession textures, merchant offers, wandering trader spawning, and
+   corrupted ranged attacks should remain separate follow-up batches.
+8. Port vehicle model renderers after the mob renderers: rockets first, then
+   lander, then rover. Treat item renderers as a separate client-only batch if
+   1.12 item rendering needs extra hooks.
+9. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
+   control, rocket countdown/fuel/launch-pad/menu flow, then lander descent and
+   fall explosion. These touch networking, GUI, and travel flow, so they are not
+   low-conflict renderer-only work.
+10. Defer full `air_vortex` behavior until Oxygen Distributor coverage is ready
+   to provide source and affected-position data. A small render-parity change to
+   make it invisible is safe, but the force behavior depends on oxygen system
+   state.
 
 ### 12. Client Rendering, Screens, Particles, and Audio
 

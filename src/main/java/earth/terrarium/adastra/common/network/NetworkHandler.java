@@ -5,6 +5,7 @@ import earth.terrarium.adastra.common.network.packet.PacketLandPlanet;
 import earth.terrarium.adastra.common.network.packet.PacketOpenRadioGui;
 import earth.terrarium.adastra.common.network.packet.PacketOpenPlanetSelection;
 import earth.terrarium.adastra.common.network.packet.PacketSetRadioStation;
+import earth.terrarium.adastra.common.network.packet.PacketSyncKeybinds;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -22,5 +23,6 @@ public final class NetworkHandler {
         CHANNEL.registerMessage(PacketLandPlanet.Handler.class, PacketLandPlanet.class, discriminator++, Side.SERVER);
         CHANNEL.registerMessage(PacketOpenRadioGui.Handler.class, PacketOpenRadioGui.class, discriminator++, Side.CLIENT);
         CHANNEL.registerMessage(PacketSetRadioStation.Handler.class, PacketSetRadioStation.class, discriminator++, Side.SERVER);
+        CHANNEL.registerMessage(PacketSyncKeybinds.Handler.class, PacketSyncKeybinds.class, discriminator++, Side.SERVER);
     }
 }
