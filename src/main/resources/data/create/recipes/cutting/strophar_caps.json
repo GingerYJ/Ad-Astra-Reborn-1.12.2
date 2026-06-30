@@ -15,15 +15,25 @@
   ],
   "type": "create:cutting",
   "ingredients": [
-    {
-      "tag": "ad_astra:strophar_caps"
-    }
+    [
+      {
+        "item": "ad_astra:strophar_cap"
+      },
+      {
+        "item": "ad_astra:strophar_stem"
+      }
+    ]
   ],
   "processingTime": 50,
   "results": [
     {
       "count": 6,
       "item": "ad_astra:strophar_planks"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

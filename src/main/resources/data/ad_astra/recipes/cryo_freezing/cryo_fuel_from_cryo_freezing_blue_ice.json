@@ -3,10 +3,15 @@
   "cookingtime": 120,
   "energy": 40,
   "ingredient": {
-    "item": "minecraft:blue_ice"
+    "item": "minecraft:packed_ice"
   },
   "result": {
     "fluid": "ad_astra:cryo_fuel",
     "millibuckets": 10
-  }
+  },
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

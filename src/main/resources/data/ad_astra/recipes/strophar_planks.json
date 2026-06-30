@@ -2,9 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "ad_astra:strophar_caps"
-    }
+    [
+      {
+        "item": "ad_astra:strophar_cap"
+      },
+      {
+        "item": "ad_astra:strophar_stem"
+      }
+    ]
   ],
   "result": {
     "count": 4,

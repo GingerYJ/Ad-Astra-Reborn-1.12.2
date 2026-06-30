@@ -1,237 +1,215 @@
 {
-  "type": "minecraft:chest",
   "pools": [
     {
-      "bonus_rolls": 0.0,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 14.0,
-                "min": 6.0
+                "min": 6,
+                "max": 14
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "ad_astra:mars_sand",
           "weight": 40
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 10.0,
-                "min": 5.0
+                "min": 5,
+                "max": 10
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:ice",
           "weight": 40
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 12.0,
-                "min": 6.0
+                "min": 6,
+                "max": 12
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "ad_astra:ice_shard",
           "weight": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 15.0,
-                "min": 5.0
+                "min": 5,
+                "max": 15
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:iron_ingot",
           "weight": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 2.0,
-                "min": 1.0
+                "min": 1,
+                "max": 2
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "ad_astra:raw_ostrum",
           "weight": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 9.0,
-                "min": 6.0
+                "min": 6,
+                "max": 9
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:emerald",
           "weight": 30
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 4.0,
-                "min": 2.0
+                "min": 2,
+                "max": 4
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:diamond",
           "weight": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 12.0,
-                "min": 6.0
+                "min": 6,
+                "max": 12
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:redstone",
           "weight": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 8.0,
-                "min": 4.0
+                "min": 4,
+                "max": 8
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:bone",
           "weight": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 6.0,
-                "min": 3.0
+                "min": 3,
+                "max": 6
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:string",
           "weight": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 10.0,
-                "min": 5.0
+                "min": 5,
+                "max": 10
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:rotten_flesh",
           "weight": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 10.0,
-                "min": 5.0
+                "min": 5,
+                "max": 10
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
           "name": "minecraft:stick",
           "weight": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "add": false,
               "count": {
-                "type": "minecraft:uniform",
-                "max": 8.0,
-                "min": 4.0
+                "min": 4,
+                "max": 8
               },
-              "function": "minecraft:set_count"
+              "function": "set_count"
             }
           ],
-          "name": "minecraft:glow_berries",
+          "name": "minecraft:apple",
           "weight": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "name": "minecraft:golden_apple",
           "weight": 6
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:enchanted_golden_apple",
-          "weight": 2
+          "type": "item",
+          "name": "minecraft:golden_apple",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "set_data",
+              "data": 1
+            }
+          ]
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:suspicious_stew",
+          "type": "item",
+          "name": "minecraft:mushroom_stew",
           "weight": 3
         },
         {
-          "type": "minecraft:item",
+          "type": "item",
           "functions": [
             {
-              "function": "minecraft:enchant_randomly"
+              "function": "enchant_randomly"
             }
           ],
           "name": "minecraft:book",
@@ -239,9 +217,8 @@
         }
       ],
       "rolls": {
-        "type": "minecraft:uniform",
-        "max": 8.0,
-        "min": 3.0
+        "min": 3,
+        "max": 8
       }
     }
   ]

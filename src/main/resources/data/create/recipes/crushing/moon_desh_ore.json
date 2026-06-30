@@ -36,5 +36,10 @@
       "chance": 0.125
     }
   ],
-  "processingTime": 300
+  "processingTime": 300,
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

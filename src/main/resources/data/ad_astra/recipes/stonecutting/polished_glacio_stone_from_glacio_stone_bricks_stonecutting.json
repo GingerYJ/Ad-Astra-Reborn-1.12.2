@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:glacio_stone_bricks"
   },
-  "result": "ad_astra:polished_glacio_stone"
+  "result": "ad_astra:polished_glacio_stone",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

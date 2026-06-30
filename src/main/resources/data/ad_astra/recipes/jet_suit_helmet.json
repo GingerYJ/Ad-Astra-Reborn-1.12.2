@@ -3,10 +3,11 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:calorite_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateCalorite"
     },
     "G": {
-      "item": "minecraft:tinted_glass"
+      "item": "minecraft:glass"
     },
     "N": {
       "item": "ad_astra:netherite_space_helmet"

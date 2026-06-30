@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:venus_cobblestone"
   },
-  "result": "ad_astra:venus_cobblestone_stairs"
+  "result": "ad_astra:venus_cobblestone_stairs",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

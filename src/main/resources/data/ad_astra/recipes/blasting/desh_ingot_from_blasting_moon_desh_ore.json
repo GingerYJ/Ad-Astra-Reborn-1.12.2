@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:moon_desh_ore"
   },
-  "result": "ad_astra:desh_ingot"
+  "result": "ad_astra:desh_ingot",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

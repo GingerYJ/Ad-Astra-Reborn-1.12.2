@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:venus_gold_ore"
   },
-  "result": "minecraft:gold_ingot"
+  "result": "minecraft:gold_ingot",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

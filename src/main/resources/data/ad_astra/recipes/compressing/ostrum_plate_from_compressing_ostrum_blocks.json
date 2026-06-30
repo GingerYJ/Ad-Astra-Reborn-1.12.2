@@ -3,7 +3,8 @@
   "cookingtime": 800,
   "energy": 20,
   "ingredient": {
-    "tag": "ad_astra:ostrum_blocks"
+    "type": "forge:ore_dict",
+    "ore": "blockOstrum"
   },
   "result": {
     "count": 9,

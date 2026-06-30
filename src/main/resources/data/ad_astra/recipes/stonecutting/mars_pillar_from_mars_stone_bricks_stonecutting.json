@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:mars_stone_bricks"
   },
-  "result": "ad_astra:mars_pillar"
+  "result": "ad_astra:mars_pillar",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

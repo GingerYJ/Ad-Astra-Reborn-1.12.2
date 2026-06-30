@@ -5,22 +5,28 @@
       "item": "ad_astra:rocket_nose_cone"
     },
     {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     {
       "item": "ad_astra:rocket_fin"

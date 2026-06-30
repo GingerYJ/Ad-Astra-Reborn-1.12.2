@@ -16,12 +16,18 @@
   "type": "create:pressing",
   "ingredients": [
     {
-      "tag": "ad_astra:ostrum_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotOstrum"
     }
   ],
   "results": [
     {
       "item": "ad_astra:ostrum_plate"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

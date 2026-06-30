@@ -13,21 +13,26 @@ public class PygroBruteEntity extends AdAstraPlaceholderMob {
 
     @Override
     protected double getMobMaxHealth() {
-        return 40.0d;
+        return 60.0d;
     }
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.24d;
+        return 0.45d;
     }
 
     @Override
     protected double getMobAttackDamage() {
-        return 8.0d;
+        return 9.0d;
     }
 
     @Override
     protected double getMobFollowRange() {
         return 36.0d;
+    }
+
+    @Override
+    protected boolean canDespawnNaturally() {
+        return false;
     }
 }

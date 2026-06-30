@@ -16,12 +16,18 @@
   "type": "create:pressing",
   "ingredients": [
     {
-      "tag": "ad_astra:desh_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotDesh"
     }
   ],
   "results": [
     {
       "item": "ad_astra:desh_plate"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

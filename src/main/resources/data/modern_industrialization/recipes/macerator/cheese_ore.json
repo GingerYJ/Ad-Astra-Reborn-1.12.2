@@ -27,5 +27,10 @@
       "amount": 4,
       "item": "ad_astra:cheese"
     }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
   ]
 }

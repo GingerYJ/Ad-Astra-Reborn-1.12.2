@@ -18,14 +18,19 @@
   "eu": 2,
   "item_inputs": [
     {
-      "amount": 1,
-      "tag": "c:ice_shard_ores"
+      "type": "forge:ore_dict",
+      "ore": "oreIceShard"
     }
   ],
   "item_outputs": [
     {
       "amount": 4,
       "item": "ad_astra:ice_shard"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

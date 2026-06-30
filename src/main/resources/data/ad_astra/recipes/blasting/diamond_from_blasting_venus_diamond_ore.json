@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:venus_diamond_ore"
   },
-  "result": "minecraft:diamond"
+  "result": "minecraft:diamond",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

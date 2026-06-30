@@ -1,9 +1,12 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.entities.misc.AirVortexEntity;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
@@ -17,6 +20,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import java.util.List;
+
 public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
 
     private static final int INPUT_CONTAINER_SLOT = 1;
@@ -27,6 +32,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     private static final int WATER_OXYGEN_OUTPUT_PER_OPERATION = 4;
     private static final int MAX_WORKING_RADIUS = calculateMaxRadius(MAX_DISTRIBUTION_BLOCKS);
     private static final int DEFAULT_WORKING_RADIUS = MAX_WORKING_RADIUS;
+    private static final int AIR_VORTEX_SPAWN_INTERVAL = 200;
 
     private final IFluidHandler fluidHandler = new DistributorFluidHandler();
 
@@ -37,6 +43,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     private int energyPerTick;
     private int oxygenPerTick;
     private int ticksUntilRefresh;
+    private int airVortexCooldown;
 
     public OxygenDistributorTileEntity() {
         super("oxygen_distributor", 3, DESH_ENERGY, DESH_IO, 0, DESH_FLUID);
@@ -46,6 +53,10 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     protected void tickMachine() {
+        if (airVortexCooldown > 0) {
+            airVortexCooldown--;
+        }
+
         if (energy == null || fluidTank == null || !canFunction()) {
             stopProvidingOxygen();
             return;
@@ -68,6 +79,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         energyPerTick = requiredEnergy;
         oxygenPerTick = requiredOxygen;
         setLit(true);
+        maybeSpawnAirVortex();
         markDirty();
     }
 
@@ -206,6 +218,32 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         return dx * dx + dy * dy + dz * dz <= radius * radius;
     }
 
+    private void maybeSpawnAirVortex() {
+        if (!AdAstraConfig.enableAirVortexes || world == null || pos == null || airVortexCooldown > 0) {
+            return;
+        }
+        if (distributedBlocksCount < MAX_DISTRIBUTION_BLOCKS || hasSourceAirVortex()) {
+            return;
+        }
+
+        BlockPos spawnPos = pos.up(Math.max(2, workingRadius / 2));
+        AirVortexEntity vortex = new AirVortexEntity(world, pos, workingRadius);
+        vortex.setPosition(spawnPos.getX() + 0.5d, spawnPos.getY() + 0.5d, spawnPos.getZ() + 0.5d);
+        world.spawnEntity(vortex);
+        airVortexCooldown = AIR_VORTEX_SPAWN_INTERVAL;
+    }
+
+    private boolean hasSourceAirVortex() {
+        AxisAlignedBB bounds = new AxisAlignedBB(pos).grow(workingRadius + 2);
+        List<AirVortexEntity> vortexes = world.getEntitiesWithinAABB(AirVortexEntity.class, bounds);
+        for (AirVortexEntity vortex : vortexes) {
+            if (!vortex.isDead && pos.equals(vortex.getSourcePos())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getWorkingRadius() {
         return workingRadius;
     }
@@ -319,6 +357,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         energyPerTick = Math.max(0, compound.getInteger("EnergyPerTick"));
         oxygenPerTick = Math.max(0, compound.getInteger("OxygenPerTick"));
         ticksUntilRefresh = Math.max(0, compound.getInteger("DistributionRefreshTicks"));
+        airVortexCooldown = Math.max(0, compound.getInteger("AirVortexCooldown"));
     }
 
     @Override
@@ -331,6 +370,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         compound.setInteger("EnergyPerTick", energyPerTick);
         compound.setInteger("OxygenPerTick", oxygenPerTick);
         compound.setInteger("DistributionRefreshTicks", ticksUntilRefresh);
+        compound.setInteger("AirVortexCooldown", airVortexCooldown);
         return compound;
     }
 

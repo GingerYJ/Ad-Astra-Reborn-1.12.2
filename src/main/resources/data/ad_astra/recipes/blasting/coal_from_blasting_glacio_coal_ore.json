@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:glacio_coal_ore"
   },
-  "result": "minecraft:coal"
+  "result": "minecraft:coal",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

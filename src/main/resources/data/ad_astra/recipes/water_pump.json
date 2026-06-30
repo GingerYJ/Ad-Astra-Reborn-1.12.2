@@ -3,7 +3,8 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:desh_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
     },
     "G": {
       "item": "ad_astra:gas_tank"
@@ -12,7 +13,8 @@
       "item": "minecraft:hopper"
     },
     "S": {
-      "tag": "ad_astra:steel_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
     }
   },
   "pattern": [

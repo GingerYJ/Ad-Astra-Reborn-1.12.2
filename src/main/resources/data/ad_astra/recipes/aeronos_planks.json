@@ -2,9 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "ad_astra:aeronos_caps"
-    }
+    [
+      {
+        "item": "ad_astra:aeronos_cap"
+      },
+      {
+        "item": "ad_astra:aeronos_stem"
+      }
+    ]
   ],
   "result": {
     "count": 4,

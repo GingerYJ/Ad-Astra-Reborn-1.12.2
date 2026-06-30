@@ -21,7 +21,8 @@
   ],
   "key": {
     "#": {
-      "item": "minecraft:blue_dye"
+      "item": "minecraft:dye",
+      "data": 4
     },
     "/": {
       "item": "minecraft:iron_ingot"
@@ -30,5 +31,10 @@
       "item": "minecraft:book"
     }
   },
-  "book": "ad_astra:astrodux"
+  "book": "ad_astra:astrodux",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

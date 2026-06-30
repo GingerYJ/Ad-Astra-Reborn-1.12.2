@@ -24,5 +24,10 @@
       "item": "ad_astra:venus_sand"
     }
   ],
-  "processingTime": 150
+  "processingTime": 150,
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

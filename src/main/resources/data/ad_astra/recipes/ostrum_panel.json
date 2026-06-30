@@ -3,10 +3,12 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:ostrum_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
     },
     "I": {
-      "tag": "ad_astra:ostrum_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotOstrum"
     }
   },
   "pattern": [

@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.world.World;
 
 public class ZombifiedPygroEntity extends AdAstraPlaceholderMob {
@@ -18,16 +19,21 @@ public class ZombifiedPygroEntity extends AdAstraPlaceholderMob {
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.25d;
+        return 0.26d;
     }
 
     @Override
     protected double getMobAttackDamage() {
-        return 5.0d;
+        return 8.0d;
     }
 
     @Override
     protected double getMobFollowRange() {
         return 32.0d;
+    }
+
+    @Override
+    public EnumCreatureAttribute getCreatureAttribute() {
+        return EnumCreatureAttribute.UNDEAD;
     }
 }

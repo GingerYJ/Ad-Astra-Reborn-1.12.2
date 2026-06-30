@@ -3,7 +3,8 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:steel_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
     },
     "O": {
       "item": "ad_astra:oxygen_gear"
@@ -12,7 +13,8 @@
       "item": "ad_astra:gas_tank"
     },
     "W": {
-      "tag": "minecraft:wool"
+      "item": "minecraft:wool",
+      "data": 32767
     }
   },
   "pattern": [

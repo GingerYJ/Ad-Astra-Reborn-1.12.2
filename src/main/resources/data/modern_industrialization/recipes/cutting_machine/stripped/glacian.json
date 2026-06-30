@@ -33,5 +33,10 @@
       "amount": 1,
       "item": "ad_astra:stripped_glacian_log"
     }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
   ]
 }

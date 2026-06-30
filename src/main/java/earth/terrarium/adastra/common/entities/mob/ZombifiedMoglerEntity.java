@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.world.World;
 
 public class ZombifiedMoglerEntity extends AdAstraPlaceholderMob {
@@ -13,12 +14,12 @@ public class ZombifiedMoglerEntity extends AdAstraPlaceholderMob {
 
     @Override
     protected double getMobMaxHealth() {
-        return 34.0d;
+        return 40.0d;
     }
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.24d;
+        return 0.30d;
     }
 
     @Override
@@ -29,5 +30,20 @@ public class ZombifiedMoglerEntity extends AdAstraPlaceholderMob {
     @Override
     protected double getMobFollowRange() {
         return 32.0d;
+    }
+
+    @Override
+    protected double getMobKnockbackResistance() {
+        return 0.60d;
+    }
+
+    @Override
+    protected boolean canDespawnNaturally() {
+        return false;
+    }
+
+    @Override
+    public EnumCreatureAttribute getCreatureAttribute() {
+        return EnumCreatureAttribute.UNDEAD;
     }
 }

@@ -4,7 +4,13 @@
   "cookingtime": 100,
   "experience": 0.1,
   "ingredient": {
-    "tag": "ad_astra:raw_desh"
+    "type": "forge:ore_dict",
+    "ore": "rawDesh"
   },
-  "result": "ad_astra:desh_ingot"
+  "result": "ad_astra:desh_ingot",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

@@ -3,10 +3,11 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:ostrum_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
     },
     "N": {
-      "item": "minecraft:netherite_chestplate"
+      "item": "minecraft:diamond_chestplate"
     },
     "O": {
       "item": "ad_astra:oxygen_gear"

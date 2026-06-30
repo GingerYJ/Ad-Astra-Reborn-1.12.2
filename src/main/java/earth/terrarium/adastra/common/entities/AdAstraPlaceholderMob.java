@@ -48,6 +48,7 @@ public class AdAstraPlaceholderMob extends EntityCreature {
         setAttribute(SharedMonsterAttributes.MOVEMENT_SPEED, getMobMovementSpeed());
         setAttribute(SharedMonsterAttributes.FOLLOW_RANGE, getMobFollowRange());
         setAttribute(SharedMonsterAttributes.ATTACK_DAMAGE, getMobAttackDamage());
+        setAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE, getMobKnockbackResistance());
     }
 
     @Override
@@ -55,6 +56,11 @@ public class AdAstraPlaceholderMob extends EntityCreature {
         IAttributeInstance attackDamage = getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
         float damage = attackDamage == null ? 0.0f : (float) attackDamage.getAttributeValue();
         return damage > 0.0f && entity.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
+    }
+
+    @Override
+    protected boolean canDespawn() {
+        return canDespawnNaturally();
     }
 
     protected void setAttribute(IAttribute attribute, double value) {
@@ -90,6 +96,10 @@ public class AdAstraPlaceholderMob extends EntityCreature {
         return 3.0d;
     }
 
+    protected double getMobKnockbackResistance() {
+        return 0.0d;
+    }
+
     protected double getMobFollowRange() {
         return isHostileMob() ? 32.0d : 16.0d;
     }
@@ -104,5 +114,9 @@ public class AdAstraPlaceholderMob extends EntityCreature {
 
     protected float getWatchDistance() {
         return 8.0f;
+    }
+
+    protected boolean canDespawnNaturally() {
+        return true;
     }
 }

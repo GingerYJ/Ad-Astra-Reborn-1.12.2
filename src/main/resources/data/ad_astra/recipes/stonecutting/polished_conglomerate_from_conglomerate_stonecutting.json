@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:conglomerate"
   },
-  "result": "ad_astra:polished_conglomerate"
+  "result": "ad_astra:polished_conglomerate",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

@@ -6,10 +6,12 @@
       "item": "ad_astra:iron_pillar"
     },
     {
-      "item": "minecraft:yellow_dye"
+      "item": "minecraft:dye",
+      "data": 11
     },
     {
-      "item": "minecraft:black_dye"
+      "item": "minecraft:dye",
+      "data": 0
     }
   ],
   "result": {

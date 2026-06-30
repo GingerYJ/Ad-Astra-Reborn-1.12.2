@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:moon_cobblestone"
   },
-  "result": "ad_astra:moon_cobblestone_slab"
+  "result": "ad_astra:moon_cobblestone_slab",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

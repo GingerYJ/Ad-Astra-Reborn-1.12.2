@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:mars_ostrum_ore"
   },
-  "result": "ad_astra:ostrum_ingot"
+  "result": "ad_astra:ostrum_ingot",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

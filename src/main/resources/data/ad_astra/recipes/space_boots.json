@@ -3,10 +3,12 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:steel_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
     },
     "W": {
-      "tag": "minecraft:wool"
+      "item": "minecraft:wool",
+      "data": 32767
     }
   },
   "pattern": [

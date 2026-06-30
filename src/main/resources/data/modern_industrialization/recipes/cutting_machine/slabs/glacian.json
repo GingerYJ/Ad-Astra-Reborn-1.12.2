@@ -33,5 +33,10 @@
       "amount": 2,
       "item": "ad_astra:glacian_slab"
     }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
   ]
 }

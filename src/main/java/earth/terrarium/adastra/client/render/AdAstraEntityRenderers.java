@@ -82,7 +82,14 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderTexturedMob<ZombifiedMoglerEntity>(manager, new ModelMogler(), texture("mob/zombified_mogler"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(SulfurCreeperEntity.class, RenderSulfurCreeper::new);
         RenderingRegistry.registerEntityRenderingHandler(GlacianRamEntity.class,
-            manager -> new RenderTexturedMob<GlacianRamEntity>(manager, new ModelGlacianRam(), texture("mob/glacian_ram/glacian_ram"), 0.7f));
+            manager -> new RenderTexturedMob<GlacianRamEntity>(manager, new ModelGlacianRam(), texture("mob/glacian_ram/glacian_ram"), 0.7f) {
+                private final ResourceLocation shearedTexture = texture("mob/glacian_ram/sheared_glacian_ram");
+
+                @Override
+                protected ResourceLocation getTexture(GlacianRamEntity entity) {
+                    return entity.isSheared() ? shearedTexture : super.getTexture(entity);
+                }
+            });
 
         RenderingRegistry.registerEntityRenderingHandler(IceSpitEntity.class,
             manager -> new RenderSnowball<IceSpitEntity>(manager, ModItems.ICE_SHARD, Minecraft.getMinecraft().getRenderItem()));

@@ -4,7 +4,13 @@
   "cookingtime": 100,
   "experience": 0.1,
   "ingredient": {
-    "tag": "ad_astra:raw_ostrum"
+    "type": "forge:ore_dict",
+    "ore": "rawOstrum"
   },
-  "result": "ad_astra:ostrum_ingot"
+  "result": "ad_astra:ostrum_ingot",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

@@ -5,25 +5,29 @@
     {
       "count": 32,
       "ingredient": {
-        "tag": "ad_astra:steel_ingots"
+        "type": "forge:ore_dict",
+        "ore": "ingotSteel"
       }
     },
     {
       "count": 64,
       "ingredient": {
-        "tag": "ad_astra:steel_plates"
+        "type": "forge:ore_dict",
+        "ore": "plateSteel"
       }
     },
     {
       "count": 32,
       "ingredient": {
-        "tag": "ad_astra:ostrum_ingots"
+        "type": "forge:ore_dict",
+        "ore": "ingotOstrum"
       }
     },
     {
       "count": 32,
       "ingredient": {
-        "tag": "ad_astra:ostrum_plates"
+        "type": "forge:ore_dict",
+        "ore": "plateOstrum"
       }
     }
   ],

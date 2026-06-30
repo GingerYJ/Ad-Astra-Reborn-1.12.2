@@ -3,10 +3,11 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:iron_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateIron"
     },
     "B": {
-      "item": "minecraft:blast_furnace"
+      "item": "minecraft:furnace"
     },
     "R": {
       "item": "minecraft:redstone"

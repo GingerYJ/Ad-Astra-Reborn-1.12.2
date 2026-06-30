@@ -18,14 +18,19 @@
   "eu": 2,
   "item_inputs": [
     {
-      "amount": 1,
-      "tag": "c:ostrum_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotOstrum"
     }
   ],
   "item_outputs": [
     {
       "amount": 1,
       "item": "ad_astra:ostrum_plate"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

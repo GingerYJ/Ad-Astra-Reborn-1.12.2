@@ -25,5 +25,10 @@
       "count": 6,
       "item": "ad_astra:glacian_planks"
     }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
   ]
 }

@@ -18,14 +18,19 @@
   "eu": 2,
   "item_inputs": [
     {
-      "amount": 1,
-      "tag": "c:desh_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotDesh"
     }
   ],
   "item_outputs": [
     {
       "amount": 1,
       "item": "ad_astra:desh_plate"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

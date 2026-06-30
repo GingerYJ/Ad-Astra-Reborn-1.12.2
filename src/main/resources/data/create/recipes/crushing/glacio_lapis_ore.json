@@ -21,12 +21,14 @@
   ],
   "results": [
     {
-      "item": "minecraft:lapis_lazuli",
-      "count": 10
+      "item": "minecraft:dye",
+      "count": 10,
+      "data": 4
     },
     {
-      "item": "minecraft:lapis_lazuli",
-      "chance": 0.5
+      "item": "minecraft:dye",
+      "chance": 0.5,
+      "data": 4
     },
     {
       "item": "create:experience_nugget",
@@ -37,5 +39,10 @@
       "chance": 0.125
     }
   ],
-  "processingTime": 250
+  "processingTime": 250,
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

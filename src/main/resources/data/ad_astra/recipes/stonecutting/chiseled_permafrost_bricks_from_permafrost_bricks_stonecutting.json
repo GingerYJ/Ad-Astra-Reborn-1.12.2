@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:permafrost_bricks"
   },
-  "result": "ad_astra:chiseled_permafrost_bricks"
+  "result": "ad_astra:chiseled_permafrost_bricks",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

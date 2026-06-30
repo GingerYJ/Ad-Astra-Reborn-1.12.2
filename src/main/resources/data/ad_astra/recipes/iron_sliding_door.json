@@ -6,7 +6,8 @@
       "item": "ad_astra:iron_plating"
     },
     "B": {
-      "tag": "ad_astra:steel_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
     },
     "P": {
       "item": "minecraft:glass_pane"

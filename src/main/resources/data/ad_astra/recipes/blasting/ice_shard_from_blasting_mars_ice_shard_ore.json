@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:mars_ice_shard_ore"
   },
-  "result": "ad_astra:ice_shard"
+  "result": "ad_astra:ice_shard",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

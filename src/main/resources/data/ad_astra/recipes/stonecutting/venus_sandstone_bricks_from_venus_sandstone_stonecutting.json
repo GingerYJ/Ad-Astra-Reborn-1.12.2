@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:venus_sandstone"
   },
-  "result": "ad_astra:venus_sandstone_bricks"
+  "result": "ad_astra:venus_sandstone_bricks",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

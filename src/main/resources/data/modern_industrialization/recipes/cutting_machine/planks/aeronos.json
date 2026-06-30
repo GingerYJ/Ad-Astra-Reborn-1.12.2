@@ -23,15 +23,24 @@
     }
   ],
   "item_inputs": [
-    {
-      "amount": 1,
-      "tag": "ad_astra:aeronos_caps"
-    }
+    [
+      {
+        "item": "ad_astra:aeronos_cap"
+      },
+      {
+        "item": "ad_astra:aeronos_stem"
+      }
+    ]
   ],
   "item_outputs": [
     {
       "amount": 6,
       "item": "ad_astra:aeronos_planks"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

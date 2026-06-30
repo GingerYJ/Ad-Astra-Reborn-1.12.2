@@ -3,10 +3,12 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:iron_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateIron"
     },
     "|": {
-      "tag": "ad_astra:iron_rods"
+      "type": "forge:ore_dict",
+      "ore": "rodIron"
     }
   },
   "pattern": [

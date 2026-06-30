@@ -4,7 +4,8 @@
   "cookingtime": 200,
   "experience": 0.1,
   "ingredient": {
-    "tag": "ad_astra:raw_calorite"
+    "type": "forge:ore_dict",
+    "ore": "rawCalorite"
   },
   "result": "ad_astra:calorite_ingot"
 }

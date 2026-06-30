@@ -17,16 +17,21 @@ public class PygroEntity extends AdAstraPlaceholderMob {
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.26d;
+        return 0.45d;
     }
 
     @Override
     protected double getMobAttackDamage() {
-        return 4.0d;
+        return 6.0d;
     }
 
     @Override
     protected double getMobFollowRange() {
         return 32.0d;
+    }
+
+    @Override
+    protected boolean canDespawnNaturally() {
+        return false;
     }
 }

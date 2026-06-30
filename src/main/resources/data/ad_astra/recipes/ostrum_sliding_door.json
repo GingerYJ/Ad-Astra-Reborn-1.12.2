@@ -3,10 +3,12 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:ostrum_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
     },
     "B": {
-      "tag": "ad_astra:ostrum_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockOstrum"
     },
     "P": {
       "item": "minecraft:glass_pane"

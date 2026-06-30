@@ -3,7 +3,8 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:ostrum_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
     },
     "|": {
       "item": "ad_astra:steel_rod"

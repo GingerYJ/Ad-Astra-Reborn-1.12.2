@@ -11,22 +11,32 @@ public class LunarianEntity extends AdAstraPlaceholderMob {
     }
 
     @Override
+    protected boolean isHostileMob() {
+        return false;
+    }
+
+    @Override
+    protected boolean usesMeleeAttack() {
+        return false;
+    }
+
+    @Override
     protected double getMobMaxHealth() {
-        return 24.0d;
+        return 20.0d;
     }
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.27d;
+        return 0.50d;
     }
 
     @Override
     protected double getMobAttackDamage() {
-        return 4.0d;
+        return 0.0d;
     }
 
     @Override
     protected double getMobFollowRange() {
-        return 32.0d;
+        return 48.0d;
     }
 }

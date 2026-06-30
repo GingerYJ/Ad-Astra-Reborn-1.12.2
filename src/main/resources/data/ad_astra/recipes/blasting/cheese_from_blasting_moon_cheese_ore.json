@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:moon_cheese_ore"
   },
-  "result": "ad_astra:cheese"
+  "result": "ad_astra:cheese",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

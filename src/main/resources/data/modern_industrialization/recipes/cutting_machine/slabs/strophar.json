@@ -33,5 +33,10 @@
       "amount": 2,
       "item": "ad_astra:strophar_slab"
     }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
   ]
 }

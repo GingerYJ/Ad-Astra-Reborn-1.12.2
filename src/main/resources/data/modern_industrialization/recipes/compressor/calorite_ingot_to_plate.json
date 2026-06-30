@@ -18,14 +18,19 @@
   "eu": 2,
   "item_inputs": [
     {
-      "amount": 1,
-      "tag": "c:calorite_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotCalorite"
     }
   ],
   "item_outputs": [
     {
       "amount": 1,
       "item": "ad_astra:calorite_plate"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }

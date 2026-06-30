@@ -1,21 +1,13 @@
 {
-  "type": "minecraft:block",
   "pools": [
     {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ],
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "item",
           "name": "ad_astra:earth_globe"
         }
       ],
-      "rolls": 1.0
+      "rolls": 1
     }
-  ],
-  "random_sequence": "ad_astra:blocks/earth_globe"
+  ]
 }

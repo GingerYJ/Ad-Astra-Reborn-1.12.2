@@ -3,7 +3,8 @@
   "cookingtime": 800,
   "energy": 20,
   "ingredient": {
-    "tag": "ad_astra:calorite_blocks"
+    "type": "forge:ore_dict",
+    "ore": "blockCalorite"
   },
   "result": {
     "count": 9,

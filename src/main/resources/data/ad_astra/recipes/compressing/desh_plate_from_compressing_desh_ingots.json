@@ -3,7 +3,8 @@
   "cookingtime": 100,
   "energy": 20,
   "ingredient": {
-    "tag": "ad_astra:desh_ingots"
+    "type": "forge:ore_dict",
+    "ore": "ingotDesh"
   },
   "result": {
     "count": 1,

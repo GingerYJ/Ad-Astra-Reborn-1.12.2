@@ -3,10 +3,12 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:steel_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
     },
     "S": {
-      "tag": "ad_astra:steel_ingots"
+      "type": "forge:ore_dict",
+      "ore": "ingotSteel"
     }
   },
   "pattern": [

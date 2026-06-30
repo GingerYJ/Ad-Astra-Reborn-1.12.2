@@ -4,5 +4,10 @@
   "ingredient": {
     "item": "ad_astra:polished_permafrost"
   },
-  "result": "ad_astra:polished_permafrost_slab"
+  "result": "ad_astra:polished_permafrost_slab",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

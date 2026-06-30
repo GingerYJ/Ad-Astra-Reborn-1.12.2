@@ -12,17 +12,17 @@ public class StarCrawlerEntity extends AdAstraPlaceholderMob {
 
     @Override
     protected double getMobMaxHealth() {
-        return 18.0d;
+        return 40.0d;
     }
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.30d;
+        return 0.40d;
     }
 
     @Override
     protected double getMobAttackDamage() {
-        return 4.0d;
+        return 9.0d;
     }
 
     @Override

@@ -6,5 +6,10 @@
   "ingredient": {
     "item": "ad_astra:venus_calorite_ore"
   },
-  "result": "ad_astra:calorite_ingot"
+  "result": "ad_astra:calorite_ingot",
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }

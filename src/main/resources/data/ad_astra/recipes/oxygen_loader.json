@@ -3,7 +3,8 @@
   "category": "misc",
   "key": {
     "#": {
-      "tag": "ad_astra:steel_plates"
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
     },
     "F": {
       "item": "ad_astra:fan"
@@ -15,7 +16,7 @@
       "item": "minecraft:redstone_block"
     },
     "|": {
-      "item": "minecraft:lightning_rod"
+      "item": "ad_astra:steel_rod"
     }
   },
   "pattern": [

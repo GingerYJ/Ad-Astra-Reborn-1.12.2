@@ -3,7 +3,8 @@
   "cookingtime": 800,
   "energy": 20,
   "ingredient": {
-    "tag": "ad_astra:steel_blocks"
+    "type": "forge:ore_dict",
+    "ore": "blockSteel"
   },
   "result": {
     "count": 9,

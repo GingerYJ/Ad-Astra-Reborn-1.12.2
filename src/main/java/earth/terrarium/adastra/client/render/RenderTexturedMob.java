@@ -20,6 +20,10 @@ class RenderTexturedMob<T extends AdAstraPlaceholderMob> extends RenderLiving<T>
 
     @Override
     protected ResourceLocation getEntityTexture(T entity) {
+        return getTexture(entity);
+    }
+
+    protected ResourceLocation getTexture(T entity) {
         return texture;
     }
 }

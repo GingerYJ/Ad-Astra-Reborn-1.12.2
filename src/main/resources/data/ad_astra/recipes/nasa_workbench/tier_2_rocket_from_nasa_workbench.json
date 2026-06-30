@@ -5,22 +5,28 @@
       "item": "ad_astra:rocket_nose_cone"
     },
     {
-      "tag": "ad_astra:desh_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
     },
     {
-      "tag": "ad_astra:desh_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
     },
     {
-      "tag": "ad_astra:desh_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
     },
     {
-      "tag": "ad_astra:desh_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
     },
     {
-      "tag": "ad_astra:desh_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
     },
     {
-      "tag": "ad_astra:desh_blocks"
+      "type": "forge:ore_dict",
+      "ore": "blockDesh"
     },
     {
       "item": "ad_astra:rocket_fin"

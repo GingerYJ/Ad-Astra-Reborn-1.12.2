@@ -23,15 +23,24 @@
     }
   ],
   "item_inputs": [
-    {
-      "amount": 1,
-      "tag": "ad_astra:strophar_caps"
-    }
+    [
+      {
+        "item": "ad_astra:strophar_cap"
+      },
+      {
+        "item": "ad_astra:strophar_stem"
+      }
+    ]
   ],
   "item_outputs": [
     {
       "amount": 6,
       "item": "ad_astra:strophar_planks"
+    }
+  ],
+  "conditions": [
+    {
+      "type": "forge:false"
     }
   ]
 }
