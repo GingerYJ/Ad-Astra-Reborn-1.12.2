@@ -254,6 +254,8 @@ Current status:
 - Basic material/component items, fluid buckets, utility items, gas tanks,
   armor sets, space painting, vehicle items, and spawn egg item ids are
   registered.
+- Rocket and rover items now place first-pass vehicle entities, and the 12
+  spawn egg items now create their matching Ad Astra mob entities on block use.
 - Wrench has a first-pass 1.12.2 implementation for machine side modes:
   right-click cycles the clicked face's energy mode, and sneaking cycles
   backwards or fluid mode on machines with tanks.
@@ -701,8 +703,8 @@ Current status:
   classes.
 - The 12 mob ids have first-pass 1.12.2 AI task wiring and attributes.
 - Sulfur creepers have a simple server-side fuse/explosion behavior.
-- Spawn egg item ids are registered as placeholders; entity entries have source
-  spawn egg colors where applicable.
+- The 12 spawn egg item ids create their matching first-pass mob entities on
+  block use; entity entries retain source spawn egg colors where applicable.
 - Forge 1.12 client render factories are registered for all 20 entity ids.
   Mobs use copied Ad Astra textures on safe vanilla-model placeholders, vehicles
   use simple textured box placeholders, Ice Spit renders as an item projectile,
@@ -766,7 +768,8 @@ Target:
 
 Current status:
 
-- Sound events are registered first-pass.
+- Sound events are registered first-pass, and `assets/ad_astra/sounds.json`
+  plus the 14 copied `.ogg` assets are aligned with the 1.20 source sound set.
 - A first-pass Forge 1.12 `RenderGameOverlayEvent` HUD is present for compact
   oxygen/temperature/gravity/energy readouts. Exact 1.20 overlay visuals,
   warning states, vehicle overlays, and config-positioned bars remain pending.

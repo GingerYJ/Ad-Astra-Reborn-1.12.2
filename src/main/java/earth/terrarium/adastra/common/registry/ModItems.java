@@ -3,8 +3,21 @@ package earth.terrarium.adastra.common.registry;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
+import earth.terrarium.adastra.common.entities.mob.CorruptedLunarianEntity;
+import earth.terrarium.adastra.common.entities.mob.GlacianRamEntity;
+import earth.terrarium.adastra.common.entities.mob.LunarianEntity;
+import earth.terrarium.adastra.common.entities.mob.LunarianWanderingTraderEntity;
+import earth.terrarium.adastra.common.entities.mob.MartianRaptorEntity;
+import earth.terrarium.adastra.common.entities.mob.MoglerEntity;
+import earth.terrarium.adastra.common.entities.mob.PygroBruteEntity;
+import earth.terrarium.adastra.common.entities.mob.PygroEntity;
+import earth.terrarium.adastra.common.entities.mob.StarCrawlerEntity;
+import earth.terrarium.adastra.common.entities.mob.SulfurCreeperEntity;
+import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
+import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
+import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.items.VehicleItem;
@@ -112,18 +125,18 @@ public final class ModItems {
     public static final Item TIER_4_ROCKET = vehicle("tier_4_rocket", Tier4RocketEntity::new);
     public static final Item TIER_1_ROVER = vehicle("tier_1_rover", Tier1RoverEntity::new);
 
-    public static final Item LUNARIAN_SPAWN_EGG = item("lunarian_spawn_egg", 1);
-    public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = item("corrupted_lunarian_spawn_egg", 1);
-    public static final Item STAR_CRAWLER_SPAWN_EGG = item("star_crawler_spawn_egg", 1);
-    public static final Item MARTIAN_RAPTOR_SPAWN_EGG = item("martian_raptor_spawn_egg", 1);
-    public static final Item PYGRO_SPAWN_EGG = item("pygro_spawn_egg", 1);
-    public static final Item ZOMBIFIED_PYGRO_SPAWN_EGG = item("zombified_pygro_spawn_egg", 1);
-    public static final Item PYGRO_BRUTE_SPAWN_EGG = item("pygro_brute_spawn_egg", 1);
-    public static final Item MOGLER_SPAWN_EGG = item("mogler_spawn_egg", 1);
-    public static final Item ZOMBIFIED_MOGLER_SPAWN_EGG = item("zombified_mogler_spawn_egg", 1);
-    public static final Item SULFUR_CREEPER_SPAWN_EGG = item("sulfur_creeper_spawn_egg", 1);
-    public static final Item GLACIAN_RAM_SPAWN_EGG = item("glacian_ram_spawn_egg", 1);
-    public static final Item LUNARIAN_WANDERING_TRADER_SPAWN_EGG = item("lunarian_wandering_trader_spawn_egg", 1);
+    public static final Item LUNARIAN_SPAWN_EGG = spawnEgg("lunarian_spawn_egg", LunarianEntity::new);
+    public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = spawnEgg("corrupted_lunarian_spawn_egg", CorruptedLunarianEntity::new);
+    public static final Item STAR_CRAWLER_SPAWN_EGG = spawnEgg("star_crawler_spawn_egg", StarCrawlerEntity::new);
+    public static final Item MARTIAN_RAPTOR_SPAWN_EGG = spawnEgg("martian_raptor_spawn_egg", MartianRaptorEntity::new);
+    public static final Item PYGRO_SPAWN_EGG = spawnEgg("pygro_spawn_egg", PygroEntity::new);
+    public static final Item ZOMBIFIED_PYGRO_SPAWN_EGG = spawnEgg("zombified_pygro_spawn_egg", ZombifiedPygroEntity::new);
+    public static final Item PYGRO_BRUTE_SPAWN_EGG = spawnEgg("pygro_brute_spawn_egg", PygroBruteEntity::new);
+    public static final Item MOGLER_SPAWN_EGG = spawnEgg("mogler_spawn_egg", MoglerEntity::new);
+    public static final Item ZOMBIFIED_MOGLER_SPAWN_EGG = spawnEgg("zombified_mogler_spawn_egg", ZombifiedMoglerEntity::new);
+    public static final Item SULFUR_CREEPER_SPAWN_EGG = spawnEgg("sulfur_creeper_spawn_egg", SulfurCreeperEntity::new);
+    public static final Item GLACIAN_RAM_SPAWN_EGG = spawnEgg("glacian_ram_spawn_egg", GlacianRamEntity::new);
+    public static final Item LUNARIAN_WANDERING_TRADER_SPAWN_EGG = spawnEgg("lunarian_wandering_trader_spawn_egg", LunarianWanderingTraderEntity::new);
 
     private ModItems() {
     }
@@ -190,6 +203,12 @@ public final class ModItems {
 
     private static Item vehicle(String name, java.util.function.Function<net.minecraft.world.World, ? extends earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity> factory) {
         Item item = new VehicleItem(name, factory);
+        INTERNAL_ITEMS.add(item);
+        return item;
+    }
+
+    private static Item spawnEgg(String name, java.util.function.Function<net.minecraft.world.World, ? extends net.minecraft.entity.EntityLivingBase> factory) {
+        Item item = new AdAstraSpawnEggItem(name, factory);
         INTERNAL_ITEMS.add(item);
         return item;
     }

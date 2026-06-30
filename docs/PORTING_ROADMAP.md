@@ -18,7 +18,7 @@ The current goal is feature parity over time, not a narrow compatibility shim.
 
 - Creative tab exists as `AdAstraCreativeTab`.
 - First-pass client model binding exists in `ClientRegistry`.
-- First-pass sound events are registered for the 1.20 sound keys:
+- First-pass sound events, `sounds.json`, and copied `.ogg` assets are aligned for the 1.20 sound keys:
   `rocket_launch`, `rocket`, `wrench`, `sliding_door_close`, `sliding_door_open`,
   `oxygen_intake`, `oxygen_outtake`, and `gravity_normalizer_idle`.
 - A broad `en_us.lang` has been generated from the copied 1.20 `en_us.json` with 1.12.2 key names.
@@ -90,8 +90,8 @@ The current goal is feature parity over time, not a narrow compatibility shim.
 - The first standalone utility/equipment item coverage batch registers wrench, zip gun, TI-69, etrionic capacitor,
   gas tank, large gas tank, all three space suit armor sets, space painting, rocket/rover items, and the 12 spawn egg
   item ids. Space suit items are currently wearable armor placeholders using copied 1.20 item/entity armor assets.
-  TI-69, zip gun, space painting, vehicle items, and spawn eggs are registration/model placeholders until their
-  environment/fluid/entity behavior exists.
+  Rocket/rover items place first-pass vehicles, and the 12 spawn eggs create their matching first-pass mob entities.
+  TI-69, zip gun, space painting, exact vehicle flow, and exact spawn egg behavior still need follow-up behavior.
 - The first entity registry coverage batch registers all 20 source entity ids with minimal 1.12.2 placeholder classes:
   air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. These entries preserve registry ids,
   source dimensions, fire immunity where obvious, tracker settings, and spawn egg colors, but they do not yet implement
