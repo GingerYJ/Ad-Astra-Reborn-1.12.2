@@ -157,6 +157,7 @@ Current status:
 
 - Assets and generated data are copied.
 - Broad `en_us.lang` conversion exists.
+- `zh_cn.lang` is aligned with `en_us.lang` using the copied 1.20 Chinese strings.
 - Model coverage for registered non-fluid block items and current standalone
   items is currently clean.
 
@@ -557,6 +558,10 @@ Target:
 Current status:
 
 - System APIs are not functionally ported yet.
+- Client HUD has a first-pass display for oxygen, temperature, gravity, and
+  energy. It currently uses inventory gas tanks/Forge Energy items and
+  best-effort local machine state, while authoritative oxygen/temperature/
+  gravity simulation and sync packets remain pending.
 
 ### 9. Vehicles and Launch Flow
 
@@ -641,7 +646,16 @@ Target:
 Current status:
 
 - Planetary blocks/assets are present.
-- Actual dimensions and worldgen are pending.
+- First-pass Forge 1.12.2 dimension registration is present for moon, mars,
+  mercury, venus, and glacio with stable ids 1201-1205.
+- Each planet has a dedicated `WorldProvider`, source-derived placeholder
+  environment hooks for oxygen, temperature, gravity, solar power, and tier, a
+  fixed vanilla-biome provider, skylight/celestial-angle hooks, and a simple
+  flat planetary surface generator using existing Ad Astra terrain blocks.
+- True 1.20 terrain parity remains pending: the 43 hand-authored worldgen JSON
+  files, generated worldgen data, crater biome/density functions, custom
+  planetary biome providers, ore/feature placement, structure generation, and
+  56 NBT structure files still need deliberate 1.12.2 conversion.
 
 ### 11. Entities, Mobs, AI, and Spawn Eggs
 
@@ -745,7 +759,10 @@ Target:
 Current status:
 
 - Sound events are registered first-pass.
-- Screens/renderers/particles/overlays are mostly pending.
+- A first-pass Forge 1.12 `RenderGameOverlayEvent` HUD is present for compact
+  oxygen/temperature/gravity/energy readouts. Exact 1.20 overlay visuals,
+  warning states, vehicle overlays, and config-positioned bars remain pending.
+- Screens/renderers/particles are mostly pending.
 
 ### 13. Networking
 

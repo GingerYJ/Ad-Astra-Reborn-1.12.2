@@ -199,6 +199,17 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   `PUSH`/`PUSH_PULL`, expose sided item handlers that honor each machine's slot rules, and keep existing generator energy
   output paths. Exact 1.20 side configuration screens, per-machine transfer rates, and server/client config packets remain
   pending.
+- The first planetary dimension registration batch adds Forge 1.12.2 `DimensionType`/`DimensionManager` entries for
+  moon, mars, mercury, venus, and glacio using stable ids 1201-1205. Each dimension has a dedicated `WorldProvider`,
+  source-derived first-pass gravity/temperature/oxygen/solar/tier hooks, a fixed-biome provider, skylight/celestial-angle
+  hooks, and a simple flat planetary surface generator so worlds can load without real 1.20 terrain generation. Real
+  crater/noise terrain, custom planetary biomes, structure placement, the 43 hand-authored worldgen JSON files, the 56
+  NBT structures, and generated worldgen data conversion remain pending.
+- The first client HUD overlay pass is wired through Forge 1.12 `RenderGameOverlayEvent.Post`. It draws a compact
+  oxygen/temperature/gravity/energy panel away from the vanilla hotbar and health bars, using player inventory oxygen
+  tanks and Forge Energy items where available, plus local visible oxygen distributor/gravity normalizer state as a
+  best-effort environment hint. The real environment systems, dedicated sync packets, warning behavior, vehicle HUD, and
+  exact 1.20 overlay layout remain pending.
 - Current Java registration count is 333 visible blocks and 82 standalone items.
 - The current visible block registry has matching copied blockstate files. All non-fluid visible block items have
   matching copied item model files; fluid block item models are intentionally absent because access should go through
@@ -303,7 +314,8 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 ### Phase 8: Dimensions and World Generation
 
 - Rebuild dimensions in 1.12.2 using `DimensionType`, `WorldProvider`, `BiomeProvider`, and `IChunkGenerator`.
-- Port five planets: moon, mars, mercury, venus, and glacio.
+- Port five planets: moon, mars, mercury, venus, and glacio. First-pass dimension registration and safe placeholder
+  providers/generators are started.
 - Convert 1.20 worldgen JSON and NBT structures into 1.12.2 generators.
 - Rebuild craters, noise settings, ores, meteorites, oil wells, villages, moon dungeon, mars temple, venus structures, and space station placement.
 
@@ -378,6 +390,8 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first flag/globe/radio TileEntity behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first sliding-door/airlock behavior batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first machine automatic side-transfer batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first planetary dimension registration batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first client HUD overlay pass.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

@@ -2,6 +2,7 @@ package earth.terrarium.adastra;
 
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.network.NetworkHandler;
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModOreDictionary;
 import earth.terrarium.adastra.common.registry.ModSmeltingRecipes;
@@ -34,6 +35,7 @@ public class AdAstraReborn {
     public void preInit(FMLPreInitializationEvent event) {
         AdAstraConfig.init(event.getSuggestedConfigurationFile());
         ModFluids.init();
+        ModDimensions.register();
         NetworkHandler.init();
         ModTileEntities.register();
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new ModGuiHandler());
