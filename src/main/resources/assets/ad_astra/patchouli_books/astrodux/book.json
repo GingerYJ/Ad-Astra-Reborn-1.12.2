@@ -1,0 +1,8 @@
+{
+  "name": "item.ad_astra.astrodux.name",
+  "landing_text": "item.ad_astra.astrodux.landing.name",
+  "creative_tab": "ad_astra",
+  "version": "2",
+  "model": "ad_astra:astrodux",
+  "show_progress": false
+}
