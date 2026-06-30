@@ -594,8 +594,10 @@ Current status:
 
 - Vehicle item ids are registered as placeholders.
 - Vehicle entity ids are registered as minimal placeholder entities with copied
-  source dimensions. Movement, inventory, fuel, launch, landing, renderer, and
-  controls remain pending.
+  source dimensions. First-pass client render factories now make rockets,
+  rover, and lander visible with simple textured placeholders. Movement,
+  inventory, fuel, launch, landing, real vehicle models, and controls remain
+  pending.
 
 ### 10. Dimensions, Planets, and World Generation
 
@@ -697,10 +699,16 @@ Current status:
 
 - All 20 source entity ids are registered with minimal 1.12.2 placeholder
   classes.
+- The 12 mob ids have first-pass 1.12.2 AI task wiring and attributes.
+- Sulfur creepers have a simple server-side fuse/explosion behavior.
 - Spawn egg item ids are registered as placeholders; entity entries have source
   spawn egg colors where applicable.
-- Full AI, attributes, spawn placement, drops, projectiles, vehicle behavior,
-  renderers, and models remain pending.
+- Forge 1.12 client render factories are registered for all 20 entity ids.
+  Mobs use copied Ad Astra textures on safe vanilla-model placeholders, vehicles
+  use simple textured box placeholders, Ice Spit renders as an item projectile,
+  and Air Vortex has a small translucent placeholder renderer.
+- Exact source AI, spawn placement, drops, projectile behavior, vehicle
+  behavior, real renderers, animation layers, and models remain pending.
 
 ### 12. Client Rendering, Screens, Particles, and Audio
 
@@ -762,7 +770,10 @@ Current status:
 - A first-pass Forge 1.12 `RenderGameOverlayEvent` HUD is present for compact
   oxygen/temperature/gravity/energy readouts. Exact 1.20 overlay visuals,
   warning states, vehicle overlays, and config-positioned bars remain pending.
-- Screens/renderers/particles are mostly pending.
+- Entity render factory coverage is present for all 20 registered Ad Astra
+  entities using safe first-pass placeholder renderers and copied textures where
+  available. Screens, special block renderers, particles, and real entity models
+  remain mostly pending.
 
 ### 13. Networking
 

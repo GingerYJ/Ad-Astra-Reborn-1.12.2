@@ -7,6 +7,12 @@ import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.items.VehicleItem;
+import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier3RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier4RocketEntity;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.init.Items;
@@ -100,11 +106,11 @@ public final class ModItems {
     public static final Item JET_SUIT_BOOTS = armor("jet_suit_boots", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.FEET);
 
     public static final Item SPACE_PAINTING = item("space_painting");
-    public static final Item TIER_1_ROCKET = item("tier_1_rocket", 1);
-    public static final Item TIER_2_ROCKET = item("tier_2_rocket", 1);
-    public static final Item TIER_3_ROCKET = item("tier_3_rocket", 1);
-    public static final Item TIER_4_ROCKET = item("tier_4_rocket", 1);
-    public static final Item TIER_1_ROVER = item("tier_1_rover", 1);
+    public static final Item TIER_1_ROCKET = vehicle("tier_1_rocket", Tier1RocketEntity::new);
+    public static final Item TIER_2_ROCKET = vehicle("tier_2_rocket", Tier2RocketEntity::new);
+    public static final Item TIER_3_ROCKET = vehicle("tier_3_rocket", Tier3RocketEntity::new);
+    public static final Item TIER_4_ROCKET = vehicle("tier_4_rocket", Tier4RocketEntity::new);
+    public static final Item TIER_1_ROVER = vehicle("tier_1_rover", Tier1RoverEntity::new);
 
     public static final Item LUNARIAN_SPAWN_EGG = item("lunarian_spawn_egg", 1);
     public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = item("corrupted_lunarian_spawn_egg", 1);
@@ -178,6 +184,12 @@ public final class ModItems {
 
     private static Item gasTank(String name, int capacity, int distributionAmount) {
         Item item = new GasTankItem(name, capacity, distributionAmount);
+        INTERNAL_ITEMS.add(item);
+        return item;
+    }
+
+    private static Item vehicle(String name, java.util.function.Function<net.minecraft.world.World, ? extends earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity> factory) {
+        Item item = new VehicleItem(name, factory);
         INTERNAL_ITEMS.add(item);
         return item;
     }

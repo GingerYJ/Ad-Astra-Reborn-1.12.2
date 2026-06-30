@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.client;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.client.render.AdAstraEntityRenderers;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
@@ -21,6 +22,8 @@ public final class ClientRegistry {
     }
 
     public static void registerModels() {
+        AdAstraEntityRenderers.register();
+
         for (Block block : ModBlocks.BLOCKS) {
             registerStateMapper(block);
             if (ModBlocks.isHiddenFromItemModels(block)) {

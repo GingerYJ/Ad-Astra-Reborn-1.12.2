@@ -96,6 +96,11 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. These entries preserve registry ids,
   source dimensions, fire immunity where obvious, tracker settings, and spawn egg colors, but they do not yet implement
   real vehicle behavior, AI, spawn rules, attributes, drops, projectiles, renderers, or models.
+- The first mob AI/attribute batch gives the 12 Ad Astra mob ids baseline 1.12.2 movement, swimming, wandering,
+  watching, melee, hurt-response, hostile/player-targeting, and passive/neutral behavior where appropriate. Each mob now
+  has first-pass health, movement speed, attack damage, and follow range attributes, and sulfur creepers have a simple
+  server-side fuse/explosion behavior. Exact 1.20 AI, drops, spawn placement, sounds, animations, renderers, and models
+  remain pending.
 - The first TileEntity registry coverage batch registers all 19 source block entity ids and connects the machine,
   globe, flag, sliding door, cable, fluid pipe, and radio block classes to minimal placeholder TileEntity classes.
   These TileEntities currently preserve ids and world attachment only; inventories, energy, fluids, ticking, networking,
@@ -210,6 +215,10 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   tanks and Forge Energy items where available, plus local visible oxygen distributor/gravity normalizer state as a
   best-effort environment hint. The real environment systems, dedicated sync packets, warning behavior, vehicle HUD, and
   exact 1.20 overlay layout remain pending.
+- The first client entity renderer pass registers Forge 1.12 render factories for all 20 Ad Astra entity ids. Mobs use
+  safe vanilla-model first-pass renderers with copied Ad Astra textures, vehicles use simple textured box placeholders,
+  Ice Spit uses an item projectile renderer, and Air Vortex uses a small translucent placeholder renderer. Real Java
+  models, animation, layers, vehicle render fidelity, and special projectile effects remain pending.
 - Current Java registration count is 333 visible blocks and 82 standalone items.
 - The current visible block registry has matching copied blockstate files. All non-fluid visible block items have
   matching copied item model files; fluid block item models are intentionally absent because access should go through
@@ -392,6 +401,7 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first machine automatic side-transfer batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first planetary dimension registration batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first client HUD overlay pass.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first client entity renderer pass.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

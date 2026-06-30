@@ -1,12 +1,11 @@
 package earth.terrarium.adastra.common.entities.vehicles;
 
-import earth.terrarium.adastra.common.entities.AdAstraPlaceholderEntity;
 import net.minecraft.world.World;
 
-public class LanderEntity extends AdAstraPlaceholderEntity {
+public class LanderEntity extends AdAstraVehicleEntity {
 
     public LanderEntity(World world) {
-        super(world);
+        super(world, VehicleType.LANDER, 0);
         setSize(1.2f, 2.0f);
     }
 }

@@ -9,4 +9,24 @@ public class PygroEntity extends AdAstraPlaceholderMob {
         super(world);
         setSize(0.6f, 1.8f);
     }
+
+    @Override
+    protected double getMobMaxHealth() {
+        return 24.0d;
+    }
+
+    @Override
+    protected double getMobMovementSpeed() {
+        return 0.26d;
+    }
+
+    @Override
+    protected double getMobAttackDamage() {
+        return 4.0d;
+    }
+
+    @Override
+    protected double getMobFollowRange() {
+        return 32.0d;
+    }
 }

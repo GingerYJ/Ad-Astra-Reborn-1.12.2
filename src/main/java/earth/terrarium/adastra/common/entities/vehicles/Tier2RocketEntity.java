@@ -1,12 +1,11 @@
 package earth.terrarium.adastra.common.entities.vehicles;
 
-import earth.terrarium.adastra.common.entities.AdAstraPlaceholderEntity;
 import net.minecraft.world.World;
 
-public class Tier2RocketEntity extends AdAstraPlaceholderEntity {
+public class Tier2RocketEntity extends AdAstraVehicleEntity {
 
     public Tier2RocketEntity(World world) {
-        super(world);
+        super(world, VehicleType.ROCKET, 1600);
         setSize(1.1f, 4.8f);
     }
 }
