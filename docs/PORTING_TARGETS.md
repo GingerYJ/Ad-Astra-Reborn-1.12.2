@@ -725,11 +725,13 @@ Current status:
 - Sulfur creepers have a simple server-side fuse/explosion behavior.
 - The 12 spawn egg item ids create their matching first-pass mob entities on
   block use; entity entries retain source spawn egg colors where applicable.
+- Planet dimensions use first-pass Ad Astra biomes with source-derived natural
+  spawn lists.
 - Forge 1.12 client render factories are registered for all 20 entity ids.
   Mobs use copied Ad Astra textures on safe vanilla-model placeholders, vehicles
   use simple textured box placeholders, Ice Spit renders as an item projectile,
   and Air Vortex has a small translucent placeholder renderer.
-- Exact source AI, spawn placement, drops, projectile behavior, vehicle
+- Exact source AI, spawn placement predicates, mob charges, drops, projectile behavior, vehicle
   behavior, real renderers, animation layers, and models remain pending.
 
 ### 12. Client Rendering, Screens, Particles, and Audio

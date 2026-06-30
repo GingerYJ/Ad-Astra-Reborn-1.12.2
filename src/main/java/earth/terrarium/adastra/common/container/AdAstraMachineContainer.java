@@ -49,6 +49,17 @@ public class AdAstraMachineContainer extends Container {
         return layout;
     }
 
+    public int getMachineSlotCount() {
+        return machineSlotCount;
+    }
+
+    public int getSyncedField(int id) {
+        if (id >= 0 && id < cachedFields.length) {
+            return cachedFields[id];
+        }
+        return machine.getField(id);
+    }
+
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
         return machine.isUsableByPlayer(playerIn);
@@ -81,6 +92,9 @@ public class AdAstraMachineContainer extends Container {
 
     @Override
     public void updateProgressBar(int id, int data) {
+        if (id >= 0 && id < cachedFields.length) {
+            cachedFields[id] = data;
+        }
         machine.setField(id, data);
     }
 

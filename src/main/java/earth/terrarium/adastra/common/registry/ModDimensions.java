@@ -9,7 +9,6 @@ import earth.terrarium.adastra.common.world.WorldProviderMercury;
 import earth.terrarium.adastra.common.world.WorldProviderMoon;
 import earth.terrarium.adastra.common.world.WorldProviderVenus;
 import net.minecraft.block.Block;
-import net.minecraft.init.Biomes;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
@@ -29,7 +28,7 @@ public final class ModDimensions {
         "moon",
         MOON_ID,
         "DIM_AD_ASTRA_MOON",
-        Biomes.DESERT,
+        ModBiomes.LUNAR_WASTELANDS,
         state(ModBlocks.MOON_SAND),
         state(ModBlocks.MOON_STONE),
         true,
@@ -47,7 +46,7 @@ public final class ModDimensions {
         "mars",
         MARS_ID,
         "DIM_AD_ASTRA_MARS",
-        Biomes.MESA,
+        ModBiomes.MARTIAN_WASTELANDS,
         state(ModBlocks.MARS_SAND),
         state(ModBlocks.MARS_STONE),
         true,
@@ -65,7 +64,7 @@ public final class ModDimensions {
         "mercury",
         MERCURY_ID,
         "DIM_AD_ASTRA_MERCURY",
-        Biomes.DESERT,
+        ModBiomes.MERCURY_DELTAS,
         state(ModBlocks.MERCURY_STONE),
         state(ModBlocks.MERCURY_STONE),
         true,
@@ -83,7 +82,7 @@ public final class ModDimensions {
         "venus",
         VENUS_ID,
         "DIM_AD_ASTRA_VENUS",
-        Biomes.DESERT,
+        ModBiomes.VENUS_WASTELANDS,
         state(ModBlocks.VENUS_SAND),
         state(ModBlocks.VENUS_STONE),
         true,
@@ -101,7 +100,7 @@ public final class ModDimensions {
         "glacio",
         GLACIO_ID,
         "DIM_AD_ASTRA_GLACIO",
-        Biomes.ICE_PLAINS,
+        ModBiomes.GLACIO_SNOWY_BARRENS,
         state(ModBlocks.PERMAFROST),
         state(ModBlocks.GLACIO_STONE),
         true,

@@ -11,7 +11,6 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 
 public class AdAstraChunkGenerator implements IChunkGenerator {
@@ -67,7 +66,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
     @Override
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos) {
-        return Collections.emptyList();
+        return PlanetMobSpawns.getPossibleCreatures(properties, creatureType);
     }
 
     @Nullable

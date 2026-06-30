@@ -100,7 +100,7 @@ The current goal is feature parity over time, not a narrow compatibility shim.
 - The first mob AI/attribute batch gives the 12 Ad Astra mob ids baseline 1.12.2 movement, swimming, wandering,
   watching, melee, hurt-response, hostile/player-targeting, and passive/neutral behavior where appropriate. Each mob now
   has first-pass health, movement speed, attack damage, and follow range attributes, and sulfur creepers have a simple
-  server-side fuse/explosion behavior. Exact 1.20 AI, drops, spawn placement, sounds, animations, renderers, and models
+  server-side fuse/explosion behavior. Exact 1.20 AI, drops, sounds, animations, renderers, and models
   remain pending.
 - The first TileEntity registry coverage batch registers all 19 source block entity ids and connects the machine,
   globe, flag, sliding door, cable, fluid pipe, and radio block classes to minimal placeholder TileEntity classes.
@@ -207,10 +207,16 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   pending.
 - The first planetary dimension registration batch adds Forge 1.12.2 `DimensionType`/`DimensionManager` entries for
   moon, mars, mercury, venus, and glacio using stable ids 1201-1205. Each dimension has a dedicated `WorldProvider`,
-  source-derived first-pass gravity/temperature/oxygen/solar/tier hooks, a fixed-biome provider, skylight/celestial-angle
-  hooks, and a simple flat planetary surface generator so worlds can load without real 1.20 terrain generation. Real
+  source-derived first-pass gravity/temperature/oxygen/solar/tier hooks, a fixed Ad Astra biome provider,
+  skylight/celestial-angle hooks, and a simple flat planetary surface generator so worlds can load without real 1.20
+  terrain generation. Real
   crater/noise terrain, custom planetary biomes, structure placement, the 43 hand-authored worldgen JSON files, the 56
   NBT structures, and generated worldgen data conversion remain pending.
+- The first planetary biome/spawn batch registers five Forge 1.12.2 Ad Astra biomes for the planet dimensions and maps
+  the 1.20 biome spawn weights into their spawn lists: moon spawns corrupted Lunarians and Star Crawlers, Mars spawns
+  Martian Raptors, Mercury spawns Magma Cubes, Venus spawns Moglers, Sulfur Creepers, and Zombified Pygros, and Glacio
+  spawns Glacian Rams. Exact 1.20 spawn placement predicates, mob charges, biome variation, config toggles, and runtime
+  balancing remain pending.
 - The first planet-selection travel batch lets launched rockets open a minimal destination screen at high altitude, then
   sends a server packet to land the player on a selected registered planet when the rocket tier can reach it. This first
   pass transfers the player only; full rocket/lander persistence, launch pad validation, orbits, stations, and
