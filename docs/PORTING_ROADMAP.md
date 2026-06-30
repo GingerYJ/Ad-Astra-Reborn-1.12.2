@@ -41,9 +41,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   `forge:ore_dict` ingredients instead of fixed item-only inputs.
 - The second direct crafting recipe batch adds 12 low-risk generated 1.20 crafting conversions for plain component and
   equipment items: iron rod, steel rod, gas tank, engine frame, fan, rocket fin, oxygen gear, tiered engines, and
-  etrionic capacitor. The third through sixth direct crafting recipe batches add 60 low-risk Moon, Mars, Mercury, and
-  Venus terrain/decor conversions covering stone, cobblestone, stone brick, polished, chiseled, slab, stair, wall, and
-  pillar variants.
+  etrionic capacitor. The third through seventh direct crafting recipe batches add 75 low-risk Moon, Mars, Mercury,
+  Venus, and Glacio terrain/decor conversions covering stone, cobblestone, stone brick, polished, chiseled, slab, stair,
+  wall, and pillar variants.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -400,25 +400,23 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Current 1.12.2 status has registry ids, first-pass mob AI/attributes,
   spawn eggs, planet spawn lists, and renderer factories for all 20 source
   entity ids. The renderer coverage is intentionally incremental: most mobs
-  still use vanilla biped placeholders, sulfur creepers now have synced
-  fuse/powered state with creeper swelling and charge visuals, vehicles use
-  textured boxes, Ice Spit renders as an item projectile, and Air Vortex remains
-  a visible debug-style cube. Ice Spit now has first-pass source-like projectile
-  behavior with thrown damage, SPIT/SNOWBALL particles, owner/position
-  constructors, broadcast discard event, and corrupted Lunarian ranged attack AI
-  integration.
+  still use vanilla biped placeholders, Martian Raptors now use a first-pass
+  1.12 `ModelBase` port of the 1.20 hardcoded Java model, sulfur creepers have
+  synced fuse/powered state with creeper swelling and charge visuals, vehicles
+  use textured boxes, Ice Spit renders as an item projectile, and Air Vortex
+  remains a visible debug-style cube. Ice Spit now has first-pass source-like
+  projectile behavior with thrown damage, SPIT/SNOWBALL particles,
+  owner/position constructors, broadcast discard event, and corrupted Lunarian
+  ranged attack AI integration.
 - Next low-conflict order for this phase:
-  1. `martian_raptor` model binding first: source uses a 128x128 hardcoded box
-     model with body, tail, head, and two leg parts; it can be ported as a 1.12
-     `ModelBase` and reused through `RenderTexturedMob`.
-  2. `star_crawler` model binding next: source uses a 128x128 hardcoded box
+  1. `star_crawler` model binding next: source uses a 128x128 hardcoded box
      model with body plus four legs and several 0-width detail planes; keep its
      shadow at the source-like 0.0f when the model is ported.
-  3. `glacian_ram` normal model/texture binding, with shearing deferred.
-  4. Pygro-family and Mogler-family model/renderer bindings.
-  5. Lunarian-family model/default texture bindings, with profession/trade
+  2. `glacian_ram` normal model/texture binding, with shearing deferred.
+  3. Pygro-family and Mogler-family model/renderer bindings.
+  4. Lunarian-family model/default texture bindings, with profession/trade
      behavior deferred.
-  6. Vehicle model renderers: rockets, lander, then rover.
+  5. Vehicle model renderers: rockets, lander, then rover.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -492,6 +490,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the first runtime
   planet ore populate pass, Venus terrain/decor direct crafting recipes, and
   Martian Raptor/Star Crawler model-port feasibility notes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  `ModelMartianRaptor` renderer binding and Glacio terrain/decor direct crafting
+  recipes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
