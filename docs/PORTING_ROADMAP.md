@@ -41,8 +41,9 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   `forge:ore_dict` ingredients instead of fixed item-only inputs.
 - The second direct crafting recipe batch adds 12 low-risk generated 1.20 crafting conversions for plain component and
   equipment items: iron rod, steel rod, gas tank, engine frame, fan, rocket fin, oxygen gear, tiered engines, and
-  etrionic capacitor. The third through fifth direct crafting recipe batches add 45 low-risk Moon, Mars, and Mercury terrain/decor
-  conversions covering stone, cobblestone, stone brick, polished, chiseled, slab, stair, wall, and pillar variants.
+  etrionic capacitor. The third through sixth direct crafting recipe batches add 60 low-risk Moon, Mars, Mercury, and
+  Venus terrain/decor conversions covering stone, cobblestone, stone brick, polished, chiseled, slab, stair, wall, and
+  pillar variants.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -356,33 +357,28 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   template_pool, processor_list, and 56 NBT structures. Matching copies exist in `src/main/resources/data/ad_astra`,
   but they are still 1.20 datapack source material rather than 1.12.2 runtime inputs.
 - Current 1.12.2 runtime coverage is intentionally smaller: five Java-registered planet dimensions, five fixed Java
-  planet biomes, source-derived environment values, and a flat `AdAstraChunkGenerator` with an empty `populate` method.
-  No ore/features, NBT structures, structure lookup, crater/noise terrain, template pools, or orbit dimensions are live.
-- 2026-07-01 ore-vein feasibility pass: the next Java batch can start in
-  `AdAstraChunkGenerator.populate(int chunkX, int chunkZ)`. Keep the first
-  implementation Java-local and table-driven: planet id/name, optional biome
-  allow-list, output block state, replaceable block set, vein size, count per
-  chunk, and source/effective 1.12 Y range. Use deterministic per-chunk random
-  seeding from the world seed and chunk coords, and clamp 1.20 Y ranges into the
-  current flat terrain (`1..62`) until real vertical terrain exists.
-- First-pass ore set from 1.20 configured/placed features:
+  planet biomes, source-derived environment values, and a flat `AdAstraChunkGenerator`. The first runtime `populate`
+  pass now places deterministic Java-local ore veins in the y=1..62 filler layer. NBT structures, structure lookup,
+  crater/noise terrain, template pools, orbit dimensions, and non-ore features are not live yet.
+- 2026-07-01 ore-vein implementation pass: `AdAstraChunkGenerator.populate(int chunkX, int chunkZ)` now uses a local
+  `PlanetOreSpec` table with planet id/name, output block state, replaceable block set, vein size, count per chunk, and
+  source/effective 1.12 Y range. It seeds deterministic per-chunk random from the world seed and chunk coords, and clamps
+  1.20 Y ranges into the current flat terrain (`1..62`) until real vertical terrain exists.
+- First-pass runtime ore set from 1.20 configured/placed features:
   Moon cheese/desh/ice shard/iron; Mars diamond/ice shard/iron/ostrum; Mercury
   iron; Venus calorite/coal/diamond/gold; Glacio coal/ice shard/iron/lapis.
-  Glacio copper can be generated as a block-placement parity choice, but its
-  gameplay output is still a separate copper policy. Defer Glacio deepslate
-  vanilla ore features and Moon soul soil from the first Ad Astra ore pass.
+  Glacio copper remains deferred because its gameplay output is still a separate
+  copper policy. Glacio deepslate vanilla ore features and Moon soul soil are
+  still deferred from this first Ad Astra ore pass.
 - Next low-conflict Phase 8 order:
-  1. Add deterministic planet population helpers to `AdAstraChunkGenerator.populate`: chunk seeding, planet dispatch,
-     surface lookup, and replaceable-block predicates.
-  2. Port ore veins first using local 1.12.2 placement configs derived from the copied configured/placed feature JSONs.
-     Start with Moon, Mars, Mercury, Venus, and non-copper/non-deepslate Glacio ores; defer Glacio copper/deepslate
-     mapping decisions.
-  3. Add simple non-NBT features: Moon soul soil, Mars rock blobs, then Venus infernal spire columns.
-  4. Add a minimal NBT template loader/placer and validate it with meteor variants or the size-1 oil well template.
-  5. Add simple single-start structure predicates for oil well, lunar tower, and Mars temple.
-  6. Defer Moon dungeon, Lunarian village, Pygro/crimson structures, Venus bullet/tower, and biome-tagged structure
+  1. Validate and tune the runtime ore pass in a dev planet world; keep Glacio copper disabled until a copper output
+     policy exists.
+  2. Add simple non-NBT features: Moon soul soil, Mars rock blobs, then Venus infernal spire columns.
+  3. Add a minimal NBT template loader/placer and validate it with meteor variants or the size-1 oil well template.
+  4. Add simple single-start structure predicates for oil well, lunar tower, and Mars temple.
+  5. Defer Moon dungeon, Lunarian village, Pygro/crimson structures, Venus bullet/tower, and biome-tagged structure
      distribution until a 1.12.2 jigsaw/template-pool equivalent or explicit piece connector exists.
-  7. Defer crater/noise terrain and orbit/space-station placement until after feature and NBT placement smoke tests.
+  6. Defer crater/noise terrain and orbit/space-station placement until after feature and NBT placement smoke tests.
 
 ### Phase 9: Mobs and Renderers
 
@@ -412,12 +408,17 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   constructors, broadcast discard event, and corrupted Lunarian ranged attack AI
   integration.
 - Next low-conflict order for this phase:
-  1. `star_crawler` and `martian_raptor` model/renderer bindings.
-  2. `glacian_ram` normal model/texture binding, with shearing deferred.
-  3. Pygro-family and Mogler-family model/renderer bindings.
-  4. Lunarian-family model/default texture bindings, with profession/trade
+  1. `martian_raptor` model binding first: source uses a 128x128 hardcoded box
+     model with body, tail, head, and two leg parts; it can be ported as a 1.12
+     `ModelBase` and reused through `RenderTexturedMob`.
+  2. `star_crawler` model binding next: source uses a 128x128 hardcoded box
+     model with body plus four legs and several 0-width detail planes; keep its
+     shadow at the source-like 0.0f when the model is ported.
+  3. `glacian_ram` normal model/texture binding, with shearing deferred.
+  4. Pygro-family and Mogler-family model/renderer bindings.
+  5. Lunarian-family model/default texture bindings, with profession/trade
      behavior deferred.
-  5. Vehicle model renderers: rockets, lander, then rover.
+  6. Vehicle model renderers: rockets, lander, then rover.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -488,6 +489,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the Sulfur Creeper
   synced swelling/charge renderer, Mercury terrain/decor direct crafting
   recipes, Chinese lang parity check, and ore worldgen feasibility documentation.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first runtime
+  planet ore populate pass, Venus terrain/decor direct crafting recipes, and
+  Martian Raptor/Star Crawler model-port feasibility notes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

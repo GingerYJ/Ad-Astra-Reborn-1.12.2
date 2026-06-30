@@ -1,9 +1,12 @@
 package earth.terrarium.adastra.common.world;
 
+import earth.terrarium.adastra.common.registry.ModBlocks;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -11,12 +14,18 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.IChunkGenerator;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class AdAstraChunkGenerator implements IChunkGenerator {
 
     public static final int SURFACE_Y = 63;
     public static final int SPAWN_Y = SURFACE_Y + 1;
+
+    private static final int MIN_GENERATION_Y = 1;
+    private static final int MAX_GENERATION_Y = SURFACE_Y - 1;
+    private static final List<PlanetOreSpec> ORE_SPECS = createOreSpecs();
 
     private final World world;
     private final PlanetDimensionProperties properties;
@@ -57,6 +66,16 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
     @Override
     public void populate(int chunkX, int chunkZ) {
+        Random random = createChunkRandom(chunkX, chunkZ);
+        List<PlanetOreSpec> specs = getOreSpecs(properties.getName());
+        if (specs.isEmpty()) {
+            return;
+        }
+
+        BlockPos chunkOrigin = new BlockPos(chunkX * 16, 0, chunkZ * 16);
+        for (PlanetOreSpec spec : specs) {
+            generateOre(spec, chunkOrigin, random);
+        }
     }
 
     @Override
@@ -82,5 +101,155 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     @Override
     public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos) {
         return false;
+    }
+
+    private Random createChunkRandom(int chunkX, int chunkZ) {
+        Random random = new Random(world.getSeed());
+        long xSeed = random.nextLong() / 2L * 2L + 1L;
+        long zSeed = random.nextLong() / 2L * 2L + 1L;
+        random.setSeed((long) chunkX * xSeed + (long) chunkZ * zSeed ^ world.getSeed());
+        return random;
+    }
+
+    private void generateOre(PlanetOreSpec spec, BlockPos chunkOrigin, Random random) {
+        for (int i = 0; i < spec.countPerChunk; i++) {
+            int x = chunkOrigin.getX() + random.nextInt(16);
+            int y = spec.minY + random.nextInt(spec.maxY - spec.minY + 1);
+            int z = chunkOrigin.getZ() + random.nextInt(16);
+            generateVein(spec, random, new BlockPos(x, y, z));
+        }
+    }
+
+    private void generateVein(PlanetOreSpec spec, Random random, BlockPos origin) {
+        float angle = random.nextFloat() * (float) Math.PI;
+        double startX = (double) origin.getX() + 8.0D + (double) (MathHelper.sin(angle) * (float) spec.veinSize) / 8.0D;
+        double endX = (double) origin.getX() + 8.0D - (double) (MathHelper.sin(angle) * (float) spec.veinSize) / 8.0D;
+        double startZ = (double) origin.getZ() + 8.0D + (double) (MathHelper.cos(angle) * (float) spec.veinSize) / 8.0D;
+        double endZ = (double) origin.getZ() + 8.0D - (double) (MathHelper.cos(angle) * (float) spec.veinSize) / 8.0D;
+        double startY = (double) origin.getY() + random.nextInt(3) - 2;
+        double endY = (double) origin.getY() + random.nextInt(3) - 2;
+
+        for (int step = 0; step < spec.veinSize; step++) {
+            float progress = (float) step / (float) spec.veinSize;
+            double centerX = startX + (endX - startX) * (double) progress;
+            double centerY = startY + (endY - startY) * (double) progress;
+            double centerZ = startZ + (endZ - startZ) * (double) progress;
+            double diameter = random.nextDouble() * (double) spec.veinSize / 16.0D;
+            double horizontalRadius = (double) (MathHelper.sin((float) Math.PI * progress) + 1.0F) * diameter + 1.0D;
+            double verticalRadius = (double) (MathHelper.sin((float) Math.PI * progress) + 1.0F) * diameter + 1.0D;
+
+            int minX = MathHelper.floor(centerX - horizontalRadius / 2.0D);
+            int minY = Math.max(MIN_GENERATION_Y, MathHelper.floor(centerY - verticalRadius / 2.0D));
+            int minZ = MathHelper.floor(centerZ - horizontalRadius / 2.0D);
+            int maxX = MathHelper.floor(centerX + horizontalRadius / 2.0D);
+            int maxY = Math.min(MAX_GENERATION_Y, MathHelper.floor(centerY + verticalRadius / 2.0D));
+            int maxZ = MathHelper.floor(centerZ + horizontalRadius / 2.0D);
+
+            for (int x = minX; x <= maxX; x++) {
+                double xDistance = ((double) x + 0.5D - centerX) / (horizontalRadius / 2.0D);
+                if (xDistance * xDistance >= 1.0D) {
+                    continue;
+                }
+
+                for (int y = minY; y <= maxY; y++) {
+                    double yDistance = ((double) y + 0.5D - centerY) / (verticalRadius / 2.0D);
+                    if (xDistance * xDistance + yDistance * yDistance >= 1.0D) {
+                        continue;
+                    }
+
+                    for (int z = minZ; z <= maxZ; z++) {
+                        double zDistance = ((double) z + 0.5D - centerZ) / (horizontalRadius / 2.0D);
+                        if (xDistance * xDistance + yDistance * yDistance + zDistance * zDistance < 1.0D) {
+                            replaceOreBlock(spec, new BlockPos(x, y, z));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void replaceOreBlock(PlanetOreSpec spec, BlockPos pos) {
+        IBlockState current = world.getBlockState(pos);
+        if (spec.canReplace(current.getBlock())) {
+            world.setBlockState(pos, spec.oreState, 2);
+        }
+    }
+
+    private List<PlanetOreSpec> getOreSpecs(String planetName) {
+        List<PlanetOreSpec> specs = new ArrayList<PlanetOreSpec>();
+        for (PlanetOreSpec spec : ORE_SPECS) {
+            if (spec.planetName.equals(planetName)) {
+                specs.add(spec);
+            }
+        }
+        return specs;
+    }
+
+    private static List<PlanetOreSpec> createOreSpecs() {
+        List<PlanetOreSpec> specs = new ArrayList<PlanetOreSpec>();
+
+        add(specs, "moon", ModBlocks.MOON_CHEESE_ORE, 8, 9, 6, 192, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+        add(specs, "moon", ModBlocks.MOON_DESH_ORE, 9, 9, -80, 80, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+        add(specs, "moon", ModBlocks.MOON_ICE_SHARD_ORE, 10, 8, -32, 32, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+        add(specs, "moon", ModBlocks.MOON_IRON_ORE, 11, 10, -24, 56, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+
+        add(specs, "mars", ModBlocks.MARS_DIAMOND_ORE, 7, 5, -80, 80, ModBlocks.MARS_STONE);
+        add(specs, "mars", ModBlocks.MARS_ICE_SHARD_ORE, 10, 8, -32, 32, ModBlocks.MARS_STONE);
+        add(specs, "mars", ModBlocks.MARS_IRON_ORE, 11, 10, -24, 56, ModBlocks.MARS_STONE);
+        add(specs, "mars", ModBlocks.MARS_OSTRUM_ORE, 8, 8, -80, 80, ModBlocks.MARS_STONE);
+
+        add(specs, "mercury", ModBlocks.MERCURY_IRON_ORE, 8, 20, -80, 192, ModBlocks.MERCURY_STONE);
+
+        add(specs, "venus", ModBlocks.VENUS_CALORITE_ORE, 8, 8, -80, 80, ModBlocks.VENUS_STONE);
+        add(specs, "venus", ModBlocks.VENUS_COAL_ORE, 17, 20, -80, 192, ModBlocks.VENUS_STONE);
+        add(specs, "venus", ModBlocks.VENUS_DIAMOND_ORE, 9, 5, -80, 80, ModBlocks.VENUS_STONE);
+        add(specs, "venus", ModBlocks.VENUS_GOLD_ORE, 10, 4, -64, 32, ModBlocks.VENUS_STONE);
+
+        add(specs, "glacio", ModBlocks.GLACIO_COAL_ORE, 17, 20, -80, 192, ModBlocks.GLACIO_STONE);
+        add(specs, "glacio", ModBlocks.GLACIO_ICE_SHARD_ORE, 17, 8, -32, 32, ModBlocks.GLACIO_STONE);
+        add(specs, "glacio", ModBlocks.GLACIO_IRON_ORE, 11, 10, -24, 56, ModBlocks.GLACIO_STONE);
+        add(specs, "glacio", ModBlocks.GLACIO_LAPIS_ORE, 9, 2, -32, 32, ModBlocks.GLACIO_STONE);
+
+        return specs;
+    }
+
+    private static void add(List<PlanetOreSpec> specs, String planetName, Block oreBlock, int veinSize, int countPerChunk,
+                            int sourceMinY, int sourceMaxY, Block... replaceableBlocks) {
+        int minY = Math.max(MIN_GENERATION_Y, sourceMinY);
+        int maxY = Math.min(MAX_GENERATION_Y, sourceMaxY);
+        if (minY <= maxY) {
+            specs.add(new PlanetOreSpec(planetName, oreBlock.getDefaultState(), veinSize, countPerChunk, minY, maxY, replaceableBlocks));
+        }
+    }
+
+    private static final class PlanetOreSpec {
+
+        private final String planetName;
+        private final IBlockState oreState;
+        private final int veinSize;
+        private final int countPerChunk;
+        private final int minY;
+        private final int maxY;
+        private final Block[] replaceableBlocks;
+
+        private PlanetOreSpec(String planetName, IBlockState oreState, int veinSize, int countPerChunk, int minY, int maxY,
+                              Block[] replaceableBlocks) {
+            this.planetName = planetName;
+            this.oreState = oreState;
+            this.veinSize = veinSize;
+            this.countPerChunk = countPerChunk;
+            this.minY = minY;
+            this.maxY = maxY;
+            this.replaceableBlocks = replaceableBlocks;
+        }
+
+        private boolean canReplace(Block block) {
+            for (Block replaceableBlock : replaceableBlocks) {
+                if (block == replaceableBlock) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
