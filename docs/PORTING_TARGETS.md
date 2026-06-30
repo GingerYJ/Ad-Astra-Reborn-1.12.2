@@ -552,7 +552,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 279 files:
+- Direct 1.12 crafting JSON coverage is now 294 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -641,6 +641,14 @@ Current status:
     `space_pants`, and `space_boots`. The 1.20 `ad_astra:steel_plates` tag is
     mapped to `plateSteel`; the 1.20 `minecraft:wool` tag is mapped to
     `blockWool`; 1.20 yellow/black dye ids are mapped to 1.12 dye metadata.
+  - 15 low-risk machine, tank, and utility block recipes converted from
+    generated 1.20 crafting data: `coal_generator`, `compressor`,
+    `fuel_refinery`, `nasa_workbench`, `reinforced_door`, `solar_panel`,
+    `water_pump`, `oxygen_sensor`, `large_gas_tank`, `steel_tank`,
+    `desh_tank`, `ostrum_tank`, `calorite_tank`, `gravity_normalizer`, and
+    `energizer`. The 1.20 Ad Astra plate/block/rod tags are mapped to existing
+    Forge OreDictionary entries, and the tank recipes only consume empty
+    registered tank items.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
@@ -649,8 +657,10 @@ Current status:
   copper/lightning-rod/tank-NBT cases unless an explicit 1.12 mapping is chosen:
   `steel_cable`, `desh_cable`, `cable_duct`, and `fluid_pipe_duct` need a
   copper ingot policy, `rocket_nose_cone` needs a replacement for the 1.20
-  lightning rod, and tank/zip gun/rover recipes should wait for a deliberate
-  decision about using NBT-capable gas tanks as ordinary crafting ingredients.
+  lightning rod, `oxygen_loader` also depends on the 1.20 lightning rod,
+  `cryo_freezer` depends on 1.20 blue ice, and zip gun/rover recipes should
+  wait for a deliberate decision about using NBT-capable filled tanks as
+  ordinary crafting ingredients.
 - Deferred recipe categories remain custom machine JSON loaders
   (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
   `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
@@ -965,8 +975,9 @@ Low-risk worldgen implementation order:
 2. Decide the Glacio copper policy before enabling `GLACIO_COPPER_ORE`
    generation, because vanilla 1.12.2 has no copper ingot target.
 3. Validate non-NBT simple features now started in runtime generation:
-   `moon_soul_soil` as Moon soul-sand clusters and `mars_rock` as conglomerate
-   blobs on Mars sand, then add small/large infernal spire columns.
+   `moon_soul_soil` as Moon soul-sand clusters, `mars_rock` as conglomerate
+   blobs on Mars sand, and small/large Venus `infernal_spire_column` features
+   as infernal-spire block clusters on Venus sand.
 4. Add a minimal NBT template loading/placement path and validate it with meteor
    variants or the size-1 oil well template.
 5. Leave deepslate variants, large structures, and crater/noise terrain out of
@@ -1026,9 +1037,10 @@ Low-conflict worldgen implementation order:
    equivalents. Clamp or remap 1.20 negative-Y height ranges to the current
    1.12.2 terrain height instead of copying them literally.
 3. Validate non-NBT simple features: `moon_soul_soil` now generates as Moon
-   soul-sand clusters and `mars_rock` now generates as conglomerate blobs on
-   Mars sand. Add small/large infernal spire columns next. These are isolated
-   from structure code and exercise planet-specific feature dispatch.
+   soul-sand clusters, `mars_rock` now generates as conglomerate blobs on Mars
+   sand, and small/large Venus `infernal_spire_column` features now generate as
+   infernal-spire block clusters on Venus sand. These are isolated from
+   structure code and exercise planet-specific feature dispatch.
 4. Add a minimal NBT template loading/placement path and validate it with
    meteor variants or the size-1 oil well template. This should include
    rotation, ground projection, bounding-box checks, and block/entity NBT

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#E#",
+    "BDB",
+    "#E#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateOstrum"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockOstrum"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    },
+    "E": {
+      "item": "ad_astra:etrionic_capacitor"
+    }
+  },
+  "result": {
+    "item": "ad_astra:energizer"
+  }
+}

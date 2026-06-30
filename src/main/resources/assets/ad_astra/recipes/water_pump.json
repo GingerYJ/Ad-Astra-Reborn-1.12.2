@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "S#S",
+    "SGS",
+    "#H#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "G": {
+      "item": "ad_astra:gas_tank"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "S": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    }
+  },
+  "result": {
+    "item": "ad_astra:water_pump"
+  }
+}

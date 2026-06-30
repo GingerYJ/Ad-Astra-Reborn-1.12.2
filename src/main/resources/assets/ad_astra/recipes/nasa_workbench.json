@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "|#|",
+    "TCT",
+    "#B#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSteel"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockSteel"
+    },
+    "C": {
+      "item": "minecraft:crafting_table"
+    },
+    "T": {
+      "item": "minecraft:redstone_torch"
+    },
+    "|": {
+      "type": "forge:ore_dict",
+      "ore": "rodIron"
+    }
+  },
+  "result": {
+    "item": "ad_astra:nasa_workbench"
+  }
+}

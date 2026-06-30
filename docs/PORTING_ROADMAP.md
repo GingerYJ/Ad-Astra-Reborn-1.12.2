@@ -60,7 +60,11 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   space helmet recipes. The sixteenth direct crafting batch adds 9 low-risk
   generated conversions for glowing metal pillars, marked iron pillar, and the
   three basic space suit armor pieces using `blockWool` and `plateSteel`
-  OreDictionary mappings.
+  OreDictionary mappings. The seventeenth direct crafting batch adds 15
+  low-risk machine, tank, and utility block recipes for Coal Generator,
+  Compressor, Fuel Refinery, NASA Workbench, Reinforced Door, Solar Panel,
+  Water Pump, Oxygen Sensor, tiered empty tanks, Gravity Normalizer, and
+  Energizer.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -397,10 +401,15 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   replacing Moon stone/deepslate, because Minecraft 1.12.2 has no soul soil
   block. Mars `mars_rock` now places source-inspired conglomerate blobs on
   Mars sand using the copied feature's three-step blob shape.
+- 2026-07-01 Venus simple feature pass: small and large
+  `infernal_spire_column` features now generate as deterministic
+  `infernal_spire_block` column clusters on Venus sand. The first pass mirrors
+  the 1.20 configured height/reach ranges and placed-feature counts in the
+  current flat 1.12 terrain; visual density still needs dev-world tuning.
 - Next low-conflict Phase 8 order:
   1. Validate and tune the runtime ore pass in a dev planet world; keep Glacio copper disabled until a copper output
      policy exists.
-  2. Validate and tune Moon soul-sand clusters and Mars rock blobs in dev planet worlds, then add Venus infernal spire columns.
+  2. Validate and tune Moon soul-sand clusters, Mars rock blobs, and Venus infernal spire columns in dev planet worlds.
   3. Add a minimal NBT template loader/placer and validate it with meteor variants or the size-1 oil well template.
   4. Add simple single-start structure predicates for oil well, lunar tower, and Mars temple.
   5. Defer Moon dungeon, Lunarian village, Pygro/crimson structures, Venus bullet/tower, and biome-tagged structure
@@ -550,6 +559,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the Moon
   soul-sand/Mars rock simple worldgen feature pass and the glowing pillar/basic
   space suit direct crafting recipes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the Venus
+  infernal-spire simple worldgen feature pass and the machine/tank utility
+  direct crafting recipes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

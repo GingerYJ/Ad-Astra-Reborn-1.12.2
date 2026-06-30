@@ -179,6 +179,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             generateMoonSoulSand(chunkOrigin, random);
         } else if ("mars".equals(planetName)) {
             generateMarsRockBlobs(chunkOrigin, random);
+        } else if ("venus".equals(planetName)) {
+            generateInfernalSpireColumns(chunkOrigin, random);
         }
     }
 
@@ -239,6 +241,76 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
             center = center.add(-1 + random.nextInt(2), -random.nextInt(2), -1 + random.nextInt(2));
         }
+    }
+
+    private void generateInfernalSpireColumns(BlockPos chunkOrigin, Random random) {
+        for (int i = 0; i < 4; i++) {
+            generateInfernalSpireColumn(chunkOrigin, random, 1, 4, 1);
+        }
+        for (int i = 0; i < 2; i++) {
+            generateInfernalSpireColumn(chunkOrigin, random, 5, 10, 2 + random.nextInt(2));
+        }
+    }
+
+    private void generateInfernalSpireColumn(BlockPos chunkOrigin, Random random, int minHeight, int maxHeight, int reach) {
+        int x = chunkOrigin.getX() + random.nextInt(16);
+        int z = chunkOrigin.getZ() + random.nextInt(16);
+        BlockPos surface = findSurface(new BlockPos(x, SURFACE_Y + 8, z), ModBlocks.VENUS_SAND);
+        if (surface == null) {
+            return;
+        }
+
+        int height = minHeight + random.nextInt(maxHeight - minHeight + 1);
+        placeInfernalSpireCluster(surface.up(), random, height, reach);
+    }
+
+    private void placeInfernalSpireCluster(BlockPos origin, Random random, int height, int reach) {
+        boolean dense = random.nextFloat() < 0.9F;
+        int spread = Math.min(height, dense ? 5 : 8);
+        int attempts = dense ? 50 : 15;
+
+        for (int i = 0; i < attempts; i++) {
+            BlockPos columnOrigin = origin.add(randomRange(random, spread), 0, randomRange(random, spread));
+            int columnHeight = height - Math.abs(columnOrigin.getX() - origin.getX()) - Math.abs(columnOrigin.getZ() - origin.getZ());
+            if (columnHeight >= 0) {
+                placeInfernalSpireColumnAt(columnOrigin, columnHeight, reach);
+            }
+        }
+    }
+
+    private int randomRange(Random random, int radius) {
+        return random.nextInt(radius * 2 + 1) - radius;
+    }
+
+    private void placeInfernalSpireColumnAt(BlockPos origin, int height, int reach) {
+        for (int x = origin.getX() - reach; x <= origin.getX() + reach; x++) {
+            for (int z = origin.getZ() - reach; z <= origin.getZ() + reach; z++) {
+                BlockPos base = new BlockPos(x, origin.getY(), z);
+                int distance = Math.abs(x - origin.getX()) + Math.abs(z - origin.getZ());
+                int columnHeight = height - distance / 2;
+                if (columnHeight < 0 || !canPlaceSpireAt(base)) {
+                    continue;
+                }
+
+                for (int y = 0; y <= columnHeight && origin.getY() + y < world.getHeight(); y++) {
+                    BlockPos pos = base.up(y);
+                    if (world.isAirBlock(pos) || world.getBlockState(pos).getBlock() == ModBlocks.INFERNAL_SPIRE_BLOCK) {
+                        world.setBlockState(pos, ModBlocks.INFERNAL_SPIRE_BLOCK.getDefaultState(), 2);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean canPlaceSpireAt(BlockPos pos) {
+        Block below = world.getBlockState(pos.down()).getBlock();
+        Block current = world.getBlockState(pos).getBlock();
+        return (world.isAirBlock(pos) || current == ModBlocks.INFERNAL_SPIRE_BLOCK)
+            && below != Blocks.AIR
+            && below != Blocks.BEDROCK
+            && below != Blocks.LAVA;
     }
 
     private List<PlanetOreSpec> getOreSpecs(String planetName) {
