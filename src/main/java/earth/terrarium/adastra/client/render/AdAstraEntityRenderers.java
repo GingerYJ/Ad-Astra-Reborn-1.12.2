@@ -65,7 +65,7 @@ public final class AdAstraEntityRenderers {
         RenderingRegistry.registerEntityRenderingHandler(LunarianWanderingTraderEntity.class,
             manager -> new RenderTexturedMob<LunarianWanderingTraderEntity>(manager, new ModelBiped(), texture("mob/lunarian/lunarian_wandering_trader"), 0.45f));
         RenderingRegistry.registerEntityRenderingHandler(StarCrawlerEntity.class,
-            manager -> new RenderTexturedMob<StarCrawlerEntity>(manager, new ModelBiped(), texture("mob/star_crawler"), 0.6f));
+            manager -> new RenderTexturedMob<StarCrawlerEntity>(manager, new ModelStarCrawler(), texture("mob/star_crawler"), 0.0f));
         RenderingRegistry.registerEntityRenderingHandler(MartianRaptorEntity.class,
             manager -> new RenderTexturedMob<MartianRaptorEntity>(manager, new ModelMartianRaptor(), texture("mob/martian_raptor"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(PygroEntity.class,

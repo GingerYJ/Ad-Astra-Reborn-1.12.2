@@ -545,7 +545,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 111 files:
+- Direct 1.12 crafting JSON coverage is now 123 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -596,6 +596,14 @@ Current status:
     `polished_glacio_stone_stairs`, `chiseled_glacio_stone_bricks`,
     `chiseled_glacio_stone_slab`, `chiseled_glacio_stone_stairs`, and
     `glacio_pillar`.
+  - 12 low-risk Permafrost terrain/decor recipes converted from generated 1.20
+    crafting data: `permafrost_bricks`, `permafrost_brick_slab`,
+    `permafrost_brick_stairs`, `permafrost_brick_wall`,
+    `polished_permafrost`, `polished_permafrost_slab`,
+    `polished_permafrost_stairs`, `chiseled_permafrost_bricks`,
+    `chiseled_permafrost_brick_slab`,
+    `chiseled_permafrost_brick_stairs`, `permafrost_tiles`, and
+    `permafrost_pillar`.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
@@ -603,8 +611,7 @@ Current status:
 - Next direct-crafting candidates are the remaining simple Ad Astra decorative
   families whose inputs are already registered blocks/items or established
   ore-dict materials: metal panels/plateblocks/plating/button/pressure-plate/
-  slab/stair variants, permafrost variants, and aeronos/strophar/glacian
-  wood-family recipes. Review
+  slab/stair variants and aeronos/strophar/glacian wood-family recipes. Review
   vanilla 1.12 metadata mappings before converting colored wool flags or
   recipes that reference 1.20-only vanilla ids.
 - Deferred recipe categories remain custom machine JSON loaders
@@ -1061,11 +1068,12 @@ Entity model/render gap snapshot, 2026-07-01:
 - 1.12.2 entity registry coverage is complete for the 20 source ids, but this
   is still mostly placeholder gameplay coverage.
 - 1.12.2 client renderer factory coverage is complete for the 20 source ids.
-  `martian_raptor` now uses a first-pass 1.12 `ModelBase` port of the 1.20
-  hardcoded Java model, `sulfur_creeper` uses vanilla `ModelCreeper` with copied
-  Ad Astra texture and a vanilla-style charged layer, and most remaining mobs
-  still use `ModelBiped`. Vehicles use `TexturedBoxModel`, `ice_spit` uses
-  `RenderSnowball`, and `air_vortex` uses a custom translucent cube.
+  `martian_raptor` and `star_crawler` now use first-pass 1.12 `ModelBase` ports
+  of their 1.20 hardcoded Java models, `sulfur_creeper` uses vanilla
+  `ModelCreeper` with copied Ad Astra texture and a vanilla-style charged layer,
+  and most remaining mobs still use `ModelBiped`. Vehicles use
+  `TexturedBoxModel`, `ice_spit` uses `RenderSnowball`, and `air_vortex` uses a
+  custom translucent cube.
 - Entity texture resources are copied with source parity under
   `assets/ad_astra/textures/entity`: 35 source files and 35 target files.
   Several copied textures are not selected by current renderers yet, including
@@ -1087,7 +1095,7 @@ Per-entity gap matrix:
 | `lunarian` | Registered, spawn egg, generic placeholder mob AI/attributes, biped renderer using default texture. | Villager-derived Lunarian with custom model, profession-specific textures, head/item layers, breeding, avoidance behavior, and villager data. | Replace generic hostile placeholder behavior, profession/data sync, trades/breeding, correct renderer/model, profession texture selection, held/head layers. |
 | `corrupted_lunarian` | Registered, spawn egg, source-like base health/move/attack attributes, melee plus first-pass ranged `ice_spit` AI, targets players/villagers/Lunarian wandering traders/golems, biped renderer with copied texture. | Monster with melee and ranged `IceSpit`, targets players/villagers/traders/golems, custom extra-arm model and animation. | Real model/animation, exact target parity for all Lunarian trader variants, drops/sounds. |
 | `lunarian_wandering_trader` | Registered, spawn egg, passive placeholder mob, biped renderer with copied texture. | Wandering Trader-derived Lunarian trader with custom Lunarian model/layers and merchant offers/spawner support. | Trader inheritance/AI, offers, spawn manager, renderer/model/layers, exact despawn and interaction behavior. |
-| `star_crawler` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Monster with `StarCrawlerModel` and source attack/wander timings. | Real model/animation, source attributes/AI tuning, drops/sounds/spawn predicates. |
+| `star_crawler` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses a first-pass 1.12 `ModelStarCrawler` port with copied texture, source-like 0.0 shadow, four animated legs, and 0-width detail planes. | Monster with `StarCrawlerModel` and source attack/wander timings. | Runtime dev-client visual validation, source attributes/AI tuning, drops/sounds/spawn predicates. |
 | `martian_raptor` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses a first-pass 1.12 `ModelMartianRaptor` port with copied texture, animated legs, and head yaw/pitch. | Monster with `MartianRaptorModel`, melee AI, leap-at-target behavior, and source attributes. | Runtime dev-client visual validation, leap behavior, source attributes/AI tuning, drops/sounds/spawn predicates. |
 | `pygro` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Piglin-derived legacy entity with `PygroModel`, held-item layer, and armor layer. | Real model, item/armor layers, piglin-style behavior/equipment, source attributes, drops/sounds. |
 | `zombified_pygro` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Zombified Piglin-derived entity with `ZombifiedPygroModel`, held-item layer, and armor layer. | Real model, item/armor layers, zombified anger/equipment behavior, source attributes, drops/sounds. |
@@ -1100,26 +1108,22 @@ Per-entity gap matrix:
 
 Next low-conflict entity/render implementation order:
 
-1. Port `star_crawler` model binding next. Its source model is also hardcoded
-   boxes but has wider geometry, four animated legs, and several 0-width detail
-   planes; keep source-like shadow sizing when the model replaces the biped
-   placeholder.
-2. Port `glacian_ram` model with normal texture first. Defer sheared texture
+1. Port `glacian_ram` model with normal texture first. Defer sheared texture
    selection, shearing, milking, breeding, and eat-permafrost animation until a
    data-watched sheared/eating state is added.
-3. Port Pygro-family model bindings in this order: `pygro`,
+2. Port Pygro-family model bindings in this order: `pygro`,
    `zombified_pygro`, `pygro_brute`. Defer item/armor layers and piglin-style
    AI until the base model renderers are stable.
-4. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
+3. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
    Defer Hoglin/Zoglin knockback and behavior parity.
-5. Port Lunarian-family model bindings with default textures:
+4. Port Lunarian-family model bindings with default textures:
    `lunarian`, `corrupted_lunarian`, then `lunarian_wandering_trader`.
    Profession textures, merchant offers, wandering trader spawning, and
    corrupted ranged attacks should remain separate follow-up batches.
-6. Port vehicle model renderers after the mob renderers: rockets first, then
+5. Port vehicle model renderers after the mob renderers: rockets first, then
    lander, then rover. Treat item renderers as a separate client-only batch if
    1.12 item rendering needs extra hooks.
-7. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
+6. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
    control, rocket countdown/fuel/launch-pad/menu flow, then lander descent and
    fall explosion. These touch networking, GUI, and travel flow, so they are not
    low-conflict renderer-only work.
