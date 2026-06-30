@@ -13,6 +13,7 @@ public final class ModGuiIds {
     public static final int CRYO_FREEZER = 9;
     public static final int NASA_WORKBENCH = 10;
     public static final int GRAVITY_NORMALIZER = 11;
+    public static final int PLANET_SELECTION = 12;
 
     private ModGuiIds() {
     }

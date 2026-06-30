@@ -1,10 +1,13 @@
 package earth.terrarium.adastra.common.entities.vehicles;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderEntity;
+import earth.terrarium.adastra.common.network.NetworkHandler;
+import earth.terrarium.adastra.common.network.packet.PacketOpenPlanetSelection;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
@@ -12,16 +15,25 @@ import net.minecraft.world.World;
 
 public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
 
+    private static final double PLANET_SELECTION_HEIGHT = 180.0D;
+
     private final VehicleType vehicleType;
     private final int maxFuel;
+    private final int rocketTier;
 
     private int fuel;
     private int launchTicks;
+    private boolean planetSelectionOpened;
 
     public AdAstraVehicleEntity(World world, VehicleType vehicleType, int maxFuel) {
+        this(world, vehicleType, maxFuel, 0);
+    }
+
+    public AdAstraVehicleEntity(World world, VehicleType vehicleType, int maxFuel, int rocketTier) {
         super(world);
         this.vehicleType = vehicleType;
         this.maxFuel = maxFuel;
+        this.rocketTier = rocketTier;
         this.fuel = maxFuel;
         this.preventEntitySpawning = true;
     }
@@ -98,6 +110,7 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
         super.readEntityFromNBT(compound);
         fuel = compound.hasKey("Fuel") ? compound.getInteger("Fuel") : maxFuel;
         launchTicks = compound.getInteger("LaunchTicks");
+        planetSelectionOpened = compound.getBoolean("PlanetSelectionOpened");
     }
 
     @Override
@@ -106,6 +119,7 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
         compound.setInteger("Fuel", fuel);
         compound.setInteger("MaxFuel", maxFuel);
         compound.setInteger("LaunchTicks", launchTicks);
+        compound.setBoolean("PlanetSelectionOpened", planetSelectionOpened);
     }
 
     public int getFuel() {
@@ -118,6 +132,10 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
 
     public VehicleType getVehicleType() {
         return vehicleType;
+    }
+
+    public int getRocketTier() {
+        return rocketTier;
     }
 
     private void updateRoverMotion() {
@@ -153,6 +171,7 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
         if (accelerating) {
             launchTicks++;
             motionY = Math.min(0.45D, motionY + 0.045D);
+            openPlanetSelectionIfReady(passenger);
         } else if (!hasNoGravity()) {
             motionY -= 0.035D;
         }
@@ -169,6 +188,16 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
         }
         fuel--;
         return true;
+    }
+
+    private void openPlanetSelectionIfReady(Entity passenger) {
+        if (world.isRemote || vehicleType != VehicleType.ROCKET || planetSelectionOpened || posY < PLANET_SELECTION_HEIGHT) {
+            return;
+        }
+        if (passenger instanceof EntityPlayerMP) {
+            planetSelectionOpened = true;
+            NetworkHandler.CHANNEL.sendTo(new PacketOpenPlanetSelection(Math.max(1, rocketTier)), (EntityPlayerMP) passenger);
+        }
     }
 
     public enum VehicleType {

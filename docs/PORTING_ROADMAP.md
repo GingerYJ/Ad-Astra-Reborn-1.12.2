@@ -91,7 +91,8 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   gas tank, large gas tank, all three space suit armor sets, space painting, rocket/rover items, and the 12 spawn egg
   item ids. Space suit items are currently wearable armor placeholders using copied 1.20 item/entity armor assets.
   Rocket/rover items place first-pass vehicles, and the 12 spawn eggs create their matching first-pass mob entities.
-  TI-69, zip gun, space painting, exact vehicle flow, and exact spawn egg behavior still need follow-up behavior.
+  TI-69 now has a first-pass local environment readout. Zip gun, space painting, exact vehicle flow, and exact spawn
+  egg behavior still need follow-up behavior.
 - The first entity registry coverage batch registers all 20 source entity ids with minimal 1.12.2 placeholder classes:
   air vortex, tier 1 rover, four rocket tiers, lander, 12 mob ids, and ice spit. These entries preserve registry ids,
   source dimensions, fire immunity where obvious, tracker settings, and spawn egg colors, but they do not yet implement
@@ -210,6 +211,10 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   hooks, and a simple flat planetary surface generator so worlds can load without real 1.20 terrain generation. Real
   crater/noise terrain, custom planetary biomes, structure placement, the 43 hand-authored worldgen JSON files, the 56
   NBT structures, and generated worldgen data conversion remain pending.
+- The first planet-selection travel batch lets launched rockets open a minimal destination screen at high altitude, then
+  sends a server packet to land the player on a selected registered planet when the rocket tier can reach it. This first
+  pass transfers the player only; full rocket/lander persistence, launch pad validation, orbits, stations, and
+  return-position storage remain pending.
 - The first client HUD overlay pass is wired through Forge 1.12 `RenderGameOverlayEvent.Post`. It draws a compact
   oxygen/temperature/gravity/energy panel away from the vanilla hotbar and health bars, using player inventory oxygen
   tanks and Forge Energy items where available, plus local visible oxygen distributor/gravity normalizer state as a

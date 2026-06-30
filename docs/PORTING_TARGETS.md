@@ -566,6 +566,8 @@ Current status:
   oxygen tooltip, and oxygen durability bar.
 - Server-side player ticks now drain suit oxygen in airless environments or
   apply oxygen suffocation damage when the player has no usable suit oxygen.
+- TI-69 now has a first-pass right-click environment readout for local oxygen,
+  temperature, and gravity.
 - Exact 1.20 temperature damage, gravity movement, fluid freezing/evaporation,
   item destruction, TI-69 runtime UI, and HUD warning polish remain pending.
 
@@ -606,12 +608,18 @@ Target:
 
 Current status:
 
-- Vehicle item ids are registered as placeholders.
-- Vehicle entity ids are registered as minimal placeholder entities with copied
-  source dimensions. First-pass client render factories now make rockets,
-  rover, and lander visible with simple textured placeholders. Movement,
-  inventory, fuel, launch, landing, real vehicle models, and controls remain
-  pending.
+- Vehicle items place matching first-pass vehicle entities.
+- Vehicle entity ids are registered with copied source dimensions. The rover
+  has basic riding/steering, rockets carry tier values and simplified fuel, and
+  first-pass client render factories make rockets, rover, and lander visible
+  with simple textured placeholders.
+- Rockets now open a minimal planet selection screen after ascending to the
+  first-pass atmosphere threshold. The selection packet lands the player on a
+  chosen registered planet when the server-side rocket tier can reach it. The
+  rocket/lander entity is not transferred yet.
+- Full rocket launch sequence, launch pad validation, vehicle inventory, fuel
+  UI, real vehicle models, return-position storage, orbits, and space stations
+  remain pending.
 
 ### 10. Dimensions, Planets, and World Generation
 

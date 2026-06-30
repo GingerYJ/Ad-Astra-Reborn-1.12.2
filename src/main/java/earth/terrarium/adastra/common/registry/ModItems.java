@@ -20,6 +20,7 @@ import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.items.Ti69Item;
 import earth.terrarium.adastra.common.items.VehicleItem;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
@@ -96,7 +97,7 @@ public final class ModItems {
     public static final Item FUEL_BUCKET = bucket("fuel_bucket", ModBlocks.FUEL);
     public static final Item CRYO_FUEL_BUCKET = bucket("cryo_fuel_bucket", ModBlocks.CRYO_FUEL);
 
-    public static final Item TI_69 = item("ti_69", 1);
+    public static final Item TI_69 = ti69("ti_69");
     public static final Item WRENCH = wrench("wrench");
     public static final Item ZIP_GUN = item("zip_gun", 1);
     public static final Item ETRIONIC_CAPACITOR = energyItem("etrionic_capacitor", 250_000, 250, 500);
@@ -197,6 +198,12 @@ public final class ModItems {
 
     private static Item gasTank(String name, int capacity, int distributionAmount) {
         Item item = new GasTankItem(name, capacity, distributionAmount);
+        INTERNAL_ITEMS.add(item);
+        return item;
+    }
+
+    private static Item ti69(String name) {
+        Item item = new Ti69Item(name);
         INTERNAL_ITEMS.add(item);
         return item;
     }
