@@ -48,7 +48,8 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   crafting batch adds 20 low-risk metal decorative recipes for iron, steel,
   desh, ostrum, and calorite plating, plateblock, panel, and pillar blocks. The
   tenth direct crafting batch adds 20 matching metal plating button, pressure
-  plate, slab, and stair recipes.
+  plate, slab, and stair recipes. The eleventh direct crafting batch adds 25
+  low-risk aeronos, strophar, and glacian wood-family recipes.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
@@ -406,19 +407,18 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   spawn eggs, planet spawn lists, and renderer factories for all 20 source
   entity ids. The renderer coverage is intentionally incremental: most mobs
   still use vanilla biped placeholders, Martian Raptors, Star Crawlers, Glacian
-  Rams, and Pygro-family mobs now use first-pass 1.12 `ModelBase`/`ModelBiped`
-  ports of their 1.20 hardcoded Java models, sulfur creepers have synced
-  fuse/powered state with creeper swelling and charge visuals, vehicles use
-  textured boxes, Ice Spit renders as an item projectile, and Air Vortex remains
-  a visible debug-style cube. Ice Spit now has first-pass source-like projectile
-  behavior with thrown damage, SPIT/SNOWBALL particles, owner/position
-  constructors, broadcast discard event, and corrupted Lunarian ranged attack AI
-  integration.
+  Rams, Pygro-family mobs, and Mogler-family mobs now use first-pass 1.12
+  `ModelBase`/`ModelBiped` ports of their 1.20 hardcoded Java models, sulfur
+  creepers have synced fuse/powered state with creeper swelling and charge
+  visuals, vehicles use textured boxes, Ice Spit renders as an item projectile,
+  and Air Vortex remains a visible debug-style cube. Ice Spit now has first-pass
+  source-like projectile behavior with thrown damage, SPIT/SNOWBALL particles,
+  owner/position constructors, broadcast discard event, and corrupted Lunarian
+  ranged attack AI integration.
 - Next low-conflict order for this phase:
-  1. Mogler-family model/renderer bindings.
-  2. Lunarian-family model/default texture bindings, with profession/trade
+  1. Lunarian-family model/default texture bindings, with profession/trade
      behavior deferred.
-  3. Vehicle model renderers: rockets, lander, then rover.
+  2. Vehicle model renderers: rockets, lander, then rover.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -504,6 +504,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-07-01 after the first
   Pygro-family renderer bindings and metal plating button/pressure-plate/slab/
   stair direct crafting recipes.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the first
+  Mogler-family renderer bindings and aeronos/strophar/glacian wood-family
+  direct crafting recipes.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
