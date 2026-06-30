@@ -157,7 +157,10 @@ Current status:
 
 - Assets and generated data are copied.
 - Broad `en_us.lang` conversion exists.
-- `zh_cn.lang` is aligned with `en_us.lang` using the copied 1.20 Chinese strings.
+- `zh_cn.lang` is aligned with `en_us.lang` using the copied 1.20 Chinese strings plus current 1.12.2 UI/HUD additions.
+  The latest language pass covers Radio GUI, planet selection/space station text, TI-69/HUD strings, machine energy/fluid
+  tooltips, side configuration text, and Zip Gun propellant/help text with no missing keys, extra keys, placeholder
+  mismatches, duplicates, or malformed lines.
 - Model coverage for registered non-fluid block items and current standalone
   items is currently clean.
 
@@ -203,7 +206,8 @@ Remaining behavior work:
 - Launch pad structure validation and rocket integration.
 - Airlock and reinforced door full 1.20 renderer polish. First-pass functional
   3x3 door behavior is implemented.
-- Radio station list, GUI, audio playback packets, and streaming implementation.
+- Radio station list, audio playback packets, and streaming implementation. A minimal station URL GUI with
+  server-validated state update packets is implemented.
 - Flag custom URL/image GUI, networking, image loading, and renderer.
 - Globe special renderer and item renderer.
 - Pipe and cable transfer networks. Energy cables and fluid pipes have
@@ -269,6 +273,11 @@ Current status:
   creative variants, show oxygen tooltip/durability-bar state, provide static
   oxygen drain helpers for later suit integration, and can distribute oxygen to
   other Forge fluid item containers while held.
+- Zip Gun now has a first-pass Forge fluid item capability backed by item NBT.
+  It accepts oxygen or hydrogen as propellant, exposes empty and filled
+  creative variants, shows propellant tooltip/durability-bar state, consumes
+  propellant while used, supports dual-wield boost, and applies low-gravity
+  movement using the current dimension gravity hook.
 - All source item ids are currently covered by standalone item registrations or
   automatically registered block items.
 - Independent item model coverage is currently clean: 0 missing models.
@@ -277,6 +286,8 @@ Implementation notes:
 
 - Armor must be rebuilt with 1.12 `ItemArmor`, armor material definitions,
   texture layers, dye/NBT behavior, and environmental protection hooks.
+- Zip Gun still needs exact 1.20 particle/audio parity, better zero-gravity
+  tuning, and runtime gameplay testing.
 - Jet suit movement and energy storage require custom per-tick input handling
   and server validation.
 - Gas tank machine filling, suit oxygen consumption, and exact capacity/config
@@ -472,8 +483,10 @@ Current status:
   placeholder fields, sync them to clients, and expose right-click status/reset
   feedback for later GUI and TESR work.
 - Radio TileEntities now persist a station URL field and playing state, sync
-  them to clients, and expose right-click status/toggle feedback until the 1.20
-  radio screen, station packets, and audio stream are ported.
+  them to clients, and expose a minimal right-click station settings GUI. The
+  GUI can save/clear the URL and toggle the playing flag through a server-
+  validated packet. The 1.20 station list flow and audio stream are still
+  pending.
 - Sliding doors, airlocks, and reinforced doors now have first-pass 3x3
   placement/removal, right-click and redstone open/close behavior, wrench lock
   toggling, passable open collision, sounds, and TileEntity persistence for
@@ -527,6 +540,30 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
+- Direct 1.12 crafting JSON coverage is now 36 files:
+  - 24 material compaction/decompaction recipes for cheese, raw
+    desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
+    loops.
+  - 12 low-risk component/equipment recipes converted from generated 1.20
+    crafting data: `iron_rod`, `steel_rod`, `gas_tank`, `engine_frame`, `fan`,
+    `rocket_fin`, `oxygen_gear`, `steel_engine`, `desh_engine`,
+    `ostrum_engine`, `calorite_engine`, and `etrionic_capacitor`.
+- Latest crafting gap pass inspected the 313 generated top-level vanilla
+  crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
+  recipe conditions. Safe direct conversion requires either an existing 1.12
+  item id or an explicit OreDictionary/tag replacement.
+- Next direct-crafting candidates are the simple Ad Astra decorative families
+  whose inputs are already registered blocks/items or established ore-dict
+  materials: metal panels/plateblocks/plating/button/pressure-plate/slab/stair
+  variants, planetary stone/cobble/brick/polished/chiseled variants, and
+  aeronos/strophar/glacian wood-family recipes. Review vanilla 1.12 metadata
+  mappings before converting colored wool flags or recipes that reference
+  1.20-only vanilla ids.
+- Deferred recipe categories remain custom machine JSON loaders
+  (`compressing`, `alloying`, `cryo_freezing`, `oxygen_loading`, `refining`,
+  `nasa_workbench`, `space_station_recipe`), `stonecutting`, compatibility/tag
+  recipes without an OreDictionary mapping, and recipes that would consume
+  NBT-bearing filled tanks or charged items as ordinary ingredients.
 - Full recipe/loot/advancement parity remains pending.
 
 ### 8. Space Systems
@@ -863,8 +900,9 @@ Current status:
 ## Recommended Implementation Order
 
 1. Replace utility/equipment/item placeholders with real behavior: wrench side
-   configuration, TI-69 readouts, zip gun propulsion, gas tank oxygen/fluid
-   storage, armor oxygen/temperature protection, and jet suit energy flight.
+   configuration, TI-69 readouts, gas tank oxygen/fluid storage, armor
+   oxygen/temperature protection, and jet suit energy flight. Refine Zip Gun
+   particles/audio/tuning after its first-pass propellant propulsion baseline.
 2. Replace entity placeholders with real vehicles, mobs, projectiles, spawn
    rules, AI, attributes, drops, models, and renderers.
 3. Add client model/renderer binding for vehicles and mobs so entity-backed

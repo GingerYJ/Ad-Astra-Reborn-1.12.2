@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#E#",
+    " F "
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateDesh"
+    },
+    "E": {
+      "item": "ad_astra:steel_engine"
+    },
+    "F": {
+      "item": "ad_astra:fan"
+    }
+  },
+  "result": {
+    "item": "ad_astra:desh_engine"
+  }
+}

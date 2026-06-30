@@ -4,17 +4,34 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class RadioTileEntity extends AdAstraSyncedTileEntity {
 
+    public static final int MAX_STATION_LENGTH = 512;
+
     private String station = "";
     private boolean playing;
+
+    public static String normalizeStation(String station) {
+        String value = station == null ? "" : station.trim();
+        return value.length() > MAX_STATION_LENGTH ? value.substring(0, MAX_STATION_LENGTH) : value;
+    }
 
     public String getStation() {
         return station;
     }
 
     public void setStation(String station) {
-        String value = station == null ? "" : station.trim();
-        if (!this.station.equals(value)) {
+        setStationAndPlaying(station, playing);
+    }
+
+    public void setPlaying(boolean playing) {
+        setStationAndPlaying(station, playing);
+    }
+
+    public void setStationAndPlaying(String station, boolean playing) {
+        String value = normalizeStation(station);
+        boolean valuePlaying = playing && !value.isEmpty();
+        if (!this.station.equals(value) || this.playing != valuePlaying) {
             this.station = value;
+            this.playing = valuePlaying;
             syncToClients();
         }
     }
@@ -28,38 +45,23 @@ public class RadioTileEntity extends AdAstraSyncedTileEntity {
     }
 
     public boolean togglePlaying() {
-        playing = !playing;
-        if (station.isEmpty()) {
-            playing = false;
-        }
-        syncToClients();
-        return playing;
+        setPlaying(!playing);
+        return isPlaying();
     }
 
     public void stop() {
-        if (playing) {
-            playing = false;
-            syncToClients();
-        }
+        setPlaying(false);
     }
 
     public void clearStation() {
-        boolean changed = !station.isEmpty() || playing;
-        station = "";
-        playing = false;
-        if (changed) {
-            syncToClients();
-        }
+        setStationAndPlaying("", false);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        station = compound.getString("Station");
-        playing = compound.getBoolean("Playing");
-        if (station.isEmpty()) {
-            playing = false;
-        }
+        station = normalizeStation(compound.getString("Station"));
+        playing = compound.getBoolean("Playing") && !station.isEmpty();
     }
 
     @Override

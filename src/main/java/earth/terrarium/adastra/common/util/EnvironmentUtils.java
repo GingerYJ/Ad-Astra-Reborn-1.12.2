@@ -42,6 +42,18 @@ public final class EnvironmentUtils {
         return value instanceof Boolean ? (Boolean) value : true;
     }
 
+    public static float getGravity(Entity entity) {
+        return entity == null ? 9.80665F : getGravity(entity.world);
+    }
+
+    public static float getGravity(World world) {
+        if (world == null || world.provider == null) {
+            return 9.80665F;
+        }
+        Object value = invokeNoArg(world.provider, "getGravity");
+        return value instanceof Number ? ((Number) value).floatValue() : 9.80665F;
+    }
+
     private static boolean isCoveredByOxygenDistributor(World world, BlockPos target, int scanRadius) {
         BlockPos min = target.add(-scanRadius, -scanRadius, -scanRadius);
         BlockPos max = target.add(scanRadius, scanRadius, scanRadius);

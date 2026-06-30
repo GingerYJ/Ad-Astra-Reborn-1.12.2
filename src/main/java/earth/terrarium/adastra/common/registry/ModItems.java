@@ -22,6 +22,7 @@ import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.items.Ti69Item;
 import earth.terrarium.adastra.common.items.VehicleItem;
+import earth.terrarium.adastra.common.items.ZipGunItem;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
@@ -99,7 +100,7 @@ public final class ModItems {
 
     public static final Item TI_69 = ti69("ti_69");
     public static final Item WRENCH = wrench("wrench");
-    public static final Item ZIP_GUN = item("zip_gun", 1);
+    public static final Item ZIP_GUN = zipGun("zip_gun");
     public static final Item ETRIONIC_CAPACITOR = energyItem("etrionic_capacitor", 250_000, 250, 500);
     public static final Item GAS_TANK = gasTank("gas_tank", GasTankItem.GAS_TANK_CAPACITY, GasTankItem.GAS_TANK_DISTRIBUTION_AMOUNT);
     public static final Item LARGE_GAS_TANK = gasTank("large_gas_tank", GasTankItem.LARGE_GAS_TANK_CAPACITY, GasTankItem.LARGE_GAS_TANK_DISTRIBUTION_AMOUNT);
@@ -204,6 +205,12 @@ public final class ModItems {
 
     private static Item ti69(String name) {
         Item item = new Ti69Item(name);
+        INTERNAL_ITEMS.add(item);
+        return item;
+    }
+
+    private static Item zipGun(String name) {
+        Item item = new ZipGunItem(name);
         INTERNAL_ITEMS.add(item);
         return item;
     }

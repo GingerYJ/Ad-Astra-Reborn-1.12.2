@@ -1,5 +1,7 @@
 package earth.terrarium.adastra.common.blocks;
 
+import earth.terrarium.adastra.common.network.NetworkHandler;
+import earth.terrarium.adastra.common.network.packet.PacketOpenRadioGui;
 import earth.terrarium.adastra.common.registry.ModTileEntities;
 import earth.terrarium.adastra.common.tile.RadioTileEntity;
 import net.minecraft.block.ITileEntityProvider;
@@ -10,12 +12,12 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public class AdAstraRadioBlock extends AdAstraModelBlock implements ITileEntityProvider {
@@ -55,18 +57,9 @@ public class AdAstraRadioBlock extends AdAstraModelBlock implements ITileEntityP
             return false;
         }
 
-        RadioTileEntity radio = (RadioTileEntity) tile;
-        if (!world.isRemote) {
-            if (player.isSneaking()) {
-                radio.clearStation();
-                player.sendStatusMessage(new TextComponentString("Radio station cleared"), true);
-            } else if (radio.hasStation()) {
-                boolean playing = radio.togglePlaying();
-                player.sendStatusMessage(new TextComponentString(playing ? "Radio on: " + radio.getStation() : "Radio off"), true);
-            } else {
-                radio.stop();
-                player.sendStatusMessage(new TextComponentString("Radio station not set"), true);
-            }
+        if (!world.isRemote && player instanceof EntityPlayerMP) {
+            RadioTileEntity radio = (RadioTileEntity) tile;
+            NetworkHandler.CHANNEL.sendTo(new PacketOpenRadioGui(pos, radio.getStation(), radio.isPlaying()), (EntityPlayerMP) player);
         }
         return true;
     }
