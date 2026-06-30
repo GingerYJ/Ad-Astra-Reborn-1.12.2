@@ -545,7 +545,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 66 files:
+- Direct 1.12 crafting JSON coverage is now 81 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -569,13 +569,22 @@ Current status:
     `polished_mars_stone_slab`, `polished_mars_stone_stairs`,
     `chiseled_mars_stone_bricks`, `chiseled_mars_stone_slab`,
     `chiseled_mars_stone_stairs`, and `mars_pillar`.
+  - 15 low-risk Mercury terrain/decor recipes converted from generated 1.20
+    crafting data: `mercury_stone_slab`, `mercury_stone_stairs`,
+    `mercury_cobblestone_slab`, `mercury_cobblestone_stairs`,
+    `mercury_stone_bricks`, `mercury_stone_brick_slab`,
+    `mercury_stone_brick_stairs`, `mercury_stone_brick_wall`,
+    `polished_mercury_stone`, `polished_mercury_stone_slab`,
+    `polished_mercury_stone_stairs`, `chiseled_mercury_stone_bricks`,
+    `chiseled_mercury_stone_slab`, `chiseled_mercury_stone_stairs`, and
+    `mercury_pillar`.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
   item id or an explicit OreDictionary/tag replacement.
 - Next direct-crafting candidates are the remaining simple Ad Astra decorative
   families whose inputs are already registered blocks/items or established
-  ore-dict materials: Mercury/Venus/Glacio stone/cobble/brick/polished/
+  ore-dict materials: Venus/Glacio stone/cobble/brick/polished/
   chiseled variants, metal panels/plateblocks/plating/button/pressure-plate/
   slab/stair variants, and aeronos/strophar/glacian wood-family recipes. Review
   vanilla 1.12 metadata mappings before converting colored wool flags or
@@ -809,6 +818,121 @@ Worldgen/structure gap snapshot, 2026-07-01:
     structure spacing/separation, structure void processing, loot/spawner
     finalization in structures, and space-station placement.
 
+Ore vein feasibility snapshot, 2026-07-01:
+
+- 1.12.2 runtime entry point:
+  - `AdAstraWorldProvider.createChunkGenerator()` constructs
+    `AdAstraChunkGenerator(world, getProperties())` for each registered planet.
+  - `AdAstraChunkGenerator.generateChunk()` currently creates only the safe
+    flat base terrain: bedrock at y=0, filler y=1..62, surface y=63.
+  - `AdAstraChunkGenerator.populate(int chunkX, int chunkZ)` is empty and is
+    the lowest-risk place to add first-pass ore veins. Keep `generateChunk()`
+    terrain-only for this batch.
+  - The generator already carries `PlanetDimensionProperties`, so first-pass
+    ore dispatch can use `properties.getName()` or `properties.getDimensionId()`
+    without consulting global dimension registries. Current `AdAstraBiomeProvider`
+    is fixed per planet, so dimension-level ore tables are sufficient for the
+    initial implementation; keep an optional biome allow-list in the spec for
+    later biome variants.
+- Suggested minimal Java-local interface for the next implementation:
+  - Add a private/static `PlanetOreSpec`-style table near the chunk generator or
+    in a small worldgen helper. Fields should be: planet id/name, optional
+    allowed biomes, output `IBlockState`, replaceable `Block` set, vein size,
+    count per chunk, source min/max Y, effective 1.12 min/max Y, and
+    `discardChanceOnAirExposure` for later parity.
+  - In `populate`, create a deterministic per-chunk `Random` from
+    `world.getSeed()`, `chunkX`, and `chunkZ`, then run each spec's
+    `countPerChunk` attempts inside the chunk.
+  - Use `WorldGenMinable` with a replacement predicate instead of ad hoc block
+    walking. The predicate should test the source replaceable set first, then
+    be narrowed by current filler policy where needed.
+  - Clamp 1.20 Y ranges to the current flat 1.12 terrain until real vertical
+    terrain exists: `effectiveMinY = max(1, sourceMinY)`,
+    `effectiveMaxY = min(AdAstraChunkGenerator.SURFACE_Y - 1, sourceMaxY)`.
+    Skip a spec if the clamped range is empty.
+  - 1.20 uses `discard_chance_on_air_exposure` for some ores. The current flat
+    generator has no caves/carvers, so the first pass can store this value but
+    ignore it. Revisit it when caves, craters, or noise terrain can expose
+    generated veins to air.
+- Replacement mapping from 1.20 tags to current 1.12 blocks:
+
+| Planet | 1.20 ore biomes with these features | Current 1.12 biome | Source replaceables | First-pass 1.12 replacement policy |
+| --- | --- | --- | --- | --- |
+| Moon | `lunar_wastelands` | `ModBiomes.LUNAR_WASTELANDS` | `moon_stone`, `moon_deepslate` | Allow `MOON_STONE`; allowing `MOON_DEEPSLATE` is harmless but not visible until terrain creates it. |
+| Mars | `martian_wastelands`, `martian_canyon_creek`, `martian_polar_caps` | `ModBiomes.MARTIAN_WASTELANDS` | `mars_stone` | Allow `MARS_STONE`. |
+| Mercury | `mercury_deltas` | `ModBiomes.MERCURY_DELTAS` | `mercury_stone` | Allow `MERCURY_STONE`. |
+| Venus | `venus_wastelands`, `infernal_venus_barrens` | `ModBiomes.VENUS_WASTELANDS` | `venus_stone` | Allow `VENUS_STONE`. |
+| Glacio | `glacio_snowy_barrens`, `glacio_ice_peaks` | `ModBiomes.GLACIO_SNOWY_BARRENS` | `glacio_stone`, `permafrost` | Start with `GLACIO_STONE` to avoid punching surface permafrost; add `PERMAFROST` later if source-like near-surface replacement is desired. |
+
+- Direct ore specs from 1.20 generated configured/placed feature data:
+
+| Planet | 1.20 placed/configured feature | Output block in 1.12 | Vein size | Count/chunk | Source Y | Effective 1.12 Y | Notes |
+| --- | --- | --- | ---: | ---: | --- | --- | --- |
+| Moon | `moon_cheese_ore` | `MOON_CHEESE_ORE` | 8 | 9 | 6..192 | 6..62 | Direct Ad Astra ore block. |
+| Moon | `moon_desh_ore` | `MOON_DESH_ORE` | 9 | 9 | -80..80 | 1..62 | Direct Ad Astra ore block. |
+| Moon | `moon_ice_shard_ore` | `MOON_ICE_SHARD_ORE` | 10 | 8 | -32..32 | 1..32 | Direct Ad Astra ore block. |
+| Moon | `moon_iron_ore` | `MOON_IRON_ORE` | 11 | 10 | -24..56 | 1..56 | Direct Ad Astra planet iron ore block; drop/smelt mapping is already a separate loot/smelting concern. |
+| Mars | `mars_diamond_ore` | `MARS_DIAMOND_ORE` | 7 | 5 | -80..80 | 1..62 | Direct Ad Astra ore block. |
+| Mars | `mars_ice_shard_ore` | `MARS_ICE_SHARD_ORE` | 10 | 8 | -32..32 | 1..32 | Direct Ad Astra ore block. |
+| Mars | `mars_iron_ore` | `MARS_IRON_ORE` | 11 | 10 | -24..56 | 1..56 | Direct Ad Astra planet iron ore block. |
+| Mars | `mars_ostrum_ore` | `MARS_OSTRUM_ORE` | 8 | 8 | -80..80 | 1..62 | Direct Ad Astra ore block. |
+| Mercury | `mercury_iron_ore` | `MERCURY_IRON_ORE` | 8 | 20 | -80..192 | 1..62 | Direct Ad Astra planet iron ore block. |
+| Venus | `venus_calorite_ore` | `VENUS_CALORITE_ORE` | 8 | 8 | -80..80 | 1..62 | Direct Ad Astra ore block. |
+| Venus | `venus_coal_ore` | `VENUS_COAL_ORE` | 17 | 20 | -80..192 | 1..62 | Direct Ad Astra ore block. |
+| Venus | `venus_diamond_ore` | `VENUS_DIAMOND_ORE` | 9 | 5 | -80..80 | 1..62 | Direct Ad Astra ore block. |
+| Venus | `venus_gold_ore` | `VENUS_GOLD_ORE` | 10 | 4 | -64..32 | 1..32 | Direct Ad Astra planet gold ore block. |
+| Glacio | `glacio_coal_ore` | `GLACIO_COAL_ORE` | 17 | 20 | -80..192 | 1..62 | Direct Ad Astra ore block. |
+| Glacio | `glacio_copper_ore` | `GLACIO_COPPER_ORE` | 17 | 16 | -16..112 | 1..62 | Block can be generated directly, but gameplay output is still a separate 1.12 copper decision. Safe to include only if block placement parity is the goal. |
+| Glacio | `glacio_ice_shard_ore` | `GLACIO_ICE_SHARD_ORE` | 17 | 8 | -32..32 | 1..32 | Direct Ad Astra ore block. |
+| Glacio | `glacio_iron_ore` | `GLACIO_IRON_ORE` | 11 | 10 | -24..56 | 1..56 | Direct Ad Astra planet iron ore block. |
+| Glacio | `glacio_lapis_ore` | `GLACIO_LAPIS_ORE` | 9 | 2 | -32..32 | 1..32 | Direct Ad Astra ore block. |
+
+- Defer from the first "place Ad Astra planet ore blocks" pass:
+  - `glacio_deepslate_coal_ore`, `glacio_deepslate_copper_ore`,
+    `glacio_deepslate_iron_ore`, and `glacio_deepslate_lapis_ore` output
+    vanilla `minecraft:deepslate_*_ore` in 1.20 and target
+    `minecraft:deepslate_ore_replaceables`. Minecraft 1.12.2 has neither
+    vanilla deepslate nor vanilla copper. Do not generate these until a
+    deliberate 1.12 deepslate/copper policy exists.
+  - `moon_soul_soil` is a configured ore feature in 1.20 data, but it outputs
+    vanilla soul soil, not an Ad Astra ore block. Keep it for the later simple
+    non-NBT feature batch.
+
+Low-risk ore implementation order:
+
+1. Add only the population harness in `AdAstraChunkGenerator.populate`: seed
+   random, resolve planet specs from `properties`, clamp source Y ranges, and
+   call a helper such as `generateOreVeins`.
+2. Implement replacement predicates and generate one planet first, preferably
+   Moon, because its current world uses a simple `MOON_STONE` filler and has
+   four direct ore blocks with varied count/Y settings.
+3. Add Mars, Mercury, Venus, and non-copper Glacio direct ore specs after Moon
+   smoke testing. Keep Glacio copper behind an explicit decision flag or a
+   clearly named spec group if the team wants block-placement parity before
+   copper output parity.
+4. Store but ignore air-exposure discard on the first pass. Add it only after
+   caves/craters/noise terrain can expose veins.
+5. Leave deepslate variants, `moon_soul_soil`, `mars_rock`, infernal spires,
+   NBT structures, and crater/noise terrain out of this batch.
+
+Ore acceptance checklist for the next Java batch:
+
+- A new world/chunk on each planet contains the expected direct ore blocks in
+  the filler layer and no ores in orbit/Overworld dimensions.
+- Moon, Mars, Mercury, Venus, and Glacio generation all use the planet's
+  current `PlanetDimensionProperties` and fixed biome without cross-planet ore
+  leakage.
+- Ores replace only the intended planetary filler/replacement blocks; surface
+  blocks remain intact unless a spec deliberately allows them.
+- Clamped Y ranges are visible in practice: shallow ores such as Moon cheese can
+  appear above y=6, low-range ores such as Venus gold/Glacio lapis stay below
+  y=32, and no ore attempts target y=0 bedrock or y=63 surface.
+- Recreating the same world seed produces stable ore locations for the same
+  chunk coordinates.
+- The batch does not introduce Java/resource edits outside the worldgen classes
+  selected for implementation, and no 1.20 datapack JSON is treated as a live
+  1.12 runtime input.
+
 NBT/resource grouping:
 
 - Early single-template candidates:
@@ -906,26 +1030,31 @@ Current status:
 - All 20 source entity ids are registered with minimal 1.12.2 placeholder
   classes.
 - The 12 mob ids have first-pass 1.12.2 AI task wiring and attributes.
-- Sulfur creepers have a simple server-side fuse/explosion behavior.
+- Sulfur creepers have a simple server-side fuse/explosion behavior plus synced
+  fuse/powered state, creeper-shaped rendering, swelling flash/scale, and a
+  charged overlay.
 - The 12 spawn egg item ids create their matching first-pass mob entities on
   block use; entity entries retain source spawn egg colors where applicable.
 - Planet dimensions use first-pass Ad Astra biomes with source-derived natural
   spawn lists.
 - Forge 1.12 client render factories are registered for all 20 entity ids.
-  Mobs use copied Ad Astra textures on safe vanilla-model placeholders, vehicles
-  use simple textured box placeholders, Ice Spit renders as an item projectile,
-  and Air Vortex has a small translucent placeholder renderer.
+  Most mobs use copied Ad Astra textures on safe vanilla-model placeholders,
+  sulfur creepers use a creeper-shaped renderer with swelling/charge visuals,
+  vehicles use simple textured box placeholders, Ice Spit renders as an item
+  projectile, and Air Vortex has a small translucent placeholder renderer.
 - Exact source AI, spawn placement predicates, mob charges, drops, full projectile launch behavior, vehicle
   behavior, real renderers, animation layers, and models remain pending.
 
-Entity model/render gap snapshot, 2026-06-30:
+Entity model/render gap snapshot, 2026-07-01:
 
 - 1.12.2 entity registry coverage is complete for the 20 source ids, but this
   is still mostly placeholder gameplay coverage.
 - 1.12.2 client renderer factory coverage is complete for the 20 source ids,
-  but no 1.20 Java entity model class has been ported yet. Current mobs use
-  `ModelBiped`, vehicles use `TexturedBoxModel`, `ice_spit` uses
-  `RenderSnowball`, and `air_vortex` uses a custom translucent cube.
+  but no 1.20 Java entity model class has been ported yet. Most mobs still use
+  `ModelBiped`; `sulfur_creeper` now uses vanilla `ModelCreeper` with copied
+  Ad Astra texture and a vanilla-style charged layer. Vehicles use
+  `TexturedBoxModel`, `ice_spit` uses `RenderSnowball`, and `air_vortex` uses a
+  custom translucent cube.
 - Entity texture resources are copied with source parity under
   `assets/ad_astra/textures/entity`: 35 source files and 35 target files.
   Several copied textures are not selected by current renderers yet, including
@@ -954,34 +1083,31 @@ Per-entity gap matrix:
 | `pygro_brute` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Piglin Brute-derived entity with `PygroBruteModel`, held-item layer, and armor layer. | Real model, item/armor layers, brute AI/equipment behavior, source attributes, drops/sounds. |
 | `mogler` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Hoglin-derived entity with `MoglerModel`, high health, knockback, and hoglin-style combat. | Real model, hoglin-style AI/knockback, source attributes, drops/sounds. |
 | `zombified_mogler` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Zoglin-derived entity rendered with `MoglerModel` and zombified texture. | Real model, zoglin-style AI/knockback, source attributes, drops/sounds. |
-| `sulfur_creeper` | Registered, spawn egg, simple server-side fuse/explosion behavior, biped renderer with copied texture. | Creeper-derived entity with swelling scale, powered/charge layer, source model, effect cloud behavior, and suit oxygen drain on explosion. | Data sync for swelling/powered state, real model/renderer, charge layer, source explosion side effects, drops/sounds/spawn predicates. |
+| `sulfur_creeper` | Registered, spawn egg, simple fuse/explosion behavior, synced fuse and powered state, lightning charge persistence, creeper-shaped renderer, swelling flash/scale, and charged overlay with copied sulfur texture. | Creeper-derived entity with swelling scale, powered/charge layer, source model, effect cloud behavior, and suit oxygen drain on explosion. | Port the 1.20 `SulfurCreeperModel`, source explosion side effects including suit oxygen drain and effect cloud behavior, exact attributes/AI tuning, drops/sounds/spawn predicates, and runtime dev-client visual testing. |
 | `glacian_ram` | Registered, spawn egg, generic neutral melee placeholder, biped renderer using normal texture. | Animal and `Shearable` entity with `GlacianRamModel`, sheared texture, ice-shard food, breeding, milking, permafrost eating, neck/head animation. | Real animal behavior, sheared state/data sync, shearing/milking/breeding, eat-permafrost goal, model/normal/sheared texture selection, sounds. |
 | `ice_spit` | Registered projectile, `RenderSnowball` with `ice_shard`, owner/position constructors, 4 thrown damage on entity hit, SPIT/SNOWBALL particle trail, broadcast discard event, and first-pass corrupted Lunarian ranged attack integration. | Throwable item projectile with ice shard default item, item/snowball particles every tick, 4 thrown damage on entity hit, discard event. | Runtime test trajectory, damage, and particles in a dev client. |
 
 Next low-conflict entity/render implementation order:
 
-1. Add a contained `sulfur_creeper` render pass: creeper-shaped or source-shaped
-   model, swelling flash/scale, and charged overlay. Keep the existing simple
-   explosion behavior until suit oxygen drain/effect-cloud parity is tackled.
-2. Port renderer/model bindings for `star_crawler` and `martian_raptor`.
+1. Port renderer/model bindings for `star_crawler` and `martian_raptor`.
    These are hostile mobs with no inventory, passenger, or merchant systems.
    Add the raptor leap AI only after the model render pass is stable.
-3. Port `glacian_ram` model with normal texture first. Defer sheared texture
+2. Port `glacian_ram` model with normal texture first. Defer sheared texture
    selection, shearing, milking, breeding, and eat-permafrost animation until a
    data-watched sheared/eating state is added.
-4. Port Pygro-family model bindings in this order: `pygro`,
+3. Port Pygro-family model bindings in this order: `pygro`,
    `zombified_pygro`, `pygro_brute`. Defer item/armor layers and piglin-style
    AI until the base model renderers are stable.
-5. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
+4. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
    Defer Hoglin/Zoglin knockback and behavior parity.
-6. Port Lunarian-family model bindings with default textures:
+5. Port Lunarian-family model bindings with default textures:
    `lunarian`, `corrupted_lunarian`, then `lunarian_wandering_trader`.
    Profession textures, merchant offers, wandering trader spawning, and
    corrupted ranged attacks should remain separate follow-up batches.
-7. Port vehicle model renderers after the mob renderers: rockets first, then
+6. Port vehicle model renderers after the mob renderers: rockets first, then
    lander, then rover. Treat item renderers as a separate client-only batch if
    1.12 item rendering needs extra hooks.
-8. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
+7. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
    control, rocket countdown/fuel/launch-pad/menu flow, then lander descent and
    fall explosion. These touch networking, GUI, and travel flow, so they are not
    low-conflict renderer-only work.

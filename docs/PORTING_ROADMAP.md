@@ -41,7 +41,7 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   `forge:ore_dict` ingredients instead of fixed item-only inputs.
 - The second direct crafting recipe batch adds 12 low-risk generated 1.20 crafting conversions for plain component and
   equipment items: iron rod, steel rod, gas tank, engine frame, fan, rocket fin, oxygen gear, tiered engines, and
-  etrionic capacitor. The third and fourth direct crafting recipe batches add 30 low-risk Moon and Mars terrain/decor
+  etrionic capacitor. The third through fifth direct crafting recipe batches add 45 low-risk Moon, Mars, and Mercury terrain/decor
   conversions covering stone, cobblestone, stone brick, polished, chiseled, slab, stair, wall, and pillar variants.
   These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
   ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
@@ -286,7 +286,7 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Convert 1.20 generated recipes into 1.12.2 crafting/smelting/custom recipe loaders. The first direct crafting
   conversion is started in `assets/ad_astra/recipes`; its material inputs now use Forge 1.12 OreDictionary
   ingredients where the 1.20 source used tags. Subsequent direct crafting passes have started simple Ad Astra component
-  chains and Moon/Mars terrain/decor families whose inputs are already registered or have deliberate OreDictionary
+  chains and Moon/Mars/Mercury terrain/decor families whose inputs are already registered or have deliberate OreDictionary
   replacements. The first smelting conversion is started in `ModSmeltingRecipes`; 1.20 blasting is folded into normal
   furnace smelting because Minecraft 1.12.2 has no vanilla blast furnace.
 - Convert 1.20 loot tables into 1.12.2 block drop code or compatible loot tables where practical. Ore drops for
@@ -358,6 +358,19 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Current 1.12.2 runtime coverage is intentionally smaller: five Java-registered planet dimensions, five fixed Java
   planet biomes, source-derived environment values, and a flat `AdAstraChunkGenerator` with an empty `populate` method.
   No ore/features, NBT structures, structure lookup, crater/noise terrain, template pools, or orbit dimensions are live.
+- 2026-07-01 ore-vein feasibility pass: the next Java batch can start in
+  `AdAstraChunkGenerator.populate(int chunkX, int chunkZ)`. Keep the first
+  implementation Java-local and table-driven: planet id/name, optional biome
+  allow-list, output block state, replaceable block set, vein size, count per
+  chunk, and source/effective 1.12 Y range. Use deterministic per-chunk random
+  seeding from the world seed and chunk coords, and clamp 1.20 Y ranges into the
+  current flat terrain (`1..62`) until real vertical terrain exists.
+- First-pass ore set from 1.20 configured/placed features:
+  Moon cheese/desh/ice shard/iron; Mars diamond/ice shard/iron/ostrum; Mercury
+  iron; Venus calorite/coal/diamond/gold; Glacio coal/ice shard/iron/lapis.
+  Glacio copper can be generated as a block-placement parity choice, but its
+  gameplay output is still a separate copper policy. Defer Glacio deepslate
+  vanilla ore features and Moon soul soil from the first Ad Astra ore pass.
 - Next low-conflict Phase 8 order:
   1. Add deterministic planet population helpers to `AdAstraChunkGenerator.populate`: chunk seeding, planet dispatch,
      surface lookup, and replaceable-block predicates.
@@ -390,20 +403,21 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   - Air Vortex
 - Current 1.12.2 status has registry ids, first-pass mob AI/attributes,
   spawn eggs, planet spawn lists, and renderer factories for all 20 source
-  entity ids. The renderer coverage is intentionally placeholder-level:
-  vanilla biped mob models, textured vehicle boxes, item-rendered Ice Spit, and
-  a visible debug-style Air Vortex cube. Ice Spit now has first-pass source-like
-  projectile behavior with thrown damage, SPIT/SNOWBALL particles, owner/position
+  entity ids. The renderer coverage is intentionally incremental: most mobs
+  still use vanilla biped placeholders, sulfur creepers now have synced
+  fuse/powered state with creeper swelling and charge visuals, vehicles use
+  textured boxes, Ice Spit renders as an item projectile, and Air Vortex remains
+  a visible debug-style cube. Ice Spit now has first-pass source-like projectile
+  behavior with thrown damage, SPIT/SNOWBALL particles, owner/position
   constructors, broadcast discard event, and corrupted Lunarian ranged attack AI
   integration.
 - Next low-conflict order for this phase:
-  1. `sulfur_creeper` swelling/charge visual pass.
-  2. `star_crawler` and `martian_raptor` model/renderer bindings.
-  3. `glacian_ram` normal model/texture binding, with shearing deferred.
-  4. Pygro-family and Mogler-family model/renderer bindings.
-  5. Lunarian-family model/default texture bindings, with profession/trade
+  1. `star_crawler` and `martian_raptor` model/renderer bindings.
+  2. `glacian_ram` normal model/texture binding, with shearing deferred.
+  3. Pygro-family and Mogler-family model/renderer bindings.
+  4. Lunarian-family model/default texture bindings, with profession/trade
      behavior deferred.
-  6. Vehicle model renderers: rockets, lander, then rover.
+  5. Vehicle model renderers: rockets, lander, then rover.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -471,6 +485,9 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   crafting recipe, and entity render gap documentation batches.
 - Last verified with `gradlew.bat build` on 2026-07-01 after the Ice Spit/corrupted Lunarian ranged attack and Mars
   terrain/decor direct crafting recipe batches.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the Sulfur Creeper
+  synced swelling/charge renderer, Mercury terrain/decor direct crafting
+  recipes, Chinese lang parity check, and ore worldgen feasibility documentation.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.

@@ -7,23 +7,38 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAISwimming;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
 
+    private static final DataParameter<Integer> FUSE = EntityDataManager.createKey(SulfurCreeperEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Boolean> POWERED = EntityDataManager.createKey(SulfurCreeperEntity.class, DataSerializers.BOOLEAN);
     private static final int MAX_FUSE = 30;
     private static final double START_FUSE_DISTANCE_SQ = 9.0d;
     private static final double STOP_FUSE_DISTANCE_SQ = 49.0d;
     private static final float EXPLOSION_STRENGTH = 3.0f;
 
+    private int lastFuse;
     private int fuse;
 
     public SulfurCreeperEntity(World world) {
         super(world);
         setSize(0.6f, 1.7f);
         isImmuneToFire = true;
+    }
+
+    @Override
+    protected void entityInit() {
+        super.entityInit();
+        dataManager.register(FUSE, 0);
+        dataManager.register(POWERED, false);
     }
 
     @Override
@@ -36,10 +51,13 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
 
     @Override
     public void onLivingUpdate() {
+        lastFuse = getFuse();
         super.onLivingUpdate();
 
         if (!world.isRemote) {
             updateFuse();
+        } else {
+            fuse = dataManager.get(FUSE);
         }
     }
 
@@ -76,17 +94,42 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
     @Override
     public void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Fuse", fuse);
+        compound.setInteger("Fuse", getFuse());
+        compound.setBoolean("powered", getPowered());
     }
 
     @Override
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
-        fuse = compound.getInteger("Fuse");
+        setFuse(compound.getInteger("Fuse"));
+        setPowered(compound.getBoolean("powered") || compound.getBoolean("Powered"));
+    }
+
+    @Override
+    public void onStruckByLightning(EntityLightningBolt lightningBolt) {
+        super.onStruckByLightning(lightningBolt);
+        setPowered(true);
     }
 
     public int getFuse() {
-        return fuse;
+        return world.isRemote ? dataManager.get(FUSE) : fuse;
+    }
+
+    public boolean getPowered() {
+        return dataManager.get(POWERED);
+    }
+
+    public float getCreeperFlashIntensity(float partialTicks) {
+        return ((float) lastFuse + (float) (getFuse() - lastFuse) * partialTicks) / (float) (MAX_FUSE - 2);
+    }
+
+    private void setFuse(int fuse) {
+        this.fuse = MathHelper.clamp(fuse, 0, MAX_FUSE);
+        dataManager.set(FUSE, this.fuse);
+    }
+
+    private void setPowered(boolean powered) {
+        dataManager.set(POWERED, powered);
     }
 
     private void updateFuse() {
@@ -101,19 +144,20 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
         if (target != null && target.isEntityAlive() && getDistanceSq(target) <= START_FUSE_DISTANCE_SQ) {
             getNavigator().clearPath();
             getLookHelper().setLookPositionWithEntity(target, 30.0f, 30.0f);
-            fuse++;
+            setFuse(fuse + 1);
 
             if (fuse >= MAX_FUSE) {
                 explode();
             }
         } else if (target == null || !target.isEntityAlive() || getDistanceSq(target) > STOP_FUSE_DISTANCE_SQ) {
-            fuse = Math.max(0, fuse - 1);
+            setFuse(fuse - 1);
         }
     }
 
     private void explode() {
         if (!isDead) {
-            world.createExplosion(this, posX, posY, posZ, EXPLOSION_STRENGTH, true);
+            float power = getPowered() ? 2.0f : 1.0f;
+            world.createExplosion(this, posX, posY, posZ, EXPLOSION_STRENGTH * power, true);
             setDead();
         }
     }

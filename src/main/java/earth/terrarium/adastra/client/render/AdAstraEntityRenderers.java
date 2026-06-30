@@ -78,8 +78,7 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderTexturedMob<MoglerEntity>(manager, new ModelBiped(), texture("mob/mogler"), 0.65f));
         RenderingRegistry.registerEntityRenderingHandler(ZombifiedMoglerEntity.class,
             manager -> new RenderTexturedMob<ZombifiedMoglerEntity>(manager, new ModelBiped(), texture("mob/zombified_mogler"), 0.65f));
-        RenderingRegistry.registerEntityRenderingHandler(SulfurCreeperEntity.class,
-            manager -> new RenderTexturedMob<SulfurCreeperEntity>(manager, new ModelBiped(), texture("mob/sulfur_creeper"), 0.45f));
+        RenderingRegistry.registerEntityRenderingHandler(SulfurCreeperEntity.class, RenderSulfurCreeper::new);
         RenderingRegistry.registerEntityRenderingHandler(GlacianRamEntity.class,
             manager -> new RenderTexturedMob<GlacianRamEntity>(manager, new ModelBiped(), texture("mob/glacian_ram/glacian_ram"), 0.55f));
 
