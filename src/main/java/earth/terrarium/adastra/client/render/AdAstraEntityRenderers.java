@@ -69,11 +69,11 @@ public final class AdAstraEntityRenderers {
         RenderingRegistry.registerEntityRenderingHandler(MartianRaptorEntity.class,
             manager -> new RenderTexturedMob<MartianRaptorEntity>(manager, new ModelMartianRaptor(), texture("mob/martian_raptor"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(PygroEntity.class,
-            manager -> new RenderTexturedMob<PygroEntity>(manager, new ModelBiped(), texture("mob/pygro"), 0.45f));
+            manager -> new RenderTexturedMob<PygroEntity>(manager, new ModelPygro(), texture("mob/pygro"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(ZombifiedPygroEntity.class,
-            manager -> new RenderTexturedMob<ZombifiedPygroEntity>(manager, new ModelBiped(), texture("mob/zombified_pygro"), 0.45f));
+            manager -> new RenderTexturedMob<ZombifiedPygroEntity>(manager, new ModelZombifiedPygro(), texture("mob/zombified_pygro"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(PygroBruteEntity.class,
-            manager -> new RenderTexturedMob<PygroBruteEntity>(manager, new ModelBiped(), texture("mob/pygro_brute"), 0.55f));
+            manager -> new RenderTexturedMob<PygroBruteEntity>(manager, new ModelPygroBrute(), texture("mob/pygro_brute"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(MoglerEntity.class,
             manager -> new RenderTexturedMob<MoglerEntity>(manager, new ModelBiped(), texture("mob/mogler"), 0.65f));
         RenderingRegistry.registerEntityRenderingHandler(ZombifiedMoglerEntity.class,

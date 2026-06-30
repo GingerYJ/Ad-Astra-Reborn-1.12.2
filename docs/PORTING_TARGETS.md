@@ -548,7 +548,7 @@ Target:
 Current status:
 
 - First crafting, OreDictionary, smelting, and ore drop batches exist.
-- Direct 1.12 crafting JSON coverage is now 143 files:
+- Direct 1.12 crafting JSON coverage is now 163 files:
   - 24 material compaction/decompaction recipes for cheese, raw
     desh/ostrum/calorite, and steel/desh/ostrum/calorite ingot/block/nugget
     loops.
@@ -611,14 +611,17 @@ Current status:
     crafting data for iron, steel, desh, ostrum, and calorite `plating`,
     `plateblock`, `panel`, and `pillar` blocks, using direct items or existing
     OreDictionary replacements for ingots, plates, and rods.
+  - 20 low-risk metal plating derivative recipes converted from generated 1.20
+    crafting data for iron, steel, desh, ostrum, and calorite plating buttons,
+    pressure plates, slabs, and stairs.
 - Latest crafting gap pass inspected the 313 generated top-level vanilla
   crafting recipes: 286 shaped, 27 shapeless, 136 with 1.20 item tags, and no
   recipe conditions. Safe direct conversion requires either an existing 1.12
   item id or an explicit OreDictionary/tag replacement.
 - Next direct-crafting candidates are the remaining simple Ad Astra decorative
   families whose inputs are already registered blocks/items or established
-  ore-dict materials: metal button/pressure-plate/slab/stair variants and
-  aeronos/strophar/glacian wood-family recipes. Review
+  ore-dict materials: aeronos/strophar/glacian wood-family recipes and any
+  metal-family recipes not already covered by the direct crafting batches. Review
   vanilla 1.12 metadata mappings before converting colored wool flags or
   recipes that reference 1.20-only vanilla ids.
 - Deferred recipe categories remain custom machine JSON loaders
@@ -1079,7 +1082,8 @@ Entity model/render gap snapshot, 2026-07-01:
   of their 1.20 hardcoded Java models, `sulfur_creeper` uses vanilla
   `ModelCreeper` with copied Ad Astra texture and a vanilla-style charged layer,
   Glacian Rams use a first-pass 1.12 `ModelGlacianRam` port with copied normal
-  texture, and most remaining mobs still use `ModelBiped`. Vehicles use
+  texture, Pygro-family mobs use first-pass 1.12 `ModelBiped` ports of their
+  source Java models, and most remaining mobs still use `ModelBiped`. Vehicles use
   `TexturedBoxModel`, `ice_spit` uses `RenderSnowball`, and `air_vortex` uses a
   custom translucent cube.
 - Entity texture resources are copied with source parity under
@@ -1105,9 +1109,9 @@ Per-entity gap matrix:
 | `lunarian_wandering_trader` | Registered, spawn egg, passive placeholder mob, biped renderer with copied texture. | Wandering Trader-derived Lunarian trader with custom Lunarian model/layers and merchant offers/spawner support. | Trader inheritance/AI, offers, spawn manager, renderer/model/layers, exact despawn and interaction behavior. |
 | `star_crawler` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses a first-pass 1.12 `ModelStarCrawler` port with copied texture, source-like 0.0 shadow, four animated legs, and 0-width detail planes. | Monster with `StarCrawlerModel` and source attack/wander timings. | Runtime dev-client visual validation, source attributes/AI tuning, drops/sounds/spawn predicates. |
 | `martian_raptor` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses a first-pass 1.12 `ModelMartianRaptor` port with copied texture, animated legs, and head yaw/pitch. | Monster with `MartianRaptorModel`, melee AI, leap-at-target behavior, and source attributes. | Runtime dev-client visual validation, leap behavior, source attributes/AI tuning, drops/sounds/spawn predicates. |
-| `pygro` | Registered, spawn egg, generic hostile melee AI/attributes, biped renderer with copied texture. | Piglin-derived legacy entity with `PygroModel`, held-item layer, and armor layer. | Real model, item/armor layers, piglin-style behavior/equipment, source attributes, drops/sounds. |
-| `zombified_pygro` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Zombified Piglin-derived entity with `ZombifiedPygroModel`, held-item layer, and armor layer. | Real model, item/armor layers, zombified anger/equipment behavior, source attributes, drops/sounds. |
-| `pygro_brute` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Piglin Brute-derived entity with `PygroBruteModel`, held-item layer, and armor layer. | Real model, item/armor layers, brute AI/equipment behavior, source attributes, drops/sounds. |
+| `pygro` | Registered, spawn egg, generic hostile melee AI/attributes, renderer now uses first-pass 1.12 `ModelPygro` with copied texture, source-like 0.5 shadow, snout, ears, head planes, enlarged feet, and biped walk/head animation. | Piglin-derived legacy entity with `PygroModel`, held-item layer, and armor layer. | Runtime dev-client visual validation, item/armor layers, piglin-style behavior/equipment, source attributes, drops/sounds. |
+| `zombified_pygro` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, renderer now uses first-pass 1.12 `ModelZombifiedPygro` with copied texture, asymmetrical ears/head planes, right-arm planes, enlarged feet, and biped walk/head animation. | Zombified Piglin-derived entity with `ZombifiedPygroModel`, held-item layer, and armor layer. | Runtime dev-client visual validation, item/armor layers, zombified anger/equipment behavior, source attributes, drops/sounds. |
+| `pygro_brute` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, renderer now uses first-pass 1.12 `ModelPygroBrute` with copied texture, source-like 0.5 shadow, snout, ears, head spikes, belly detail, enlarged feet, and biped walk/head animation. | Piglin Brute-derived entity with `PygroBruteModel`, held-item layer, and armor layer. | Runtime dev-client visual validation, item/armor layers, brute AI/equipment behavior, source attributes, drops/sounds. |
 | `mogler` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Hoglin-derived entity with `MoglerModel`, high health, knockback, and hoglin-style combat. | Real model, hoglin-style AI/knockback, source attributes, drops/sounds. |
 | `zombified_mogler` | Registered, spawn egg, generic hostile melee AI/attributes, fire immune, biped renderer. | Zoglin-derived entity rendered with `MoglerModel` and zombified texture. | Real model, zoglin-style AI/knockback, source attributes, drops/sounds. |
 | `sulfur_creeper` | Registered, spawn egg, simple fuse/explosion behavior, synced fuse and powered state, lightning charge persistence, creeper-shaped renderer, swelling flash/scale, and charged overlay with copied sulfur texture. | Creeper-derived entity with swelling scale, powered/charge layer, source model, effect cloud behavior, and suit oxygen drain on explosion. | Port the 1.20 `SulfurCreeperModel`, source explosion side effects including suit oxygen drain and effect cloud behavior, exact attributes/AI tuning, drops/sounds/spawn predicates, and runtime dev-client visual testing. |
@@ -1116,23 +1120,20 @@ Per-entity gap matrix:
 
 Next low-conflict entity/render implementation order:
 
-1. Port Pygro-family model bindings in this order: `pygro`,
-   `zombified_pygro`, `pygro_brute`. Defer item/armor layers and piglin-style
-   AI until the base model renderers are stable.
-2. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
+1. Port Mogler-family model bindings: `mogler`, then `zombified_mogler`.
    Defer Hoglin/Zoglin knockback and behavior parity.
-3. Port Lunarian-family model bindings with default textures:
+2. Port Lunarian-family model bindings with default textures:
    `lunarian`, `corrupted_lunarian`, then `lunarian_wandering_trader`.
    Profession textures, merchant offers, wandering trader spawning, and
    corrupted ranged attacks should remain separate follow-up batches.
-4. Port vehicle model renderers after the mob renderers: rockets first, then
+3. Port vehicle model renderers after the mob renderers: rockets first, then
    lander, then rover. Treat item renderers as a separate client-only batch if
    1.12 item rendering needs extra hooks.
-5. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
+4. Do vehicle behavior after visual parity: rover fuel/inventory/radio/two-seat
    control, rocket countdown/fuel/launch-pad/menu flow, then lander descent and
    fall explosion. These touch networking, GUI, and travel flow, so they are not
    low-conflict renderer-only work.
-6. Defer full `air_vortex` behavior until Oxygen Distributor coverage is ready
+5. Defer full `air_vortex` behavior until Oxygen Distributor coverage is ready
    to provide source and affected-position data. A small render-parity change to
    make it invisible is safe, but the force behavior depends on oxygen system
    state.
