@@ -399,6 +399,10 @@ Current status:
   times, and output cryo fuel to an extract-only Forge `FluidTank` or slot 2
   fluid containers. The 1.20 blue ice recipe is deferred because vanilla
   Minecraft 1.12.2 has no blue ice item.
+- Compressor now has a first-pass item-to-item loop for the 10 copied
+  compressing recipes that map directly to 1.12.2: iron, steel, desh, ostrum,
+  and calorite ingots/blocks become plates while consuming 20 FE/t and tracking
+  cook progress.
 - The shared machine base now has a first-pass Forge Energy push helper that
   uses saved per-face side modes. Coal Generator and Solar Panel default energy
   sides to `PUSH` and can send power to adjacent Forge Energy receivers.

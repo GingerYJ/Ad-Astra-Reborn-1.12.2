@@ -132,6 +132,11 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   first-pass progress/tank GUI fields. The 1.20 `blue_ice` recipe is intentionally deferred because vanilla 1.12.2 has
   no blue ice item; Cryo Freezer GUI, network sync, recipe JSON loading, and exact side-config automation remain
   pending.
+- The first Compressor behavior batch ports the direct item-to-item compression loop for the 10 copied compressing
+  recipes that map cleanly to 1.12.2 items/blocks: iron, steel, desh, ostrum, and calorite ingots/blocks to plates. The
+  machine consumes 20 FE/t, tracks cook progress, writes output to slot 2, persists progress and active recipe to NBT,
+  and exposes first-pass progress GUI fields. Compressor GUI, network sync, recipe JSON loading, and exact
+  side-config automation remain pending.
 - The first machine energy-output batch adds a shared Forge Energy push path based on the existing per-face side mode
   storage. Coal Generator and Solar Panel now default their energy sides to `PUSH` and attempt to send up to their tier
   max output to adjacent Forge Energy receivers each tick. Full cable networks, side-configuration GUI, and item
@@ -308,6 +313,7 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first pipe side-mode and wrench connection batch.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Fuel Refinery and Oxygen Loader behavior batches.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the first Cryo Freezer behavior batch.
+- Last verified with `gradlew.bat build` on 2026-06-30 after the first Compressor behavior batch.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
