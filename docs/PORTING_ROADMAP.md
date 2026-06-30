@@ -41,10 +41,10 @@ The current goal is feature parity over time, not a narrow compatibility shim.
   `forge:ore_dict` ingredients instead of fixed item-only inputs.
 - The second direct crafting recipe batch adds 12 low-risk generated 1.20 crafting conversions for plain component and
   equipment items: iron rod, steel rod, gas tank, engine frame, fan, rocket fin, oxygen gear, tiered engines, and
-  etrionic capacitor. The third direct crafting recipe batch adds 15 low-risk Moon terrain/decor conversions covering
-  stone, cobblestone, stone brick, polished, chiseled, slab, stair, wall, and pillar variants. These passes deliberately
-  skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla ids, and recipes that would
-  consume filled/charged NBT-bearing items as ordinary ingredients.
+  etrionic capacitor. The third and fourth direct crafting recipe batches add 30 low-risk Moon and Mars terrain/decor
+  conversions covering stone, cobblestone, stone brick, polished, chiseled, slab, stair, wall, and pillar variants.
+  These passes deliberately skipped machine recipes, stonecutting, compatibility/tag-heavy recipes, 1.20-only vanilla
+  ids, and recipes that would consume filled/charged NBT-bearing items as ordinary ingredients.
 - The first smelting conversion batch adds `ModSmeltingRecipes` and ports the 1.20 smelting/blasting sources that
   have direct 1.12.2 equivalents: raw desh/ostrum/calorite, Ad Astra resource ores, vanilla coal/diamond/iron/gold/
   lapis ore outputs, cobblestone-to-stone conversions, and cracked planetary brick conversions.
@@ -286,7 +286,7 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
 - Convert 1.20 generated recipes into 1.12.2 crafting/smelting/custom recipe loaders. The first direct crafting
   conversion is started in `assets/ad_astra/recipes`; its material inputs now use Forge 1.12 OreDictionary
   ingredients where the 1.20 source used tags. Subsequent direct crafting passes have started simple Ad Astra component
-  chains and Moon terrain/decor families whose inputs are already registered or have deliberate OreDictionary
+  chains and Moon/Mars terrain/decor families whose inputs are already registered or have deliberate OreDictionary
   replacements. The first smelting conversion is started in `ModSmeltingRecipes`; 1.20 blasting is folded into normal
   furnace smelting because Minecraft 1.12.2 has no vanilla blast furnace.
 - Convert 1.20 loot tables into 1.12.2 block drop code or compatible loot tables where practical. Ore drops for
@@ -351,6 +351,25 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   providers/generators are started.
 - Convert 1.20 worldgen JSON and NBT structures into 1.12.2 generators.
 - Rebuild craters, noise settings, ores, meteorites, oil wells, villages, moon dungeon, mars temple, venus structures, and space station placement.
+- 2026-07-01 source-data gap check: the relevant 1.20 surface is 194 files across dimensions, dimension types,
+  biome tags, biome JSONs, configured/placed features, carver, density/noise settings, structure/structure_set,
+  template_pool, processor_list, and 56 NBT structures. Matching copies exist in `src/main/resources/data/ad_astra`,
+  but they are still 1.20 datapack source material rather than 1.12.2 runtime inputs.
+- Current 1.12.2 runtime coverage is intentionally smaller: five Java-registered planet dimensions, five fixed Java
+  planet biomes, source-derived environment values, and a flat `AdAstraChunkGenerator` with an empty `populate` method.
+  No ore/features, NBT structures, structure lookup, crater/noise terrain, template pools, or orbit dimensions are live.
+- Next low-conflict Phase 8 order:
+  1. Add deterministic planet population helpers to `AdAstraChunkGenerator.populate`: chunk seeding, planet dispatch,
+     surface lookup, and replaceable-block predicates.
+  2. Port ore veins first using local 1.12.2 placement configs derived from the copied configured/placed feature JSONs.
+     Start with Moon, Mars, Mercury, Venus, and non-copper/non-deepslate Glacio ores; defer Glacio copper/deepslate
+     mapping decisions.
+  3. Add simple non-NBT features: Moon soul soil, Mars rock blobs, then Venus infernal spire columns.
+  4. Add a minimal NBT template loader/placer and validate it with meteor variants or the size-1 oil well template.
+  5. Add simple single-start structure predicates for oil well, lunar tower, and Mars temple.
+  6. Defer Moon dungeon, Lunarian village, Pygro/crimson structures, Venus bullet/tower, and biome-tagged structure
+     distribution until a 1.12.2 jigsaw/template-pool equivalent or explicit piece connector exists.
+  7. Defer crater/noise terrain and orbit/space-station placement until after feature and NBT placement smoke tests.
 
 ### Phase 9: Mobs and Renderers
 
@@ -373,16 +392,18 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   spawn eggs, planet spawn lists, and renderer factories for all 20 source
   entity ids. The renderer coverage is intentionally placeholder-level:
   vanilla biped mob models, textured vehicle boxes, item-rendered Ice Spit, and
-  a visible debug-style Air Vortex cube.
+  a visible debug-style Air Vortex cube. Ice Spit now has first-pass source-like
+  projectile behavior with thrown damage, SPIT/SNOWBALL particles, owner/position
+  constructors, broadcast discard event, and corrupted Lunarian ranged attack AI
+  integration.
 - Next low-conflict order for this phase:
-  1. `ice_spit` hit damage and particle trail.
-  2. `sulfur_creeper` swelling/charge visual pass.
-  3. `star_crawler` and `martian_raptor` model/renderer bindings.
-  4. `glacian_ram` normal model/texture binding, with shearing deferred.
-  5. Pygro-family and Mogler-family model/renderer bindings.
-  6. Lunarian-family model/default texture bindings, with profession/trade
+  1. `sulfur_creeper` swelling/charge visual pass.
+  2. `star_crawler` and `martian_raptor` model/renderer bindings.
+  3. `glacian_ram` normal model/texture binding, with shearing deferred.
+  4. Pygro-family and Mogler-family model/renderer bindings.
+  5. Lunarian-family model/default texture bindings, with profession/trade
      behavior deferred.
-  7. Vehicle model renderers: rockets, lander, then rover.
+  6. Vehicle model renderers: rockets, lander, then rover.
 - Keep vehicle inventory/fuel/control/menu work separate from renderer-only
   batches because it touches networking, GUI containers, launch flow, and the
   main thread's equipment tick work.
@@ -448,6 +469,8 @@ They are not all directly loadable by Minecraft 1.12.2 and must be converted sys
   and second direct crafting recipe batches.
 - Last verified with `gradlew.bat build` on 2026-06-30 after the Jet Suit powered flight, Moon terrain/decor direct
   crafting recipe, and entity render gap documentation batches.
+- Last verified with `gradlew.bat build` on 2026-07-01 after the Ice Spit/corrupted Lunarian ranged attack and Mars
+  terrain/decor direct crafting recipe batches.
 - Every content phase should add a minimal in-game smoke test checklist.
 - Asset migrations should be checked by counting copied files and by launching a client once content registries exist.
 - Worldgen and vehicle phases require manual runtime testing in a dev client.
