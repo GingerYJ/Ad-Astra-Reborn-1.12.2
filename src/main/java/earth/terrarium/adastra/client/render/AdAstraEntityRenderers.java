@@ -48,13 +48,13 @@ public final class AdAstraEntityRenderers {
         RenderingRegistry.registerEntityRenderingHandler(Tier1RoverEntity.class,
             manager -> new RenderTexturedEntity<Tier1RoverEntity>(manager, texture("rover/tier_1_rover"), 2.2f, 0.75f, 1.4f, 0.4f));
         RenderingRegistry.registerEntityRenderingHandler(Tier1RocketEntity.class,
-            manager -> new RenderTexturedEntity<Tier1RocketEntity>(manager, texture("rocket/tier_1_rocket"), 1.1f, 4.6f, 1.1f, 0.7f));
+            manager -> new RenderRocket<Tier1RocketEntity>(manager, 1, texture("rocket/tier_1_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier2RocketEntity.class,
-            manager -> new RenderTexturedEntity<Tier2RocketEntity>(manager, texture("rocket/tier_2_rocket"), 1.1f, 4.8f, 1.1f, 0.7f));
+            manager -> new RenderRocket<Tier2RocketEntity>(manager, 2, texture("rocket/tier_2_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier3RocketEntity.class,
-            manager -> new RenderTexturedEntity<Tier3RocketEntity>(manager, texture("rocket/tier_3_rocket"), 1.1f, 5.5f, 1.1f, 0.7f));
+            manager -> new RenderRocket<Tier3RocketEntity>(manager, 3, texture("rocket/tier_3_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier4RocketEntity.class,
-            manager -> new RenderTexturedEntity<Tier4RocketEntity>(manager, texture("rocket/tier_4_rocket"), 1.1f, 7.0f, 1.1f, 0.7f));
+            manager -> new RenderRocket<Tier4RocketEntity>(manager, 4, texture("rocket/tier_4_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(LanderEntity.class,
             manager -> new RenderTexturedEntity<LanderEntity>(manager, texture("lander/lander"), 1.4f, 2.0f, 1.4f, 0.6f));
 

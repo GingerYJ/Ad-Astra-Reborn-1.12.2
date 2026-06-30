@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["GGG","I#I"],"key":{"#":{"item":"minecraft:dye","data":4},"G":{"item":"minecraft:glowstone_dust"},"I":{"type":"forge:ore_dict","ore":"ingotSteel"}},"result":{"item":"ad_astra:blue_industrial_lamp","count":4}}
