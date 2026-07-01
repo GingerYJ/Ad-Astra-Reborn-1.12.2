@@ -3,6 +3,7 @@ package earth.terrarium.adastra.common.tile;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.entities.misc.AirVortexEntity;
 import earth.terrarium.adastra.common.registry.ModFluids;
+import earth.terrarium.adastra.common.registry.ModSounds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -33,6 +34,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     private static final int MAX_WORKING_RADIUS = calculateMaxRadius(MAX_DISTRIBUTION_BLOCKS);
     private static final int DEFAULT_WORKING_RADIUS = MAX_WORKING_RADIUS;
     private static final int AIR_VORTEX_SPAWN_INTERVAL = 200;
+    private static final int SOUND_INTERVAL = 100;
 
     private final IFluidHandler fluidHandler = new DistributorFluidHandler();
 
@@ -44,6 +46,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     private int oxygenPerTick;
     private int ticksUntilRefresh;
     private int airVortexCooldown;
+    private int soundCooldown;
 
     public OxygenDistributorTileEntity() {
         super("oxygen_distributor", 3, DESH_ENERGY, DESH_IO, 0, DESH_FLUID);
@@ -55,6 +58,9 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     protected void tickMachine() {
         if (airVortexCooldown > 0) {
             airVortexCooldown--;
+        }
+        if (soundCooldown > 0) {
+            soundCooldown--;
         }
 
         if (energy == null || fluidTank == null || !canFunction()) {
@@ -79,8 +85,16 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         energyPerTick = requiredEnergy;
         oxygenPerTick = requiredOxygen;
         setLit(true);
+        playWorkSound();
         maybeSpawnAirVortex();
         markDirty();
+    }
+
+    private void playWorkSound() {
+        if (soundCooldown <= 0) {
+            playMachineSound(ModSounds.OXYGEN_INTAKE, 0.45f, 0.9f + world.rand.nextFloat() * 0.2f);
+            soundCooldown = SOUND_INTERVAL;
+        }
     }
 
     private void moveInputContainerToTank() {

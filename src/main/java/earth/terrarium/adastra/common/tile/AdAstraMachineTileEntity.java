@@ -8,6 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.block.state.IBlockState;
@@ -111,6 +113,12 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     }
 
     protected void tickMachine() {
+    }
+
+    protected void playMachineSound(SoundEvent sound, float volume, float pitch) {
+        if (world != null && pos != null && !world.isRemote && sound != null) {
+            world.playSound(null, pos, sound, SoundCategory.BLOCKS, volume, pitch);
+        }
     }
 
     protected int getBatterySlot() {

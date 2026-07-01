@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.registry.ModFluids;
+import earth.terrarium.adastra.common.registry.ModSounds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -28,10 +29,12 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
     private static final int WATER_OXYGEN_OUTPUT_PER_OPERATION = 4;
     private static final int OXYGEN_INPUT_PER_OPERATION = 25;
     private static final int OXYGEN_OUTPUT_PER_OPERATION = 25;
+    private static final int SOUND_INTERVAL = 80;
 
     private final FluidTank inputTank = new InputTank(STEEL_FLUID);
     private final FluidTank outputTank = new OxygenTank(STEEL_FLUID, false, true);
     private final IFluidHandler fluidHandler = new OxygenLoaderFluidHandler();
+    private int soundCooldown;
 
     public OxygenLoaderTileEntity() {
         super("oxygen_loader", 5, STEEL_ENERGY, STEEL_IO, 0, 0);
@@ -54,6 +57,9 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     protected void tickMachine() {
+        if (soundCooldown > 0) {
+            soundCooldown--;
+        }
         if (energy == null || !canFunction()) {
             setLit(false);
             return;
@@ -65,7 +71,15 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
         boolean loaded = loadOxygen();
         setLit(loaded);
         if (loaded) {
+            playWorkSound();
             markDirty();
+        }
+    }
+
+    private void playWorkSound() {
+        if (soundCooldown <= 0) {
+            playMachineSound(ModSounds.OXYGEN_OUTTAKE, 0.45f, 0.9f + world.rand.nextFloat() * 0.2f);
+            soundCooldown = SOUND_INTERVAL;
         }
     }
 

@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.registry.ModSounds;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
@@ -10,6 +11,7 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
     private static final int TARGET_GRAVITY_SCALE = 1000;
     private static final int MAX_WORKING_RADIUS = calculateMaxRadius(MAX_DISTRIBUTION_BLOCKS);
     private static final int DEFAULT_WORKING_RADIUS = MAX_WORKING_RADIUS;
+    private static final int SOUND_INTERVAL = 120;
 
     private boolean normalizingGravity;
     private int workingRadius = DEFAULT_WORKING_RADIUS;
@@ -17,6 +19,7 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
     private int distributedBlocksCount;
     private int energyPerTick;
     private int ticksUntilRefresh;
+    private int soundCooldown;
     private float targetGravity = 1.0f;
 
     public GravityNormalizerTileEntity() {
@@ -26,6 +29,9 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     protected void tickMachine() {
+        if (soundCooldown > 0) {
+            soundCooldown--;
+        }
         if (energy == null || !canFunction()) {
             stopNormalizing();
             return;
@@ -43,7 +49,15 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         distributedBlocksCount = plannedBlocksCount;
         energyPerTick = requiredEnergy;
         setLit(true);
+        playWorkSound();
         markDirty();
+    }
+
+    private void playWorkSound() {
+        if (soundCooldown <= 0) {
+            playMachineSound(ModSounds.GRAVITY_NORMALIZER_IDLE, 0.35f, 0.9f + world.rand.nextFloat() * 0.2f);
+            soundCooldown = SOUND_INTERVAL;
+        }
     }
 
     private void refreshDistributionEstimateIfNeeded() {
