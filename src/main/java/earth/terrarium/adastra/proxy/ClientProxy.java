@@ -7,6 +7,7 @@ import earth.terrarium.adastra.client.gui.RadioStationGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,6 +24,11 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public void onModelRegistry(ModelRegistryEvent event) {
         ClientRegistry.registerModels();
+    }
+
+    @SubscribeEvent
+    public void onItemColors(ColorHandlerEvent.Item event) {
+        ClientRegistry.registerItemColors(event.getItemColors());
     }
 
     @Override

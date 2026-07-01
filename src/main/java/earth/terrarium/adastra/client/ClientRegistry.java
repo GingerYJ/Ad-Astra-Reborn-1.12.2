@@ -6,11 +6,13 @@ import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
+import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.item.Item;
@@ -37,6 +39,14 @@ public final class ClientRegistry {
         for (Item item : ModItems.ITEMS) {
             registerItemModel(item);
         }
+    }
+
+    public static void registerItemColors(ItemColors itemColors) {
+        itemColors.registerItemColorHandler(
+            (stack, tintIndex) -> ((AdAstraSpawnEggItem) stack.getItem()).getColor(tintIndex),
+            ModItems.ITEMS.stream()
+                .filter(item -> item instanceof AdAstraSpawnEggItem)
+                .toArray(Item[]::new));
     }
 
     private static void registerStateMapper(Block block) {
