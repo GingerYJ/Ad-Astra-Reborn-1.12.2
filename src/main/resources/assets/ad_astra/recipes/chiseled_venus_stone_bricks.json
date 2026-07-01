@@ -6,7 +6,8 @@
   ],
   "key": {
     "#": {
-      "item": "ad_astra:venus_stone_brick_slab"
+      "item": "ad_astra:venus_stone_brick_slab",
+      "data": 0
     }
   },
   "result": {
