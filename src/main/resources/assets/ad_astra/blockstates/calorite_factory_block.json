@@ -8,7 +8,7 @@
         "vertical": "ad_astra:block/ctm/calorite_factory_block/1"
     },
     "variants": {
-        "": {
+        "normal": {
             "model": "ad_astra:calorite_factory_block"
         }
     }

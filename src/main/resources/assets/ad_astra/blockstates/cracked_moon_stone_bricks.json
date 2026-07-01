@@ -1,6 +1,6 @@
 {
   "variants": {
-    "": {
+    "normal": {
       "model": "ad_astra:cracked_moon_stone_bricks"
     }
   }

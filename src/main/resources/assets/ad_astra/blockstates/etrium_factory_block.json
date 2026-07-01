@@ -8,7 +8,7 @@
         "vertical": "ad_astra:block/ctm/etrium_factory_block/1"
     },
     "variants": {
-        "": {
+        "normal": {
             "model": "ad_astra:etrium_factory_block"
         }
     }

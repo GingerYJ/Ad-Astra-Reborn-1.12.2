@@ -1,6 +1,6 @@
 {
   "variants": {
-    "": {
+    "normal": {
       "model": "ad_astra:deepslate_desh_ore"
     }
   }

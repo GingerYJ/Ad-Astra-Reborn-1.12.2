@@ -1,6 +1,6 @@
 {
   "variants": {
-    "": {
+    "normal": {
       "model": "ad_astra:raw_ostrum_block"
     }
   }

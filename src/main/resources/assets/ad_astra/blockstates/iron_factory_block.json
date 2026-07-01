@@ -8,7 +8,7 @@
         "vertical": "ad_astra:block/ctm/iron_factory_block/1"
     },
     "variants": {
-        "": {
+        "normal": {
             "model": "ad_astra:iron_factory_block"
         }
     }

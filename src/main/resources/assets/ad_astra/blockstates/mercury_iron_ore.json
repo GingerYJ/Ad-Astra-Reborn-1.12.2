@@ -1,6 +1,6 @@
 {
   "variants": {
-    "": {
+    "normal": {
       "model": "ad_astra:mercury_iron_ore"
     }
   }
