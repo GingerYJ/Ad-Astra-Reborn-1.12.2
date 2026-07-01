@@ -2,6 +2,7 @@ package earth.terrarium.adastra;
 
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.network.NetworkHandler;
+import earth.terrarium.adastra.common.recipe.CompressingRecipes;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModOreDictionary;
@@ -53,6 +54,7 @@ public class AdAstraReborn {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ModOreDictionary.register();
+        CompressingRecipes.register();
         ModSmeltingRecipes.register();
         GameRegistry.registerWorldGenerator(new AdAstraStructureWorldGenerator(), 0);
         proxy.init(event);
