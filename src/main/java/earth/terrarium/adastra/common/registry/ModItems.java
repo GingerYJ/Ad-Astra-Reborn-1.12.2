@@ -128,18 +128,18 @@ public final class ModItems {
     public static final Item TIER_4_ROCKET = vehicle("tier_4_rocket", Tier4RocketEntity::new);
     public static final Item TIER_1_ROVER = vehicle("tier_1_rover", Tier1RoverEntity::new);
 
-    public static final Item LUNARIAN_SPAWN_EGG = spawnEgg("lunarian_spawn_egg", LunarianEntity::new);
-    public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = spawnEgg("corrupted_lunarian_spawn_egg", CorruptedLunarianEntity::new);
-    public static final Item STAR_CRAWLER_SPAWN_EGG = spawnEgg("star_crawler_spawn_egg", StarCrawlerEntity::new);
-    public static final Item MARTIAN_RAPTOR_SPAWN_EGG = spawnEgg("martian_raptor_spawn_egg", MartianRaptorEntity::new);
-    public static final Item PYGRO_SPAWN_EGG = spawnEgg("pygro_spawn_egg", PygroEntity::new);
-    public static final Item ZOMBIFIED_PYGRO_SPAWN_EGG = spawnEgg("zombified_pygro_spawn_egg", ZombifiedPygroEntity::new);
-    public static final Item PYGRO_BRUTE_SPAWN_EGG = spawnEgg("pygro_brute_spawn_egg", PygroBruteEntity::new);
-    public static final Item MOGLER_SPAWN_EGG = spawnEgg("mogler_spawn_egg", MoglerEntity::new);
-    public static final Item ZOMBIFIED_MOGLER_SPAWN_EGG = spawnEgg("zombified_mogler_spawn_egg", ZombifiedMoglerEntity::new);
-    public static final Item SULFUR_CREEPER_SPAWN_EGG = spawnEgg("sulfur_creeper_spawn_egg", SulfurCreeperEntity::new);
-    public static final Item GLACIAN_RAM_SPAWN_EGG = spawnEgg("glacian_ram_spawn_egg", GlacianRamEntity::new);
-    public static final Item LUNARIAN_WANDERING_TRADER_SPAWN_EGG = spawnEgg("lunarian_wandering_trader_spawn_egg", LunarianWanderingTraderEntity::new);
+    public static final Item LUNARIAN_SPAWN_EGG = spawnEgg("lunarian_spawn_egg", LunarianEntity::new, 0xff33ccff, 0xff4e3923);
+    public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = spawnEgg("corrupted_lunarian_spawn_egg", CorruptedLunarianEntity::new, 0xff1e1b19, 0xff0090c1);
+    public static final Item STAR_CRAWLER_SPAWN_EGG = spawnEgg("star_crawler_spawn_egg", StarCrawlerEntity::new, 0xff333333, 0xff00cccc);
+    public static final Item MARTIAN_RAPTOR_SPAWN_EGG = spawnEgg("martian_raptor_spawn_egg", MartianRaptorEntity::new, 0x51a03e, 0xffffcc00);
+    public static final Item PYGRO_SPAWN_EGG = spawnEgg("pygro_spawn_egg", PygroEntity::new, 0xffcc6600, 0xff990000);
+    public static final Item ZOMBIFIED_PYGRO_SPAWN_EGG = spawnEgg("zombified_pygro_spawn_egg", ZombifiedPygroEntity::new, 0x814a25, 0x5d8e47);
+    public static final Item PYGRO_BRUTE_SPAWN_EGG = spawnEgg("pygro_brute_spawn_egg", PygroBruteEntity::new, 0xffcc6600, 0xfffef978);
+    public static final Item MOGLER_SPAWN_EGG = spawnEgg("mogler_spawn_egg", MoglerEntity::new, 0xffffcc00, 0xffcc0000);
+    public static final Item ZOMBIFIED_MOGLER_SPAWN_EGG = spawnEgg("zombified_mogler_spawn_egg", ZombifiedMoglerEntity::new, 0xbf4e41, 0x79e655);
+    public static final Item SULFUR_CREEPER_SPAWN_EGG = spawnEgg("sulfur_creeper_spawn_egg", SulfurCreeperEntity::new, 0xd48f30, 0xac791c);
+    public static final Item GLACIAN_RAM_SPAWN_EGG = spawnEgg("glacian_ram_spawn_egg", GlacianRamEntity::new, 0xffe6ff, 0x433d3d);
+    public static final Item LUNARIAN_WANDERING_TRADER_SPAWN_EGG = spawnEgg("lunarian_wandering_trader_spawn_egg", LunarianWanderingTraderEntity::new, 0x5b73c7, 0x8244d5);
 
     private ModItems() {
     }
@@ -228,8 +228,9 @@ public final class ModItems {
         return item;
     }
 
-    private static Item spawnEgg(String name, java.util.function.Function<net.minecraft.world.World, ? extends net.minecraft.entity.EntityLivingBase> factory) {
-        Item item = new AdAstraSpawnEggItem(name, factory);
+    private static Item spawnEgg(String name, java.util.function.Function<net.minecraft.world.World, ? extends net.minecraft.entity.EntityLivingBase> factory,
+                                 int primaryColor, int secondaryColor) {
+        Item item = new AdAstraSpawnEggItem(name, factory, primaryColor, secondaryColor);
         INTERNAL_ITEMS.add(item);
         return item;
     }

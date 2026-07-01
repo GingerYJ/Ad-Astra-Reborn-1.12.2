@@ -35,6 +35,7 @@ class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
         float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
         GlStateManager.rotate(-pitch, 0.0f, 0.0f, 1.0f);
         bindEntityTexture(entity);
+        model.setRotationAngles(0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f, entity);
         model.render(entity, 0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f);
         GlStateManager.popMatrix();
         super.doRender(entity, x, y, z, entityYaw, partialTicks);

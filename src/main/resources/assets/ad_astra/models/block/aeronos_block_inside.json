@@ -1,5 +1,5 @@
 {
-  "parent": "block/template_single_face",
+  "parent": "ad_astra:block/template_single_face",
   "ambientocclusion": false,
   "textures": {
     "texture": "ad_astra:block/aeronos_stem_inside"

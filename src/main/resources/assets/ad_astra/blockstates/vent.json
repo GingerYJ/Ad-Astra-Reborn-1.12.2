@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/vent"
+      "model": "ad_astra:vent"
     }
   }
 }

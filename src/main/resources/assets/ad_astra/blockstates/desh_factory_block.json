@@ -9,7 +9,7 @@
     },
     "variants": {
         "": {
-            "model": "ad_astra:block/desh_factory_block"
+            "model": "ad_astra:desh_factory_block"
         }
     }
 }

@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/slab",
+  "parent": "minecraft:block/half_slab",
   "textures": {
     "bottom": "ad_astra:block/moon_stone_bricks",
     "side": "ad_astra:block/moon_stone_bricks",

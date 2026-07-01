@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/raw_desh_block"
+      "model": "ad_astra:raw_desh_block"
     }
   }
 }

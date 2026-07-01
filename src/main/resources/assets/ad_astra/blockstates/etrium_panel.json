@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/etrium_panel"
+      "model": "ad_astra:etrium_panel"
     }
   }
 }

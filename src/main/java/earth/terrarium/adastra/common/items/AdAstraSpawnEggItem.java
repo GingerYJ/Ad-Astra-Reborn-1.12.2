@@ -21,13 +21,21 @@ import java.util.function.Function;
 public class AdAstraSpawnEggItem extends Item {
 
     private final Function<World, ? extends EntityLivingBase> factory;
+    private final int primaryColor;
+    private final int secondaryColor;
 
-    public AdAstraSpawnEggItem(String name, Function<World, ? extends EntityLivingBase> factory) {
+    public AdAstraSpawnEggItem(String name, Function<World, ? extends EntityLivingBase> factory, int primaryColor, int secondaryColor) {
         this.factory = factory;
+        this.primaryColor = primaryColor & 0x00FFFFFF;
+        this.secondaryColor = secondaryColor & 0x00FFFFFF;
         setRegistryName(Reference.MOD_ID, name);
         setTranslationKey(Reference.MOD_ID + "." + name);
         setCreativeTab(AdAstraCreativeTab.INSTANCE);
         setMaxStackSize(64);
+    }
+
+    public int getColor(int tintIndex) {
+        return tintIndex == 1 ? secondaryColor : primaryColor;
     }
 
     @Override

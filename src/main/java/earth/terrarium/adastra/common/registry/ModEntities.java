@@ -49,18 +49,18 @@ public final class ModEntities {
     public static final EntityEntry TIER_3_ROCKET = entity("tier_3_rocket", Tier3RocketEntity.class, 160, 3, true);
     public static final EntityEntry TIER_4_ROCKET = entity("tier_4_rocket", Tier4RocketEntity.class, 160, 3, true);
     public static final EntityEntry LANDER = entity("lander", LanderEntity.class, 160, 3, true);
-    public static final EntityEntry LUNARIAN = egg("lunarian", LunarianEntity.class, 0xff33ccff, 0xff4e3923);
-    public static final EntityEntry CORRUPTED_LUNARIAN = egg("corrupted_lunarian", CorruptedLunarianEntity.class, 0xff1e1b19, 0xff0090c1);
-    public static final EntityEntry STAR_CRAWLER = egg("star_crawler", StarCrawlerEntity.class, 0xff333333, 0xff00cccc);
-    public static final EntityEntry MARTIAN_RAPTOR = egg("martian_raptor", MartianRaptorEntity.class, 0x51a03e, 0xffffcc00);
-    public static final EntityEntry PYGRO = egg("pygro", PygroEntity.class, 0xffcc6600, 0xff990000);
-    public static final EntityEntry ZOMBIFIED_PYGRO = egg("zombified_pygro", ZombifiedPygroEntity.class, 0x814a25, 0x5d8e47);
-    public static final EntityEntry PYGRO_BRUTE = egg("pygro_brute", PygroBruteEntity.class, 0xffcc6600, 0xfffef978);
-    public static final EntityEntry MOGLER = egg("mogler", MoglerEntity.class, 0xffffcc00, 0xffcc0000);
-    public static final EntityEntry ZOMBIFIED_MOGLER = egg("zombified_mogler", ZombifiedMoglerEntity.class, 0xbf4e41, 0x79e655);
-    public static final EntityEntry LUNARIAN_WANDERING_TRADER = egg("lunarian_wandering_trader", LunarianWanderingTraderEntity.class, 0x5b73c7, 0x8244d5);
-    public static final EntityEntry SULFUR_CREEPER = egg("sulfur_creeper", SulfurCreeperEntity.class, 128, 0xd48f30, 0xac791c);
-    public static final EntityEntry GLACIAN_RAM = egg("glacian_ram", GlacianRamEntity.class, 160, 0xffe6ff, 0x433d3d);
+    public static final EntityEntry LUNARIAN = entity("lunarian", LunarianEntity.class, 80, 3, true);
+    public static final EntityEntry CORRUPTED_LUNARIAN = entity("corrupted_lunarian", CorruptedLunarianEntity.class, 80, 3, true);
+    public static final EntityEntry STAR_CRAWLER = entity("star_crawler", StarCrawlerEntity.class, 80, 3, true);
+    public static final EntityEntry MARTIAN_RAPTOR = entity("martian_raptor", MartianRaptorEntity.class, 80, 3, true);
+    public static final EntityEntry PYGRO = entity("pygro", PygroEntity.class, 80, 3, true);
+    public static final EntityEntry ZOMBIFIED_PYGRO = entity("zombified_pygro", ZombifiedPygroEntity.class, 80, 3, true);
+    public static final EntityEntry PYGRO_BRUTE = entity("pygro_brute", PygroBruteEntity.class, 80, 3, true);
+    public static final EntityEntry MOGLER = entity("mogler", MoglerEntity.class, 80, 3, true);
+    public static final EntityEntry ZOMBIFIED_MOGLER = entity("zombified_mogler", ZombifiedMoglerEntity.class, 80, 3, true);
+    public static final EntityEntry LUNARIAN_WANDERING_TRADER = entity("lunarian_wandering_trader", LunarianWanderingTraderEntity.class, 80, 3, true);
+    public static final EntityEntry SULFUR_CREEPER = entity("sulfur_creeper", SulfurCreeperEntity.class, 128, 3, true);
+    public static final EntityEntry GLACIAN_RAM = entity("glacian_ram", GlacianRamEntity.class, 160, 3, true);
     public static final EntityEntry ICE_SPIT = entity("ice_spit", IceSpitEntity.class, 64, 10, true);
     public static final EntityEntry SPACE_PAINTING = entity("space_painting", SpacePaintingEntity.class, 160, Integer.MAX_VALUE, false);
 
@@ -85,19 +85,4 @@ public final class ModEntities {
         return entry;
     }
 
-    private static <T extends Entity> EntityEntry egg(String name, Class<T> entityClass, int primaryColor, int secondaryColor) {
-        return egg(name, entityClass, 80, primaryColor, secondaryColor);
-    }
-
-    private static <T extends Entity> EntityEntry egg(String name, Class<T> entityClass, int trackingRange, int primaryColor, int secondaryColor) {
-        EntityEntry entry = EntityEntryBuilder.create()
-            .entity(entityClass)
-            .id(new ResourceLocation(Reference.MOD_ID, name), nextId++)
-            .name(Reference.MOD_ID + "." + name)
-            .tracker(trackingRange, 3, true)
-            .egg(primaryColor, secondaryColor)
-            .build();
-        INTERNAL_ENTITIES.add(entry);
-        return entry;
-    }
 }

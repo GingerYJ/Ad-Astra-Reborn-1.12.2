@@ -1,13 +1,13 @@
 {
   "variants": {
     "type=bottom": {
-      "model": "ad_astra:block/calorite_plating_slab"
+      "model": "ad_astra:calorite_plating_slab"
     },
     "type=double": {
-      "model": "ad_astra:block/calorite_plating"
+      "model": "ad_astra:calorite_plating"
     },
     "type=top": {
-      "model": "ad_astra:block/calorite_plating_slab_top"
+      "model": "ad_astra:calorite_plating_slab_top"
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/aeronos_cap"
+      "model": "ad_astra:aeronos_cap"
     }
   }
 }

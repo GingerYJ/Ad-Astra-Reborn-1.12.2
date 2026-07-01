@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/mars_ice_shard_ore"
+      "model": "ad_astra:mars_ice_shard_ore"
     }
   }
 }

@@ -17,8 +17,15 @@ class RenderSulfurCreeper extends RenderLiving<SulfurCreeperEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/entity/mob/sulfur_creeper.png");
 
     RenderSulfurCreeper(RenderManager renderManager) {
-        super(renderManager, new ModelCreeper(), 0.5f);
+        super(renderManager, createModel(), 0.5f);
         addLayer(new LayerSulfurCreeperCharge(this));
+    }
+
+    private static ModelCreeper createModel() {
+        ModelCreeper model = new ModelCreeper();
+        model.textureWidth = 64;
+        model.textureHeight = 64;
+        return model;
     }
 
     @Override

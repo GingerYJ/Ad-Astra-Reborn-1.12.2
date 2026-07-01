@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/aeronos_planks"
+      "model": "ad_astra:aeronos_planks"
     }
   }
 }

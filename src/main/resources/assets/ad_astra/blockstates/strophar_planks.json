@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/strophar_planks"
+      "model": "ad_astra:strophar_planks"
     }
   }
 }

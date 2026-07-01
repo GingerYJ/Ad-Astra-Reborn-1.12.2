@@ -9,7 +9,7 @@
     },
     "variants": {
         "": {
-            "model": "ad_astra:block/etrium_factory_block"
+            "model": "ad_astra:etrium_factory_block"
         }
     }
 }

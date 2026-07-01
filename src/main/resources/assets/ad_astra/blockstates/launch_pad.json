@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/launch_pad"
+      "model": "ad_astra:launch_pad"
     }
   }
 }

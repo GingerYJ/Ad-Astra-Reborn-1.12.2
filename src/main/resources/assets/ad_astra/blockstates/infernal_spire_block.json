@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/infernal_spire_block"
+      "model": "ad_astra:infernal_spire_block"
     }
   }
 }

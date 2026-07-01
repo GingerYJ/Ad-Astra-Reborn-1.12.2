@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/iron_panel"
+      "model": "ad_astra:iron_panel"
     }
   }
 }

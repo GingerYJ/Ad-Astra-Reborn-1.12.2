@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/door_bottom_left_open",
+  "parent": "minecraft:block/door_bottom_rh",
   "textures": {
     "bottom": "ad_astra:block/strophar_door_bottom",
     "top": "ad_astra:block/strophar_door_top"

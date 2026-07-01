@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/cheese_block"
+      "model": "ad_astra:cheese_block"
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/steel_plateblock"
+      "model": "ad_astra:steel_plateblock"
     }
   }
 }

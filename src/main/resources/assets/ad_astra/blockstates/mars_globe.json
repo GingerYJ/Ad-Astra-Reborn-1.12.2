@@ -1,16 +1,16 @@
 {
   "variants": {
     "powered=false,waterlogged=false": {
-      "model": "ad_astra:block/mars_globe"
+      "model": "ad_astra:mars_globe"
     },
     "powered=false,waterlogged=true": {
-      "model": "ad_astra:block/mars_globe"
+      "model": "ad_astra:mars_globe"
     },
     "powered=true,waterlogged=false": {
-      "model": "ad_astra:block/mars_globe"
+      "model": "ad_astra:mars_globe"
     },
     "powered=true,waterlogged=true": {
-      "model": "ad_astra:block/mars_globe"
+      "model": "ad_astra:mars_globe"
     }
   }
 }

@@ -1,13 +1,13 @@
 {
   "variants": {
     "type=bottom": {
-      "model": "ad_astra:block/glacio_stone_slab"
+      "model": "ad_astra:glacio_stone_slab"
     },
     "type=double": {
-      "model": "ad_astra:block/glacio_stone"
+      "model": "ad_astra:glacio_stone"
     },
     "type=top": {
-      "model": "ad_astra:block/glacio_stone_slab_top"
+      "model": "ad_astra:glacio_stone_slab_top"
     }
   }
 }

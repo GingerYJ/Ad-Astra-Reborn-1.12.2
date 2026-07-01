@@ -27,6 +27,7 @@ class RenderRover extends Render<Tier1RoverEntity> {
         GlStateManager.translate((float) x, (float) y + entity.height * 0.5f, (float) z);
         GlStateManager.rotate(180.0f - entityYaw, 0.0f, 1.0f, 0.0f);
         bindEntityTexture(entity);
+        model.setRotationAngles(0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f, entity);
         model.render(entity, 0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f);
         GlStateManager.popMatrix();
         super.doRender(entity, x, y, z, entityYaw, partialTicks);

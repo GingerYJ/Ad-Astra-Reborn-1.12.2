@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/ostrum_plating"
+      "model": "ad_astra:ostrum_plating"
     }
   }
 }

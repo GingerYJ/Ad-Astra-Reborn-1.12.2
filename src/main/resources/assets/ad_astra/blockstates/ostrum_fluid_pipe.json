@@ -2,12 +2,12 @@
   "multipart": [
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_core"
+        "model": "ad_astra:ostrum_fluid_pipe_core"
       }
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe"
+        "model": "ad_astra:ostrum_fluid_pipe"
       },
       "when": {
         "connected_north": "normal"
@@ -15,7 +15,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_insert"
+        "model": "ad_astra:ostrum_fluid_pipe_insert"
       },
       "when": {
         "connected_north": "insert"
@@ -23,7 +23,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_extract"
+        "model": "ad_astra:ostrum_fluid_pipe_extract"
       },
       "when": {
         "connected_north": "extract"
@@ -31,7 +31,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe",
+        "model": "ad_astra:ostrum_fluid_pipe",
         "y": 90
       },
       "when": {
@@ -40,7 +40,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_insert",
+        "model": "ad_astra:ostrum_fluid_pipe_insert",
         "y": 90
       },
       "when": {
@@ -49,7 +49,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_extract",
+        "model": "ad_astra:ostrum_fluid_pipe_extract",
         "y": 90
       },
       "when": {
@@ -58,7 +58,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe",
+        "model": "ad_astra:ostrum_fluid_pipe",
         "y": 180
       },
       "when": {
@@ -67,7 +67,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_insert",
+        "model": "ad_astra:ostrum_fluid_pipe_insert",
         "y": 180
       },
       "when": {
@@ -76,7 +76,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_extract",
+        "model": "ad_astra:ostrum_fluid_pipe_extract",
         "y": 180
       },
       "when": {
@@ -85,7 +85,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe",
+        "model": "ad_astra:ostrum_fluid_pipe",
         "y": 270
       },
       "when": {
@@ -94,7 +94,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_insert",
+        "model": "ad_astra:ostrum_fluid_pipe_insert",
         "y": 270
       },
       "when": {
@@ -103,7 +103,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_extract",
+        "model": "ad_astra:ostrum_fluid_pipe_extract",
         "y": 270
       },
       "when": {
@@ -112,7 +112,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe",
+        "model": "ad_astra:ostrum_fluid_pipe",
         "x": 270
       },
       "when": {
@@ -121,7 +121,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_insert",
+        "model": "ad_astra:ostrum_fluid_pipe_insert",
         "x": 270
       },
       "when": {
@@ -130,7 +130,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_extract",
+        "model": "ad_astra:ostrum_fluid_pipe_extract",
         "x": 270
       },
       "when": {
@@ -139,7 +139,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe",
+        "model": "ad_astra:ostrum_fluid_pipe",
         "x": 90
       },
       "when": {
@@ -148,7 +148,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_insert",
+        "model": "ad_astra:ostrum_fluid_pipe_insert",
         "x": 90
       },
       "when": {
@@ -157,7 +157,7 @@
     },
     {
       "apply": {
-        "model": "ad_astra:block/ostrum_fluid_pipe_extract",
+        "model": "ad_astra:ostrum_fluid_pipe_extract",
         "x": 90
       },
       "when": {

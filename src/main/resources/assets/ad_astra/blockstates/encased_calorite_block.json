@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/encased_calorite_block"
+      "model": "ad_astra:encased_calorite_block"
     }
   }
 }

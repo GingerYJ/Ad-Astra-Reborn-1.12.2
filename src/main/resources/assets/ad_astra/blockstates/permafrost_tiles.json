@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/permafrost_tiles"
+      "model": "ad_astra:permafrost_tiles"
     }
   }
 }

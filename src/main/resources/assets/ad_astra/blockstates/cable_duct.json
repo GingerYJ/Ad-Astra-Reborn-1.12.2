@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/cable_duct"
+      "model": "ad_astra:cable_duct"
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/cryo_fuel"
+      "model": "ad_astra:cryo_fuel"
     }
   }
 }

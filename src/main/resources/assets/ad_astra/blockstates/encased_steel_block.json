@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/encased_steel_block"
+      "model": "ad_astra:encased_steel_block"
     }
   }
 }

@@ -8,6 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -647,6 +649,11 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     @Override
     public String getName() {
         return "tile.ad_astra." + machineName + ".name";
+    }
+
+    @Override
+    public ITextComponent getDisplayName() {
+        return new TextComponentTranslation(getName());
     }
 
     @Override

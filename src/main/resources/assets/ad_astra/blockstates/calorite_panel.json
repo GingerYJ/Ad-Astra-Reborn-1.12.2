@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/calorite_panel"
+      "model": "ad_astra:calorite_panel"
     }
   }
 }

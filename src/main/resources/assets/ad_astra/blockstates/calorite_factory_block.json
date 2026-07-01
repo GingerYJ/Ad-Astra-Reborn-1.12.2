@@ -9,7 +9,7 @@
     },
     "variants": {
         "": {
-            "model": "ad_astra:block/calorite_factory_block"
+            "model": "ad_astra:calorite_factory_block"
         }
     }
 }

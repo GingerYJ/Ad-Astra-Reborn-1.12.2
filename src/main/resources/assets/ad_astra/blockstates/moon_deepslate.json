@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/moon_deepslate"
+      "model": "ad_astra:moon_deepslate"
     }
   }
 }

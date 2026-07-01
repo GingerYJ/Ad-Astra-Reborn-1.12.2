@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/template_single_face",
+  "parent": "ad_astra:block/template_single_face",
   "textures": {
     "texture": "ad_astra:block/strophar_stem"
   }

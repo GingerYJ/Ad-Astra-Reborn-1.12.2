@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/moon_cheese_ore"
+      "model": "ad_astra:moon_cheese_ore"
     }
   }
 }

@@ -1,13 +1,13 @@
 {
   "variants": {
     "type=bottom": {
-      "model": "ad_astra:block/strophar_slab"
+      "model": "ad_astra:strophar_slab"
     },
     "type=double": {
-      "model": "ad_astra:block/strophar_planks"
+      "model": "ad_astra:strophar_planks"
     },
     "type=top": {
-      "model": "ad_astra:block/strophar_slab_top"
+      "model": "ad_astra:strophar_slab_top"
     }
   }
 }

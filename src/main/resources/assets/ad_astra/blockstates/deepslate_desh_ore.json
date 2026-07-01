@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/deepslate_desh_ore"
+      "model": "ad_astra:deepslate_desh_ore"
     }
   }
 }

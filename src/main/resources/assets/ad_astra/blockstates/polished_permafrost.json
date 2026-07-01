@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/polished_permafrost"
+      "model": "ad_astra:polished_permafrost"
     }
   }
 }

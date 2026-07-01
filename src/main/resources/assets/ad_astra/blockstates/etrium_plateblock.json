@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/etrium_plateblock"
+      "model": "ad_astra:etrium_plateblock"
     }
   }
 }

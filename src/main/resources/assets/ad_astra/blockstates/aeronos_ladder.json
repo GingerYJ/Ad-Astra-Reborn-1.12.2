@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "ad_astra:block/aeronos_ladder",
+      "model": "ad_astra:aeronos_ladder",
       "y": 90
     },
     "facing=north": {
-      "model": "ad_astra:block/aeronos_ladder"
+      "model": "ad_astra:aeronos_ladder"
     },
     "facing=south": {
-      "model": "ad_astra:block/aeronos_ladder",
+      "model": "ad_astra:aeronos_ladder",
       "y": 180
     },
     "facing=west": {
-      "model": "ad_astra:block/aeronos_ladder",
+      "model": "ad_astra:aeronos_ladder",
       "y": 270
     }
   }

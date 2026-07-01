@@ -22,10 +22,12 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier3RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier4RocketEntity;
+import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderSnowball;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -44,6 +46,8 @@ public final class AdAstraEntityRenderers {
             return;
         }
         registered = true;
+
+        registerSpawnEggColors();
 
         RenderingRegistry.registerEntityRenderingHandler(AirVortexEntity.class, RenderAirVortex::new);
         RenderingRegistry.registerEntityRenderingHandler(SpacePaintingEntity.class, RenderSpacePainting::new);
@@ -97,5 +101,13 @@ public final class AdAstraEntityRenderers {
 
     private static ResourceLocation texture(String path) {
         return new ResourceLocation(Reference.MOD_ID, "textures/entity/" + path + ".png");
+    }
+
+    private static void registerSpawnEggColors() {
+        Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
+            (stack, tintIndex) -> ((AdAstraSpawnEggItem) stack.getItem()).getColor(tintIndex),
+            ModItems.ITEMS.stream()
+                .filter(item -> item instanceof AdAstraSpawnEggItem)
+                .toArray(Item[]::new));
     }
 }

@@ -9,7 +9,7 @@
     },
     "variants": {
         "": {
-            "model": "ad_astra:block/steel_factory_block"
+            "model": "ad_astra:steel_factory_block"
         }
     }
 }

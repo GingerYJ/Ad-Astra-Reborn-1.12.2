@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/venus_sand"
+      "model": "ad_astra:venus_sand"
     }
   }
 }

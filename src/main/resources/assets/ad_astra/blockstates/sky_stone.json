@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/sky_stone"
+      "model": "ad_astra:sky_stone"
     }
   }
 }

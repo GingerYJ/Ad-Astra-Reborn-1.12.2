@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "ad_astra:block/encased_desh_block"
+      "model": "ad_astra:encased_desh_block"
     }
   }
 }
