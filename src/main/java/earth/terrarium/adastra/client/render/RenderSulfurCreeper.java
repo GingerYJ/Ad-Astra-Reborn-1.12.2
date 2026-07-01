@@ -2,7 +2,6 @@ package earth.terrarium.adastra.client.render;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.entities.mob.SulfurCreeperEntity;
-import net.minecraft.client.model.ModelCreeper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -17,15 +16,8 @@ class RenderSulfurCreeper extends RenderLiving<SulfurCreeperEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/entity/mob/sulfur_creeper.png");
 
     RenderSulfurCreeper(RenderManager renderManager) {
-        super(renderManager, createModel(), 0.5f);
+        super(renderManager, new ModelSulfurCreeper(), 0.5f);
         addLayer(new LayerSulfurCreeperCharge(this));
-    }
-
-    private static ModelCreeper createModel() {
-        ModelCreeper model = new ModelCreeper();
-        model.textureWidth = 64;
-        model.textureHeight = 64;
-        return model;
     }
 
     @Override
