@@ -1,11 +1,16 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
+import net.minecraft.block.Block;
+import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.Item;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
@@ -15,10 +20,14 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
     private static final int LAST_OUTPUT_SLOT = 8;
     private static final int ALLOYING_ENERGY_PER_TICK = 20;
     private static final int ALLOYING_COOK_TIME = 100;
+    private static final int BLASTING_ENERGY_PER_TICK = 20;
+    private static final int BLASTING_COOK_TIME = 100;
 
     private FurnaceMode mode = FurnaceMode.ALLOYING;
     private int cookTime;
     private int cookTimeTotal;
+    private BlastingRecipe activeBlastingRecipe;
+    private int activeBlastingSlot = -1;
 
     public EtrionicBlastFurnaceTileEntity() {
         super("etrionic_blast_furnace", 9, STEEL_ENERGY, STEEL_IO, 0, 0);
@@ -33,7 +42,7 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         }
 
         if (mode == FurnaceMode.BLASTING) {
-            tickBlastingPlaceholder();
+            tickBlasting();
             return;
         }
 
@@ -65,10 +74,85 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         markDirty();
     }
 
-    private void tickBlastingPlaceholder() {
-        cookTime = 0;
-        cookTimeTotal = 0;
-        setLit(false);
+    private void tickBlasting() {
+        BlastingTarget target = getBlastingTarget();
+        if (target == null) {
+            cookTime = 0;
+            cookTimeTotal = 0;
+            activeBlastingRecipe = null;
+            activeBlastingSlot = -1;
+            setLit(false);
+            return;
+        }
+
+        if (target.recipe != activeBlastingRecipe || target.inputSlot != activeBlastingSlot) {
+            cookTime = 0;
+            activeBlastingRecipe = target.recipe;
+            activeBlastingSlot = target.inputSlot;
+        }
+
+        cookTimeTotal = target.recipe.cookingTime;
+        if (!canProcessBlasting(target.recipe)) {
+            setLit(false);
+            return;
+        }
+
+        energy.extractEnergy(target.recipe.energyPerTick, false);
+        cookTime++;
+        setLit(true);
+
+        if (cookTime >= cookTimeTotal) {
+            craftBlasting(target);
+            cookTime = 0;
+        }
+        markDirty();
+    }
+
+    private BlastingTarget getBlastingTarget() {
+        BlastingTarget activeTarget = null;
+        if (activeBlastingRecipe != null && activeBlastingSlot >= FIRST_INPUT_SLOT && activeBlastingSlot <= LAST_INPUT_SLOT) {
+            ItemStack stack = items.getStackInSlot(activeBlastingSlot);
+            if (activeBlastingRecipe.matches(stack)) {
+                activeTarget = new BlastingTarget(activeBlastingSlot, activeBlastingRecipe);
+                if (canAddOutput(activeBlastingRecipe.result)) {
+                    return activeTarget;
+                }
+            }
+        }
+
+        for (int slot = FIRST_INPUT_SLOT; slot <= LAST_INPUT_SLOT; slot++) {
+            BlastingRecipe recipe = getBlastingRecipe(items.getStackInSlot(slot));
+            if (recipe != null && canAddOutput(recipe.result)) {
+                return new BlastingTarget(slot, recipe);
+            }
+        }
+        return activeTarget;
+    }
+
+    private boolean canProcessBlasting(BlastingRecipe recipe) {
+        return energy.extractEnergy(recipe.energyPerTick, true) >= recipe.energyPerTick && canAddOutput(recipe.result);
+    }
+
+    private void craftBlasting(BlastingTarget target) {
+        ItemStack input = items.getStackInSlot(target.inputSlot);
+        input.shrink(1);
+        if (input.isEmpty()) {
+            items.setStackInSlot(target.inputSlot, ItemStack.EMPTY);
+        }
+        addOutput(target.recipe.result);
+    }
+
+    private BlastingRecipe getBlastingRecipe(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return null;
+        }
+
+        for (BlastingRecipe recipe : BlastingRecipe.values()) {
+            if (recipe.matches(stack)) {
+                return recipe;
+            }
+        }
+        return null;
     }
 
     private boolean hasIronIngot() {
@@ -147,7 +231,7 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         if (stack.isEmpty() || index < FIRST_INPUT_SLOT || index > LAST_INPUT_SLOT) {
             return false;
         }
-        return stack.getItem() == Items.IRON_INGOT || stack.getItem() == Items.COAL;
+        return stack.getItem() == Items.IRON_INGOT || stack.getItem() == Items.COAL || getBlastingRecipe(stack) != null;
     }
 
     @Override
@@ -171,6 +255,16 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         cookTime = compound.getInteger("CookTime");
         cookTimeTotal = compound.getInteger("CookTimeTotal");
         mode = FurnaceMode.byOrdinal(compound.getByte("Mode"));
+        activeBlastingSlot = compound.hasKey("ActiveBlastingSlot") ? compound.getInteger("ActiveBlastingSlot") : -1;
+        activeBlastingRecipe = null;
+        if (compound.hasKey("ActiveBlastingRecipe")) {
+            try {
+                activeBlastingRecipe = BlastingRecipe.valueOf(compound.getString("ActiveBlastingRecipe"));
+            } catch (IllegalArgumentException ignored) {
+                activeBlastingRecipe = null;
+                activeBlastingSlot = -1;
+            }
+        }
     }
 
     @Override
@@ -179,6 +273,10 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         compound.setInteger("CookTime", cookTime);
         compound.setInteger("CookTimeTotal", cookTimeTotal);
         compound.setByte("Mode", (byte) mode.ordinal());
+        if (activeBlastingRecipe != null) {
+            compound.setString("ActiveBlastingRecipe", activeBlastingRecipe.name());
+            compound.setInteger("ActiveBlastingSlot", activeBlastingSlot);
+        }
         return compound;
     }
 
@@ -222,7 +320,88 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         this.mode = mode;
         cookTime = 0;
         cookTimeTotal = 0;
+        activeBlastingRecipe = null;
+        activeBlastingSlot = -1;
         markDirty();
+    }
+
+    private static boolean hasOreName(ItemStack stack, String oreName) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        for (int oreId : OreDictionary.getOreIDs(stack)) {
+            if (oreName.equals(OreDictionary.getOreName(oreId))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private enum BlastingRecipe {
+        RAW_DESH("rawDesh", ModItems.DESH_INGOT),
+        MOON_DESH_ORE(ModBlocks.MOON_DESH_ORE, ModItems.DESH_INGOT),
+        DEEPSLATE_DESH_ORE(ModBlocks.DEEPSLATE_DESH_ORE, ModItems.DESH_INGOT),
+        RAW_OSTRUM("rawOstrum", ModItems.OSTRUM_INGOT),
+        MARS_OSTRUM_ORE(ModBlocks.MARS_OSTRUM_ORE, ModItems.OSTRUM_INGOT),
+        DEEPSLATE_OSTRUM_ORE(ModBlocks.DEEPSLATE_OSTRUM_ORE, ModItems.OSTRUM_INGOT),
+        RAW_CALORITE("rawCalorite", ModItems.CALORITE_INGOT),
+        VENUS_CALORITE_ORE(ModBlocks.VENUS_CALORITE_ORE, ModItems.CALORITE_INGOT),
+        DEEPSLATE_CALORITE_ORE(ModBlocks.DEEPSLATE_CALORITE_ORE, ModItems.CALORITE_INGOT),
+        MOON_CHEESE_ORE(ModBlocks.MOON_CHEESE_ORE, ModItems.CHEESE),
+        MOON_ICE_SHARD_ORE(ModBlocks.MOON_ICE_SHARD_ORE, ModItems.ICE_SHARD),
+        DEEPSLATE_ICE_SHARD_ORE(ModBlocks.DEEPSLATE_ICE_SHARD_ORE, ModItems.ICE_SHARD),
+        MARS_ICE_SHARD_ORE(ModBlocks.MARS_ICE_SHARD_ORE, ModItems.ICE_SHARD),
+        GLACIO_ICE_SHARD_ORE(ModBlocks.GLACIO_ICE_SHARD_ORE, ModItems.ICE_SHARD),
+        VENUS_COAL_ORE(ModBlocks.VENUS_COAL_ORE, Items.COAL),
+        GLACIO_COAL_ORE(ModBlocks.GLACIO_COAL_ORE, Items.COAL),
+        MARS_DIAMOND_ORE(ModBlocks.MARS_DIAMOND_ORE, Items.DIAMOND),
+        VENUS_DIAMOND_ORE(ModBlocks.VENUS_DIAMOND_ORE, Items.DIAMOND),
+        MOON_IRON_ORE(ModBlocks.MOON_IRON_ORE, Items.IRON_INGOT),
+        MARS_IRON_ORE(ModBlocks.MARS_IRON_ORE, Items.IRON_INGOT),
+        MERCURY_IRON_ORE(ModBlocks.MERCURY_IRON_ORE, Items.IRON_INGOT),
+        GLACIO_IRON_ORE(ModBlocks.GLACIO_IRON_ORE, Items.IRON_INGOT),
+        VENUS_GOLD_ORE(ModBlocks.VENUS_GOLD_ORE, Items.GOLD_INGOT),
+        GLACIO_LAPIS_ORE(ModBlocks.GLACIO_LAPIS_ORE, new ItemStack(Items.DYE, 1, EnumDyeColor.BLUE.getDyeDamage()));
+
+        private final StackPredicate input;
+        private final ItemStack result;
+        private final int cookingTime = BLASTING_COOK_TIME;
+        private final int energyPerTick = BLASTING_ENERGY_PER_TICK;
+
+        BlastingRecipe(String oreName, Item output) {
+            this(stack -> hasOreName(stack, oreName), new ItemStack(output));
+        }
+
+        BlastingRecipe(Block input, Item output) {
+            this(Item.getItemFromBlock(input), new ItemStack(output));
+        }
+
+        BlastingRecipe(Block input, ItemStack result) {
+            this(Item.getItemFromBlock(input), result);
+        }
+
+        BlastingRecipe(Item input, ItemStack result) {
+            this(stack -> stack.getItem() == input, result);
+        }
+
+        BlastingRecipe(StackPredicate input, ItemStack result) {
+            this.input = input;
+            this.result = result;
+        }
+
+        private boolean matches(ItemStack stack) {
+            return !stack.isEmpty() && input.test(stack);
+        }
+    }
+
+    private static final class BlastingTarget {
+        private final int inputSlot;
+        private final BlastingRecipe recipe;
+
+        private BlastingTarget(int inputSlot, BlastingRecipe recipe) {
+            this.inputSlot = inputSlot;
+            this.recipe = recipe;
+        }
     }
 
     public enum FurnaceMode {
