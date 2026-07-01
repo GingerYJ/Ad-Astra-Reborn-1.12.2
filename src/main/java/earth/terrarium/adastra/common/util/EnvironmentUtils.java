@@ -16,6 +16,9 @@ import java.lang.reflect.Method;
 public final class EnvironmentUtils {
 
     public static final int DEFAULT_ENVIRONMENT_SCAN_RADIUS = 16;
+    public static final short EARTH_TEMPERATURE = 15;
+    public static final short MIN_LIVEABLE_TEMPERATURE = -50;
+    public static final short MAX_LIVEABLE_TEMPERATURE = 70;
 
     private EnvironmentUtils() {
     }
@@ -52,6 +55,23 @@ public final class EnvironmentUtils {
         }
         Object value = invokeNoArg(world.provider, "getGravity");
         return value instanceof Number ? ((Number) value).floatValue() : 9.80665F;
+    }
+
+    public static short getTemperature(Entity entity) {
+        return entity == null ? EARTH_TEMPERATURE : getTemperature(entity.world);
+    }
+
+    public static short getTemperature(World world) {
+        if (world == null || world.provider == null) {
+            return EARTH_TEMPERATURE;
+        }
+        Object value = invokeNoArg(world.provider, "getTemperature");
+        return value instanceof Number ? ((Number) value).shortValue() : EARTH_TEMPERATURE;
+    }
+
+    public static boolean isTemperatureLiveable(Entity entity) {
+        short temperature = getTemperature(entity);
+        return temperature >= MIN_LIVEABLE_TEMPERATURE && temperature <= MAX_LIVEABLE_TEMPERATURE;
     }
 
     private static boolean isCoveredByOxygenDistributor(World world, BlockPos target, int scanRadius) {

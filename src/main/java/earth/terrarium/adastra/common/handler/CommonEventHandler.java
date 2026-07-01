@@ -1,11 +1,13 @@
 package earth.terrarium.adastra.common.handler;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.registry.ModItems;
 import earth.terrarium.adastra.common.util.EnvironmentUtils;
 import earth.terrarium.adastra.common.util.KeybindManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -21,7 +23,10 @@ public class CommonEventHandler {
     private static final int OXYGEN_PER_CHECK = 1;
     private static final int DAMAGE_INTERVAL = 40;
     private static final float SUFFOCATION_DAMAGE = 2.0f;
+    private static final float HEAT_DAMAGE = 6.0f;
+    private static final float COLD_DAMAGE = 3.0f;
     private static final DamageSource SPACE_SUFFOCATION = new DamageSource("oxygen").setDamageBypassesArmor();
+    private static final DamageSource EXTREME_COLD = new DamageSource("freeze").setDamageBypassesArmor();
     private static final int JET_SUIT_UPWARD_ENERGY_PER_TICK = 50;
     private static final int JET_SUIT_FORWARD_ENERGY_PER_TICK = 100;
     private static final double JET_SUIT_UPWARD_FORCE = 0.075D;
@@ -44,7 +49,13 @@ public class CommonEventHandler {
         if (player.capabilities.isCreativeMode || player.isSpectator()) {
             return;
         }
-        if (player.ticksExisted % OXYGEN_CHECK_INTERVAL != 0 || EnvironmentUtils.hasOxygen(player)) {
+
+        tickOxygen(player);
+        tickTemperature(player);
+    }
+
+    private void tickOxygen(EntityPlayer player) {
+        if (AdAstraConfig.disableOxygen || player.ticksExisted % OXYGEN_CHECK_INTERVAL != 0 || EnvironmentUtils.hasOxygen(player)) {
             return;
         }
 
@@ -55,6 +66,22 @@ public class CommonEventHandler {
 
         if (player.ticksExisted % DAMAGE_INTERVAL == 0) {
             player.attackEntityFrom(SPACE_SUFFOCATION, SUFFOCATION_DAMAGE);
+        }
+    }
+
+    private void tickTemperature(EntityPlayer player) {
+        if (AdAstraConfig.disableTemperature || player.ticksExisted % DAMAGE_INTERVAL != 0 || EnvironmentUtils.isTemperatureLiveable(player)) {
+            return;
+        }
+
+        short temperature = EnvironmentUtils.getTemperature(player);
+        if (temperature > EnvironmentUtils.MAX_LIVEABLE_TEMPERATURE) {
+            if (!hasHeatProtection(player) && !player.isPotionActive(MobEffects.FIRE_RESISTANCE)) {
+                player.attackEntityFrom(DamageSource.ON_FIRE, HEAT_DAMAGE);
+                player.setFire(10);
+            }
+        } else if (!hasFreezeProtection(player)) {
+            player.attackEntityFrom(EXTREME_COLD, COLD_DAMAGE);
         }
     }
 
@@ -113,6 +140,15 @@ public class CommonEventHandler {
     private boolean canUseSuitOxygen(EntityPlayer player) {
         return isWearingSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
             || isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
+            || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
+    }
+
+    private boolean hasFreezeProtection(EntityPlayer player) {
+        return canUseSuitOxygen(player);
+    }
+
+    private boolean hasHeatProtection(EntityPlayer player) {
+        return isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
             || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
     }
 

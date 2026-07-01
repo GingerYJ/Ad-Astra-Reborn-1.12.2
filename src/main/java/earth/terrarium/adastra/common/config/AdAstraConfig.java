@@ -9,6 +9,8 @@ public final class AdAstraConfig {
     private static Configuration configuration;
 
     public static boolean debugLogging;
+    public static boolean disableOxygen;
+    public static boolean disableTemperature;
     public static boolean enableAirVortexes;
 
     private AdAstraConfig() {
@@ -29,6 +31,16 @@ public final class AdAstraConfig {
             Configuration.CATEGORY_GENERAL,
             false,
             "Enable extra logging while the 1.12.2 port is being rebuilt.");
+        disableOxygen = configuration.getBoolean(
+            "disableOxygen",
+            Configuration.CATEGORY_GENERAL,
+            false,
+            "Disable oxygen damage.");
+        disableTemperature = configuration.getBoolean(
+            "disableTemperature",
+            Configuration.CATEGORY_GENERAL,
+            false,
+            "Disable temperature damage.");
         enableAirVortexes = configuration.getBoolean(
             "enableAirVortexes",
             Configuration.CATEGORY_GENERAL,
