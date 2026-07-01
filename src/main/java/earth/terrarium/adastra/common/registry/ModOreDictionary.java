@@ -20,6 +20,9 @@ public final class ModOreDictionary {
         register("plateIron", ModItems.IRON_PLATE);
         register("rodIron", ModItems.IRON_ROD);
         register("coreEtrionic", ModItems.ETRIONIC_CORE);
+        register("toolWrench", ModItems.WRENCH);
+        register("craftingToolWrench", ModItems.WRENCH);
+        register("wrench", ModItems.WRENCH);
 
         register("rawDesh", ModItems.RAW_DESH);
         register("rawOstrum", ModItems.RAW_OSTRUM);
