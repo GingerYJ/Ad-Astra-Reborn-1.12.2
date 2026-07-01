@@ -430,6 +430,9 @@ public final class ModBlocks {
             item = new ItemBlock(block);
         }
         item.setRegistryName(block.getRegistryName());
+        if (block.getRegistryName() != null) {
+            item.setTranslationKey(Reference.MOD_ID + "." + block.getRegistryName().getPath());
+        }
         return item;
     }
 

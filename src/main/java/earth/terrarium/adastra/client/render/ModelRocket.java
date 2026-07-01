@@ -9,21 +9,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 class ModelRocket extends ModelBase {
 
-    private final ModelRenderer root;
+    private ModelRenderer root;
 
     ModelRocket(int tier) {
         textureWidth = 128;
         textureHeight = 128;
 
-        RocketSpec spec = RocketSpec.forTier(tier);
-        root = part();
-
-        buildBody(spec);
-        buildNose(spec);
-        buildEngine(spec);
-        buildFins(spec);
-        if (spec.boosterHeight > 0) {
-            buildBoosters(spec);
+        switch (tier) {
+            case 2:
+                buildTier2();
+                break;
+            case 3:
+                buildTier3();
+                break;
+            case 4:
+                buildTier4();
+                break;
+            case 1:
+            default:
+                buildTier1();
+                break;
         }
     }
 
@@ -33,100 +38,680 @@ class ModelRocket extends ModelBase {
         root.render(scale);
     }
 
-    private void buildBody(RocketSpec spec) {
-        int bodyHeight = spec.bodyTop - spec.bodyBottom;
-        int radius = spec.radius;
-
-        addBox(root, 0, 0, -radius, spec.bodyBottom, -radius - 1, radius * 2, bodyHeight, 1);
-        addBox(root, 36, 0, -radius, spec.bodyBottom, radius, radius * 2, bodyHeight, 1);
-        addBox(root, 36, 18, -radius - 1, spec.bodyBottom, -radius, 1, bodyHeight, radius * 2);
-        addBox(root, 0, 18, radius, spec.bodyBottom, -radius, 1, bodyHeight, radius * 2);
-
-        addBox(root, 0, 77, -radius, spec.bodyBottom, -radius, 2, bodyHeight, 2);
-        addBox(root, 0, 77, radius - 2, spec.bodyBottom, -radius, 2, bodyHeight, 2);
-        addBox(root, 0, 77, -radius, spec.bodyBottom, radius - 2, 2, bodyHeight, 2);
-        addBox(root, 0, 77, radius - 2, spec.bodyBottom, radius - 2, 2, bodyHeight, 2);
-
-        addBand(spec.bodyBottom, radius + 1, 5);
-        addBand(spec.bodyTop - 2, radius + 1, 4);
-        addBand(spec.bodyBottom + bodyHeight / 2, radius + 1, 2);
-
-        int windowY = spec.bodyTop - Math.min(18, bodyHeight / 2);
-        addBox(root, 36, 44, -6, windowY, -radius - 2, 12, 12, 1);
-        addBox(root, 35, 58, -4, windowY + 10, -radius - 3, 8, 1, 1);
-        addBox(root, 63, 43, -4, windowY + 2, -radius - 3, 1, 8, 1);
-        addBox(root, 63, 43, 3, windowY + 2, -radius - 3, 1, 8, 1);
+    private void buildTier1() {
+        root = part(0.0f, 25.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        ModelRenderer top = part(0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(top, 0, 48, 10.0f, -52.0f, -10.0f, 0, 2, 20);
+        addBox(top, 0, 68, -10.0f, -52.0f, -10.0f, 20, 2, 0);
+        addBox(top, 0, 48, -10.0f, -52.0f, -10.0f, 0, 2, 20);
+        addBox(top, 0, 68, -10.0f, -52.0f, 10.0f, 20, 2, 0);
+        addBox(top, 104, 67, -3.0f, -75.0f, -3.0f, 6, 8, 6);
+        addBox(top, 88, 69, -2.0f, -77.0f, -2.0f, 4, 2, 4);
+        addBox(top, 80, 69, -1.0f, -89.0f, -1.0f, 2, 13, 2);
+        addBox(top, 64, 69, -2.0f, -90.0f, -2.0f, 4, 4, 4);
+        root.addChild(top);
+        ModelRenderer cube_r1 = part(0.0f, -71.0f, 0.0f, -0.48f, -0.7854f, 0.0f);
+        addBox(cube_r1, 120, 37, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r1);
+        ModelRenderer cube_r2 = part(0.0f, -71.0f, 0.0f, -0.48f, -2.3562f, 0.0f);
+        addBox(cube_r2, 120, 37, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r2);
+        ModelRenderer cube_r3 = part(0.0f, -71.0f, 0.0f, -0.48f, 2.3562f, 0.0f);
+        addBox(cube_r3, 120, 37, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r3);
+        ModelRenderer cube_r4 = part(0.0f, -71.0f, 0.0f, -0.48f, 0.7854f, 0.0f);
+        addBox(cube_r4, 120, 37, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r4);
+        ModelRenderer cube_r5 = part(0.0f, -51.0f, 0.0f, 0.3491f, -1.5708f, 0.0f);
+        addBox(cube_r5, 65, 45, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r5);
+        ModelRenderer cube_r6 = part(0.0f, -51.0f, 0.0f, 0.3491f, 0.0f, 0.0f);
+        addBox(cube_r6, 65, 45, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r6);
+        ModelRenderer cube_r7 = part(0.0f, -51.0f, 0.0f, 0.3491f, 1.5708f, 0.0f);
+        addBox(cube_r7, 65, 45, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r7);
+        ModelRenderer cube_r8 = part(0.0f, -51.0f, 0.0f, 0.3491f, 3.1416f, 0.0f);
+        addBox(cube_r8, 65, 45, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r8);
+        ModelRenderer body = part(0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(body, 36, 44, -6.0f, -42.0f, -10.0f, 12, 12, 1);
+        addBox(body, 35, 58, -4.0f, -32.0f, -10.0f, 8, 0, 1);
+        addBox(body, 63, 43, 4.0f, -40.0f, -10.0f, 0, 8, 1);
+        addBox(body, 35, 58, -4.0f, -40.0f, -10.0f, 8, 0, 1);
+        addBox(body, 63, 43, -4.0f, -40.0f, -10.0f, 0, 8, 1);
+        addBox(body, 0, 0, -9.0f, -51.0f, -9.0f, 18, 44, 0);
+        addBox(body, 0, 77, -9.0f, -51.0f, -9.0f, 2, 44, 2);
+        addBox(body, 36, -18, -9.0f, -51.0f, -9.0f, 0, 44, 18);
+        addBox(body, 36, 0, -9.0f, -51.0f, 9.0f, 18, 44, 0);
+        addBox(body, 36, -18, 9.0f, -51.0f, -9.0f, 0, 44, 18);
+        addBox(body, 0, 62, -10.0f, -15.0f, -10.0f, 20, 5, 0);
+        addBox(body, 0, 42, 10.0f, -15.0f, -10.0f, 0, 5, 20);
+        addBox(body, 0, 62, -10.0f, -15.0f, 10.0f, 20, 5, 0);
+        addBox(body, 0, 42, -10.0f, -15.0f, -10.0f, 0, 5, 20);
+        addBox(body, -18, 44, -9.0f, -7.0f, -9.0f, 18, 0, 18);
+        addBox(body, -18, 44, -9.0f, -50.0f, -9.0f, 18, 0, 18);
+        addBox(body, 88, 0, -13.0f, -17.0f, -3.0f, 4, 9, 6);
+        addBox(body, 0, 71, -12.0f, -20.0f, -1.0f, 3, 3, 2);
+        root.addChild(body);
+        ModelRenderer cube_r9 = part(0.0f, 1.0f, 0.0f, 0.0f, 3.1416f, 0.0f);
+        addBox(cube_r9, 0, 71, -12.0f, -21.0f, -1.0f, 3, 3, 2);
+        addBox(cube_r9, 88, 0, -13.0f, -18.0f, -3.0f, 4, 9, 6);
+        body.addChild(cube_r9);
+        ModelRenderer cube_r10 = part(-8.0f, -29.0f, 8.0f, 0.0f, 1.5708f, 0.0f);
+        addBox(cube_r10, 0, 77, -1.0f, -22.0f, -1.0f, 2, 44, 2);
+        body.addChild(cube_r10);
+        ModelRenderer cube_r11 = part(8.0f, -29.0f, 8.0f, 0.0f, 3.1416f, 0.0f);
+        addBox(cube_r11, 0, 77, -1.0f, -22.0f, -1.0f, 2, 44, 2);
+        body.addChild(cube_r11);
+        ModelRenderer cube_r12 = part(8.0f, -29.0f, -8.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(cube_r12, 0, 77, -1.0f, -22.0f, -1.0f, 2, 44, 2);
+        body.addChild(cube_r12);
+        ModelRenderer bottom = part(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(bottom, 94, 15, -8.0f, -4.0f, -8.0f, 16, 4, 0);
+        addBox(bottom, 94, -1, -8.0f, -4.0f, -8.0f, 0, 4, 16);
+        addBox(bottom, 94, 15, -8.0f, -4.0f, 8.0f, 16, 4, 0);
+        addBox(bottom, 94, -1, 8.0f, -4.0f, -8.0f, 0, 4, 16);
+        addBox(bottom, 78, 22, -8.0f, -4.0f, -8.0f, 16, 0, 16);
+        addBox(bottom, 80, 81, -8.0f, 0.0f, -8.0f, 16, 0, 16);
+        addBox(bottom, 94, 19, -6.0f, -7.0f, 6.0f, 12, 3, 0);
+        addBox(bottom, 94, 19, -6.0f, -7.0f, -6.0f, 12, 3, 0);
+        addBox(bottom, 94, 7, 6.0f, -7.0f, -6.0f, 0, 3, 12);
+        addBox(bottom, 94, 7, -6.0f, -7.0f, -6.0f, 0, 3, 12);
+        body.addChild(bottom);
+        ModelRenderer fins = part(0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        root.addChild(fins);
+        ModelRenderer cube_r13 = part(1.0f, 2.0f, -1.0f, 1.1345f, 2.3562f, 0.0f);
+        addBox(cube_r13, 72, 21, -1.0f, 1.0f, 13.0f, 2, 15, 9);
+        fins.addChild(cube_r13);
+        ModelRenderer cube_r14 = part(1.0f, 1.0f, -1.0f, 0.0f, 2.3562f, 0.0f);
+        addBox(cube_r14, 72, 0, -2.0f, -17.0f, 20.0f, 4, 17, 4);
+        fins.addChild(cube_r14);
+        ModelRenderer cube_r15 = part(-1.0f, 1.0f, -1.0f, 0.0f, -2.3562f, 0.0f);
+        addBox(cube_r15, 72, 0, -2.0f, -17.0f, 20.0f, 4, 17, 4);
+        fins.addChild(cube_r15);
+        ModelRenderer cube_r16 = part(-1.0f, 2.0f, -1.0f, 1.1345f, -2.3562f, 0.0f);
+        addBox(cube_r16, 72, 21, -1.0f, 1.0f, 13.0f, 2, 15, 9);
+        fins.addChild(cube_r16);
+        ModelRenderer cube_r17 = part(-1.0f, 1.0f, 1.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r17, 72, 0, -2.0f, -17.0f, 20.0f, 4, 17, 4);
+        fins.addChild(cube_r17);
+        ModelRenderer cube_r18 = part(-1.0f, 2.0f, 1.0f, 1.1345f, -0.7854f, 0.0f);
+        addBox(cube_r18, 72, 21, -1.0f, 1.0f, 13.0f, 2, 15, 9);
+        fins.addChild(cube_r18);
+        ModelRenderer cube_r19 = part(1.0f, 1.0f, 1.0f, 0.0f, 0.7854f, 0.0f);
+        addBox(cube_r19, 72, 0, -2.0f, -17.0f, 20.0f, 4, 17, 4);
+        fins.addChild(cube_r19);
+        ModelRenderer cube_r20 = part(1.0f, 2.0f, 1.0f, 1.1345f, 0.7854f, 0.0f);
+        addBox(cube_r20, 72, 21, -1.0f, 1.0f, 13.0f, 2, 15, 9);
+        fins.addChild(cube_r20);
     }
 
-    private void buildNose(RocketSpec spec) {
-        int radius = spec.radius;
-        int y = spec.bodyTop;
-
-        addBand(y, radius + 1, 2);
-        addBox(root, 65, 45, -7, y + 1, -7, 14, 8, 14);
-        addBox(root, 104, 67, -5, y + 8, -5, 10, 7, 10);
-        addBox(root, 88, 69, -3, y + 14, -3, 6, 6, 6);
-
-        if (spec.tier >= 2) {
-            addBox(root, 80, 69, -1, y + 19, -1, 2, spec.noseMastHeight, 2);
-            addBox(root, 64, 69, -2, y + 18 + spec.noseMastHeight, -2, 4, 4, 4);
-        } else {
-            addBox(root, 80, 69, -1, y + 19, -1, 2, 8, 2);
-            addBox(root, 64, 69, -2, y + 26, -2, 4, 4, 4);
-        }
-
-        if (spec.tier == 4) {
-            addBox(root, 27, 77, -8, y + 1, -1, 16, 12, 1);
-            addBox(root, 27, 89, -1, y + 1, -8, 1, 12, 16);
-        }
+    private void buildTier2() {
+        root = part(0.0f, 24.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        ModelRenderer top = part(0.0f, -8.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(top, 0, 98, -10.0f, -47.0f, 10.0f, 20, 2, 0);
+        addBox(top, 0, 78, -10.0f, -47.0f, -10.0f, 0, 2, 20);
+        addBox(top, 0, 98, -10.0f, -47.0f, -10.0f, 20, 2, 0);
+        addBox(top, 0, 78, 10.0f, -47.0f, -10.0f, 0, 2, 20);
+        addBox(top, 120, 39, -1.0f, -85.0f, -1.0f, 2, 14, 2);
+        addBox(top, 112, 18, -2.0f, -89.0f, -2.0f, 4, 4, 4);
+        root.addChild(top);
+        ModelRenderer cube_r1 = part(0.0f, -68.5f, 0.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r1, 90, 22, -2.0f, -6.5f, -2.0f, 4, 2, 4);
+        addBox(cube_r1, 90, 22, -2.0f, -3.5f, -2.0f, 4, 2, 4);
+        addBox(cube_r1, 72, 26, -3.0f, -1.5f, -3.0f, 6, 11, 6);
+        addBox(cube_r1, 32, 57, 0.0f, 4.5f, -12.0f, 0, 17, 8);
+        setMirror(cube_r1, true);
+        addBox(cube_r1, 32, 65, -12.0f, 4.5f, 0.0f, 8, 17, 0);
+        setMirror(cube_r1, false);
+        addBox(cube_r1, 32, 65, 4.0f, 4.5f, 0.0f, 8, 17, 0);
+        top.addChild(cube_r1);
+        ModelRenderer cube_r2 = part(0.0f, -66.0f, 0.0f, -0.48f, -0.7854f, 0.0f);
+        addBox(cube_r2, 104, 26, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r2);
+        ModelRenderer cube_r3 = part(0.0f, -66.0f, 0.0f, -0.829f, 0.7854f, 0.0f);
+        addBox(cube_r3, 112, 26, -1.0f, -3.5f, -2.5f, 2, 19, 2);
+        top.addChild(cube_r3);
+        ModelRenderer cube_r4 = part(0.0f, 8.0f, 0.0f, 0.0f, 0.7854f, 0.0f);
+        addBox(cube_r4, 120, 26, -1.0f, -65.4f, -13.0779f, 2, 11, 2);
+        top.addChild(cube_r4);
+        ModelRenderer cube_r5 = part(0.0f, -66.0f, 0.0f, -0.48f, 0.7854f, 0.0f);
+        addBox(cube_r5, 104, 26, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r5);
+        ModelRenderer cube_r6 = part(0.0f, -66.0f, 0.0f, 2.3126f, 0.7854f, 3.1416f);
+        addBox(cube_r6, 112, 26, -1.0f, -3.5f, -2.5f, 2, 19, 2);
+        top.addChild(cube_r6);
+        ModelRenderer cube_r7 = part(0.0f, -88.0f, 0.0f, 0.0f, 2.3562f, 0.0f);
+        addBox(cube_r7, 32, 57, 0.0f, 24.0f, -12.0f, 0, 17, 8);
+        top.addChild(cube_r7);
+        ModelRenderer cube_r8 = part(0.0f, -66.0f, 0.0f, -0.48f, 2.3562f, 0.0f);
+        addBox(cube_r8, 104, 26, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r8);
+        ModelRenderer cube_r9 = part(0.0f, 8.0f, 0.0f, 0.0f, 2.3562f, 0.0f);
+        addBox(cube_r9, 120, 26, -1.0f, -65.4f, -13.0779f, 2, 11, 2);
+        top.addChild(cube_r9);
+        ModelRenderer cube_r10 = part(0.0f, -66.0f, 0.0f, 2.3126f, -0.7854f, 3.1416f);
+        addBox(cube_r10, 112, 26, -1.0f, -3.5f, -2.5f, 2, 19, 2);
+        top.addChild(cube_r10);
+        ModelRenderer cube_r11 = part(0.0f, 8.0f, 0.0f, 0.0f, -2.3562f, 0.0f);
+        addBox(cube_r11, 120, 26, -1.0f, -65.4f, -13.0779f, 2, 11, 2);
+        top.addChild(cube_r11);
+        ModelRenderer cube_r12 = part(0.0f, -66.0f, 0.0f, -0.48f, -2.3562f, 0.0f);
+        addBox(cube_r12, 104, 26, -1.0f, -3.5f, -2.5f, 2, 27, 2);
+        top.addChild(cube_r12);
+        ModelRenderer cube_r13 = part(0.0f, -66.0f, 0.0f, -0.829f, -0.7854f, 0.0f);
+        addBox(cube_r13, 112, 26, -1.0f, -3.5f, -2.5f, 2, 19, 2);
+        top.addChild(cube_r13);
+        ModelRenderer cube_r14 = part(0.0f, 8.0f, 0.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r14, 120, 26, -1.0f, -65.4f, -13.0779f, 2, 11, 2);
+        top.addChild(cube_r14);
+        ModelRenderer cube_r15 = part(0.0f, -46.0f, 0.0f, 0.3491f, 1.5708f, 0.0f);
+        addBox(cube_r15, 72, 44, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r15);
+        ModelRenderer cube_r16 = part(0.0f, -46.0f, 0.0f, 0.3491f, 3.1416f, 0.0f);
+        addBox(cube_r16, 72, 44, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r16);
+        ModelRenderer cube_r17 = part(0.0f, -46.0f, 0.0f, 0.3491f, -1.5708f, 0.0f);
+        addBox(cube_r17, 72, 44, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r17);
+        ModelRenderer cube_r18 = part(0.0f, -46.0f, 0.0f, 0.3491f, 0.0f, 0.0f);
+        addBox(cube_r18, 72, 44, -8.0f, -20.8f, 8.5175f, 16, 24, 0);
+        top.addChild(cube_r18);
+        ModelRenderer body = part(0.0f, -8.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(body, 62, 46, 4.0f, -32.0f, -10.0f, 0, 8, 1);
+        addBox(body, 0, 89, -10.0f, -9.0f, -10.0f, 20, 8, 0);
+        addBox(body, 0, 69, -10.0f, -9.0f, -10.0f, 0, 8, 20);
+        addBox(body, 0, 89, -10.0f, -9.0f, 10.0f, 20, 8, 0);
+        addBox(body, 88, 0, 9.0f, -10.0f, -4.0f, 6, 14, 8);
+        addBox(body, 0, 69, 10.0f, -9.0f, -10.0f, 0, 8, 20);
+        addBox(body, 0, 78, 10.0f, -32.0f, -10.0f, 0, 2, 20);
+        addBox(body, 0, 78, 10.0f, -26.0f, -10.0f, 0, 2, 20);
+        addBox(body, 0, 98, -10.0f, -32.0f, 10.0f, 20, 2, 0);
+        addBox(body, 0, 98, -10.0f, -26.0f, 10.0f, 20, 2, 0);
+        addBox(body, 36, -18, 9.0f, -46.0f, -9.0f, 0, 47, 18);
+        addBox(body, 36, 0, -9.0f, -46.0f, 9.0f, 18, 47, 0);
+        addBox(body, 0, 0, -9.0f, -46.0f, -9.0f, 18, 47, 0);
+        addBox(body, 62, 53, -9.0f, -46.0f, -9.0f, 2, 47, 2);
+        addBox(body, 0, 101, -10.0f, -26.0f, -10.0f, 20, 2, 0);
+        addBox(body, 0, 101, -10.0f, -32.0f, -10.0f, 20, 2, 0);
+        setMirror(body, true);
+        addBox(body, 36, -18, -9.0f, -46.0f, -9.0f, 0, 47, 18);
+        setMirror(body, false);
+        addBox(body, 0, 78, -10.0f, -26.0f, -10.0f, 0, 2, 20);
+        addBox(body, 0, 78, -10.0f, -32.0f, -10.0f, 0, 2, 20);
+        addBox(body, 36, 47, -6.0f, -34.0f, -10.0f, 12, 12, 1);
+        addBox(body, 35, 60, -4.0f, -24.0f, -10.0f, 8, 0, 1);
+        addBox(body, 62, 46, -4.0f, -32.0f, -10.0f, 0, 8, 1);
+        addBox(body, 35, 60, -4.0f, -32.0f, -10.0f, 8, 0, 1);
+        addBox(body, -18, 47, -9.0f, 1.0f, -9.0f, 18, 0, 18);
+        addBox(body, -18, 47, -9.0f, -46.0f, -9.0f, 18, 0, 18);
+        root.addChild(body);
+        ModelRenderer body_r1 = part(-8.0f, -22.5f, 8.0f, 0.0f, 1.5708f, 0.0f);
+        addBox(body_r1, 62, 53, -1.0f, -23.5f, -1.0f, 2, 47, 2);
+        body.addChild(body_r1);
+        ModelRenderer body_r2 = part(8.0f, -22.5f, 8.0f, 0.0f, 3.1416f, 0.0f);
+        addBox(body_r2, 62, 53, -1.0f, -23.5f, -1.0f, 2, 47, 2);
+        body.addChild(body_r2);
+        ModelRenderer body_r3 = part(8.0f, -22.5f, -8.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(body_r3, 62, 53, -1.0f, -23.5f, -1.0f, 2, 47, 2);
+        body.addChild(body_r3);
+        ModelRenderer cube_r19 = part(0.0f, -3.0f, 12.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(cube_r19, 88, 0, -3.0f, -7.0f, -4.0f, 6, 14, 8);
+        body.addChild(cube_r19);
+        ModelRenderer cube_r20 = part(-12.0f, -3.0f, 0.0f, 0.0f, 3.1416f, 0.0f);
+        addBox(cube_r20, 88, 0, -3.0f, -7.0f, -4.0f, 6, 14, 8);
+        body.addChild(cube_r20);
+        ModelRenderer cube_r21 = part(0.0f, -3.0f, -12.0f, 0.0f, 1.5708f, 0.0f);
+        addBox(cube_r21, 88, 0, -3.0f, -7.0f, -4.0f, 6, 14, 8);
+        body.addChild(cube_r21);
+        ModelRenderer bottom = part(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(bottom, 0, 65, -8.0f, 4.0f, 8.0f, 16, 4, 0);
+        addBox(bottom, -16, 72, -8.0f, 4.0f, -8.0f, 16, 0, 16);
+        addBox(bottom, -16, 103, -8.0f, 8.0f, -8.0f, 16, 0, 16);
+        addBox(bottom, 0, 49, -8.0f, 4.0f, -8.0f, 0, 4, 16);
+        addBox(bottom, 0, 65, -8.0f, 4.0f, -8.0f, 16, 4, 0);
+        addBox(bottom, 0, 49, 8.0f, 4.0f, -8.0f, 0, 4, 16);
+        addBox(bottom, 0, 69, -6.0f, 1.0f, -6.0f, 12, 3, 0);
+        addBox(bottom, 0, 57, -6.0f, 1.0f, -6.0f, 0, 3, 12);
+        addBox(bottom, 0, 57, 6.0f, 1.0f, -6.0f, 0, 3, 12);
+        addBox(bottom, 0, 69, -6.0f, 1.0f, 6.0f, 12, 3, 0);
+        body.addChild(bottom);
+        ModelRenderer fins = part(0.0f, -8.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        root.addChild(fins);
+        ModelRenderer cube_r22 = part(-1.0f, -24.0f, -1.0f, 0.0f, 0.7854f, 0.0f);
+        addBox(cube_r22, 72, 0, -2.0f, 11.0f, 22.8284f, 4, 22, 4);
+        fins.addChild(cube_r22);
+        ModelRenderer cube_r23 = part(-1.0f, -24.0f, -1.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r23, 72, 0, -0.5858f, 11.0f, 21.4142f, 4, 22, 4);
+        fins.addChild(cube_r23);
+        ModelRenderer cube_r24 = part(-1.0f, -24.0f, -1.0f, 0.0f, -2.3562f, 0.0f);
+        addBox(cube_r24, 72, 0, -2.0f, 11.0f, 20.0f, 4, 22, 4);
+        fins.addChild(cube_r24);
+        ModelRenderer cube_r25 = part(-1.0f, -24.0f, -1.0f, 0.0f, 2.3562f, 0.0f);
+        addBox(cube_r25, 72, 0, -3.4142f, 11.0f, 21.4142f, 4, 22, 4);
+        fins.addChild(cube_r25);
+        ModelRenderer cube_r26 = part(-1.0f, 9.0f, -1.0f, 1.1345f, -2.3562f, 0.0f);
+        addBox(cube_r26, 116, 0, -1.0f, 4.25f, 13.0f, 2, 13, 2);
+        fins.addChild(cube_r26);
+        ModelRenderer cube_r27 = part(1.0f, -18.0f, 1.0f, -2.0944f, -0.7854f, 3.1416f);
+        addBox(cube_r27, 116, 0, -1.0f, 12.9801f, 1.507f, 2, 13, 2);
+        fins.addChild(cube_r27);
+        ModelRenderer cube_r28 = part(-1.0f, 7.0f, -1.0f, 1.1345f, -2.3562f, 0.0f);
+        addBox(cube_r28, 110, 46, 0.0f, 1.0f, 13.0f, 0, 15, 9);
+        fins.addChild(cube_r28);
+        ModelRenderer cube_r29 = part(1.0f, -18.0f, 1.0f, -2.0944f, 0.7854f, 3.1416f);
+        addBox(cube_r29, 116, 0, 0.4142f, 11.6984f, 0.9094f, 2, 13, 2);
+        fins.addChild(cube_r29);
+        ModelRenderer cube_r30 = part(1.0f, 9.0f, -1.0f, 1.1345f, 2.3562f, 0.0f);
+        addBox(cube_r30, 116, 0, -1.0f, 4.25f, 13.0f, 2, 13, 2);
+        fins.addChild(cube_r30);
+        ModelRenderer cube_r31 = part(1.0f, 7.0f, -1.0f, 1.1345f, 2.3562f, 0.0f);
+        addBox(cube_r31, 110, 46, 0.0f, 1.0f, 13.0f, 0, 15, 9);
+        fins.addChild(cube_r31);
+        ModelRenderer cube_r32 = part(1.0f, -18.0f, 1.0f, 1.0472f, -0.7854f, 0.0f);
+        addBox(cube_r32, 116, 0, -2.4142f, 11.6984f, 0.9094f, 2, 13, 2);
+        fins.addChild(cube_r32);
+        ModelRenderer cube_r33 = part(-1.0f, 7.0f, 1.0f, 1.1345f, -0.7854f, 0.0f);
+        addBox(cube_r33, 110, 46, 0.0f, 1.0f, 13.0f, 0, 15, 9);
+        fins.addChild(cube_r33);
+        ModelRenderer cube_r34 = part(-1.0f, 9.0f, 1.0f, 1.1345f, -0.7854f, 0.0f);
+        addBox(cube_r34, 116, 0, -1.0f, 4.25f, 13.0f, 2, 13, 2);
+        fins.addChild(cube_r34);
+        ModelRenderer cube_r35 = part(1.0f, -18.0f, 1.0f, 1.0472f, 0.7854f, 0.0f);
+        addBox(cube_r35, 116, 0, -1.0f, 10.4167f, 0.3117f, 2, 13, 2);
+        fins.addChild(cube_r35);
+        ModelRenderer cube_r36 = part(1.0f, 7.0f, 1.0f, 1.1345f, 0.7854f, 0.0f);
+        addBox(cube_r36, 110, 46, 0.0f, 1.0f, 13.0f, 0, 15, 9);
+        fins.addChild(cube_r36);
+        ModelRenderer cube_r37 = part(1.0f, 9.0f, 1.0f, 1.1345f, 0.7854f, 0.0f);
+        addBox(cube_r37, 116, 0, -1.0f, 4.25f, 13.0f, 2, 13, 2);
+        fins.addChild(cube_r37);
     }
 
-    private void buildEngine(RocketSpec spec) {
-        int radius = spec.radius;
-        addBand(spec.bottom, radius - 1, 4);
-        addBox(root, 78, 22, -radius + 1, spec.bottom + 1, -radius + 1, radius * 2 - 2, 1, radius * 2 - 2);
-        addBox(root, 94, 15, -6, spec.bottom, -6, 12, 3, 12);
-        addBox(root, 80, 81, -5, spec.bottom - 2, -5, 10, 2, 10);
+    private void buildTier3() {
+        root = part(0.0f, 25.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        ModelRenderer body = part(0.0f, -9.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(body, 36, -18, 9.0f, -51.0f, -9.0f, 0, 52, 18);
+        addBox(body, 0, 0, -9.0f, -51.0f, -9.0f, 18, 52, 0);
+        addBox(body, 80, 74, -9.0f, -51.0f, -9.0f, 2, 52, 2);
+        addBox(body, 36, 0, -9.0f, -51.0f, 9.0f, 18, 52, 0);
+        addBox(body, 36, -18, -9.0f, -51.0f, -9.0f, 0, 52, 18);
+        addBox(body, -18, 99, -9.0f, 1.0f, -9.0f, 18, 0, 18);
+        addBox(body, -18, 99, -9.0f, -51.0f, -9.0f, 18, 0, 18);
+        addBox(body, 0, 52, -10.0f, -11.0f, -10.0f, 20, 11, 0);
+        addBox(body, 0, 32, 10.0f, -11.0f, -10.0f, 0, 11, 20);
+        addBox(body, 0, 52, -10.0f, -11.0f, 10.0f, 20, 11, 0);
+        addBox(body, 0, 32, -10.0f, -11.0f, -10.0f, 0, 11, 20);
+        addBox(body, 0, 65, -10.0f, -26.0f, -10.0f, 20, 2, 0);
+        addBox(body, 0, 65, -10.0f, -32.0f, -10.0f, 20, 2, 0);
+        addBox(body, 0, 43, -10.0f, -26.0f, -10.0f, 0, 2, 20);
+        addBox(body, 0, 43, -10.0f, -32.0f, -10.0f, 0, 2, 20);
+        addBox(body, 88, 83, -10.0f, -44.0f, -10.0f, 20, 7, 0);
+        addBox(body, 88, 63, -10.0f, -44.0f, -10.0f, 0, 7, 20);
+        addBox(body, 40, 52, -6.0f, -34.0f, -10.0f, 12, 12, 1);
+        addBox(body, 0, 43, 10.0f, -32.0f, -10.0f, 0, 2, 20);
+        addBox(body, 0, 43, 10.0f, -26.0f, -10.0f, 0, 2, 20);
+        addBox(body, 88, 63, 10.0f, -44.0f, -10.0f, 0, 7, 20);
+        addBox(body, 88, 83, -10.0f, -44.0f, 10.0f, 20, 7, 0);
+        addBox(body, 0, 63, -10.0f, -32.0f, 10.0f, 20, 2, 0);
+        addBox(body, 0, 63, -10.0f, -26.0f, 10.0f, 20, 2, 0);
+        addBox(body, 39, 65, -4.0f, -24.0f, -10.0f, 8, 0, 1);
+        addBox(body, 66, 51, -4.0f, -32.0f, -10.0f, 0, 8, 1);
+        addBox(body, 39, 65, -4.0f, -32.0f, -10.0f, 8, 0, 1);
+        addBox(body, 66, 51, 4.0f, -32.0f, -10.0f, 0, 8, 1);
+        root.addChild(body);
+        ModelRenderer cube_r1 = part(0.0f, -3.0f, 0.0f, 0.0f, 1.5708f, 0.0f);
+        addBox(cube_r1, 96, 9, -15.0f, -7.0f, -4.0f, 6, 14, 8);
+        body.addChild(cube_r1);
+        ModelRenderer cube_r2 = part(0.0f, -3.0f, 0.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(cube_r2, 96, 9, -15.0f, -7.0f, -4.0f, 6, 14, 8);
+        body.addChild(cube_r2);
+        ModelRenderer body_r1 = part(-8.0f, -25.0f, 8.0f, 0.0f, 1.5708f, 0.0f);
+        addBox(body_r1, 80, 74, -1.0f, -26.0f, -1.0f, 2, 52, 2);
+        body.addChild(body_r1);
+        ModelRenderer body_r2 = part(8.0f, -25.0f, 8.0f, 0.0f, 3.1416f, 0.0f);
+        addBox(body_r2, 80, 74, -1.0f, -26.0f, -1.0f, 2, 52, 2);
+        body.addChild(body_r2);
+        ModelRenderer body_r3 = part(8.0f, -25.0f, -8.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(body_r3, 80, 74, -1.0f, -26.0f, -1.0f, 2, 52, 2);
+        body.addChild(body_r3);
+        ModelRenderer bottom = part(0.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(bottom, 0, 117, -7.0f, -12.0f, -7.0f, 14, 3, 0);
+        addBox(bottom, 0, 103, -7.0f, -12.0f, -7.0f, 0, 3, 14);
+        addBox(bottom, 0, 117, -7.0f, -12.0f, 7.0f, 14, 3, 0);
+        addBox(bottom, 0, 103, 7.0f, -12.0f, -7.0f, 0, 3, 14);
+        addBox(bottom, 18, 92, -9.0f, -9.0f, -9.0f, 18, 0, 18);
+        addBox(bottom, 0, 120, -9.0f, -9.0f, -9.0f, 18, 4, 0);
+        addBox(bottom, 0, 102, 9.0f, -9.0f, -9.0f, 0, 4, 18);
+        addBox(bottom, 0, 102, -9.0f, -9.0f, -9.0f, 0, 4, 18);
+        addBox(bottom, 0, 120, -9.0f, -9.0f, 9.0f, 18, 4, 0);
+        addBox(bottom, 18, 110, -9.0f, -5.0f, -9.0f, 18, 0, 18);
+        root.addChild(bottom);
+        ModelRenderer top = part(0.0f, -102.5f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(top, 72, 18, -1.0f, -1.5f, -1.0f, 2, 14, 2);
+        addBox(top, 16, 87, -2.0f, -5.5f, -2.0f, 4, 4, 4);
+        addBox(top, 0, 43, 10.0f, 41.0f, -10.0f, 0, 2, 20);
+        addBox(top, 0, 63, -10.0f, 41.0f, -10.0f, 20, 2, 0);
+        addBox(top, 0, 63, -10.0f, 41.0f, 10.0f, 20, 2, 0);
+        addBox(top, 0, 43, -10.0f, 41.0f, -10.0f, 0, 2, 20);
+        addBox(top, 52, 67, -5.0f, 26.0f, 6.0f, 10, 9, 0);
+        addBox(top, 52, 57, -6.0f, 26.0f, -5.0f, 0, 9, 10);
+        addBox(top, 52, 67, -5.0f, 26.0f, -6.0f, 10, 9, 0);
+        addBox(top, 52, 57, 6.0f, 26.0f, -5.0f, 0, 9, 10);
+        root.addChild(top);
+        ModelRenderer cube_r3 = part(-6.0f, 26.0f, 0.0f, 0.0f, 0.0f, 0.3491f);
+        addBox(cube_r3, 16, 67, 0.0f, -10.0f, -5.0f, 0, 10, 10);
+        top.addChild(cube_r3);
+        ModelRenderer cube_r4 = part(6.0f, 26.0f, 0.0f, 0.0f, 0.0f, -0.3491f);
+        addBox(cube_r4, 16, 67, 0.0f, -10.0f, -5.0f, 0, 10, 10);
+        top.addChild(cube_r4);
+        ModelRenderer cube_r5 = part(0.0f, 26.0f, -6.0f, -0.3491f, 0.0f, 0.0f);
+        addBox(cube_r5, 16, 77, -5.0f, -10.0f, 0.0f, 10, 10, 0);
+        top.addChild(cube_r5);
+        ModelRenderer cube_r6 = part(0.0f, 26.0f, 6.0f, 0.3491f, 0.0f, 0.0f);
+        addBox(cube_r6, 16, 77, -5.0f, -10.0f, 0.0f, 10, 10, 0);
+        top.addChild(cube_r6);
+        ModelRenderer body_r4 = part(0.0f, 42.5f, -9.3f, -0.3491f, 0.0f, 0.0f);
+        addBox(body_r4, 16, 67, -9.0f, -10.0f, 0.25f, 18, 10, 0);
+        top.addChild(body_r4);
+        ModelRenderer body_r5 = part(-9.0f, 42.5f, 0.0f, 0.0f, 0.0f, 0.3491f);
+        addBox(body_r5, 16, 49, 0.0f, -10.0f, -9.0f, 0, 10, 18);
+        top.addChild(body_r5);
+        ModelRenderer body_r6 = part(0.0f, 42.5f, 9.0f, 0.3491f, 0.0f, 0.0f);
+        addBox(body_r6, 16, 67, -9.0f, -10.0f, 0.0f, 18, 10, 0);
+        top.addChild(body_r6);
+        ModelRenderer body_r7 = part(9.0f, 42.5f, -0.3f, 0.0f, 0.0f, -0.3491f);
+        addBox(body_r7, 16, 49, 0.0f, -10.0f, -9.0f, 0, 10, 18);
+        top.addChild(body_r7);
+        ModelRenderer body_r8 = part(-6.4571f, 26.5f, 6.4571f, 0.4363f, -0.7854f, 0.0f);
+        addBox(body_r8, 98, 31, -1.0f, -16.0f, -2.0607f, 2, 16, 2);
+        top.addChild(body_r8);
+        ModelRenderer body_r9 = part(-5.0f, 27.0f, 5.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(body_r9, 76, 54, -1.0f, -0.5f, 0.0f, 2, 8, 2);
+        top.addChild(body_r9);
+        ModelRenderer body_r10 = part(-6.4571f, 26.5f, -6.4571f, -0.4363f, 0.7854f, 0.0f);
+        addBox(body_r10, 98, 31, -1.0f, -16.0f, 0.0607f, 2, 16, 2);
+        top.addChild(body_r10);
+        ModelRenderer body_r11 = part(-5.0f, 27.0f, -5.0f, 0.0f, 0.7854f, 0.0f);
+        addBox(body_r11, 76, 54, -1.0f, -0.5f, -2.0f, 2, 8, 2);
+        top.addChild(body_r11);
+        ModelRenderer body_r12 = part(6.4571f, 26.5f, -6.4571f, -0.3999f, 0.6956f, -0.583f);
+        addBox(body_r12, 98, 31, -2.0607f, -16.0f, -1.0f, 2, 16, 2);
+        top.addChild(body_r12);
+        ModelRenderer body_r13 = part(5.0f, 27.0f, -5.0f, 0.0f, 0.7854f, 0.0f);
+        addBox(body_r13, 76, 54, 0.0f, -0.5f, -1.0f, 2, 8, 2);
+        top.addChild(body_r13);
+        ModelRenderer body_r14 = part(6.4571f, 26.5f, 6.4571f, 0.3999f, -0.6956f, -0.583f);
+        addBox(body_r14, 98, 31, -2.0607f, -16.0f, -1.0f, 2, 16, 2);
+        top.addChild(body_r14);
+        ModelRenderer body_r15 = part(5.0f, 27.0f, 5.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(body_r15, 76, 54, 0.0f, -0.5f, -1.0f, 2, 8, 2);
+        top.addChild(body_r15);
+        ModelRenderer body_r16 = part(9.0f, 42.5f, -9.0f, -0.4326f, 0.678f, -0.6346f);
+        addBox(body_r16, 68, 54, -1.0f, -10.0f, -1.0f, 2, 9, 2);
+        top.addChild(body_r16);
+        ModelRenderer body_r17 = part(-9.0f, 42.5f, -9.0f, -0.48f, 0.7854f, 0.0f);
+        addBox(body_r17, 68, 54, -1.0f, -10.0f, -1.0f, 2, 9, 2);
+        top.addChild(body_r17);
+        ModelRenderer body_r18 = part(-9.0f, 42.5f, 9.0f, 0.4326f, 0.678f, 0.6346f);
+        addBox(body_r18, 68, 54, -1.0f, -10.0f, -1.0f, 2, 9, 2);
+        top.addChild(body_r18);
+        ModelRenderer cube_r7 = part(0.0f, 12.0f, 0.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r7, 80, 17, -2.0f, -6.5f, -2.0f, 4, 2, 4);
+        addBox(cube_r7, 80, 0, -3.0f, -1.5f, -3.0f, 6, 11, 6);
+        addBox(cube_r7, 80, 17, -2.0f, -3.5f, -2.0f, 4, 2, 4);
+        top.addChild(cube_r7);
+        ModelRenderer body_r19 = part(9.0f, 42.5f, 9.0f, 0.48f, 0.7854f, 0.0f);
+        addBox(body_r19, 68, 54, -1.0f, -10.0f, -1.0f, 2, 9, 2);
+        top.addChild(body_r19);
+        ModelRenderer fins = part(0.0f, -10.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        root.addChild(fins);
+        ModelRenderer cube_r8 = part(-1.0f, -24.0f, -1.0f, 0.0f, 0.7854f, 0.0f);
+        addBox(cube_r8, 0, 67, -2.0f, 5.0f, 23.8284f, 4, 28, 4);
+        fins.addChild(cube_r8);
+        ModelRenderer cube_r9 = part(-1.0f, -24.0f, -1.0f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r9, 0, 67, -0.5858f, 5.0f, 22.4142f, 4, 28, 4);
+        fins.addChild(cube_r9);
+        ModelRenderer cube_r10 = part(-1.0f, -24.0f, -1.0f, 0.0f, -2.3562f, 0.0f);
+        addBox(cube_r10, 0, 67, -2.0f, 5.0f, 21.0f, 4, 28, 4);
+        fins.addChild(cube_r10);
+        ModelRenderer cube_r11 = part(-1.0f, -24.0f, -1.0f, 0.0f, 2.3562f, 0.0f);
+        addBox(cube_r11, 0, 67, -3.4142f, 5.0f, 22.4142f, 4, 28, 4);
+        fins.addChild(cube_r11);
+        ModelRenderer cube_r12 = part(1.0f, -10.0f, 1.0f, 1.0472f, 0.7854f, 0.0f);
+        addBox(cube_r12, 72, 21, 0.0f, 4.9167f, -0.6883f, 0, 20, 13);
+        fins.addChild(cube_r12);
+        ModelRenderer cube_r13 = part(1.0f, -10.0f, 1.0f, -2.0944f, 0.7854f, 3.1416f);
+        addBox(cube_r13, 72, 21, 1.4142f, 6.1984f, -0.0906f, 0, 20, 13);
+        fins.addChild(cube_r13);
+        ModelRenderer cube_r14 = part(1.0f, -10.0f, 1.0f, -2.0944f, -0.7854f, 3.1416f);
+        addBox(cube_r14, 72, 21, 0.0f, 7.4801f, 0.507f, 0, 20, 13);
+        fins.addChild(cube_r14);
+        ModelRenderer cube_r15 = part(1.0f, -10.0f, 1.0f, 1.0472f, -0.7854f, 0.0f);
+        addBox(cube_r15, 72, 21, -1.4142f, 6.1984f, -0.0906f, 0, 20, 13);
+        fins.addChild(cube_r15);
+        ModelRenderer cube_r16 = part(1.0f, -7.0f, 1.0f, -2.0944f, -0.7854f, 3.1416f);
+        addBox(cube_r16, 72, 0, -1.0f, 12.9801f, 1.507f, 2, 15, 2);
+        fins.addChild(cube_r16);
+        ModelRenderer cube_r17 = part(1.0f, -7.0f, 1.0f, 1.0472f, -0.7854f, 0.0f);
+        addBox(cube_r17, 72, 0, -2.4142f, 11.6984f, 0.9094f, 2, 15, 2);
+        fins.addChild(cube_r17);
+        ModelRenderer cube_r18 = part(1.0f, -7.0f, 1.0f, 1.0472f, 0.7854f, 0.0f);
+        addBox(cube_r18, 72, 0, -1.0f, 10.4167f, 0.3117f, 2, 15, 2);
+        fins.addChild(cube_r18);
+        ModelRenderer cube_r19 = part(1.0f, -7.0f, 1.0f, -2.0944f, 0.7854f, 3.1416f);
+        addBox(cube_r19, 72, 0, 0.4142f, 11.6984f, 0.9094f, 2, 15, 2);
+        fins.addChild(cube_r19);
+        ModelRenderer cube_r20 = part(1.0f, -15.0f, 1.0f, 1.0472f, 0.7854f, 0.0f);
+        addBox(cube_r20, 72, 0, -1.0f, 10.4167f, 0.3117f, 2, 15, 2);
+        fins.addChild(cube_r20);
+        ModelRenderer cube_r21 = part(1.0f, -15.0f, 1.0f, 1.0472f, -0.7854f, 0.0f);
+        addBox(cube_r21, 72, 0, -2.4142f, 11.6984f, 0.9094f, 2, 15, 2);
+        fins.addChild(cube_r21);
+        ModelRenderer cube_r22 = part(1.0f, -15.0f, 1.0f, -2.0944f, -0.7854f, 3.1416f);
+        addBox(cube_r22, 72, 0, -1.0f, 12.9801f, 1.507f, 2, 15, 2);
+        fins.addChild(cube_r22);
+        ModelRenderer cube_r23 = part(1.0f, -15.0f, 1.0f, -2.0944f, 0.7854f, 3.1416f);
+        addBox(cube_r23, 72, 0, 0.4142f, 11.6984f, 0.9094f, 2, 15, 2);
+        fins.addChild(cube_r23);
+        ModelRenderer cube_r24 = part(1.0f, -23.0f, 1.0f, -2.0944f, -0.7854f, 3.1416f);
+        addBox(cube_r24, 72, 0, -1.0f, 12.9801f, 1.507f, 2, 15, 2);
+        fins.addChild(cube_r24);
+        ModelRenderer cube_r25 = part(1.0f, -23.0f, 1.0f, -2.0944f, 0.7854f, 3.1416f);
+        addBox(cube_r25, 72, 0, 0.4142f, 11.6984f, 0.9094f, 2, 15, 2);
+        fins.addChild(cube_r25);
+        ModelRenderer cube_r26 = part(1.0f, -23.0f, 1.0f, 1.0472f, -0.7854f, 0.0f);
+        addBox(cube_r26, 72, 0, -2.4142f, 11.6984f, 0.9094f, 2, 15, 2);
+        fins.addChild(cube_r26);
+        ModelRenderer cube_r27 = part(1.0f, -23.0f, 1.0f, 1.0472f, 0.7854f, 0.0f);
+        addBox(cube_r27, 72, 0, -1.0f, 10.4167f, 0.3117f, 2, 15, 2);
+        fins.addChild(cube_r27);
+        ModelRenderer boosters = part(1.0f, -3.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(boosters, 104, 90, -19.0f, -39.0f, -3.0f, 6, 6, 6);
+        setMirror(boosters, true);
+        addBox(boosters, 96, 49, -20.0f, -33.0f, -4.0f, 8, 26, 8);
+        addBox(boosters, 32, 79, -20.0f, -5.0f, -4.0f, 8, 5, 8);
+        addBox(boosters, 72, 64, -19.0f, -7.0f, -3.0f, 6, 2, 6);
+        setMirror(boosters, false);
+        addBox(boosters, 110, 32, -12.0f, -17.0f, -2.0f, 2, 4, 4);
+        addBox(boosters, 110, 32, -12.0f, -27.0f, -2.0f, 2, 4, 4);
+        addBox(boosters, 104, 90, 11.0f, -39.0f, -3.0f, 6, 6, 6);
+        addBox(boosters, 96, 49, 10.0f, -33.0f, -4.0f, 8, 26, 8);
+        addBox(boosters, 72, 64, 11.0f, -7.0f, -3.0f, 6, 2, 6);
+        addBox(boosters, 32, 79, 10.0f, -5.0f, -4.0f, 8, 5, 8);
+        addBox(boosters, 110, 32, 8.0f, -27.0f, -2.0f, 2, 4, 4);
+        addBox(boosters, 110, 32, 8.0f, -17.0f, -2.0f, 2, 4, 4);
+        root.addChild(boosters);
     }
 
-    private void buildFins(RocketSpec spec) {
-        int finHeight = spec.tier >= 3 ? 20 : 16;
-        int finLength = spec.tier >= 3 ? 11 : 9;
-        float[] rotations = {0.7854f, 2.3562f, -2.3562f, -0.7854f};
-        for (float rotation : rotations) {
-            ModelRenderer fin = part();
-            fin.rotateAngleY = rotation;
-            fin.setTextureOffset(72, 21).addBox(-1.0f, spec.bottom + 3, spec.radius - 1, 2, finHeight, finLength);
-            fin.setTextureOffset(72, 0).addBox(-2.0f, spec.bottom + 1, spec.radius + finLength - 2, 4, finHeight + 1, 3);
-            root.addChild(fin);
-        }
-    }
-
-    private void buildBoosters(RocketSpec spec) {
-        addBooster(spec, -1);
-        addBooster(spec, 1);
-    }
-
-    private void addBooster(RocketSpec spec, int side) {
-        int x = side < 0 ? -spec.radius - 10 : spec.radius + 2;
-        int y = spec.bottom + 4;
-        int height = spec.boosterHeight;
-
-        addBox(root, 96, 49, x, y, -4, 8, height, 8);
-        addBox(root, 104, 90, x + 1, y + height, -3, 6, 6, 6);
-        addBox(root, 32, 79, x, y - 5, -4, 8, 5, 8);
-        addBox(root, 72, 64, x + 1, y - 1, -3, 6, 2, 6);
-
-        int strutX = side < 0 ? x + 8 : x - 2;
-        addBox(root, 110, 32, strutX, y + 8, -2, 2, 4, 4);
-        addBox(root, 110, 32, strutX, y + height - 10, -2, 2, 4, 4);
-    }
-
-    private void addBand(int y, int radius, int height) {
-        addBox(root, 0, 62, -radius, y, -radius, radius * 2, height, 1);
-        addBox(root, 0, 62, -radius, y, radius - 1, radius * 2, height, 1);
-        addBox(root, 0, 42, -radius, y, -radius, 1, height, radius * 2);
-        addBox(root, 0, 42, radius - 1, y, -radius, 1, height, radius * 2);
+    private void buildTier4() {
+        root = part(0.0f, 24.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(root, 88, 80, 10.0f, -28.0f, -10.0f, 0, 8, 20);
+        addBox(root, 88, 100, -10.0f, -28.0f, 10.0f, 20, 8, 0);
+        addBox(root, 88, 80, -10.0f, -28.0f, -10.0f, 0, 8, 20);
+        addBox(root, 88, 100, -10.0f, -28.0f, -10.0f, 20, 8, 0);
+        addBox(root, 88, 115, -10.0f, -38.0f, -10.0f, 20, 7, 0);
+        addBox(root, 88, 95, 10.0f, -38.0f, -10.0f, 0, 7, 20);
+        addBox(root, 88, 115, -10.0f, -38.0f, 10.0f, 20, 7, 0);
+        addBox(root, 88, 95, -10.0f, -38.0f, -10.0f, 0, 7, 20);
+        addBox(root, 88, 108, -10.0f, -63.0f, -10.0f, 20, 7, 0);
+        addBox(root, 88, 88, 10.0f, -63.0f, -10.0f, 0, 7, 20);
+        addBox(root, 88, 108, -10.0f, -63.0f, 10.0f, 20, 7, 0);
+        addBox(root, 88, 88, -10.0f, -63.0f, -10.0f, 0, 7, 20);
+        ModelRenderer side_booster_right = part(-4.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(side_booster_right, 104, 16, -18.0f, -56.0f, -3.0f, 6, 6, 6);
+        setMirror(side_booster_right, true);
+        addBox(side_booster_right, 96, 28, -19.0f, -50.0f, -4.0f, 8, 35, 8);
+        addBox(side_booster_right, 16, 115, -19.0f, -13.0f, -4.0f, 8, 5, 8);
+        addBox(side_booster_right, 72, 30, -18.0f, -15.0f, -3.0f, 6, 2, 6);
+        setMirror(side_booster_right, false);
+        root.addChild(side_booster_right);
+        ModelRenderer side_booster_left = part(5.0f, 4.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(side_booster_left, 104, 16, 11.0f, -56.0f, -3.0f, 6, 6, 6);
+        addBox(side_booster_left, 96, 28, 10.0f, -50.0f, -4.0f, 8, 35, 8);
+        addBox(side_booster_left, 72, 30, 11.0f, -15.0f, -3.0f, 6, 2, 6);
+        addBox(side_booster_left, 16, 115, 10.0f, -13.0f, -4.0f, 8, 5, 8);
+        root.addChild(side_booster_left);
+        ModelRenderer cube_r1 = part(-5.0f, -31.75f, 0.0f, 0.0f, 0.0f, 0.7854f);
+        addBox(cube_r1, 102, 124, 0.844f, -11.3692f, -1.0f, 11, 2, 2);
+        addBox(cube_r1, 102, 124, -7.6412f, -19.8544f, -1.0f, 11, 2, 2);
+        addBox(cube_r1, 82, 85, -5.3778f, -18.591f, 0.0f, 23, 15, 0);
+        addBox(cube_r1, 102, 124, 8.6222f, -3.591f, -1.0f, 11, 2, 2);
+        side_booster_left.addChild(cube_r1);
+        ModelRenderer cube_r2 = part(-5.0f, -31.75f, 0.0f, 0.0f, 0.0f, -0.7854f);
+        addBox(cube_r2, 102, 124, -11.844f, -11.3692f, -1.0f, 11, 2, 2);
+        addBox(cube_r2, 102, 124, -3.3588f, -19.8544f, -1.0f, 11, 2, 2);
+        setMirror(cube_r2, true);
+        addBox(cube_r2, 82, 85, -17.6222f, -18.591f, 0.0f, 23, 15, 0);
+        setMirror(cube_r2, false);
+        addBox(cube_r2, 102, 124, -19.6222f, -3.591f, -1.0f, 11, 2, 2);
+        side_booster_left.addChild(cube_r2);
+        ModelRenderer main = part(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(main, 36, -18, -9.0f, -74.0f, -9.0f, 0, 59, 18);
+        addBox(main, 36, -18, 9.0f, -74.0f, -9.0f, 0, 59, 18);
+        addBox(main, 36, 0, -9.0f, -74.0f, 9.0f, 18, 59, 0);
+        addBox(main, 0, 0, -9.0f, -74.0f, -9.0f, 18, 59, 0);
+        addBox(main, 73, 67, -9.0f, -74.0f, -9.0f, 2, 59, 2);
+        addBox(main, 75, 69, -9.0f, -74.0f, -1.0f, 2, 59, 0);
+        addBox(main, 75, 69, 7.0f, -74.0f, 1.0f, 2, 59, 0);
+        addBox(main, 75, 69, 7.0f, -74.0f, -1.0f, 2, 59, 0);
+        addBox(main, 75, 69, -9.0f, -74.0f, 1.0f, 2, 59, 0);
+        addBox(main, -18, 59, -9.0f, -15.0f, -9.0f, 18, 0, 18);
+        addBox(main, -18, 59, -9.0f, -73.0f, -9.0f, 18, 0, 18);
+        addBox(main, 35, 72, -4.0f, -52.0f, -10.0f, 8, 0, 1);
+        addBox(main, 35, 72, -4.0f, -44.0f, -10.0f, 8, 0, 1);
+        addBox(main, 62, 58, -4.0f, -52.0f, -10.0f, 0, 8, 1);
+        addBox(main, 36, 59, -6.0f, -54.0f, -10.0f, 12, 12, 1);
+        addBox(main, 62, 58, 4.0f, -52.0f, -10.0f, 0, 8, 1);
+        root.addChild(main);
+        ModelRenderer main_r1 = part(-8.0f, -44.5f, 8.0f, 0.0f, 1.5708f, 0.0f);
+        addBox(main_r1, 73, 67, -1.0f, -29.5f, -1.0f, 2, 59, 2);
+        main.addChild(main_r1);
+        ModelRenderer main_r2 = part(8.0f, -44.5f, 8.0f, 0.0f, 3.1416f, 0.0f);
+        addBox(main_r2, 73, 67, -1.0f, -29.5f, -1.0f, 2, 59, 2);
+        main.addChild(main_r2);
+        ModelRenderer main_r3 = part(8.0f, -44.5f, -8.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(main_r3, 73, 67, -1.0f, -29.5f, -1.0f, 2, 59, 2);
+        main.addChild(main_r3);
+        ModelRenderer main_r4 = part(-7.0f, -44.5f, 0.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(main_r4, 75, 69, -1.0f, -29.5f, -14.0f, 2, 59, 0);
+        addBox(main_r4, 75, 69, -1.0f, -29.5f, 0.0f, 2, 59, 0);
+        main.addChild(main_r4);
+        ModelRenderer fins = part(-2.0f, -8.0f, -2.0f, 0.0f, 0.0f, 0.0f);
+        main.addChild(fins);
+        ModelRenderer pyramid = part(0.0f, -17.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(pyramid, 73, 29, -6.0f, -77.5f, -5.0f, 0, 9, 10);
+        addBox(pyramid, 73, 29, 6.0f, -77.5f, -5.0f, 0, 9, 10);
+        addBox(pyramid, 88, 102, 10.0f, -58.0f, -10.0f, 0, 2, 20);
+        addBox(pyramid, 88, 102, -10.0f, -58.0f, -10.0f, 0, 2, 20);
+        addBox(pyramid, 88, 122, -10.0f, -58.0f, 10.0f, 20, 2, 0);
+        addBox(pyramid, 88, 122, -10.0f, -58.0f, -10.0f, 20, 2, 0);
+        main.addChild(pyramid);
+        ModelRenderer cube_r3 = part(0.0f, -93.0f, 0.0f, -0.3491f, 0.7854f, 0.0f);
+        addBox(cube_r3, 72, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        pyramid.addChild(cube_r3);
+        ModelRenderer cube_r4 = part(0.0f, -66.0f, 0.0f, -2.8798f, -1.5708f, 3.1416f);
+        addBox(cube_r4, 27, 77, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r4);
+        ModelRenderer cube_r5 = part(0.0f, -93.0f, 0.0f, -0.3491f, 2.3562f, 0.0f);
+        addBox(cube_r5, 72, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        pyramid.addChild(cube_r5);
+        ModelRenderer cube_r6 = part(0.0f, -66.0f, 0.0f, -2.8798f, 3.1416f, 3.1416f);
+        addBox(cube_r6, 27, 77, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r6);
+        ModelRenderer cube_r7 = part(0.0f, -93.0f, 0.0f, -0.3491f, -2.3562f, 0.0f);
+        addBox(cube_r7, 72, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        pyramid.addChild(cube_r7);
+        ModelRenderer cube_r8 = part(0.0f, -66.0f, 0.0f, -2.8798f, 1.5708f, 3.1416f);
+        addBox(cube_r8, 27, 77, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r8);
+        ModelRenderer cube_r9 = part(6.3647f, -77.5491f, 4.9353f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r9, 72, 0, -1.0f, 0.01f, 0.0027f, 2, 10, 2);
+        pyramid.addChild(cube_r9);
+        ModelRenderer cube_r10 = part(6.3647f, -77.5491f, -6.3647f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r10, 72, 0, -1.0f, 0.01f, 0.0027f, 2, 10, 2);
+        pyramid.addChild(cube_r10);
+        ModelRenderer cube_r11 = part(-4.9353f, -77.5491f, -6.3647f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r11, 72, 0, -1.02f, 0.01f, 0.0027f, 2, 10, 2);
+        pyramid.addChild(cube_r11);
+        ModelRenderer cube_r12 = part(0.0f, -73.0f, 0.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(cube_r12, 73, 29, -6.0f, -4.5f, -5.0f, 0, 9, 10);
+        addBox(cube_r12, 73, 29, 6.0f, -4.5f, -5.0f, 0, 9, 10);
+        pyramid.addChild(cube_r12);
+        ModelRenderer cube_r13 = part(-4.9353f, -77.5491f, 4.9353f, 0.0f, -0.7854f, 0.0f);
+        addBox(cube_r13, 72, 0, -1.02f, 0.01f, 0.0027f, 2, 10, 2);
+        pyramid.addChild(cube_r13);
+        ModelRenderer cube_r14 = part(0.0f, -93.0f, 0.0f, -0.3491f, -0.7854f, 0.0f);
+        addBox(cube_r14, 72, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        pyramid.addChild(cube_r14);
+        ModelRenderer cube_r15 = part(0.0f, -66.0f, 0.0f, -2.8798f, 0.0f, 3.1416f);
+        addBox(cube_r15, 27, 77, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r15);
+        ModelRenderer cube_r16 = part(0.0f, -84.0f, 0.0f, -0.3491f, -2.3562f, 0.0f);
+        addBox(cube_r16, 72, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        pyramid.addChild(cube_r16);
+        ModelRenderer cube_r17 = part(0.0f, -84.0f, 0.0f, -0.3491f, 2.3562f, 0.0f);
+        addBox(cube_r17, 72, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        pyramid.addChild(cube_r17);
+        ModelRenderer cube_r18 = part(0.0f, -84.0f, 0.0f, -0.3491f, -0.7854f, 0.0f);
+        addBox(cube_r18, 72, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        pyramid.addChild(cube_r18);
+        ModelRenderer cube_r19 = part(0.0f, -84.0f, 0.0f, -0.3491f, 0.7854f, 0.0f);
+        addBox(cube_r19, 72, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        pyramid.addChild(cube_r19);
+        ModelRenderer cube_r20 = part(0.0f, -57.0f, 0.0f, -2.8798f, -1.5708f, 3.1416f);
+        addBox(cube_r20, 27, 89, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r20);
+        ModelRenderer cube_r21 = part(0.0f, -57.0f, 0.0f, -2.8798f, 1.5708f, 3.1416f);
+        addBox(cube_r21, 27, 89, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r21);
+        ModelRenderer cube_r22 = part(0.0f, -57.0f, 0.0f, -2.8798f, 3.1416f, 3.1416f);
+        addBox(cube_r22, 27, 89, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r22);
+        ModelRenderer cube_r23 = part(0.0f, -57.0f, 0.0f, -2.8798f, 0.0f, 3.1416f);
+        addBox(cube_r23, 27, 89, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        pyramid.addChild(cube_r23);
+        ModelRenderer booster = part(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(booster, 0, 114, -6.0f, -15.0f, -6.0f, 12, 6, 0);
+        addBox(booster, 0, 102, 6.0f, -15.0f, -6.0f, 0, 6, 12);
+        addBox(booster, 0, 102, -6.0f, -15.0f, -6.0f, 0, 6, 12);
+        addBox(booster, 0, 114, -6.0f, -15.0f, 6.0f, 12, 6, 0);
+        addBox(booster, 0, 91, 7.0f, -9.0f, -7.0f, 0, 9, 14);
+        addBox(booster, 0, 105, -7.0f, -9.0f, 7.0f, 14, 9, 0);
+        addBox(booster, 0, 91, -7.0f, -9.0f, -7.0f, 0, 9, 14);
+        addBox(booster, -14, 77, -7.0f, -9.0f, -7.0f, 14, 0, 14);
+        addBox(booster, -14, 91, -7.0f, 0.0f, -7.0f, 14, 0, 14);
+        addBox(booster, 0, 105, -7.0f, -9.0f, -7.0f, 14, 9, 0);
+        main.addChild(booster);
+        ModelRenderer tip = part(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(tip, 80, 0, -4.0f, -110.0f, -4.0f, 8, 8, 8);
+        addBox(tip, 80, 16, -3.0f, -118.0f, -3.0f, 6, 8, 6);
+        addBox(tip, 104, 0, -2.0f, -120.0f, -2.0f, 4, 2, 4);
+        addBox(tip, 0, 120, -2.0f, -135.0f, -2.0f, 4, 4, 4);
+        addBox(tip, 104, 0, -2.0f, -123.0f, -2.0f, 4, 2, 4);
+        addBox(tip, 120, 0, -1.0f, -131.0f, -1.0f, 2, 11, 2);
+        main.addChild(tip);
     }
 
     private void addBox(ModelRenderer parent, int textureX, int textureY, float x, float y, float z,
@@ -134,43 +719,17 @@ class ModelRocket extends ModelBase {
         parent.setTextureOffset(textureX, textureY).addBox(x, y, z, width, height, depth);
     }
 
-    private ModelRenderer part() {
-        return new ModelRenderer(this);
+    private void setMirror(ModelRenderer renderer, boolean mirror) {
+        renderer.mirror = mirror;
     }
 
-    private static final class RocketSpec {
-
-        private final int tier;
-        private final int bottom;
-        private final int bodyBottom;
-        private final int bodyTop;
-        private final int radius;
-        private final int boosterHeight;
-        private final int noseMastHeight;
-
-        private RocketSpec(int tier, int totalHeight, int bottomHeight, int noseHeight, int radius,
-                           int boosterHeight, int noseMastHeight) {
-            this.tier = tier;
-            this.bottom = -totalHeight / 2;
-            this.bodyBottom = bottom + bottomHeight;
-            this.bodyTop = totalHeight / 2 - noseHeight;
-            this.radius = radius;
-            this.boosterHeight = boosterHeight;
-            this.noseMastHeight = noseMastHeight;
-        }
-
-        private static RocketSpec forTier(int tier) {
-            switch (tier) {
-                case 2:
-                    return new RocketSpec(2, 77, 10, 22, 9, 0, 14);
-                case 3:
-                    return new RocketSpec(3, 88, 10, 24, 9, 26, 14);
-                case 4:
-                    return new RocketSpec(4, 112, 12, 32, 9, 35, 11);
-                case 1:
-                default:
-                    return new RocketSpec(1, 74, 10, 22, 9, 0, 8);
-            }
-        }
+    private ModelRenderer part(float pointX, float pointY, float pointZ, float rotateX, float rotateY,
+                               float rotateZ) {
+        ModelRenderer renderer = new ModelRenderer(this);
+        renderer.setRotationPoint(pointX, pointY, pointZ);
+        renderer.rotateAngleX = rotateX;
+        renderer.rotateAngleY = rotateY;
+        renderer.rotateAngleZ = rotateZ;
+        return renderer;
     }
 }

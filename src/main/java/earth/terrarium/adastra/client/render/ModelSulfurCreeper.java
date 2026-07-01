@@ -10,8 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 class ModelSulfurCreeper extends ModelBase {
 
+    private final ModelRenderer root;
     private final ModelRenderer head;
-    private final ModelRenderer body;
+    private final ModelRenderer headFrill;
     private final ModelRenderer frontRightLeg;
     private final ModelRenderer frontLeftLeg;
     private final ModelRenderer rearRightLeg;
@@ -21,30 +22,35 @@ class ModelSulfurCreeper extends ModelBase {
         textureWidth = 64;
         textureHeight = 64;
 
+        root = new ModelRenderer(this);
+        root.setRotationPoint(0.0f, 24.0f, 0.0f);
+        root.setTextureOffset(0, 16).addBox(-4.0f, -18.0f, -2.0f, 8, 12, 4);
+
         head = new ModelRenderer(this, 0, 0);
         head.addBox(-4.0f, -8.0f, -4.0f, 8, 8, 8);
-        head.setRotationPoint(0.0f, 6.0f, 0.0f);
+        head.setRotationPoint(0.0f, -18.0f, 0.0f);
+        root.addChild(head);
 
-        body = new ModelRenderer(this, 16, 16);
-        body.addBox(-4.0f, 0.0f, -2.0f, 8, 12, 4);
-        body.setRotationPoint(0.0f, 6.0f, 0.0f);
+        headFrill = new ModelRenderer(this, 24, 0);
+        headFrill.addBox(-6.0f, -12.0f, 0.0f, 12, 6, 0);
+        headFrill.setRotationPoint(0.0f, 0.0f, 0.0f);
+        head.addChild(headFrill);
 
-        frontRightLeg = leg(-2.0f, 18.0f, 4.0f);
-        frontLeftLeg = leg(2.0f, 18.0f, 4.0f);
-        rearRightLeg = leg(-2.0f, 18.0f, -4.0f);
-        rearLeftLeg = leg(2.0f, 18.0f, -4.0f);
+        frontRightLeg = leg(2.0f, -6.0f, -4.0f);
+        frontLeftLeg = leg(-2.0f, -6.0f, -4.0f);
+        rearRightLeg = leg(2.0f, -6.0f, 4.0f);
+        rearLeftLeg = leg(-2.0f, -6.0f, 4.0f);
+        root.addChild(frontRightLeg);
+        root.addChild(frontLeftLeg);
+        root.addChild(rearRightLeg);
+        root.addChild(rearLeftLeg);
     }
 
     @Override
     public void render(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
                        float headPitch, float scale) {
         setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entity);
-        head.render(scale);
-        body.render(scale);
-        frontRightLeg.render(scale);
-        frontLeftLeg.render(scale);
-        rearRightLeg.render(scale);
-        rearLeftLeg.render(scale);
+        root.render(scale);
     }
 
     @Override
@@ -59,7 +65,7 @@ class ModelSulfurCreeper extends ModelBase {
     }
 
     private ModelRenderer leg(float x, float y, float z) {
-        ModelRenderer leg = new ModelRenderer(this, 0, 16);
+        ModelRenderer leg = new ModelRenderer(this, 24, 16);
         leg.addBox(-2.0f, 0.0f, -2.0f, 4, 6, 4);
         leg.setRotationPoint(x, y, z);
         return leg;
