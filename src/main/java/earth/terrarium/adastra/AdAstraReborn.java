@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,6 +24,10 @@ import org.apache.logging.log4j.Logger;
 public class AdAstraReborn {
 
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_NAME);
+
+    static {
+        FluidRegistry.enableUniversalBucket();
+    }
 
     @Mod.Instance(Reference.MOD_ID)
     public static AdAstraReborn instance;

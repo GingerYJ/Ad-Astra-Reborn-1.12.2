@@ -13,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntityMagmaCube;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -79,6 +80,15 @@ public final class ModBiomes {
             MERCURY_DELTAS,
             VENUS_WASTELANDS,
             GLACIO_SNOWY_BARRENS);
+        registerBiomeTypes();
+    }
+
+    private static void registerBiomeTypes() {
+        BiomeDictionary.addTypes(LUNAR_WASTELANDS, BiomeDictionary.Type.DRY, BiomeDictionary.Type.SPOOKY);
+        BiomeDictionary.addTypes(MARTIAN_WASTELANDS, BiomeDictionary.Type.DRY, BiomeDictionary.Type.SANDY);
+        BiomeDictionary.addTypes(MERCURY_DELTAS, BiomeDictionary.Type.DRY, BiomeDictionary.Type.HOT, BiomeDictionary.Type.WASTELAND);
+        BiomeDictionary.addTypes(VENUS_WASTELANDS, BiomeDictionary.Type.HOT, BiomeDictionary.Type.WET, BiomeDictionary.Type.WASTELAND);
+        BiomeDictionary.addTypes(GLACIO_SNOWY_BARRENS, BiomeDictionary.Type.COLD, BiomeDictionary.Type.SNOWY, BiomeDictionary.Type.WASTELAND);
     }
 
     private static PlanetBiome biome(

@@ -9,10 +9,6 @@ public final class ModFluids {
     private static final ResourceLocation STILL = new ResourceLocation("minecraft", "blocks/water_still");
     private static final ResourceLocation FLOWING = new ResourceLocation("minecraft", "blocks/water_flow");
 
-    static {
-        FluidRegistry.enableUniversalBucket();
-    }
-
     public static final Fluid OXYGEN = register("oxygen", 0xffdae6f0, -1, 0, 300, true);
     public static final Fluid HYDROGEN = register("hydrogen", 0xff89cff0, -1, 0, 300, true);
     public static final Fluid OIL = register("oil", 0xff373a36, 2000, 2000, 300, false);
