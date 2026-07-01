@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:glowing_steel_pillar"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

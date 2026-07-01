@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:etrionic_blast_furnace"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:glacio_stone_brick_stairs"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:launch_pad",
+          "weight": 2
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 2,
+                "max": 6
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "ad_astra:desh_ingot",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 2,
+                "max": 4
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:emerald",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 3,
+                "max": 6
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:coal",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 1,
+                "max": 2
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:diamond",
+          "weight": 3
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 2,
+                "max": 5
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:redstone",
+          "weight": 5
+        }
+      ],
+      "rolls": {
+        "min": 3,
+        "max": 9
+      }
+    },
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:fuel_bucket",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:bucket",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:gas_tank",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:space_helmet",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:space_suit",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:space_pants",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:space_boots",
+          "weight": 5
+        }
+      ],
+      "rolls": {
+        "min": 1,
+        "max": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 1,
+                "max": 2
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "ad_astra:space_painting",
+          "weight": 3
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 10,
+                "max": 30
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "ad_astra:moon_sand",
+          "weight": 40
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 5,
+                "max": 15
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:ice",
+          "weight": 20
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 2,
+                "max": 4
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "ad_astra:cheese",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 5,
+                "max": 10
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "ad_astra:raw_desh",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 10,
+                "max": 15
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:iron_ingot",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 15,
+                "max": 20
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "ad_astra:ice_shard",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 5,
+                "max": 10
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:rotten_flesh",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 4,
+                "max": 8
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:bone",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 4,
+                "max": 8
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:emerald",
+          "weight": 30
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 2,
+                "max": 4
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:diamond",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 3,
+                "max": 6
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:gold_ingot",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 6,
+                "max": 12
+              },
+              "function": "set_count"
+            },
+            {
+              "function": "set_data",
+              "data": 4
+            }
+          ],
+          "name": "minecraft:dye",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 6,
+                "max": 12
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:redstone",
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 5,
+                "max": 10
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:coal",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "count": {
+                "min": 5,
+                "max": 10
+              },
+              "function": "set_count"
+            }
+          ],
+          "name": "minecraft:stick",
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:golden_apple",
+          "weight": 7
+        },
+        {
+          "type": "item",
+          "functions": [
+            {
+              "function": "enchant_randomly"
+            }
+          ],
+          "name": "minecraft:book",
+          "weight": 10
+        }
+      ],
+      "rolls": {
+        "min": 3,
+        "max": 8
+      }
+    }
+  ]
+}

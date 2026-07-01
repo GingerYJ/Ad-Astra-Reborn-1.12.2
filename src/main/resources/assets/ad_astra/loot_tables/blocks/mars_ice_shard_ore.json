@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:ice_shard"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

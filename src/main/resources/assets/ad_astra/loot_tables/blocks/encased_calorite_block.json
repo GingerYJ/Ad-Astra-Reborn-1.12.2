@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:encased_calorite_block"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

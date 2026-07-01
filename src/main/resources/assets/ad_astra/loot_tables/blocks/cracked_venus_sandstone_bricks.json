@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:cracked_venus_sandstone_bricks"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}

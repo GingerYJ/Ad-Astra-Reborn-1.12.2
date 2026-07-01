@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "item",
+          "name": "ad_astra:glacio_copper_ore"
+        }
+      ],
+      "rolls": 1
+    }
+  ]
+}
