@@ -12,6 +12,8 @@ import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
 import earth.terrarium.adastra.common.util.PlanetTravelHelper;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
+import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -456,7 +458,33 @@ public class PlanetSelectionGui extends GuiScreen {
         if (planet.getDimensionId() == PlanetTravelHelper.END_DIMENSION_ID) {
             return I18n.format("planet.minecraft.the_end");
         }
-        return I18n.format("planet.ad_astra." + planet.getName().toLowerCase(Locale.ROOT));
+        // Try standard translation key
+        String key = "planet.ad_astra." + planet.getName().toLowerCase(Locale.ROOT);
+        String translated = I18n.format(key);
+        if (!translated.equals(key)) {
+            return translated;
+        }
+        // Try to get displayName from CustomPlanetRegistry
+        CustomPlanetDefinition def = CustomPlanetRegistry.getByDimensionId(planet.getDimensionId());
+        if (def != null && def.getDisplayName() != null) {
+            return def.getDisplayName();
+        }
+        // Fallback to formatted name
+        return formatPlanetName(planet.getName());
+    }
+
+    private String formatPlanetName(String name) {
+        if (name == null || name.isEmpty()) return "";
+        int colonIndex = name.indexOf(':');
+        String display = colonIndex >= 0 ? name.substring(colonIndex + 1) : name;
+        String[] parts = display.split("_");
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) continue;
+            if (result.length() > 0) result.append(" ");
+            result.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1).toLowerCase());
+        }
+        return result.toString();
     }
 
     private static ResourceLocation texture(String name) {

@@ -7,6 +7,7 @@ import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
 import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -78,6 +79,7 @@ public final class PlanetTravelHelper {
         if (AdAstraConfig.isEndPlanetEnabled()) {
             planets.add(createEndProperties());
         }
+        planets.addAll(CustomPlanetRegistry.getPlanetProperties());
         return planets.toArray(new PlanetDimensionProperties[planets.size()]);
     }
 
@@ -96,7 +98,8 @@ public final class PlanetTravelHelper {
                 return planet;
             }
         }
-        return null;
+        PlanetDimensionProperties custom = CustomPlanetRegistry.getPlanetProperties(dimensionId);
+        return custom;
     }
 
     public static boolean canRocketTierReach(int rocketTier, PlanetDimensionProperties planet) {
