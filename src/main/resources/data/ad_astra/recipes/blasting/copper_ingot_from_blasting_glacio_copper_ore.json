@@ -6,10 +6,5 @@
   "ingredient": {
     "item": "ad_astra:glacio_copper_ore"
   },
-  "result": "minecraft:copper_ingot",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "minecraft:copper_ingot"
 }

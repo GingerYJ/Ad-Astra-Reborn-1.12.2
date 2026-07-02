@@ -6,13 +6,5 @@
   "ingredient": {
     "item": "ad_astra:glacio_lapis_ore"
   },
-  "result": {
-    "item": "minecraft:dye",
-    "data": 4
-  },
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "minecraft:lapis_lazuli"
 }

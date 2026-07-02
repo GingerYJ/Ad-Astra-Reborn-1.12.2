@@ -67,6 +67,11 @@ public class SlidingDoorTileEntity extends AdAstraTileEntity implements ITickabl
         return open || powered || slideTicks > 50;
     }
 
+    public void setAnimationTicks(int lastSlideTicks, int slideTicks) {
+        this.lastSlideTicks = MathHelper.clamp(lastSlideTicks, 0, 100);
+        this.slideTicks = MathHelper.clamp(slideTicks, 0, 100);
+    }
+
     public void configure(AdAstraSlidingDoorPart part, boolean locked, boolean open, boolean powered) {
         configure(part, locked, open, powered, true);
     }

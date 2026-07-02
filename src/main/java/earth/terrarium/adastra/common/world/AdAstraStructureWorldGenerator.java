@@ -52,6 +52,45 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private static final int METEOR_ORIGIN_Y = AdAstraChunkGenerator.SURFACE_Y - 12;
     private static final String LEGACY_METEOR_LOOT_TABLE = "minecraft:loot";
     private static final String METEOR_LOOT_TABLE = Reference.MOD_ID + ":chests/meteor";
+
+    private static final int MARS_DIMENSION_ID = 1202;
+    private static final int VENUS_DIMENSION_ID = 1204;
+    private static final int MOON_DIMENSION_ID = 1201;
+    private static final ResourceLocation MARS_TEMPLE_TEMPLATE =
+        new ResourceLocation(Reference.MOD_ID, "temple/mars/mars_temple");
+    private static final ResourceLocation VENUS_TOWER_TEMPLATE =
+        new ResourceLocation(Reference.MOD_ID, "venus_tower");
+    private static final int SURFACE_STRUCTURE_SPACING = 32;
+    private static final int SURFACE_STRUCTURE_SEPARATION = 20;
+    private static final int MARS_TEMPLE_SALT = 486209812;
+    private static final int VENUS_TOWER_SALT = 771903547;
+
+    // Matches data/ad_astra/worldgen/structure(_set)/moon_dungeon.json (spacing 32 / separation 14
+    // / salt 1361819893, start_height absolute -40, jigsaw size 35).
+    private static final String MOON_DUNGEON_START_POOL = "dungeon/moon/entrance";
+    private static final int MOON_DUNGEON_MAX_PIECES = 35;
+    private static final int MOON_DUNGEON_Y_OFFSET = -40;
+    private static final int MOON_DUNGEON_SPACING = 32;
+    private static final int MOON_DUNGEON_SEPARATION = 14;
+    private static final int MOON_DUNGEON_SALT = 1361819893;
+
+    // Matches data/ad_astra/worldgen/structure(_set)/lunarian_village.json (spacing 30 / separation
+    // 14 / salt 2118452159, start_height absolute -20, jigsaw size 20).
+    private static final String LUNARIAN_VILLAGE_START_POOL = "lunarian_village/entrance";
+    private static final int LUNARIAN_VILLAGE_MAX_PIECES = 20;
+    private static final int LUNARIAN_VILLAGE_Y_OFFSET = -20;
+    private static final int LUNARIAN_VILLAGE_SPACING = 30;
+    private static final int LUNARIAN_VILLAGE_SEPARATION = 14;
+    private static final int LUNARIAN_VILLAGE_SALT = 2118452159;
+
+    // Matches data/ad_astra/worldgen/structure(_set)/lunar_tower.json (spacing 34 / separation
+    // 13 / salt 1460175004, start_height absolute 0, jigsaw size 1 - single structure).
+    private static final String LUNAR_TOWER_START_POOL = "lunar_tower";
+    private static final int LUNAR_TOWER_MAX_PIECES = 1;
+    private static final int LUNAR_TOWER_Y_OFFSET = 0;
+    private static final int LUNAR_TOWER_SPACING = 34;
+    private static final int LUNAR_TOWER_SEPARATION = 13;
+    private static final int LUNAR_TOWER_SALT = 1460175004;
     private static final ITemplateProcessor SKIP_AIR_PROCESSOR = new ITemplateProcessor() {
         @Override
         public Template.BlockInfo processBlock(World world, BlockPos pos, Template.BlockInfo blockInfo) {
@@ -60,6 +99,7 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     };
 
     private final Map<ResourceLocation, Template> templateCache = new HashMap<ResourceLocation, Template>();
+    private final JigsawStructureGenerator jigsawGenerator = new JigsawStructureGenerator();
 
     @Override
     public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator,
@@ -73,6 +113,16 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             generateOilWell(serverWorld, chunkX, chunkZ);
         } else if (world.provider instanceof AdAstraWorldProvider) {
             generateMeteor(serverWorld, chunkX, chunkZ);
+            int dimension = world.provider.getDimension();
+            if (dimension == MARS_DIMENSION_ID) {
+                generateSurfaceStructure(serverWorld, chunkX, chunkZ, MARS_TEMPLE_TEMPLATE, MARS_TEMPLE_SALT);
+            } else if (dimension == VENUS_DIMENSION_ID) {
+                generateSurfaceStructure(serverWorld, chunkX, chunkZ, VENUS_TOWER_TEMPLATE, VENUS_TOWER_SALT);
+            } else if (dimension == MOON_DIMENSION_ID) {
+                generateMoonDungeon(serverWorld, chunkX, chunkZ);
+                generateLunarianVillage(serverWorld, chunkX, chunkZ);
+                generateLunarTower(serverWorld, chunkX, chunkZ);
+            }
         }
     }
 
@@ -163,21 +213,119 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         template.addBlocksToWorld(world, origin, SKIP_AIR_PROCESSOR, settings, 2);
     }
 
+    private void generateMoonDungeon(WorldServer world, int chunkX, int chunkZ) {
+        int regionX = floorDiv(chunkX, MOON_DUNGEON_SPACING);
+        int regionZ = floorDiv(chunkZ, MOON_DUNGEON_SPACING);
+        Random random = new Random(world.getSeed()
+            + (long) regionX * 341873128712L
+            + (long) regionZ * 132897987541L
+            + (long) world.provider.getDimension() * 1442695040888963407L
+            + MOON_DUNGEON_SALT);
+        int range = MOON_DUNGEON_SPACING - MOON_DUNGEON_SEPARATION;
+        int candidateX = regionX * MOON_DUNGEON_SPACING + random.nextInt(range);
+        int candidateZ = regionZ * MOON_DUNGEON_SPACING + random.nextInt(range);
+        if (candidateX != chunkX || candidateZ != chunkZ) {
+            return;
+        }
+
+        jigsawGenerator.generate(world, new ChunkPos(chunkX, chunkZ),
+            MOON_DUNGEON_START_POOL, MOON_DUNGEON_MAX_PIECES, MOON_DUNGEON_Y_OFFSET, random);
+    }
+
+    private void generateLunarianVillage(WorldServer world, int chunkX, int chunkZ) {
+        int regionX = floorDiv(chunkX, LUNARIAN_VILLAGE_SPACING);
+        int regionZ = floorDiv(chunkZ, LUNARIAN_VILLAGE_SPACING);
+        Random random = new Random(world.getSeed()
+            + (long) regionX * 341873128712L
+            + (long) regionZ * 132897987541L
+            + (long) world.provider.getDimension() * 1442695040888963407L
+            + LUNARIAN_VILLAGE_SALT);
+        int range = LUNARIAN_VILLAGE_SPACING - LUNARIAN_VILLAGE_SEPARATION;
+        int candidateX = regionX * LUNARIAN_VILLAGE_SPACING + random.nextInt(range);
+        int candidateZ = regionZ * LUNARIAN_VILLAGE_SPACING + random.nextInt(range);
+        if (candidateX != chunkX || candidateZ != chunkZ) {
+            return;
+        }
+
+        jigsawGenerator.generate(world, new ChunkPos(chunkX, chunkZ),
+            LUNARIAN_VILLAGE_START_POOL, LUNARIAN_VILLAGE_MAX_PIECES, LUNARIAN_VILLAGE_Y_OFFSET, random);
+    }
+
+    private void generateLunarTower(WorldServer world, int chunkX, int chunkZ) {
+        int regionX = floorDiv(chunkX, LUNAR_TOWER_SPACING);
+        int regionZ = floorDiv(chunkZ, LUNAR_TOWER_SPACING);
+        Random random = new Random(world.getSeed()
+            + (long) regionX * 341873128712L
+            + (long) regionZ * 132897987541L
+            + (long) world.provider.getDimension() * 1442695040888963407L
+            + LUNAR_TOWER_SALT);
+        int range = LUNAR_TOWER_SPACING - LUNAR_TOWER_SEPARATION;
+        int candidateX = regionX * LUNAR_TOWER_SPACING + random.nextInt(range);
+        int candidateZ = regionZ * LUNAR_TOWER_SPACING + random.nextInt(range);
+        if (candidateX != chunkX || candidateZ != chunkZ) {
+            return;
+        }
+
+        jigsawGenerator.generate(world, new ChunkPos(chunkX, chunkZ),
+            LUNAR_TOWER_START_POOL, LUNAR_TOWER_MAX_PIECES, LUNAR_TOWER_Y_OFFSET, random);
+    }
+
+    private void generateSurfaceStructure(WorldServer world, int chunkX, int chunkZ, ResourceLocation location, int salt) {
+        ChunkPos candidate = getSurfaceStructureCandidate(world.getSeed(), world.provider.getDimension(), chunkX, chunkZ, salt);
+        if (candidate.x != chunkX || candidate.z != chunkZ) {
+            return;
+        }
+
+        Template template = getTemplate(world, location);
+        if (template == null) {
+            return;
+        }
+
+        BlockPos size = template.getSize();
+        int centerX = chunkX * 16 + 8;
+        int centerZ = chunkZ * 16 + 8;
+        BlockPos surface = world.getHeight(new BlockPos(centerX, 0, centerZ));
+        int groundY = surface.getY() - 1;
+        if (groundY < 1 || groundY + size.getY() >= world.getHeight()) {
+            return;
+        }
+
+        BlockPos origin = new BlockPos(centerX - size.getX() / 2, groundY, centerZ - size.getZ() / 2);
+        PlacementSettings settings = new PlacementSettings()
+            .setMirror(Mirror.NONE)
+            .setRotation(Rotation.NONE)
+            .setIgnoreEntities(false)
+            .setIgnoreStructureBlock(true)
+            .setReplacedBlock(Blocks.STRUCTURE_VOID)
+            .setChunk(new ChunkPos(chunkX, chunkZ))
+            .setBoundingBox(getChunkBoundingBox(world, chunkX, chunkZ));
+        template.addBlocksToWorld(world, origin, SKIP_AIR_PROCESSOR, settings, 2);
+    }
+
+    private ChunkPos getSurfaceStructureCandidate(long worldSeed, int dimension, int chunkX, int chunkZ, int salt) {
+        int regionX = floorDiv(chunkX, SURFACE_STRUCTURE_SPACING);
+        int regionZ = floorDiv(chunkZ, SURFACE_STRUCTURE_SPACING);
+        Random random = new Random(worldSeed
+            + (long) regionX * 341873128712L
+            + (long) regionZ * 132897987541L
+            + (long) dimension * 1442695040888963407L
+            + salt);
+        int range = SURFACE_STRUCTURE_SPACING - SURFACE_STRUCTURE_SEPARATION;
+        int candidateX = regionX * SURFACE_STRUCTURE_SPACING + random.nextInt(range);
+        int candidateZ = regionZ * SURFACE_STRUCTURE_SPACING + random.nextInt(range);
+        return new ChunkPos(candidateX, candidateZ);
+    }
+
     private Template getTemplate(WorldServer world, ResourceLocation location) {
         Template cached = templateCache.get(location);
         if (cached != null) {
             return cached;
         }
 
-        Template template;
-        if (isMeteorTemplate(location)) {
-            template = readDataTemplate(world, location);
-        } else {
+        Template template = readDataTemplate(world, location);
+        if (template == null) {
             TemplateManager manager = world.getStructureTemplateManager();
             template = manager.get(null, location);
-            if (template == null) {
-                template = readDataTemplate(world, location);
-            }
         }
 
         if (template != null) {
@@ -211,8 +359,10 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
 
             NBTTagCompound tag = CompressedStreamTools.readCompressed(stream);
             tag = world.getMinecraftServer().getDataFixer().process(FixTypes.STRUCTURE, tag);
+            if (Reference.MOD_ID.equals(location.getNamespace())) {
+                AdAstraStructureBlocks.remapPalette(tag);
+            }
             if (isMeteorTemplate(location)) {
-                remapMeteorPalette(tag);
                 remapMeteorLootTables(tag);
             }
             Template template = new Template();
@@ -220,27 +370,6 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             return template;
         } catch (IOException | RuntimeException exception) {
             return null;
-        }
-    }
-
-    private void remapMeteorPalette(NBTTagCompound tag) {
-        NBTTagList palette = tag.getTagList("palette", 10);
-        for (int i = 0; i < palette.tagCount(); i++) {
-            NBTTagCompound state = palette.getCompoundTagAt(i);
-            if (!state.hasKey("Name", 8)) {
-                continue;
-            }
-
-            String originalName = state.getString("Name");
-            String remappedName = remapMeteorBlockName(originalName);
-            if (!isKnownBlock(remappedName)) {
-                remappedName = "minecraft:air";
-            }
-
-            if (!originalName.equals(remappedName)) {
-                state.setString("Name", remappedName);
-                state.removeTag("Properties");
-            }
         }
     }
 
@@ -257,32 +386,6 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
                 blockEntity.setString("LootTable", METEOR_LOOT_TABLE);
             }
         }
-    }
-
-    private String remapMeteorBlockName(String name) {
-        if ("minecraft:soul_soil".equals(name)) {
-            return "minecraft:soul_sand";
-        }
-        if ("minecraft:basalt".equals(name) || "minecraft:polished_basalt".equals(name)) {
-            return Reference.MOD_ID + ":sky_stone";
-        }
-        if ("minecraft:blackstone".equals(name) || "minecraft:crying_obsidian".equals(name)) {
-            return "minecraft:obsidian";
-        }
-        if ("minecraft:gilded_blackstone".equals(name)) {
-            return "minecraft:coal_ore";
-        }
-        if ("minecraft:magma_block".equals(name)) {
-            return "minecraft:magma";
-        }
-        if ("minecraft:soul_fire".equals(name)) {
-            return "minecraft:air";
-        }
-        return name;
-    }
-
-    private boolean isKnownBlock(String name) {
-        return Block.REGISTRY.containsKey(new ResourceLocation(name));
     }
 
     private ChunkPos getOilWellCandidate(long worldSeed, int chunkX, int chunkZ) {

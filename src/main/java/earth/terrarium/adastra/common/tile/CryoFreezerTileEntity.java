@@ -1,6 +1,9 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.recipe.CryoFreezingRecipe;
 import earth.terrarium.adastra.common.recipe.CryoFreezingRecipes;
+import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,7 +25,7 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
     private final FluidTank outputTank = new CryoFuelTank(OSTRUM_FLUID);
     private int cookTime;
     private int cookTimeTotal;
-    private CryoFreezingRecipes.Recipe activeRecipe;
+    private CryoFreezingRecipe activeRecipe;
 
     public CryoFreezerTileEntity() {
         super("cryo_freezer", 4, OSTRUM_ENERGY, OSTRUM_IO, 0, 0);
@@ -49,7 +52,7 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
             return;
         }
 
-        CryoFreezingRecipes.Recipe recipe = getRecipe(items.getStackInSlot(INPUT_SLOT));
+        CryoFreezingRecipe recipe = getRecipe(items.getStackInSlot(INPUT_SLOT));
         if (recipe == null) {
             cookTime = 0;
             cookTimeTotal = 0;
@@ -62,13 +65,16 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
             cookTime = 0;
             activeRecipe = recipe;
         }
-        cookTimeTotal = recipe.getCookingTime();
+        // Apply config speed multiplier to processing time
+        cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(recipe.getProcessingTime());
         if (!canProcess(recipe)) {
             setLit(false);
             return;
         }
 
-        energy.extractEnergy(recipe.getEnergyPerTick(), false);
+        // Apply config energy multiplier to energy consumption
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
+        energy.extractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
         if (cookTime >= cookTimeTotal) {
@@ -77,14 +83,15 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
         markDirty();
     }
 
-    private boolean canProcess(CryoFreezingRecipes.Recipe recipe) {
-        if (energy.extractEnergy(recipe.getEnergyPerTick(), true) < recipe.getEnergyPerTick()) {
+    private boolean canProcess(CryoFreezingRecipe recipe) {
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
+        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             return false;
         }
         return outputTank.fillInternal(new FluidStack(recipe.getOutputFluid(), recipe.getOutputAmount()), false) == recipe.getOutputAmount();
     }
 
-    private void craft(CryoFreezingRecipes.Recipe recipe) {
+    private void craft(CryoFreezingRecipe recipe) {
         ItemStack input = items.getStackInSlot(INPUT_SLOT);
         input.shrink(1);
         if (input.isEmpty()) {
@@ -95,8 +102,26 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
         cookTime = 0;
     }
 
-    private CryoFreezingRecipes.Recipe getRecipe(ItemStack stack) {
-        return CryoFreezingRecipes.find(stack);
+    private CryoFreezingRecipe getRecipe(ItemStack stack) {
+        // Try new recipe system first
+        CryoFreezingRecipe newRecipe = RecipeRegistry.findCryoFreezingRecipe(stack);
+        if (newRecipe != null) {
+            return newRecipe;
+        }
+        // Fallback to legacy system
+        CryoFreezingRecipes.Recipe legacyRecipe = CryoFreezingRecipes.find(stack);
+        if (legacyRecipe != null) {
+            // Wrap legacy recipe in new format
+            return new CryoFreezingRecipe(
+                legacyRecipe.getId(),
+                stack.copy(),
+                legacyRecipe.getOutputFluid(),
+                legacyRecipe.getOutputAmount(),
+                legacyRecipe.getCookingTime(),
+                legacyRecipe.getEnergyPerTick()
+            );
+        }
+        return null;
     }
 
     private void moveTankToOutputContainer() {
@@ -206,7 +231,8 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
         cookTime = compound.getInteger("CookTime");
         cookTimeTotal = compound.getInteger("CookTimeTotal");
         if (compound.hasKey("ActiveRecipe")) {
-            activeRecipe = CryoFreezingRecipes.getById(compound.getString("ActiveRecipe"));
+            // The activeRecipe will be set properly on next tick
+            activeRecipe = null;
         }
     }
 

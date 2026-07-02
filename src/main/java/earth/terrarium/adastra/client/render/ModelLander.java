@@ -9,16 +9,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 class ModelLander extends ModelBase {
 
-    private final ModelRenderer root;
+    private ModelRenderer root;
 
     ModelLander() {
         textureWidth = 128;
         textureHeight = 128;
 
         root = new ModelRenderer(this);
-        buildRaft();
-        buildCabin();
-        buildLegs();
+        root.setRotationPoint(0.0f, 20.0f, 0.0f);
+        root.rotateAngleX = 0.0f;
+        root.rotateAngleY = 0.0f;
+        root.rotateAngleZ = 0.0f;
+        buildBody();
     }
 
     @Override
@@ -27,66 +29,65 @@ class ModelLander extends ModelBase {
         root.render(scale);
     }
 
-    private void buildRaft() {
-        addBox(root, 0, 42, -6.0f, 13.0f, -18.0f, 12, 5, 10);
-        addBox(root, 0, 42, -6.0f, 13.0f, 8.0f, 12, 5, 10);
+    private void buildBody() {
+        ModelRenderer raft = part(root, -7.0f, 1.5f, -13.0f, 0.0f, 0.0f, 0.0f);
+        addBox(part(raft, 7.0f, -0.5f, 0.0f, 0.0f, 3.1416f, 0.0f), 0, 42, -6.0f, -3.5f, -5.0f, 12, 7, 10);
+        addBox(part(raft, 7.0f, 71.5f, 13.0f, 0.0f, 0.0f, 0.0f), 0, 42, -6.0f, -75.5f, 8.0f, 12, 7, 10);
+        addBox(part(raft, -0.8839f, -0.5f, 5.1265f, 0.0f, -2.3562f, 0.0f), 0, 59, -9.0f, -3.0f, -5.0f, 18, 6, 10);
+        ModelRenderer cube_r4 = part(raft, 7.0f, 0.0f, 13.0f, 0.0f, 1.5708f, 0.0f);
+        setMirror(cube_r4, true);
+        addBox(cube_r4, 0, 42, -6.0f, -4.0f, 8.0f, 12, 7, 10);
+        ModelRenderer cube_r5 = part(raft, 14.8839f, -0.5f, 5.1265f, 0.0f, 2.3562f, 0.0f);
+        setMirror(cube_r5, true);
+        addBox(cube_r5, 0, 59, -9.0f, -3.0f, -5.0f, 18, 6, 10);
+        ModelRenderer cube_r6 = part(raft, 14.0f, 0.0f, 26.0f, 0.0f, 0.7854f, 0.0f);
+        setMirror(cube_r6, true);
+        addBox(cube_r6, 0, 59, -4.75f, -3.5f, -8.0f, 18, 6, 10);
+        addBox(part(raft, 0.0f, 0.0f, 26.0f, 0.0f, -0.7854f, 0.0f), 0, 59, -13.25f, -3.5f, -8.0f, 18, 6, 10);
+        addBox(part(raft, 7.0f, 0.0f, 13.0f, 0.0f, -1.5708f, 0.0f), 0, 42, -6.0f, -4.0f, 8.0f, 12, 7, 10);
 
-        ModelRenderer leftFront = part(0.0f, 0.0f, 0.0f, 0.0f, 0.7854f, 0.0f);
-        leftFront.setTextureOffset(0, 59).addBox(-15.0f, 13.0f, -10.0f, 18, 5, 8);
-        root.addChild(leftFront);
+        ModelRenderer main = part(root, 0.0f, 73.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(main, 74, 9, -9.0f, -73.0f, -9.0f, 18, 0, 18);
 
-        ModelRenderer rightFront = part(0.0f, 0.0f, 0.0f, 0.0f, -0.7854f, 0.0f);
-        rightFront.setTextureOffset(0, 59).addBox(-3.0f, 13.0f, -10.0f, 18, 5, 8);
-        root.addChild(rightFront);
+        ModelRenderer fins = part(main, -2.0f, -8.0f, -2.0f, 0.0f, 0.0f, 0.0f);
 
-        ModelRenderer leftBack = part(0.0f, 0.0f, 0.0f, 0.0f, -0.7854f, 0.0f);
-        leftBack.setTextureOffset(0, 59).addBox(-15.0f, 13.0f, 2.0f, 18, 5, 8);
-        root.addChild(leftBack);
+        ModelRenderer pyramid = part(main, 0.0f, -17.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(pyramid, 75, -10, -6.0f, -77.5f, -5.0f, 0, 9, 10);
+        addBox(pyramid, 75, -10, 6.0f, -77.5f, -5.0f, 0, 9, 10);
+        addBox(pyramid, 88, 11, 10.0f, -58.0f, -10.0f, 0, 2, 20);
+        addBox(pyramid, 88, 11, -10.0f, -58.0f, -10.0f, 0, 2, 20);
+        addBox(pyramid, 88, 31, -10.0f, -58.0f, 10.0f, 20, 2, 0);
+        addBox(pyramid, 88, 31, -10.0f, -58.0f, -10.0f, 20, 2, 0);
 
-        ModelRenderer rightBack = part(0.0f, 0.0f, 0.0f, 0.0f, 0.7854f, 0.0f);
-        rightBack.setTextureOffset(0, 59).addBox(-3.0f, 13.0f, 2.0f, 18, 5, 8);
-        root.addChild(rightBack);
+        addBox(part(pyramid, 0.0f, -93.0f, 0.0f, -0.3491f, 0.7854f, 0.0f), 39, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        addBox(part(pyramid, 0.0f, -66.0f, 0.0f, -2.8798f, -1.5708f, 3.1416f), 0, 12, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 0.0f, -93.0f, 0.0f, -0.3491f, 2.3562f, 0.0f), 39, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        addBox(part(pyramid, 0.0f, -66.0f, 0.0f, -2.8798f, 3.1416f, 3.1416f), 0, 12, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 0.0f, -93.0f, 0.0f, -0.3491f, -2.3562f, 0.0f), 39, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        addBox(part(pyramid, 0.0f, -66.0f, 0.0f, -2.8798f, 1.5708f, 3.1416f), 0, 12, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 6.3647f, -77.5491f, 4.9353f, 0.0f, -0.7854f, 0.0f), 39, 0, -1.0f, 0.01f, 0.0027f, 2, 10, 2);
+        addBox(part(pyramid, 6.3647f, -77.5491f, -6.3647f, 0.0f, -0.7854f, 0.0f), 39, 0, -1.0f, 0.01f, 0.0027f, 2, 10, 2);
+        addBox(part(pyramid, -4.9353f, -77.5491f, -6.3647f, 0.0f, -0.7854f, 0.0f), 39, 0, -1.02f, 0.01f, 0.0027f, 2, 10, 2);
+        ModelRenderer cube_r18 = part(pyramid, 0.0f, -73.0f, 0.0f, 0.0f, -1.5708f, 0.0f);
+        addBox(cube_r18, 75, -10, -6.0f, -4.5f, -5.0f, 0, 9, 10);
+        addBox(cube_r18, 75, -10, 6.0f, -4.5f, -5.0f, 0, 9, 10);
+        addBox(part(pyramid, -4.9353f, -77.5491f, 4.9353f, 0.0f, -0.7854f, 0.0f), 39, 0, -1.02f, 0.01f, 0.0027f, 2, 10, 2);
+        addBox(part(pyramid, 0.0f, -93.0f, 0.0f, -0.3491f, -0.7854f, 0.0f), 39, 0, -1.0f, 2.6076f, -3.171f, 2, 15, 2);
+        addBox(part(pyramid, 0.0f, -66.0f, 0.0f, -2.8798f, 0.0f, 3.1416f), 0, 12, -8.0f, -21.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 0.0f, -84.0f, 0.0f, -0.3491f, -2.3562f, 0.0f), 39, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        addBox(part(pyramid, 0.0f, -84.0f, 0.0f, -0.3491f, 2.3562f, 0.0f), 39, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        addBox(part(pyramid, 0.0f, -84.0f, 0.0f, -0.3491f, -0.7854f, 0.0f), 39, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        addBox(part(pyramid, 0.0f, -84.0f, 0.0f, -0.3491f, 0.7854f, 0.0f), 39, 0, -1.0f, 17.6076f, -3.171f, 2, 12, 2);
+        addBox(part(pyramid, 0.0f, -57.0f, 0.0f, -2.8798f, -1.5708f, 3.1416f), 0, 0, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 0.0f, -57.0f, 0.0f, -2.8798f, 1.5708f, 3.1416f), 0, 0, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 0.0f, -57.0f, 0.0f, -2.8798f, 3.1416f, 3.1416f), 0, 0, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
+        addBox(part(pyramid, 0.0f, -57.0f, 0.0f, -2.8798f, 0.0f, 3.1416f), 0, 0, -8.0f, -9.5488f, 8.7536f, 16, 12, 0);
 
-        addBox(root, 74, 9, -8.0f, 11.0f, -8.0f, 16, 1, 16);
-    }
+        ModelRenderer booster = part(main, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-    private void buildCabin() {
-        addBox(root, 88, 11, -9.0f, -8.0f, -9.0f, 18, 20, 1);
-        addBox(root, 88, 31, -9.0f, -8.0f, 8.0f, 18, 20, 1);
-        addBox(root, 88, 11, -9.0f, -8.0f, -9.0f, 1, 20, 18);
-        addBox(root, 88, 11, 8.0f, -8.0f, -9.0f, 1, 20, 18);
-
-        addBox(root, 0, 24, -5.0f, -16.0f, -5.0f, 10, 8, 10);
-        addBox(root, 49, 0, -3.0f, -22.0f, -3.0f, 6, 6, 6);
-        addBox(root, 39, 0, -1.0f, -27.0f, -1.0f, 2, 6, 2);
-
-        addConePanel(0.0f);
-        addConePanel(1.5708f);
-        addConePanel(3.1416f);
-        addConePanel(-1.5708f);
-    }
-
-    private void buildLegs() {
-        addLeg(-10.0f, -10.0f);
-        addLeg(10.0f, -10.0f);
-        addLeg(-10.0f, 10.0f);
-        addLeg(10.0f, 10.0f);
-    }
-
-    private void addConePanel(float rotationY) {
-        ModelRenderer panel = part(0.0f, -14.0f, 0.0f, -0.3491f, rotationY, 0.0f);
-        panel.setTextureOffset(0, 12).addBox(-8.0f, -4.0f, 8.0f, 16, 10, 1);
-        root.addChild(panel);
-    }
-
-    private void addLeg(float x, float z) {
-        addBox(root, 39, 0, x - 1.0f, 7.0f, z - 1.0f, 2, 10, 2);
-
-        ModelRenderer braceX = part(x, 12.0f, z, 0.0f, z < 0.0f ? 0.7854f : -0.7854f, 0.0f);
-        braceX.setTextureOffset(39, 0).addBox(-1.0f, -7.0f, -1.0f, 2, 12, 2);
-        root.addChild(braceX);
-
-        addBox(root, 0, 42, x - 4.0f, 17.0f, z - 4.0f, 8, 2, 8);
+        ModelRenderer tip = part(main, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        addBox(tip, 0, 24, -4.0f, -110.0f, -4.0f, 8, 8, 8);
+        addBox(tip, 49, 0, -3.0f, -118.0f, -3.0f, 6, 8, 6);
     }
 
     private void addBox(ModelRenderer parent, int textureX, int textureY, float x, float y, float z,
@@ -94,13 +95,20 @@ class ModelLander extends ModelBase {
         parent.setTextureOffset(textureX, textureY).addBox(x, y, z, width, height, depth);
     }
 
-    private ModelRenderer part(float pointX, float pointY, float pointZ, float rotateX, float rotateY,
+    private void setMirror(ModelRenderer renderer, boolean mirror) {
+        renderer.mirror = mirror;
+    }
+
+    private ModelRenderer part(ModelRenderer parent, float pointX, float pointY, float pointZ, float rotateX, float rotateY,
                                float rotateZ) {
         ModelRenderer renderer = new ModelRenderer(this);
         renderer.setRotationPoint(pointX, pointY, pointZ);
         renderer.rotateAngleX = rotateX;
         renderer.rotateAngleY = rotateY;
         renderer.rotateAngleZ = rotateZ;
+        if (parent != null) {
+            parent.addChild(renderer);
+        }
         return renderer;
     }
 }

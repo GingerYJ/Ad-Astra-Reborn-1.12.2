@@ -1,0 +1,12 @@
+{
+  "type": "ad_astra:cryo_freezing",
+  "ingredient": {
+    "item": "ad_astra:ice_shard"
+  },
+  "result": {
+    "fluid": "cryo_fuel",
+    "amount": 500
+  },
+  "cookingtime": 150,
+  "energy": 600
+}

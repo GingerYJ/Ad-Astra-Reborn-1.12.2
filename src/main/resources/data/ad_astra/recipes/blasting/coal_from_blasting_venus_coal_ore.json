@@ -6,10 +6,5 @@
   "ingredient": {
     "item": "ad_astra:venus_coal_ore"
   },
-  "result": "minecraft:coal",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "minecraft:coal"
 }

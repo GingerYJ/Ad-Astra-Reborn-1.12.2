@@ -6,10 +6,5 @@
   "ingredient": {
     "item": "ad_astra:deepslate_ostrum_ore"
   },
-  "result": "ad_astra:ostrum_ingot",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "ad_astra:ostrum_ingot"
 }

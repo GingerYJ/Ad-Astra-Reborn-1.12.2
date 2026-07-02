@@ -1,22 +1,25 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.EnumFacing;
 
 public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
 
     private static final int FUEL_SLOT = 1;
-    private static final int ENERGY_GENERATED_PER_TICK = 20;
+    private static final int ENERGY_CAPACITY = 50_000;
+    private static final int ENERGY_GENERATED_PER_TICK = 30;
     private static final int MAX_BURN_TIME = 20_000;
 
-    protected int cookTime;
-    protected int cookTimeTotal;
+    protected int burnTime;
+    protected int maxBurnTime;
 
     public CoalGeneratorTileEntity() {
-        super("coal_generator", 2, IRON_ENERGY, 0, IRON_IO, 0);
+        super("coal_generator", 2, ENERGY_CAPACITY, 0, IRON_IO, 0);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PUSH);
     }
 
@@ -29,29 +32,40 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
     protected void tickMachine() {
         if (energy == null || !canFunction()) {
             setLit(false);
-            return;
-        }
-
-        if (energy.internalReceiveEnergy(ENERGY_GENERATED_PER_TICK, true) == 0) {
-            setLit(false);
-            return;
-        }
-
-        if (cookTime > 0) {
-            cookTime--;
-            energy.internalReceiveEnergy(ENERGY_GENERATED_PER_TICK, false);
             pushEnergyToSides();
-            setLit(true);
-            markDirty();
             return;
         }
 
-        if (consumeFuel()) {
-            setLit(true);
-        } else {
-            cookTimeTotal = 0;
-            setLit(false);
+        boolean wasBurning = burnTime > 0;
+
+        // Continue burning if we have burn time remaining
+        if (burnTime > 0) {
+            burnTime--;
+            // Generate energy if there's space (respecting config multiplier)
+            if (energy.getEnergyStored() < energy.getMaxEnergyStored()) {
+                int modifiedEnergy = AdAstraConfig.getModifiedEnergyGeneration(ENERGY_GENERATED_PER_TICK, "coal");
+                energy.internalReceiveEnergy(modifiedEnergy, false);
+                markDirty();
+            }
         }
+
+        // Try to consume fuel if not burning and there's space for energy
+        if (burnTime <= 0 && energy.getEnergyStored() < energy.getMaxEnergyStored()) {
+            if (consumeFuel()) {
+                markDirty();
+            } else {
+                maxBurnTime = 0;
+            }
+        }
+
+        // Update lit state
+        boolean isBurning = burnTime > 0;
+        if (wasBurning != isBurning) {
+            setLit(isBurning);
+            markDirty();
+        }
+
+        // Push energy to adjacent machines
         pushEnergyToSides();
     }
 
@@ -61,8 +75,8 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
             return false;
         }
 
-        int burnTime = Math.min(MAX_BURN_TIME, TileEntityFurnace.getItemBurnTime(fuel));
-        if (burnTime <= 0) {
+        int fuelBurnTime = Math.min(MAX_BURN_TIME, TileEntityFurnace.getItemBurnTime(fuel));
+        if (fuelBurnTime <= 0) {
             return false;
         }
 
@@ -73,9 +87,8 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
             items.setStackInSlot(FUEL_SLOT, container);
         }
 
-        cookTimeTotal = burnTime;
-        cookTime = burnTime;
-        markDirty();
+        maxBurnTime = fuelBurnTime;
+        burnTime = fuelBurnTime;
         return true;
     }
 
@@ -97,25 +110,25 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        cookTime = compound.getInteger("CookTime");
-        cookTimeTotal = compound.getInteger("CookTimeTotal");
+        burnTime = compound.getInteger("BurnTime");
+        maxBurnTime = compound.getInteger("MaxBurnTime");
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
-        compound.setInteger("CookTime", cookTime);
-        compound.setInteger("CookTimeTotal", cookTimeTotal);
+        compound.setInteger("BurnTime", burnTime);
+        compound.setInteger("MaxBurnTime", maxBurnTime);
         return compound;
     }
 
     @Override
     public int getField(int id) {
         if (id == 4) {
-            return cookTime;
+            return burnTime;
         }
         if (id == 5) {
-            return cookTimeTotal;
+            return maxBurnTime;
         }
         return super.getField(id);
     }
@@ -123,9 +136,9 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
     @Override
     public void setField(int id, int value) {
         if (id == 4) {
-            cookTime = value;
+            burnTime = value;
         } else if (id == 5) {
-            cookTimeTotal = value;
+            maxBurnTime = value;
         } else {
             super.setField(id, value);
         }

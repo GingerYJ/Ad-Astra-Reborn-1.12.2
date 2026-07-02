@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "rawDesh"
+      "tag": "ad_astra:raw_desh"
     }
   },
   "pattern": [

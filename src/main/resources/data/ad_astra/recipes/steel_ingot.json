@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "nuggetSteel"
+      "tag": "ad_astra:steel_nuggets"
     }
   },
   "pattern": [

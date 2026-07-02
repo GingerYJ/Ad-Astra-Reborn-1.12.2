@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
+import earth.terrarium.adastra.common.performance.PerformanceTracker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -46,6 +47,18 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     protected final IItemHandler[] itemHandlers = new IItemHandler[EnumFacing.values().length];
     protected AdAstraRedstoneControl redstoneControl = AdAstraRedstoneControl.ALWAYS_ON;
     protected final AdAstraSideMode[][] sideModes = new AdAstraSideMode[EnumFacing.values().length][SideConfigType.values().length];
+
+    // Performance optimization fields
+    protected int idleTicks = 0;
+    protected int tickCounter = 0;
+    protected static final int IDLE_THRESHOLD = 60; // 3 seconds of no activity
+    protected static final int TRANSFER_INTERVAL = 10; // Transfer every 10 ticks instead of every tick
+    protected boolean wasActive = false;
+
+    // Cache for adjacent tile entities to reduce world lookups
+    protected final TileEntity[] cachedNeighbors = new TileEntity[EnumFacing.values().length];
+    protected int neighborCacheAge = 0;
+    protected static final int NEIGHBOR_CACHE_LIFETIME = 20; // Re-check neighbors every second
 
     public AdAstraMachineTileEntity(String machineName, int slots, int energyCapacity, int maxReceive, int maxExtract, int fluidCapacity) {
         this.machineName = machineName;
@@ -105,11 +118,89 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     @Override
     public void update() {
         if (world != null && !world.isRemote) {
+            PerformanceTracker.startSystemTiming("machines");
+
+            tickCounter++;
+
+            // Check if machine can function
+            if (!canFunction()) {
+                idleTicks++;
+                PerformanceTracker.endSystemTiming("machines");
+                return;
+            }
+
+            // Skip most operations if idle for too long
+            if (isIdleOptimizationEnabled() && idleTicks >= IDLE_THRESHOLD) {
+                // Only check every 20 ticks when idle
+                if (tickCounter % 20 == 0) {
+                    checkIfStillIdle();
+                }
+                PerformanceTracker.endSystemTiming("machines");
+                return;
+            }
+
+            // Pull energy from battery every tick (needed for machines)
             pullEnergyFromBatterySlot();
-            pullFromSides();
+
+            // Batch transfers - only run every TRANSFER_INTERVAL ticks
+            if (tickCounter % TRANSFER_INTERVAL == 0) {
+                pullFromSides();
+                pushToSides();
+            }
+
+            // Run machine logic
             tickMachine();
-            pushToSides();
+
+            PerformanceTracker.endSystemTiming("machines");
         }
+    }
+
+    /**
+     * Check if the machine should be considered idle.
+     * Override this in subclasses for custom idle detection.
+     */
+    protected boolean isIdleOptimizationEnabled() {
+        return true; // Enable by default
+    }
+
+    /**
+     * Check if machine is still idle. If it has items/energy/fluids, reset idle counter.
+     */
+    protected void checkIfStillIdle() {
+        // Check if machine has energy
+        if (energy != null && energy.getEnergyStored() > 0) {
+            idleTicks = 0;
+            return;
+        }
+
+        // Check if machine has items
+        if (!isEmpty()) {
+            idleTicks = 0;
+            return;
+        }
+
+        // Check if machine has fluid
+        if (fluidTank != null && fluidTank.getFluidAmount() > 0) {
+            idleTicks = 0;
+            return;
+        }
+    }
+
+    /**
+     * Mark machine as active (has done work this tick).
+     * Resets idle counter.
+     */
+    protected void markActive() {
+        idleTicks = 0;
+        wasActive = true;
+    }
+
+    /**
+     * Mark machine as potentially idle.
+     * Call this when machine does no work this tick.
+     */
+    protected void markPotentiallyIdle() {
+        idleTicks++;
     }
 
     protected void tickMachine() {
@@ -188,6 +279,17 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
         }
     }
 
+    public boolean isLit() {
+        if (world == null || pos == null) {
+            return false;
+        }
+        IBlockState state = world.getBlockState(pos);
+        if (state.getBlock() instanceof AdAstraMachineBlock) {
+            return state.getValue(AdAstraMachineBlock.LIT);
+        }
+        return false;
+    }
+
     public AdAstraSideMode getSideMode(EnumFacing facing, SideConfigType type) {
         return sideModes[facing.getIndex()][type.ordinal()];
     }
@@ -212,7 +314,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (!getSideMode(facing, SideConfigType.ENERGY).canPush()) {
                 continue;
             }
-            TileEntity target = world.getTileEntity(pos.offset(facing));
+            TileEntity target = getCachedNeighbor(facing);
             if (target == null || !target.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite())) {
                 continue;
             }
@@ -229,8 +331,41 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
                 energy.extractEnergy(accepted, false);
                 markDirty();
                 target.markDirty();
+                markActive();
             }
         }
+    }
+
+    /**
+     * Get cached neighbor tile entity to reduce world lookups.
+     * Cache is invalidated every NEIGHBOR_CACHE_LIFETIME ticks.
+     */
+    protected TileEntity getCachedNeighbor(EnumFacing facing) {
+        if (neighborCacheAge >= NEIGHBOR_CACHE_LIFETIME) {
+            // Invalidate cache
+            for (int i = 0; i < cachedNeighbors.length; i++) {
+                cachedNeighbors[i] = null;
+            }
+            neighborCacheAge = 0;
+        }
+
+        int index = facing.getIndex();
+        if (cachedNeighbors[index] == null || cachedNeighbors[index].isInvalid()) {
+            cachedNeighbors[index] = world.getTileEntity(pos.offset(facing));
+            neighborCacheAge++;
+        }
+
+        return cachedNeighbors[index];
+    }
+
+    /**
+     * Invalidate neighbor cache (call when blocks around this machine change).
+     */
+    public void invalidateNeighborCache() {
+        for (int i = 0; i < cachedNeighbors.length; i++) {
+            cachedNeighbors[i] = null;
+        }
+        neighborCacheAge = NEIGHBOR_CACHE_LIFETIME; // Force refresh on next access
     }
 
     protected void pullFromSides() {
@@ -262,7 +397,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (!getSideMode(facing, SideConfigType.ITEM).canPull()) {
                 continue;
             }
-            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            TileEntity sourceTile = getCachedNeighbor(facing);
             if (sourceTile == null || !sourceTile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite())) {
                 continue;
             }
@@ -270,6 +405,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (source != null && pullOneItemStackFrom(source, facing)) {
                 sourceTile.markDirty();
                 markDirty();
+                markActive();
             }
         }
     }
@@ -303,7 +439,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (!getSideMode(facing, SideConfigType.ITEM).canPush()) {
                 continue;
             }
-            TileEntity targetTile = world.getTileEntity(pos.offset(facing));
+            TileEntity targetTile = getCachedNeighbor(facing);
             if (targetTile == null || !targetTile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite())) {
                 continue;
             }
@@ -311,6 +447,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (target != null && pushOneItemStackTo(target, facing)) {
                 targetTile.markDirty();
                 markDirty();
+                markActive();
             }
         }
     }
@@ -378,7 +515,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (!getSideMode(facing, SideConfigType.ENERGY).canPull()) {
                 continue;
             }
-            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            TileEntity sourceTile = getCachedNeighbor(facing);
             if (sourceTile == null || !sourceTile.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite())) {
                 continue;
             }
@@ -400,6 +537,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (received > 0) {
                 sourceTile.markDirty();
                 markDirty();
+                markActive();
             }
         }
     }
@@ -414,7 +552,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (!getSideMode(facing, SideConfigType.FLUID).canPull()) {
                 continue;
             }
-            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            TileEntity sourceTile = getCachedNeighbor(facing);
             if (sourceTile == null || !sourceTile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite())) {
                 continue;
             }
@@ -434,6 +572,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (drained != null && drained.amount > 0 && self.fill(drained, true) > 0) {
                 sourceTile.markDirty();
                 markDirty();
+                markActive();
             }
         }
     }
@@ -448,7 +587,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (!getSideMode(facing, SideConfigType.FLUID).canPush()) {
                 continue;
             }
-            TileEntity targetTile = world.getTileEntity(pos.offset(facing));
+            TileEntity targetTile = getCachedNeighbor(facing);
             if (targetTile == null || !targetTile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite())) {
                 continue;
             }
@@ -468,6 +607,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             if (drained != null && drained.amount > 0 && target.fill(drained, true) > 0) {
                 targetTile.markDirty();
                 markDirty();
+                markActive();
             }
         }
     }

@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "item": "minecraft:wool",
-      "data": 3
+      "item": "minecraft:light_blue_wool"
     },
     "|": {
       "item": "ad_astra:steel_rod"

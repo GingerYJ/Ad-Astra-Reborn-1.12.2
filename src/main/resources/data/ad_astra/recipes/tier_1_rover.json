@@ -6,15 +6,13 @@
       "item": "ad_astra:desh_engine"
     },
     "D": {
-      "type": "forge:ore_dict",
-      "ore": "blockDesh"
+      "tag": "ad_astra:desh_blocks"
     },
     "G": {
       "item": "ad_astra:large_gas_tank"
     },
     "P": {
-      "type": "forge:ore_dict",
-      "ore": "plateDesh"
+      "tag": "ad_astra:desh_plates"
     },
     "R": {
       "item": "ad_astra:radio"
@@ -23,8 +21,7 @@
       "item": "ad_astra:wheel"
     },
     "|": {
-      "type": "forge:ore_dict",
-      "ore": "rodSteel"
+      "tag": "ad_astra:steel_rods"
     }
   },
   "pattern": [

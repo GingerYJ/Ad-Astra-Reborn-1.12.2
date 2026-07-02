@@ -29,6 +29,9 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier3RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier4RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier5RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier6RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier7RocketEntity;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.init.Items;
@@ -126,6 +129,9 @@ public final class ModItems {
     public static final Item TIER_2_ROCKET = vehicle("tier_2_rocket", Tier2RocketEntity::new);
     public static final Item TIER_3_ROCKET = vehicle("tier_3_rocket", Tier3RocketEntity::new);
     public static final Item TIER_4_ROCKET = vehicle("tier_4_rocket", Tier4RocketEntity::new);
+    public static final Item TIER_5_ROCKET = vehicle("tier_5_rocket", Tier5RocketEntity::new);
+    public static final Item TIER_6_ROCKET = vehicle("tier_6_rocket", Tier6RocketEntity::new);
+    public static final Item TIER_7_ROCKET = vehicle("tier_7_rocket", Tier7RocketEntity::new);
     public static final Item TIER_1_ROVER = vehicle("tier_1_rover", Tier1RoverEntity::new);
 
     public static final Item LUNARIAN_SPAWN_EGG = spawnEgg("lunarian_spawn_egg", LunarianEntity::new, 0xff33ccff, 0xff4e3923);

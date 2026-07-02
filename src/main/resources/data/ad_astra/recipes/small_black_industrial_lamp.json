@@ -3,15 +3,13 @@
   "category": "misc",
   "key": {
     "#": {
-      "item": "minecraft:dye",
-      "data": 0
+      "item": "minecraft:black_dye"
     },
     "G": {
       "item": "minecraft:glowstone_dust"
     },
     "I": {
-      "type": "forge:ore_dict",
-      "ore": "ingotSteel"
+      "tag": "ad_astra:steel_ingots"
     }
   },
   "pattern": [

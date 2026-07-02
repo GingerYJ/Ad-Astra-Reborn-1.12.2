@@ -4,6 +4,10 @@ repositories {
     // Other repositories described by default:
     // CleanroomMC: https://maven.cleanroommc.com
     maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+    maven {
         name = 'CurseMaven'
         url = 'https://cursemaven.com'
     }

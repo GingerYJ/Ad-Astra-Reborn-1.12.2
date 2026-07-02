@@ -1,7 +1,31 @@
 {
   "variants": {
-    "normal": {
+    "part=center": {
       "model": "ad_astra:launch_pad"
+    },
+    "part=top_left": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=top": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=top_right": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=left": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=right": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=bottom_left": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=bottom": {
+      "model": "ad_astra:launch_pad_empty"
+    },
+    "part=bottom_right": {
+      "model": "ad_astra:launch_pad_empty"
     }
   }
 }

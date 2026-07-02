@@ -1,0 +1,13 @@
+{
+  "type": "ad_astra:oxygen_loading",
+  "input": {
+    "fluid": "oxygen",
+    "amount": 1000
+  },
+  "result": {
+    "fluid": "compressed_oxygen",
+    "amount": 1000
+  },
+  "cookingtime": 100,
+  "energy": 500
+}

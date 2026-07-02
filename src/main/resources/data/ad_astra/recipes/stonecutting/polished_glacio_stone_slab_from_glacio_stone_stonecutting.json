@@ -4,10 +4,5 @@
   "ingredient": {
     "item": "ad_astra:glacio_stone"
   },
-  "result": "ad_astra:polished_glacio_stone_slab",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "ad_astra:polished_glacio_stone_slab"
 }

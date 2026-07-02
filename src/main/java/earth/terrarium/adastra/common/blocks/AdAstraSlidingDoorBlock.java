@@ -323,6 +323,9 @@ public class AdAstraSlidingDoorBlock extends AdAstraModelBlock implements ITileE
                 continue;
             }
 
+            SlidingDoorTileEntity oldTile = getSlidingDoorTile(world, partPos);
+            int slideTicks = oldTile != null ? oldTile.getSlideTicks() : 0;
+            int lastSlideTicks = oldTile != null ? oldTile.getLastSlideTicks() : slideTicks;
             IBlockState newState = partState
                 .withProperty(FACING, facing)
                 .withProperty(PART, part)
@@ -331,6 +334,10 @@ public class AdAstraSlidingDoorBlock extends AdAstraModelBlock implements ITileE
                 .withProperty(POWERED, powered);
             world.setBlockState(partPos, newState, 3);
             configureTile(world, partPos, part, locked, open, powered);
+            SlidingDoorTileEntity newTile = getSlidingDoorTile(world, partPos);
+            if (newTile != null) {
+                newTile.setAnimationTicks(lastSlideTicks, slideTicks);
+            }
         }
     }
 

@@ -1,15 +1,17 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 public class SolarPanelTileEntity extends AdAstraMachineTileEntity {
 
-    private static final int OVERWORLD_SOLAR_POWER = 16;
+    private static final int ENERGY_CAPACITY = 10_000;
+    private static final int SOLAR_POWER = 10;
 
     public SolarPanelTileEntity() {
-        super("solar_panel", 1, DESH_ENERGY, 0, DESH_IO, 0);
+        super("solar_panel", 1, ENERGY_CAPACITY, 0, DESH_IO, 0);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PUSH);
     }
 
@@ -20,18 +22,26 @@ public class SolarPanelTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     protected void tickMachine() {
-        if (energy == null || !canFunction() || !isDay()) {
+        if (energy == null || !canFunction()) {
             pushEnergyToSides();
             setLit(false);
             return;
         }
 
-        int generated = energy.internalReceiveEnergy(getSolarPower(), false);
-        pushEnergyToSides();
-        setLit(generated > 0);
-        if (generated > 0) {
-            markDirty();
+        boolean generating = false;
+
+        // Generate energy if it's daytime and we can see the sky
+        if (isDay() && energy.getEnergyStored() < energy.getMaxEnergyStored()) {
+            int modifiedPower = AdAstraConfig.getModifiedEnergyGeneration(SOLAR_POWER, "solar");
+            int generated = energy.internalReceiveEnergy(modifiedPower, false);
+            if (generated > 0) {
+                generating = true;
+                markDirty();
+            }
         }
+
+        pushEnergyToSides();
+        setLit(generating);
     }
 
     private boolean isDay() {
@@ -41,10 +51,6 @@ public class SolarPanelTileEntity extends AdAstraMachineTileEntity {
         long dayTime = world.getWorldTime() % 24000L;
         BlockPos skyPos = pos.up();
         return dayTime <= 12000L && world.canBlockSeeSky(skyPos);
-    }
-
-    private int getSolarPower() {
-        return OVERWORLD_SOLAR_POWER;
     }
 
     @Override

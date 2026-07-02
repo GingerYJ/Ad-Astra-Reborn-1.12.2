@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateDesh"
+      "tag": "ad_astra:desh_plates"
     },
     "G": {
       "item": "minecraft:glass"

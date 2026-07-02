@@ -73,7 +73,7 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.25d;
+        return 0.35d;
     }
 
     @Override
@@ -159,6 +159,16 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
             float power = getPowered() ? 2.0f : 1.0f;
             world.createExplosion(this, posX, posY, posZ, EXPLOSION_STRENGTH * power, true);
             setDead();
+        }
+    }
+
+    @Override
+    protected void dropFewItems(boolean wasRecentlyHit, int lootingModifier) {
+        super.dropFewItems(wasRecentlyHit, lootingModifier);
+        // Drops sulfur (gunpowder) (0-2, +looting)
+        int count = rand.nextInt(3) + rand.nextInt(1 + lootingModifier);
+        for (int i = 0; i < count; i++) {
+            dropItem(net.minecraft.init.Items.GUNPOWDER, 1);
         }
     }
 }

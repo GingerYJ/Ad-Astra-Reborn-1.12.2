@@ -5,28 +5,22 @@
       "item": "ad_astra:rocket_nose_cone"
     },
     {
-      "type": "forge:ore_dict",
-      "ore": "blockCalorite"
+      "tag": "ad_astra:calorite_blocks"
     },
     {
-      "type": "forge:ore_dict",
-      "ore": "blockCalorite"
+      "tag": "ad_astra:calorite_blocks"
     },
     {
-      "type": "forge:ore_dict",
-      "ore": "blockCalorite"
+      "tag": "ad_astra:calorite_blocks"
     },
     {
-      "type": "forge:ore_dict",
-      "ore": "blockCalorite"
+      "tag": "ad_astra:calorite_blocks"
     },
     {
-      "type": "forge:ore_dict",
-      "ore": "blockCalorite"
+      "tag": "ad_astra:calorite_blocks"
     },
     {
-      "type": "forge:ore_dict",
-      "ore": "blockCalorite"
+      "tag": "ad_astra:calorite_blocks"
     },
     {
       "item": "ad_astra:rocket_fin"

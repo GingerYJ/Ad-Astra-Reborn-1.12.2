@@ -2,7 +2,9 @@ package earth.terrarium.adastra.common.items;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.AdAstraCreativeTab;
+import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
 import earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity;
+import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -37,17 +39,37 @@ public class VehicleItem extends Item {
         float hitX,
         float hitY,
         float hitZ) {
-        IBlockState state = world.getBlockState(pos);
-        BlockPos spawnPos = state.getBlock().isReplaceable(world, pos) ? pos : pos.offset(facing);
-        if (!world.isAirBlock(spawnPos) && !world.getBlockState(spawnPos).getBlock().isReplaceable(world, spawnPos)) {
-            return EnumActionResult.FAIL;
-        }
-
         if (!world.isRemote) {
             AdAstraVehicleEntity vehicle = factory.apply(world);
+            BlockPos spawnPos;
+            double spawnY;
+            if (vehicle instanceof RocketEntity) {
+                BlockPos center = LaunchPadBlock.findLaunchPadCenter(world, pos);
+                if (center == null) {
+                    return EnumActionResult.FAIL;
+                }
+                ((RocketEntity) vehicle).loadFromItemStack(player.getHeldItem(hand));
+                spawnPos = center;
+                spawnY = center.getY() + 0.125D;
+            } else {
+                IBlockState state = world.getBlockState(pos);
+                spawnPos = state.getBlock().isReplaceable(world, pos) ? pos : pos.offset(facing);
+                if (!world.isAirBlock(spawnPos) && !world.getBlockState(spawnPos).getBlock().isReplaceable(world, spawnPos)) {
+                    return EnumActionResult.FAIL;
+                }
+                spawnY = spawnPos.getY() + 0.05D;
+            }
+
+            if (!world.getCollisionBoxes(vehicle, vehicle.getEntityBoundingBox().offset(
+                spawnPos.getX() + 0.5D - vehicle.posX,
+                spawnY - vehicle.posY,
+                spawnPos.getZ() + 0.5D - vehicle.posZ)).isEmpty()) {
+                return EnumActionResult.FAIL;
+            }
+
             vehicle.setLocationAndAngles(
                 spawnPos.getX() + 0.5D,
-                spawnPos.getY() + 0.05D,
+                spawnY,
                 spawnPos.getZ() + 0.5D,
                 player.rotationYaw,
                 0.0F);

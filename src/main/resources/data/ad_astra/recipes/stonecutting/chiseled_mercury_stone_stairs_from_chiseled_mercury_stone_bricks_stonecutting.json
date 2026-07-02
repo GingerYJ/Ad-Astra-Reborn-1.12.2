@@ -4,10 +4,5 @@
   "ingredient": {
     "item": "ad_astra:chiseled_mercury_stone_bricks"
   },
-  "result": "ad_astra:chiseled_mercury_stone_stairs",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "ad_astra:chiseled_mercury_stone_stairs"
 }

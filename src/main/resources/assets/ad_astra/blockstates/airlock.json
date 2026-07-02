@@ -1,7 +1,13 @@
 {
   "variants": {
-    "facing=north,locked=false,open=false,part=bottom,powered=false": {
+    "normal": {
       "model": "ad_astra:airlock"
+    },
+    "flipped": {
+      "model": "ad_astra:airlock_flipped"
+    },
+    "facing=north,locked=false,open=false,part=bottom,powered=false": {
+      "model": "ad_astra:sliding_door_empty"
     }
   }
 }

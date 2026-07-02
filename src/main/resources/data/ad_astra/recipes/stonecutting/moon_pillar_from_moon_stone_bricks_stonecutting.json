@@ -4,10 +4,5 @@
   "ingredient": {
     "item": "ad_astra:moon_stone_bricks"
   },
-  "result": "ad_astra:moon_pillar",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "ad_astra:moon_pillar"
 }

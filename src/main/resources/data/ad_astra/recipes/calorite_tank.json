@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateCalorite"
+      "tag": "ad_astra:calorite_plates"
     },
     "T": {
       "item": "ad_astra:ostrum_tank"

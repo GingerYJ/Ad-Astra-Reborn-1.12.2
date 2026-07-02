@@ -1,15 +1,20 @@
 package earth.terrarium.adastra.client.handler;
 
 import earth.terrarium.adastra.client.hud.AdAstraHudOverlay;
+import earth.terrarium.adastra.client.render.MachineAreaRenderState;
+import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketSyncKeybinds;
 import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.world.AdAstraWorldProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -35,6 +40,32 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
+    public void onRenderWorldLast(RenderWorldLastEvent event) {
+        MachineAreaRenderState.render(event);
+    }
+
+    /**
+     * When loading a world on the client, install custom sky renderers for Ad Astra dimensions.
+     * For oxygen-less dimensions: black space sky with stars and celestial bodies.
+     * For atmospheric dimensions: use enhanced sky renderer with appropriate tinting.
+     */
+    @SubscribeEvent
+    public void onWorldLoad(WorldEvent.Load event) {
+        if (!event.getWorld().isRemote) {
+            return;
+        }
+        MachineAreaRenderState.clear();
+        net.minecraft.world.WorldProvider provider = event.getWorld().provider;
+        if (!(provider instanceof AdAstraWorldProvider)) {
+            return;
+        }
+        // Install planet-specific sky renderers
+        if (provider.getSkyRenderer() == null) {
+            earth.terrarium.adastra.client.render.PlanetSkyRenderers.registerSkyRenderers(event.getWorld());
+        }
+    }
+
+    @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) {
             return;
@@ -52,17 +83,17 @@ public class ClientEventHandler {
                     ? "message.ad_astra.suit_flight_enabled"
                     : "message.ad_astra.suit_flight_disabled"), true);
             }
-            syncKeybinds(minecraft);
-        } else if (lastJumping || lastSprinting || lastSuitFlightEnabled) {
+        } else {
             suitFlightEnabled = false;
-            sendKeybinds(false, false, false);
         }
+        syncKeybinds(minecraft);
     }
 
     private void syncKeybinds(Minecraft minecraft) {
         boolean jumping = minecraft.gameSettings.keyBindJump.isKeyDown();
         boolean sprinting = minecraft.gameSettings.keyBindSprint.isKeyDown();
-        if (jumping != lastJumping || sprinting != lastSprinting || suitFlightEnabled != lastSuitFlightEnabled || syncCooldown-- <= 0) {
+        boolean ridingRocket = minecraft.player.getRidingEntity() instanceof RocketEntity;
+        if (ridingRocket || jumping != lastJumping || sprinting != lastSprinting || suitFlightEnabled != lastSuitFlightEnabled || syncCooldown-- <= 0) {
             sendKeybinds(jumping, sprinting, suitFlightEnabled);
             syncCooldown = 10;
         }

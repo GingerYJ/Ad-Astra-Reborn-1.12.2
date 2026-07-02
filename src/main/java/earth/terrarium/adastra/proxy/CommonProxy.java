@@ -1,6 +1,9 @@
 package earth.terrarium.adastra.proxy;
 
 import earth.terrarium.adastra.common.handler.CommonEventHandler;
+import earth.terrarium.adastra.common.handler.GravityEventHandler;
+import earth.terrarium.adastra.common.handler.PerformanceTickHandler;
+import earth.terrarium.adastra.common.handler.SpaceEnvironmentHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -11,7 +14,10 @@ public class CommonProxy implements IProxy {
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(new GravityEventHandler());
         MinecraftForge.EVENT_BUS.register(new CommonEventHandler());
+        MinecraftForge.EVENT_BUS.register(new SpaceEnvironmentHandler());
+        MinecraftForge.EVENT_BUS.register(new PerformanceTickHandler());
     }
 
     @Override

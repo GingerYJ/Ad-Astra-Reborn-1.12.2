@@ -3,14 +3,13 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateOstrum"
+      "tag": "ad_astra:ostrum_plates"
     },
     "G": {
       "item": "ad_astra:large_gas_tank"
     },
     "I": {
-      "item": "minecraft:packed_ice"
+      "item": "minecraft:blue_ice"
     }
   },
   "pattern": [

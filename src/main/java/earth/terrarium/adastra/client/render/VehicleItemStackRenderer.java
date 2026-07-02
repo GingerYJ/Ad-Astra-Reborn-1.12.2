@@ -21,6 +21,9 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
     private final ModelBase tier2Rocket = new ModelRocket(2);
     private final ModelBase tier3Rocket = new ModelRocket(3);
     private final ModelBase tier4Rocket = new ModelRocket(4);
+    private final ModelBase tier5Rocket = new ModelRocket(5);
+    private final ModelBase tier6Rocket = new ModelRocket(6);
+    private final ModelBase tier7Rocket = new ModelRocket(7);
     private final ModelBase rover = new ModelRover();
 
     private VehicleItemStackRenderer() {
@@ -37,6 +40,12 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
             renderRocket(tier3Rocket, texture("rocket/tier_3_rocket"), 0.1f, -0.05f);
         } else if (item == ModItems.TIER_4_ROCKET) {
             renderRocket(tier4Rocket, texture("rocket/tier_4_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_5_ROCKET) {
+            renderRocket(tier5Rocket, texture("rocket/tier_5_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_6_ROCKET) {
+            renderRocket(tier6Rocket, texture("rocket/tier_6_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_7_ROCKET) {
+            renderRocket(tier7Rocket, texture("rocket/tier_7_rocket"), 0.08f, -0.05f);
         } else if (item == ModItems.TIER_1_ROVER) {
             renderRover();
         }
@@ -74,3 +83,4 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
         return new ResourceLocation(Reference.MOD_ID, "textures/entity/" + path + ".png");
     }
 }
+

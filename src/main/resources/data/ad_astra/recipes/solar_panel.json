@@ -3,15 +3,13 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateDesh"
+      "tag": "ad_astra:desh_plates"
     },
     "P": {
       "item": "ad_astra:photovoltaic_etrium_cell"
     },
     "S": {
-      "type": "forge:ore_dict",
-      "ore": "plateSteel"
+      "tag": "ad_astra:steel_plates"
     }
   },
   "pattern": [

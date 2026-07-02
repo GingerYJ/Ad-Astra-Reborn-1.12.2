@@ -2,6 +2,12 @@
 **/build/
 !src/**/build/
 run/
+!run/
+run/*
+!run/client/
+run/client/*
+!run/client/scripts/
+!run/client/scripts/ad_astra_defaults.zs
 out/
 
 # Ignore Gradle GUI config
@@ -9,6 +15,7 @@ gradle-app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
+CraftTweaker2-*.jar
 
 # Avoid ignore Gradle wrappper properties
 !gradle-wrapper.properties
@@ -24,4 +31,3 @@ gradle-app.setting
 
 # IDEA config
 .idea
-

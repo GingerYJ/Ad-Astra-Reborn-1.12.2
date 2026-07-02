@@ -4,11 +4,13 @@ import earth.terrarium.adastra.client.handler.ClientEventHandler;
 import earth.terrarium.adastra.client.ClientRegistry;
 import earth.terrarium.adastra.client.gui.PlanetSelectionGui;
 import earth.terrarium.adastra.client.gui.RadioStationGui;
+import earth.terrarium.adastra.common.registry.ModParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -19,6 +21,14 @@ public class ClientProxy extends CommonProxy {
         super.preInit(event);
         MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
         MinecraftForge.EVENT_BUS.register(this);
+        ModParticles.register();
+    }
+
+    @Override
+    public void init(FMLInitializationEvent event) {
+        super.init(event);
+        ClientRegistry.registerParticles();
+        ClientRegistry.registerTileEntityRenderers();
     }
 
     @SubscribeEvent

@@ -1,11 +1,14 @@
 package earth.terrarium.adastra.common.items;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.client.render.ModelSpaceSuitArmor;
 import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.registry.ModFluids;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
@@ -26,6 +29,8 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nullable;
@@ -53,6 +58,14 @@ public class AdAstraArmorItem extends ItemArmor {
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
         return Reference.MOD_ID + ":textures/entity/armor/" + texture + ".png";
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public ModelBiped getArmorModel(EntityLivingBase entityLiving, ItemStack stack, EntityEquipmentSlot slot, ModelBiped defaultModel) {
+        ModelBiped model = ArmorModels.get(suitMaterial, slot);
+        model.setModelAttributes(defaultModel);
+        return model;
     }
 
     @Override
@@ -239,6 +252,52 @@ public class AdAstraArmorItem extends ItemArmor {
                 return (T) energyStorage;
             }
             return null;
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    private static final class ArmorModels {
+        private static final ModelBiped SPACE_HEAD = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
+        private static final ModelBiped SPACE_CHEST = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
+        private static final ModelBiped SPACE_LEGS = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
+        private static final ModelBiped SPACE_FEET = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.FEET);
+        private static final ModelBiped NETHERITE_HEAD = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
+        private static final ModelBiped NETHERITE_CHEST = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
+        private static final ModelBiped NETHERITE_LEGS = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
+        private static final ModelBiped NETHERITE_FEET = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
+        private static final ModelBiped JET_HEAD = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.HEAD);
+        private static final ModelBiped JET_CHEST = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.CHEST);
+        private static final ModelBiped JET_LEGS = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.LEGS);
+        private static final ModelBiped JET_FEET = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.FEET);
+
+        private ArmorModels() {
+        }
+
+        private static ModelBiped get(SuitMaterial material, EntityEquipmentSlot slot) {
+            switch (material) {
+                case NETHERITE_SPACE:
+                    return bySlot(slot, NETHERITE_HEAD, NETHERITE_CHEST, NETHERITE_LEGS, NETHERITE_FEET);
+                case JET:
+                    return bySlot(slot, JET_HEAD, JET_CHEST, JET_LEGS, JET_FEET);
+                case SPACE:
+                default:
+                    return bySlot(slot, SPACE_HEAD, SPACE_CHEST, SPACE_LEGS, SPACE_FEET);
+            }
+        }
+
+        private static ModelBiped bySlot(EntityEquipmentSlot slot, ModelBiped head, ModelBiped chest, ModelBiped legs, ModelBiped feet) {
+            switch (slot) {
+                case HEAD:
+                    return head;
+                case CHEST:
+                    return chest;
+                case LEGS:
+                    return legs;
+                case FEET:
+                    return feet;
+                default:
+                    return chest;
+            }
         }
     }
 }

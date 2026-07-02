@@ -22,6 +22,9 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier3RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier4RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier5RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier6RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier7RocketEntity;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -57,6 +60,12 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderRocket<Tier3RocketEntity>(manager, 3, texture("rocket/tier_3_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier4RocketEntity.class,
             manager -> new RenderRocket<Tier4RocketEntity>(manager, 4, texture("rocket/tier_4_rocket"), 0.7f));
+        RenderingRegistry.registerEntityRenderingHandler(Tier5RocketEntity.class,
+            manager -> new RenderRocket<Tier5RocketEntity>(manager, 5, texture("rocket/tier_5_rocket"), 0.7f));
+        RenderingRegistry.registerEntityRenderingHandler(Tier6RocketEntity.class,
+            manager -> new RenderRocket<Tier6RocketEntity>(manager, 6, texture("rocket/tier_6_rocket"), 0.7f));
+        RenderingRegistry.registerEntityRenderingHandler(Tier7RocketEntity.class,
+            manager -> new RenderRocket<Tier7RocketEntity>(manager, 7, texture("rocket/tier_7_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(LanderEntity.class,
             manager -> new RenderLander(manager, texture("lander/lander")));
 
@@ -99,3 +108,4 @@ public final class AdAstraEntityRenderers {
         return new ResourceLocation(Reference.MOD_ID, "textures/entity/" + path + ".png");
     }
 }
+

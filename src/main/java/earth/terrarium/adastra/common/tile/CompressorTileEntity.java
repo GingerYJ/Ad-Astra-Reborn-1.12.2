@@ -1,6 +1,9 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.recipe.CompressingRecipe;
 import earth.terrarium.adastra.common.recipe.CompressingRecipes;
+import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -13,7 +16,7 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
 
     private int cookTime;
     private int cookTimeTotal;
-    private CompressingRecipes.Recipe activeRecipe;
+    private CompressingRecipe activeRecipe;
 
     public CompressorTileEntity() {
         super("compressor", 3, IRON_ENERGY, IRON_IO, 0, 0);
@@ -27,7 +30,7 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
             return;
         }
 
-        CompressingRecipes.Recipe recipe = getRecipe(items.getStackInSlot(INPUT_SLOT));
+        CompressingRecipe recipe = getRecipe(items.getStackInSlot(INPUT_SLOT));
         if (recipe == null) {
             cookTime = 0;
             cookTimeTotal = 0;
@@ -40,13 +43,16 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
             cookTime = 0;
             activeRecipe = recipe;
         }
-        cookTimeTotal = recipe.getCookingTime();
+        // Apply config speed multiplier to processing time
+        cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(recipe.getProcessingTime());
         if (!canProcess(recipe)) {
             setLit(false);
             return;
         }
 
-        energy.extractEnergy(recipe.getEnergyPerTick(), false);
+        // Apply config energy multiplier to energy consumption
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
+        energy.extractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
         if (cookTime >= cookTimeTotal) {
@@ -55,8 +61,9 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
         markDirty();
     }
 
-    private boolean canProcess(CompressingRecipes.Recipe recipe) {
-        if (energy.extractEnergy(recipe.getEnergyPerTick(), true) < recipe.getEnergyPerTick()) {
+    private boolean canProcess(CompressingRecipe recipe) {
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
+        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             return false;
         }
 
@@ -69,7 +76,7 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
             && output.getCount() + result.getCount() <= Math.min(output.getMaxStackSize(), items.getSlotLimit(OUTPUT_SLOT));
     }
 
-    private void craft(CompressingRecipes.Recipe recipe) {
+    private void craft(CompressingRecipe recipe) {
         ItemStack input = items.getStackInSlot(INPUT_SLOT);
         input.shrink(1);
         if (input.isEmpty()) {
@@ -85,8 +92,25 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
         cookTime = 0;
     }
 
-    private CompressingRecipes.Recipe getRecipe(ItemStack stack) {
-        return CompressingRecipes.find(stack);
+    private CompressingRecipe getRecipe(ItemStack stack) {
+        // Try new recipe system first
+        CompressingRecipe newRecipe = RecipeRegistry.findCompressingRecipe(stack);
+        if (newRecipe != null) {
+            return newRecipe;
+        }
+        // Fallback to legacy system
+        CompressingRecipes.Recipe legacyRecipe = CompressingRecipes.find(stack);
+        if (legacyRecipe != null) {
+            // Wrap legacy recipe in new format
+            return new CompressingRecipe(
+                legacyRecipe.getId(),
+                stack.copy(),
+                legacyRecipe.getResult(),
+                legacyRecipe.getCookingTime(),
+                legacyRecipe.getEnergyPerTick()
+            );
+        }
+        return null;
     }
 
     @Override
@@ -118,7 +142,10 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
         cookTime = compound.getInteger("CookTime");
         cookTimeTotal = compound.getInteger("CookTimeTotal");
         if (compound.hasKey("ActiveRecipe")) {
-            activeRecipe = CompressingRecipes.getById(compound.getString("ActiveRecipe"));
+            String recipeId = compound.getString("ActiveRecipe");
+            // Try to find in new registry
+            activeRecipe = RecipeRegistry.findCompressingRecipe(ItemStack.EMPTY);
+            // The activeRecipe will be set properly on next tick
         }
     }
 

@@ -3,12 +3,10 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateDesh"
+      "tag": "ad_astra:desh_plates"
     },
     "C": {
-      "type": "forge:ore_dict",
-      "ore": "ingotCopper"
+      "item": "minecraft:copper_ingot"
     }
   },
   "pattern": [

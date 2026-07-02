@@ -29,6 +29,7 @@ import earth.terrarium.adastra.common.blocks.AdAstraStairsBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraTransparentBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
+import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.SoundType;
@@ -57,7 +58,7 @@ public final class ModBlocks {
     public static final List<Block> BLOCKS = Collections.unmodifiableList(INTERNAL_BLOCKS);
     public static final List<Block> HIDDEN_BLOCKS = Collections.unmodifiableList(DOUBLE_SLABS);
 
-    public static final Block LAUNCH_PAD = model("launch_pad", Material.IRON, 5.0f, 12.0f);
+    public static final Block LAUNCH_PAD = launchPad("launch_pad", Material.IRON, 5.0f, 12.0f);
     public static final Block STEEL_CABLE = pipe("steel_cable", 0.5f, 12.0f);
     public static final Block DESH_CABLE = pipe("desh_cable", 0.5f, 9.0f);
     public static final Block DESH_FLUID_PIPE = pipe("desh_fluid_pipe", 0.5f, 9.0f);
@@ -465,6 +466,12 @@ public final class ModBlocks {
         if (material == Material.IRON) {
             block.setHarvestLevel("pickaxe", 1);
         }
+        return register(name, block);
+    }
+
+    private static Block launchPad(String name, Material material, float hardness, float resistance) {
+        Block block = new LaunchPadBlock(material, hardness, resistance);
+        block.setHarvestLevel("pickaxe", 1);
         return register(name, block);
     }
 

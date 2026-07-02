@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.registry.ModSounds;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -45,6 +46,12 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         }
 
         energy.extractEnergy(requiredEnergy, false);
+
+        // Clear gravity cache when normalizer starts working
+        if (!normalizingGravity) {
+            earth.terrarium.adastra.common.systems.GravitySystem.clearCache();
+        }
+
         normalizingGravity = true;
         distributedBlocksCount = plannedBlocksCount;
         energyPerTick = requiredEnergy;
@@ -79,12 +86,16 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
             distributedBlocksCount = 0;
             energyPerTick = 0;
             markDirty();
+
+            // Clear gravity cache when normalizer stops working
+            earth.terrarium.adastra.common.systems.GravitySystem.clearCache();
         }
         setLit(false);
     }
 
     private int calculateEnergyPerTick(int blocksCount) {
-        return Math.max(1, blocksCount / 24);
+        int baseEnergy = Math.max(1, blocksCount / 24);
+        return (int) (baseEnergy * AdAstraConfig.gravityNormalizerEnergyMultiplier);
     }
 
     public boolean isNormalizingGravity() {

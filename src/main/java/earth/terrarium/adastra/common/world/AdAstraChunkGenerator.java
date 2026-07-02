@@ -1,11 +1,17 @@
 package earth.terrarium.adastra.common.world;
 
+import earth.terrarium.adastra.AdAstraReborn;
+import earth.terrarium.adastra.common.config.OreGenConfig;
 import earth.terrarium.adastra.common.registry.ModBlocks;
+import earth.terrarium.adastra.common.world.feature.CraterCarver;
+import earth.terrarium.adastra.common.world.feature.CraterConfig;
+import earth.terrarium.adastra.common.world.noise.AdAstraNoiseGenerator;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -15,7 +21,9 @@ import net.minecraft.world.gen.IChunkGenerator;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class AdAstraChunkGenerator implements IChunkGenerator {
@@ -24,15 +32,35 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     public static final int SPAWN_Y = SURFACE_Y + 1;
 
     private static final int MIN_GENERATION_Y = 1;
-    private static final int MAX_GENERATION_Y = SURFACE_Y - 1;
-    private static final List<PlanetOreSpec> ORE_SPECS = createOreSpecs();
+    private static final Map<String, List<PlanetOreSpec>> ORE_SPECS_CACHE = new HashMap<>();
 
     private final World world;
     private final PlanetDimensionProperties properties;
+    private final PlanetTerrainConfig terrainConfig;
+    private final CraterConfig craterConfig;
+    private final AdAstraNoiseGenerator heightNoise;
+    private final AdAstraNoiseGenerator caveNoise;
 
     public AdAstraChunkGenerator(World world, PlanetDimensionProperties properties) {
         this.world = world;
         this.properties = properties;
+        this.terrainConfig = PlanetTerrainConfig.forPlanet(properties.getName());
+        this.craterConfig = CraterConfig.forPlanet(properties.getName());
+
+        Random random = new Random(world.getSeed());
+        this.heightNoise = new AdAstraNoiseGenerator(
+            random,
+            terrainConfig.getOctaves(),
+            terrainConfig.getPersistence(),
+            terrainConfig.getScale()
+        );
+
+        this.caveNoise = new AdAstraNoiseGenerator(
+            new Random(world.getSeed() + 1),
+            3,
+            0.5,
+            30.0
+        );
     }
 
     @Override
@@ -42,16 +70,56 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         IBlockState surface = properties.getSurfaceBlock();
         IBlockState filler = properties.getFillerBlock();
 
+        // Generate terrain with noise
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
+                int worldX = chunkX * 16 + x;
+                int worldZ = chunkZ * 16 + z;
+
+                // Calculate terrain height using noise
+                int terrainHeight = heightNoise.sampleHeight(
+                    worldX,
+                    worldZ,
+                    terrainConfig.getMinHeight(),
+                    terrainConfig.getMaxHeight()
+                );
+
+                // Place bedrock at bottom
                 primer.setBlockState(x, 0, z, bedrock);
 
-                for (int y = 1; y < SURFACE_Y; y++) {
-                    primer.setBlockState(x, y, z, filler);
-                }
+                // Generate terrain column
+                for (int y = 1; y <= 255; y++) {
+                    if (y > terrainHeight) {
+                        // Air above terrain
+                        continue;
+                    }
 
-                primer.setBlockState(x, SURFACE_Y, z, surface);
+                    // Check for cave carving
+                    if (terrainConfig.shouldGenerateCaves() &&
+                        y >= terrainConfig.getCaveMinY() &&
+                        y <= terrainConfig.getCaveMaxY() &&
+                        y < terrainHeight - 3) {
+                        double caveValue = caveNoise.sample3D(worldX, y, worldZ);
+                        if (caveValue > terrainConfig.getCaveThreshold()) {
+                            continue; // Air pocket (cave)
+                        }
+                    }
+
+                    // Surface and subsurface layers
+                    if (y == terrainHeight) {
+                        primer.setBlockState(x, y, z, surface);
+                    } else if (y >= terrainHeight - terrainConfig.getSurfaceDepth()) {
+                        primer.setBlockState(x, y, z, surface);
+                    } else {
+                        primer.setBlockState(x, y, z, filler);
+                    }
+                }
             }
+        }
+
+        // Carve craters into terrain
+        if (craterConfig.isEnabled()) {
+            carveCraters(primer, chunkX, chunkZ);
         }
 
         Chunk chunk = new Chunk(world, primer, chunkX, chunkZ);
@@ -69,8 +137,22 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         Random random = createChunkRandom(chunkX, chunkZ);
         List<PlanetOreSpec> specs = getOreSpecs(properties.getName());
         BlockPos chunkOrigin = new BlockPos(chunkX * 16, 0, chunkZ * 16);
+        ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+
+        int oreCount = 0;
         for (PlanetOreSpec spec : specs) {
-            generateOre(spec, chunkOrigin, random);
+            int generated = generateOre(spec, chunkOrigin, random);
+            oreCount += generated;
+
+            if (OreGenConfig.debugWorldgen && generated > 0) {
+                AdAstraReborn.LOGGER.info("Generated {} {} ore veins in chunk [{}, {}] at Y:{}-{}",
+                    generated, spec.getOreName(), chunkPos.x, chunkPos.z, spec.minY, spec.maxY);
+            }
+        }
+
+        if (OreGenConfig.debugWorldgen && oreCount > 0) {
+            AdAstraReborn.LOGGER.debug("Total {} ore veins generated in chunk [{}, {}] on {}",
+                oreCount, chunkPos.x, chunkPos.z, properties.getName());
         }
 
         generateSimpleFeatures(chunkOrigin, random);
@@ -109,16 +191,22 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         return random;
     }
 
-    private void generateOre(PlanetOreSpec spec, BlockPos chunkOrigin, Random random) {
+    private int generateOre(PlanetOreSpec spec, BlockPos chunkOrigin, Random random) {
+        int generated = 0;
+        int maxGenerationY = terrainConfig.getMaxHeight() - 3; // Stay below surface
+
         for (int i = 0; i < spec.countPerChunk; i++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
-            int y = spec.minY + random.nextInt(spec.maxY - spec.minY + 1);
+            int y = spec.minY + random.nextInt(Math.min(spec.maxY, maxGenerationY) - spec.minY + 1);
             int z = chunkOrigin.getZ() + random.nextInt(16);
-            generateVein(spec, random, new BlockPos(x, y, z));
+            if (generateVein(spec, random, new BlockPos(x, y, z))) {
+                generated++;
+            }
         }
+        return generated;
     }
 
-    private void generateVein(PlanetOreSpec spec, Random random, BlockPos origin) {
+    private boolean generateVein(PlanetOreSpec spec, Random random, BlockPos origin) {
         float angle = random.nextFloat() * (float) Math.PI;
         double startX = (double) origin.getX() + 8.0D + (double) (MathHelper.sin(angle) * (float) spec.veinSize) / 8.0D;
         double endX = (double) origin.getX() + 8.0D - (double) (MathHelper.sin(angle) * (float) spec.veinSize) / 8.0D;
@@ -126,6 +214,9 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         double endZ = (double) origin.getZ() + 8.0D - (double) (MathHelper.cos(angle) * (float) spec.veinSize) / 8.0D;
         double startY = (double) origin.getY() + random.nextInt(3) - 2;
         double endY = (double) origin.getY() + random.nextInt(3) - 2;
+
+        boolean generated = false;
+        int maxGenerationY = terrainConfig.getMaxHeight() - 2;
 
         for (int step = 0; step < spec.veinSize; step++) {
             float progress = (float) step / (float) spec.veinSize;
@@ -140,7 +231,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             int minY = Math.max(MIN_GENERATION_Y, MathHelper.floor(centerY - verticalRadius / 2.0D));
             int minZ = MathHelper.floor(centerZ - horizontalRadius / 2.0D);
             int maxX = MathHelper.floor(centerX + horizontalRadius / 2.0D);
-            int maxY = Math.min(MAX_GENERATION_Y, MathHelper.floor(centerY + verticalRadius / 2.0D));
+            int maxY = Math.min(maxGenerationY, MathHelper.floor(centerY + verticalRadius / 2.0D));
             int maxZ = MathHelper.floor(centerZ + horizontalRadius / 2.0D);
 
             for (int x = minX; x <= maxX; x++) {
@@ -158,19 +249,25 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                     for (int z = minZ; z <= maxZ; z++) {
                         double zDistance = ((double) z + 0.5D - centerZ) / (horizontalRadius / 2.0D);
                         if (xDistance * xDistance + yDistance * yDistance + zDistance * zDistance < 1.0D) {
-                            replaceOreBlock(spec, new BlockPos(x, y, z));
+                            if (replaceOreBlock(spec, new BlockPos(x, y, z))) {
+                                generated = true;
+                            }
                         }
                     }
                 }
             }
         }
+
+        return generated;
     }
 
-    private void replaceOreBlock(PlanetOreSpec spec, BlockPos pos) {
+    private boolean replaceOreBlock(PlanetOreSpec spec, BlockPos pos) {
         IBlockState current = world.getBlockState(pos);
         if (spec.canReplace(current.getBlock())) {
             world.setBlockState(pos, spec.oreState, 2);
+            return true;
         }
+        return false;
     }
 
     private void generateSimpleFeatures(BlockPos chunkOrigin, Random random) {
@@ -191,7 +288,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             60,
             20,
             MIN_GENERATION_Y,
-            MAX_GENERATION_Y,
+            terrainConfig.getMaxHeight() - 5,
             new Block[]{ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE}
         );
         generateOre(soulSand, chunkOrigin, random);
@@ -201,7 +298,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         for (int i = 0; i < 2; i++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
             int z = chunkOrigin.getZ() + random.nextInt(16);
-            BlockPos surface = findSurface(new BlockPos(x, SURFACE_Y + 8, z), ModBlocks.MARS_SAND);
+            int searchStartY = terrainConfig.getMaxHeight() + 8;
+            BlockPos surface = findSurface(new BlockPos(x, searchStartY, z), ModBlocks.MARS_SAND);
             if (surface != null) {
                 generateMarsRockBlob(surface.up(), random);
             }
@@ -255,7 +353,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     private void generateInfernalSpireColumn(BlockPos chunkOrigin, Random random, int minHeight, int maxHeight, int reach) {
         int x = chunkOrigin.getX() + random.nextInt(16);
         int z = chunkOrigin.getZ() + random.nextInt(16);
-        BlockPos surface = findSurface(new BlockPos(x, SURFACE_Y + 8, z), ModBlocks.VENUS_SAND);
+        int searchStartY = terrainConfig.getMaxHeight() + 8;
+        BlockPos surface = findSurface(new BlockPos(x, searchStartY, z), ModBlocks.VENUS_SAND);
         if (surface == null) {
             return;
         }
@@ -313,49 +412,193 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             && below != Blocks.LAVA;
     }
 
-    private List<PlanetOreSpec> getOreSpecs(String planetName) {
-        List<PlanetOreSpec> specs = new ArrayList<PlanetOreSpec>();
-        for (PlanetOreSpec spec : ORE_SPECS) {
-            if (spec.planetName.equals(planetName)) {
-                specs.add(spec);
+    /**
+     * Carve craters into the ChunkPrimer.
+     * Checks surrounding chunks for craters that might affect this chunk.
+     */
+    private void carveCraters(ChunkPrimer primer, int chunkX, int chunkZ) {
+        IBlockState airState = Blocks.AIR.getDefaultState();
+
+        // Check current chunk and surrounding chunks for craters
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                int checkX = chunkX + dx;
+                int checkZ = chunkZ + dz;
+
+                List<CraterCarver> craters = generateCratersForChunk(checkX, checkZ);
+                for (CraterCarver crater : craters) {
+                    if (crater.affectsChunk(chunkX, chunkZ)) {
+                        crater.carveInPrimer(primer, chunkX, chunkZ, airState);
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * Generate list of craters for a specific chunk using deterministic random.
+     */
+    private List<CraterCarver> generateCratersForChunk(int chunkX, int chunkZ) {
+        List<CraterCarver> craters = new ArrayList<>();
+        Random random = createChunkRandom(chunkX, chunkZ);
+
+        // Use separate seed for craters
+        random.setSeed(random.nextLong() + 12345);
+
+        // Check if this chunk should have craters
+        if (random.nextDouble() > craterConfig.getCraterChance()) {
+            return craters; // No craters in this chunk
+        }
+
+        // Determine number of craters
+        int count = craterConfig.getMinCratersPerChunk();
+        if (craterConfig.getMaxCratersPerChunk() > craterConfig.getMinCratersPerChunk()) {
+            count += random.nextInt(craterConfig.getMaxCratersPerChunk() - craterConfig.getMinCratersPerChunk() + 1);
+        }
+
+        // Generate craters
+        for (int i = 0; i < count; i++) {
+            int x = chunkX * 16 + random.nextInt(16);
+            int z = chunkZ * 16 + random.nextInt(16);
+
+            // Sample terrain height at crater center
+            int surfaceY = heightNoise.sampleHeight(
+                x, z,
+                terrainConfig.getMinHeight(),
+                terrainConfig.getMaxHeight()
+            );
+
+            // Create crater (large or normal)
+            CraterCarver crater;
+            if (craterConfig.allowLargeCraters() && random.nextFloat() < 0.15f) {
+                crater = CraterCarver.createLarge(random, x, z, surfaceY);
+            } else {
+                crater = CraterCarver.createRandom(random, x, z, surfaceY);
+            }
+
+            craters.add(crater);
+        }
+
+        return craters;
+    }
+
+    private List<PlanetOreSpec> getOreSpecs(String planetName) {
+        // Cache ore specs per planet for performance
+        if (!ORE_SPECS_CACHE.containsKey(planetName)) {
+            List<PlanetOreSpec> specs = createOreSpecs(planetName);
+            ORE_SPECS_CACHE.put(planetName, specs);
+        }
+        return ORE_SPECS_CACHE.get(planetName);
+    }
+
+    /**
+     * Clears the ore spec cache. Call this when config is reloaded.
+     */
+    public static void clearCache() {
+        ORE_SPECS_CACHE.clear();
+    }
+
+    private List<PlanetOreSpec> createOreSpecs(String planetName) {
+        List<PlanetOreSpec> specs = new ArrayList<>();
+
+        switch (planetName) {
+            case "moon":
+                addConfiguredOre(specs, "moon", ModBlocks.MOON_CHEESE_ORE,
+                    OreGenConfig.moonCheeseVeinSize, OreGenConfig.moonCheeseCount,
+                    OreGenConfig.moonCheeseMinY, OreGenConfig.moonCheeseMaxY,
+                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+                addConfiguredOre(specs, "moon", ModBlocks.MOON_DESH_ORE,
+                    OreGenConfig.moonDeshVeinSize, OreGenConfig.moonDeshCount,
+                    OreGenConfig.moonDeshMinY, OreGenConfig.moonDeshMaxY,
+                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+                addConfiguredOre(specs, "moon", ModBlocks.MOON_ICE_SHARD_ORE,
+                    OreGenConfig.moonIceShardVeinSize, OreGenConfig.moonIceShardCount,
+                    OreGenConfig.moonIceShardMinY, OreGenConfig.moonIceShardMaxY,
+                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+                addConfiguredOre(specs, "moon", ModBlocks.MOON_IRON_ORE,
+                    OreGenConfig.moonIronVeinSize, OreGenConfig.moonIronCount,
+                    OreGenConfig.moonIronMinY, OreGenConfig.moonIronMaxY,
+                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
+                break;
+
+            case "mars":
+                addConfiguredOre(specs, "mars", ModBlocks.MARS_DIAMOND_ORE,
+                    OreGenConfig.marsDiamondVeinSize, OreGenConfig.marsDiamondCount,
+                    OreGenConfig.marsDiamondMinY, OreGenConfig.marsDiamondMaxY,
+                    ModBlocks.MARS_STONE);
+                addConfiguredOre(specs, "mars", ModBlocks.MARS_ICE_SHARD_ORE,
+                    OreGenConfig.marsIceShardVeinSize, OreGenConfig.marsIceShardCount,
+                    OreGenConfig.marsIceShardMinY, OreGenConfig.marsIceShardMaxY,
+                    ModBlocks.MARS_STONE);
+                addConfiguredOre(specs, "mars", ModBlocks.MARS_IRON_ORE,
+                    OreGenConfig.marsIronVeinSize, OreGenConfig.marsIronCount,
+                    OreGenConfig.marsIronMinY, OreGenConfig.marsIronMaxY,
+                    ModBlocks.MARS_STONE);
+                addConfiguredOre(specs, "mars", ModBlocks.MARS_OSTRUM_ORE,
+                    OreGenConfig.marsOstrumVeinSize, OreGenConfig.marsOstrumCount,
+                    OreGenConfig.marsOstrumMinY, OreGenConfig.marsOstrumMaxY,
+                    ModBlocks.MARS_STONE);
+                break;
+
+            case "mercury":
+                addConfiguredOre(specs, "mercury", ModBlocks.MERCURY_IRON_ORE,
+                    OreGenConfig.mercuryIronVeinSize, OreGenConfig.mercuryIronCount,
+                    OreGenConfig.mercuryIronMinY, OreGenConfig.mercuryIronMaxY,
+                    ModBlocks.MERCURY_STONE);
+                break;
+
+            case "venus":
+                addConfiguredOre(specs, "venus", ModBlocks.VENUS_CALORITE_ORE,
+                    OreGenConfig.venusCaloriteVeinSize, OreGenConfig.venusCaloriteCount,
+                    OreGenConfig.venusCaloriteMinY, OreGenConfig.venusCaloriteMaxY,
+                    ModBlocks.VENUS_STONE);
+                addConfiguredOre(specs, "venus", ModBlocks.VENUS_COAL_ORE,
+                    OreGenConfig.venusCoalVeinSize, OreGenConfig.venusCoalCount,
+                    OreGenConfig.venusCoalMinY, OreGenConfig.venusCoalMaxY,
+                    ModBlocks.VENUS_STONE);
+                addConfiguredOre(specs, "venus", ModBlocks.VENUS_DIAMOND_ORE,
+                    OreGenConfig.venusDiamondVeinSize, OreGenConfig.venusDiamondCount,
+                    OreGenConfig.venusDiamondMinY, OreGenConfig.venusDiamondMaxY,
+                    ModBlocks.VENUS_STONE);
+                addConfiguredOre(specs, "venus", ModBlocks.VENUS_GOLD_ORE,
+                    OreGenConfig.venusGoldVeinSize, OreGenConfig.venusGoldCount,
+                    OreGenConfig.venusGoldMinY, OreGenConfig.venusGoldMaxY,
+                    ModBlocks.VENUS_STONE);
+                break;
+
+            case "glacio":
+                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_COAL_ORE,
+                    OreGenConfig.glacioCoalVeinSize, OreGenConfig.glacioCoalCount,
+                    OreGenConfig.glacioCoalMinY, OreGenConfig.glacioCoalMaxY,
+                    ModBlocks.GLACIO_STONE);
+                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_ICE_SHARD_ORE,
+                    OreGenConfig.glacioIceShardVeinSize, OreGenConfig.glacioIceShardCount,
+                    OreGenConfig.glacioIceShardMinY, OreGenConfig.glacioIceShardMaxY,
+                    ModBlocks.GLACIO_STONE);
+                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_IRON_ORE,
+                    OreGenConfig.glacioIronVeinSize, OreGenConfig.glacioIronCount,
+                    OreGenConfig.glacioIronMinY, OreGenConfig.glacioIronMaxY,
+                    ModBlocks.GLACIO_STONE);
+                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_LAPIS_ORE,
+                    OreGenConfig.glacioLapisVeinSize, OreGenConfig.glacioLapisCount,
+                    OreGenConfig.glacioLapisMinY, OreGenConfig.glacioLapisMaxY,
+                    ModBlocks.GLACIO_STONE);
+                break;
+
+            default:
+                break;
+        }
+
         return specs;
     }
 
-    private static List<PlanetOreSpec> createOreSpecs() {
-        List<PlanetOreSpec> specs = new ArrayList<PlanetOreSpec>();
-
-        add(specs, "moon", ModBlocks.MOON_CHEESE_ORE, 8, 9, 6, 192, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-        add(specs, "moon", ModBlocks.MOON_DESH_ORE, 9, 9, -80, 80, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-        add(specs, "moon", ModBlocks.MOON_ICE_SHARD_ORE, 10, 8, -32, 32, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-        add(specs, "moon", ModBlocks.MOON_IRON_ORE, 11, 10, -24, 56, ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-
-        add(specs, "mars", ModBlocks.MARS_DIAMOND_ORE, 7, 5, -80, 80, ModBlocks.MARS_STONE);
-        add(specs, "mars", ModBlocks.MARS_ICE_SHARD_ORE, 10, 8, -32, 32, ModBlocks.MARS_STONE);
-        add(specs, "mars", ModBlocks.MARS_IRON_ORE, 11, 10, -24, 56, ModBlocks.MARS_STONE);
-        add(specs, "mars", ModBlocks.MARS_OSTRUM_ORE, 8, 8, -80, 80, ModBlocks.MARS_STONE);
-
-        add(specs, "mercury", ModBlocks.MERCURY_IRON_ORE, 8, 20, -80, 192, ModBlocks.MERCURY_STONE);
-
-        add(specs, "venus", ModBlocks.VENUS_CALORITE_ORE, 8, 8, -80, 80, ModBlocks.VENUS_STONE);
-        add(specs, "venus", ModBlocks.VENUS_COAL_ORE, 17, 20, -80, 192, ModBlocks.VENUS_STONE);
-        add(specs, "venus", ModBlocks.VENUS_DIAMOND_ORE, 9, 5, -80, 80, ModBlocks.VENUS_STONE);
-        add(specs, "venus", ModBlocks.VENUS_GOLD_ORE, 10, 4, -64, 32, ModBlocks.VENUS_STONE);
-
-        add(specs, "glacio", ModBlocks.GLACIO_COAL_ORE, 17, 20, -80, 192, ModBlocks.GLACIO_STONE);
-        add(specs, "glacio", ModBlocks.GLACIO_ICE_SHARD_ORE, 17, 8, -32, 32, ModBlocks.GLACIO_STONE);
-        add(specs, "glacio", ModBlocks.GLACIO_IRON_ORE, 11, 10, -24, 56, ModBlocks.GLACIO_STONE);
-        add(specs, "glacio", ModBlocks.GLACIO_LAPIS_ORE, 9, 2, -32, 32, ModBlocks.GLACIO_STONE);
-
-        return specs;
-    }
-
-    private static void add(List<PlanetOreSpec> specs, String planetName, Block oreBlock, int veinSize, int countPerChunk,
-                            int sourceMinY, int sourceMaxY, Block... replaceableBlocks) {
+    private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, Block oreBlock,
+                                   int veinSize, int countPerChunk, int sourceMinY, int sourceMaxY,
+                                   Block... replaceableBlocks) {
+        int maxGenerationY = terrainConfig.getMaxHeight() - 3;
         int minY = Math.max(MIN_GENERATION_Y, sourceMinY);
-        int maxY = Math.min(MAX_GENERATION_Y, sourceMaxY);
-        if (minY <= maxY) {
+        int maxY = Math.min(maxGenerationY, sourceMaxY);
+        if (minY <= maxY && countPerChunk > 0) {
             specs.add(new PlanetOreSpec(planetName, oreBlock.getDefaultState(), veinSize, countPerChunk, minY, maxY, replaceableBlocks));
         }
     }
@@ -369,6 +612,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         private final int minY;
         private final int maxY;
         private final Block[] replaceableBlocks;
+        private String oreName; // Cached ore name for logging
 
         private PlanetOreSpec(String planetName, IBlockState oreState, int veinSize, int countPerChunk, int minY, int maxY,
                               Block[] replaceableBlocks) {
@@ -388,6 +632,13 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                 }
             }
             return false;
+        }
+
+        private String getOreName() {
+            if (oreName == null) {
+                oreName = oreState.getBlock().getRegistryName().getPath();
+            }
+            return oreName;
         }
     }
 }

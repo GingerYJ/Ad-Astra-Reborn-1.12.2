@@ -3,15 +3,13 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateDesh"
+      "tag": "ad_astra:desh_plates"
     },
     "D": {
       "item": "minecraft:diamond"
     },
     "G": {
-      "item": "minecraft:stained_glass",
-      "data": 11
+      "item": "minecraft:blue_stained_glass"
     }
   },
   "pattern": [

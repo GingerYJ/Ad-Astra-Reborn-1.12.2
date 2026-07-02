@@ -8,12 +8,13 @@
       "type": "spotlight",
       "title": "Płyty żelazne",
       "item": "ad_astra:iron_plate",
-      "text": "Płyty żelazne są najbardziej podstawowym materiałem w Ad Astra. Są tworzone przez sprasowanie sztabek lub bloków żelaza w kompresorze. Służą do tworzenia najprostszych maszyn niezbędnych do budowy rakiety i podróży w kosmos."
+      "text": "Płyty żelazne są najbardziej podstawowym materiałem w Ad Astra. Są tworzone poprzez połączenie sztabek żelaza i młota na stole rzemieślniczym. Służą do tworzenia najprostszych maszyn niezbędnych do budowy rakiety i podróży w kosmos."
     },
     {
-      "type": "text",
-      "title": "Kompresor",
-      "text": "Najpierw przygotuj generator węglowy i kompresor. Kompresor zużywa energię, aby zamieniać metalowe sztabki w płyty; płyty żelazne i stalowe będą potrzebne na początku programu kosmicznego."
+      "type": "crafting",
+      "title": "Młotek i płyty",
+      "recipe": "ad_astra:hammer",
+      "recipe2": "ad_astra:hammering/iron_plate"
     },
     {
       "type": "spotlight",

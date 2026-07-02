@@ -1,0 +1,12 @@
+{
+  "type": "ad_astra:compressing",
+  "ingredient": {
+    "ore": "blockIron"
+  },
+  "result": {
+    "id": "ad_astra:iron_plate",
+    "count": 9
+  },
+  "cookingtime": 800,
+  "energy": 3200
+}

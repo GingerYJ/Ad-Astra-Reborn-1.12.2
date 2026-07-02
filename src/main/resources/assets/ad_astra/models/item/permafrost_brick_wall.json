@@ -1,3 +1,6 @@
 {
-  "parent": "ad_astra:block/permafrost_brick_wall_inventory"
+  "parent": "minecraft:block/wall_inventory",
+  "textures": {
+    "wall": "ad_astra:block/permafrost_bricks"
+  }
 }

@@ -4,6 +4,8 @@ import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.entities.misc.AirVortexEntity;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModSounds;
+import earth.terrarium.adastra.common.systems.OxygenSystem;
+import earth.terrarium.adastra.common.systems.OxygenSystemExtended;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -21,7 +23,9 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
 
@@ -48,6 +52,11 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     private int airVortexCooldown;
     private int soundCooldown;
 
+    // Sealed room tracking for integration with OxygenSystemExtended
+    private final Set<BlockPos> lastDistributedBlocks = new HashSet<>();
+    private boolean usesSealedRoomDetection = true;
+    private int shutDownTicks;
+
     public OxygenDistributorTileEntity() {
         super("oxygen_distributor", 3, DESH_ENERGY, DESH_IO, 0, DESH_FLUID);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PULL);
@@ -61,6 +70,10 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         }
         if (soundCooldown > 0) {
             soundCooldown--;
+        }
+        if (shutDownTicks > 0) {
+            shutDownTicks--;
+            return;
         }
 
         if (energy == null || fluidTank == null || !canFunction()) {
@@ -156,8 +169,96 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
             ticksUntilRefresh--;
             return;
         }
+
+        // Try sealed room detection if enabled
+        if (usesSealedRoomDetection && world != null && pos != null) {
+            Set<BlockPos> sealedRoom = OxygenSystem.findSealedRoom(world, pos.up(), MAX_DISTRIBUTION_BLOCKS);
+
+            if (sealedRoom != null && !sealedRoom.isEmpty()) {
+                // Found a sealed room - use exact block count
+                plannedBlocksCount = sealedRoom.size();
+
+                // Update oxygen positions via OxygenSystemExtended
+                updateOxygenPositions(sealedRoom);
+
+                ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+                return;
+            }
+        }
+
+        // Fallback to spherical distribution
         plannedBlocksCount = Math.min(countBlocksInRadius(workingRadius), MAX_DISTRIBUTION_BLOCKS);
+
+        // Update oxygen positions for spherical area
+        if (isProvidingOxygen() && world != null && pos != null) {
+            updateOxygenPositionsSpherical();
+        }
+
         ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+    }
+
+    /**
+     * Update oxygen positions in OxygenSystemExtended for sealed room mode.
+     * Adds oxygen to new blocks and removes from old blocks.
+     */
+    private void updateOxygenPositions(Set<BlockPos> newPositions) {
+        if (world == null || world.isRemote) {
+            return;
+        }
+
+        // Remove oxygen from blocks that are no longer covered
+        Set<BlockPos> toRemove = new HashSet<>(lastDistributedBlocks);
+        toRemove.removeAll(newPositions);
+        if (!toRemove.isEmpty()) {
+            OxygenSystemExtended.removeOxygen(world, toRemove);
+        }
+
+        // Add oxygen to new blocks
+        Set<BlockPos> toAdd = new HashSet<>(newPositions);
+        toAdd.removeAll(lastDistributedBlocks);
+        if (!toAdd.isEmpty()) {
+            OxygenSystemExtended.setOxygen(world, toAdd, true);
+        }
+
+        // Update tracked positions
+        lastDistributedBlocks.clear();
+        lastDistributedBlocks.addAll(newPositions);
+    }
+
+    /**
+     * Update oxygen positions for spherical distribution mode.
+     */
+    private void updateOxygenPositionsSpherical() {
+        if (world == null || world.isRemote || pos == null) {
+            return;
+        }
+
+        Set<BlockPos> sphericalPositions = new HashSet<>();
+        int radiusSq = workingRadius * workingRadius;
+
+        // Generate all positions within the sphere
+        for (int x = -workingRadius; x <= workingRadius; x++) {
+            for (int y = -workingRadius; y <= workingRadius; y++) {
+                for (int z = -workingRadius; z <= workingRadius; z++) {
+                    if (x * x + y * y + z * z <= radiusSq) {
+                        BlockPos blockPos = pos.add(x, y, z);
+                        sphericalPositions.add(blockPos);
+
+                        if (sphericalPositions.size() >= MAX_DISTRIBUTION_BLOCKS) {
+                            break;
+                        }
+                    }
+                }
+                if (sphericalPositions.size() >= MAX_DISTRIBUTION_BLOCKS) {
+                    break;
+                }
+            }
+            if (sphericalPositions.size() >= MAX_DISTRIBUTION_BLOCKS) {
+                break;
+            }
+        }
+
+        updateOxygenPositions(sphericalPositions);
     }
 
     private boolean canMaintainDistribution(int requiredEnergy, int requiredOxygen) {
@@ -199,9 +300,46 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
             distributedBlocksCount = 0;
             energyPerTick = 0;
             oxygenPerTick = 0;
+
+            // Clear oxygen from all distributed blocks
+            clearOxygenBlocks();
+
+            // Add shutdown delay to prevent rapid on/off cycles
+            shutDownTicks = 60;
+
             markDirty();
         }
         setLit(false);
+    }
+
+    /**
+     * Clear oxygen from all tracked positions and reset the tracking set.
+     */
+    private void clearOxygenBlocks() {
+        if (world != null && !world.isRemote && !lastDistributedBlocks.isEmpty()) {
+            OxygenSystemExtended.removeOxygen(world, lastDistributedBlocks);
+            lastDistributedBlocks.clear();
+        }
+    }
+
+    /**
+     * Called when the tile entity is removed or invalidated.
+     * Ensures oxygen is properly cleaned up.
+     */
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        clearOxygenBlocks();
+    }
+
+    /**
+     * Called when the chunk is unloaded.
+     * Ensures oxygen is properly cleaned up.
+     */
+    @Override
+    public void onChunkUnload() {
+        super.onChunkUnload();
+        clearOxygenBlocks();
     }
 
     private int calculateEnergyPerTick(int blocksCount) {
@@ -216,20 +354,69 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         return fluid != null && (fluid.getFluid() == ModFluids.OXYGEN || fluid.getFluid() == FluidRegistry.WATER);
     }
 
+    /**
+     * Check if this distributor is providing oxygen at all.
+     * @return true if actively distributing oxygen
+     */
     public boolean isProvidingOxygen() {
         return providingOxygen && canFunction();
     }
 
+    /**
+     * Check if this distributor is providing oxygen at the given position.
+     * Checks both spherical radius and sealed room membership.
+     *
+     * @param target Position to check
+     * @return true if oxygen is available at this position from this distributor
+     */
     public boolean isProvidingOxygen(BlockPos target) {
         if (!isProvidingOxygen() || pos == null || target == null) {
             return false;
         }
 
+        // If using sealed room detection and we have tracked positions, check exact membership
+        if (usesSealedRoomDetection && !lastDistributedBlocks.isEmpty()) {
+            return lastDistributedBlocks.contains(target);
+        }
+
+        // Fallback to spherical distance check
         long dx = target.getX() - pos.getX();
         long dy = target.getY() - pos.getY();
         long dz = target.getZ() - pos.getZ();
         long radius = workingRadius;
         return dx * dx + dy * dy + dz * dz <= radius * radius;
+    }
+
+    /**
+     * Get all positions currently being provided with oxygen.
+     * @return Set of block positions, or empty set if not providing oxygen
+     */
+    public Set<BlockPos> getDistributedPositions() {
+        if (!isProvidingOxygen()) {
+            return new HashSet<>();
+        }
+        return new HashSet<>(lastDistributedBlocks);
+    }
+
+    /**
+     * Toggle between sealed room detection and spherical distribution modes.
+     * @param useSealedRoom true to use sealed room detection, false for spherical
+     */
+    public void setUsesSealedRoomDetection(boolean useSealedRoom) {
+        if (this.usesSealedRoomDetection != useSealedRoom) {
+            this.usesSealedRoomDetection = useSealedRoom;
+            // Force immediate recalculation
+            ticksUntilRefresh = 0;
+            markDirty();
+        }
+    }
+
+    /**
+     * Check if using sealed room detection mode.
+     * @return true if sealed room detection is enabled
+     */
+    public boolean usesSealedRoomDetection() {
+        return usesSealedRoomDetection;
     }
 
     private void maybeSpawnAirVortex() {
@@ -372,6 +559,23 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         oxygenPerTick = Math.max(0, compound.getInteger("OxygenPerTick"));
         ticksUntilRefresh = Math.max(0, compound.getInteger("DistributionRefreshTicks"));
         airVortexCooldown = Math.max(0, compound.getInteger("AirVortexCooldown"));
+        usesSealedRoomDetection = compound.hasKey("UsesSealedRoomDetection") ? compound.getBoolean("UsesSealedRoomDetection") : true;
+        shutDownTicks = Math.max(0, compound.getInteger("ShutDownTicks"));
+
+        // Load distributed block positions (1.12.2 compatible - use int array instead of long array)
+        lastDistributedBlocks.clear();
+        if (compound.hasKey("LastDistributedBlocksCount")) {
+            int count = compound.getInteger("LastDistributedBlocksCount");
+            int[] xArray = compound.getIntArray("LastDistributedBlocksX");
+            int[] yArray = compound.getIntArray("LastDistributedBlocksY");
+            int[] zArray = compound.getIntArray("LastDistributedBlocksZ");
+
+            if (xArray.length == count && yArray.length == count && zArray.length == count) {
+                for (int i = 0; i < count; i++) {
+                    lastDistributedBlocks.add(new BlockPos(xArray[i], yArray[i], zArray[i]));
+                }
+            }
+        }
     }
 
     @Override
@@ -385,6 +589,29 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         compound.setInteger("OxygenPerTick", oxygenPerTick);
         compound.setInteger("DistributionRefreshTicks", ticksUntilRefresh);
         compound.setInteger("AirVortexCooldown", airVortexCooldown);
+        compound.setBoolean("UsesSealedRoomDetection", usesSealedRoomDetection);
+        compound.setInteger("ShutDownTicks", shutDownTicks);
+
+        // Save distributed block positions (1.12.2 compatible - use int arrays instead of long array)
+        if (!lastDistributedBlocks.isEmpty()) {
+            compound.setInteger("LastDistributedBlocksCount", lastDistributedBlocks.size());
+            int[] xArray = new int[lastDistributedBlocks.size()];
+            int[] yArray = new int[lastDistributedBlocks.size()];
+            int[] zArray = new int[lastDistributedBlocks.size()];
+
+            int i = 0;
+            for (BlockPos blockPos : lastDistributedBlocks) {
+                xArray[i] = blockPos.getX();
+                yArray[i] = blockPos.getY();
+                zArray[i] = blockPos.getZ();
+                i++;
+            }
+
+            compound.setIntArray("LastDistributedBlocksX", xArray);
+            compound.setIntArray("LastDistributedBlocksY", yArray);
+            compound.setIntArray("LastDistributedBlocksZ", zArray);
+        }
+
         return compound;
     }
 
@@ -411,6 +638,9 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         if (id == 10) {
             return getStoredOxygenEquivalent();
         }
+        if (id == 11) {
+            return usesSealedRoomDetection ? 1 : 0;
+        }
         return super.getField(id);
     }
 
@@ -420,12 +650,16 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
             setWorkingRadius(value);
             return;
         }
+        if (id == 11) {
+            setUsesSealedRoomDetection(value != 0);
+            return;
+        }
         super.setField(id, value);
     }
 
     @Override
     public int getFieldCount() {
-        return 11;
+        return 12;
     }
 
     private static int calculateMaxRadius(int blockLimit) {

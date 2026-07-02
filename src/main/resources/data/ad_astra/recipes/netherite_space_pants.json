@@ -3,15 +3,13 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateOstrum"
+      "tag": "ad_astra:ostrum_plates"
     },
     "D": {
-      "type": "forge:ore_dict",
-      "ore": "plateDesh"
+      "tag": "ad_astra:desh_plates"
     },
     "N": {
-      "item": "minecraft:diamond_leggings"
+      "item": "minecraft:netherite_leggings"
     }
   },
   "pattern": [

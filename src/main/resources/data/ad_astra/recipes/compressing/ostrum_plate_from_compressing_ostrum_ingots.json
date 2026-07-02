@@ -3,8 +3,7 @@
   "cookingtime": 100,
   "energy": 20,
   "ingredient": {
-    "type": "forge:ore_dict",
-    "ore": "ingotOstrum"
+    "tag": "ad_astra:ostrum_ingots"
   },
   "result": {
     "count": 1,

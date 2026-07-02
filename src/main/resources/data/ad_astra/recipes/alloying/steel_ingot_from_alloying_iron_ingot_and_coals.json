@@ -6,16 +6,9 @@
     {
       "item": "minecraft:iron_ingot"
     },
-    [
-      {
-        "item": "minecraft:coal",
-        "data": 0
-      },
-      {
-        "item": "minecraft:coal",
-        "data": 1
-      }
-    ]
+    {
+      "tag": "minecraft:coals"
+    }
   ],
   "result": {
     "count": 1,

@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/half_slab",
+  "parent": "minecraft:block/slab",
   "textures": {
     "bottom": "ad_astra:block/steel_plating",
     "side": "ad_astra:block/steel_plating",

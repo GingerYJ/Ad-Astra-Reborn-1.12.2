@@ -1,8 +1,26 @@
 package earth.terrarium.adastra.client;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.client.particle.ParticleAcidRain;
+import earth.terrarium.adastra.client.particle.ParticleCryoFreeze;
+import earth.terrarium.adastra.client.particle.ParticleLargeFlame;
+import earth.terrarium.adastra.client.particle.ParticleLargeSmoke;
+import earth.terrarium.adastra.client.particle.ParticleOxygenBubble;
+import earth.terrarium.adastra.client.particle.ParticleOxygenVent;
 import earth.terrarium.adastra.client.render.AdAstraEntityRenderers;
+import earth.terrarium.adastra.client.render.TileEnergizerRenderer;
+import earth.terrarium.adastra.client.render.TileFlagRenderer;
+import earth.terrarium.adastra.client.render.TileGlobeRenderer;
+import earth.terrarium.adastra.client.render.TileGravityNormalizerRenderer;
+import earth.terrarium.adastra.client.render.TileOxygenDistributorRenderer;
+import earth.terrarium.adastra.client.render.TileSlidingDoorRenderer;
 import earth.terrarium.adastra.client.render.VehicleItemStackRenderer;
+import earth.terrarium.adastra.common.tile.FlagTileEntity;
+import earth.terrarium.adastra.common.tile.GlobeTileEntity;
+import earth.terrarium.adastra.common.tile.EnergizerTileEntity;
+import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
+import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
+import earth.terrarium.adastra.common.tile.SlidingDoorTileEntity;
 import earth.terrarium.adastra.common.blocks.AdAstraDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFenceGateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
@@ -15,6 +33,7 @@ import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.VehicleItem;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.registry.ModParticles;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockFenceGate;
@@ -22,6 +41,7 @@ import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
@@ -33,6 +53,15 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 public final class ClientRegistry {
 
     private ClientRegistry() {
+    }
+
+    public static void registerTileEntityRenderers() {
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(GlobeTileEntity.class, new TileGlobeRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(FlagTileEntity.class, new TileFlagRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(SlidingDoorTileEntity.class, new TileSlidingDoorRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(EnergizerTileEntity.class, new TileEnergizerRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(OxygenDistributorTileEntity.class, new TileOxygenDistributorRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(GravityNormalizerTileEntity.class, new TileGravityNormalizerRenderer());
     }
 
     public static void registerModels() {
@@ -51,6 +80,16 @@ public final class ClientRegistry {
         for (Item item : ModItems.ITEMS) {
             registerItemModel(item);
         }
+    }
+
+    public static void registerParticles() {
+        Minecraft minecraft = Minecraft.getMinecraft();
+        minecraft.effectRenderer.registerParticle(ModParticles.ACID_RAIN, new ParticleAcidRain.Factory());
+        minecraft.effectRenderer.registerParticle(ModParticles.LARGE_FLAME, new ParticleLargeFlame.Factory());
+        minecraft.effectRenderer.registerParticle(ModParticles.LARGE_SMOKE, new ParticleLargeSmoke.Factory());
+        minecraft.effectRenderer.registerParticle(ModParticles.OXYGEN_BUBBLE, new ParticleOxygenBubble.Factory());
+        minecraft.effectRenderer.registerParticle(ModParticles.OXYGEN_VENT, new ParticleOxygenVent.Factory());
+        minecraft.effectRenderer.registerParticle(ModParticles.CRYO_FREEZE, new ParticleCryoFreeze.Factory());
     }
 
     public static void registerItemColors(ItemColors itemColors) {
@@ -86,10 +125,12 @@ public final class ClientRegistry {
         if (item instanceof VehicleItem) {
             item.setTileEntityItemStackRenderer(VehicleItemStackRenderer.INSTANCE);
         }
+        // For 1.12.2, just use the item's registry name as the model location
+        // The model loader will automatically look for models/item/{name}.json
         ModelLoader.setCustomModelResourceLocation(
             item,
             0,
-            new ModelResourceLocation(Reference.MOD_ID + ":" + item.getRegistryName().getPath(), "inventory"));
+            new ModelResourceLocation(item.getRegistryName(), "inventory"));
     }
 
     private static void registerBlockItemModel(Block block) {
@@ -98,20 +139,40 @@ public final class ClientRegistry {
             return;
         }
         if (block instanceof AdAstraGlobeBlock) {
-            ModelLoader.setCustomModelResourceLocation(
-                item,
-                0,
-                new ModelResourceLocation(Reference.MOD_ID + ":" + item.getRegistryName().getPath(), "powered=false,waterlogged=false"));
+            item.setTileEntityItemStackRenderer(TileGlobeRenderer.ITEM_RENDERER);
+            registerItemModel(item);
+            return;
+        }
+        if (block instanceof AdAstraSlidingDoorBlock) {
+            registerSlidingDoorRenderVariants(item, block);
+            registerItemModel(item);
             return;
         }
         if (block instanceof AdAstraWallBlock) {
-            ModelResourceLocation model = new ModelResourceLocation(
-                Reference.MOD_ID + ":" + item.getRegistryName().getPath(), "inventory");
+            ModelResourceLocation model = new ModelResourceLocation(item.getRegistryName(), "inventory");
             ModelLoader.setCustomModelResourceLocation(item, 0, model);
             ModelLoader.setCustomModelResourceLocation(item, 1, model);
             return;
         }
         registerItemModel(item);
+    }
+
+    private static void registerSlidingDoorRenderVariants(Item item, Block block) {
+        if (block.getRegistryName() == null) {
+            return;
+        }
+
+        if (block == ModBlocks.AIRLOCK || block == ModBlocks.REINFORCED_DOOR) {
+            net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
+                item,
+                new ModelResourceLocation(block.getRegistryName(), "normal"),
+                new ModelResourceLocation(block.getRegistryName(), "flipped"));
+            return;
+        }
+
+        net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
+            item,
+            new ModelResourceLocation(block.getRegistryName(), "normal"));
     }
 
     private static Item getRegisteredBlockItem(Block block) {

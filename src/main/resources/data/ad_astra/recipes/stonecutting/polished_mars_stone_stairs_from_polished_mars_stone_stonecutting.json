@@ -4,10 +4,5 @@
   "ingredient": {
     "item": "ad_astra:polished_mars_stone"
   },
-  "result": "ad_astra:polished_mars_stone_stairs",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "ad_astra:polished_mars_stone_stairs"
 }

@@ -44,6 +44,10 @@ public final class AdAstraHudOverlay {
     private static final int BAR_HEIGHT = 4;
     private static final int ENVIRONMENT_SCAN_RADIUS = 16;
     private static final int ENVIRONMENT_SCAN_INTERVAL_TICKS = 20;
+    private static final float WARNING_FLASH_SPEED = 0.1f;
+    private static final float LOW_OXYGEN_THRESHOLD = 0.2f;
+    private static final int EXTREME_TEMP_LOW = -100;
+    private static final int EXTREME_TEMP_HIGH = 100;
 
     private static int lastEnvironmentScanTick = -ENVIRONMENT_SCAN_INTERVAL_TICKS;
     private static EnvironmentSnapshot cachedEnvironment = EnvironmentSnapshot.EMPTY;
@@ -168,8 +172,17 @@ public final class AdAstraHudOverlay {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
+
+        // Flash warning border if critical conditions
+        int borderColor = 0x8855FFFF;
+        if (data.hasWarning) {
+            float flashIntensity = getFlashIntensity();
+            int red = (int) (255 * flashIntensity);
+            borderColor = 0x88000000 | (red << 16) | 0x3333;
+        }
+
         Gui.drawRect(PANEL_X, PANEL_Y, PANEL_X + panelWidth, PANEL_Y + panelHeight, 0x66000000);
-        Gui.drawRect(PANEL_X, PANEL_Y, PANEL_X + 1, PANEL_Y + panelHeight, 0x8855FFFF);
+        Gui.drawRect(PANEL_X, PANEL_Y, PANEL_X + 1, PANEL_Y + panelHeight, borderColor);
 
         int y = PANEL_Y + PANEL_PADDING;
         for (HudRow row : rows) {
@@ -185,13 +198,22 @@ public final class AdAstraHudOverlay {
         int barY = y + 8;
         int filledWidth = Math.max(0, Math.min(barWidth, (int) Math.round(barWidth * row.ratio)));
 
-        font.drawStringWithShadow(row.label, labelX, y, row.labelColor);
+        // Apply warning flash to text if needed
+        int labelColor = row.labelColor;
+        int valueColor = row.valueColor;
+        if (row.warning) {
+            float flashIntensity = getFlashIntensity();
+            labelColor = blendColor(row.labelColor, 0xFFFFFF, flashIntensity * 0.5f);
+            valueColor = blendColor(row.valueColor, 0xFF3333, flashIntensity * 0.7f);
+        }
+
+        font.drawStringWithShadow(row.label, labelX, y, labelColor);
         Gui.drawRect(barX, barY, barX + barWidth, barY + BAR_HEIGHT, 0xAA151515);
         if (filledWidth > 0) {
             Gui.drawRect(barX, barY, barX + filledWidth, barY + BAR_HEIGHT, 0xFF000000 | row.barColor);
         }
         Gui.drawRect(barX, barY + BAR_HEIGHT, barX + barWidth, barY + BAR_HEIGHT + 1, 0x55222222);
-        font.drawStringWithShadow(row.value, contentRight - font.getStringWidth(row.value), y, row.valueColor);
+        font.drawStringWithShadow(row.value, contentRight - font.getStringWidth(row.value), y, valueColor);
     }
 
     private static String percent(long amount, long capacity) {
@@ -203,6 +225,26 @@ public final class AdAstraHudOverlay {
 
     private static String oneDecimal(float value) {
         return String.format(Locale.ROOT, "%.1f", value);
+    }
+
+    private static float getFlashIntensity() {
+        long time = Minecraft.getMinecraft().world != null ? Minecraft.getMinecraft().world.getTotalWorldTime() : 0;
+        return (float) ((Math.sin(time * WARNING_FLASH_SPEED) + 1.0) / 2.0);
+    }
+
+    private static int blendColor(int color1, int color2, float ratio) {
+        int r1 = (color1 >> 16) & 0xFF;
+        int g1 = (color1 >> 8) & 0xFF;
+        int b1 = color1 & 0xFF;
+        int r2 = (color2 >> 16) & 0xFF;
+        int g2 = (color2 >> 8) & 0xFF;
+        int b2 = color2 & 0xFF;
+
+        int r = (int) (r1 + (r2 - r1) * ratio);
+        int g = (int) (g1 + (g2 - g1) * ratio);
+        int b = (int) (b1 + (b2 - b1) * ratio);
+
+        return (r << 16) | (g << 8) | b;
     }
 
     private static double ratio(long amount, long capacity) {
@@ -296,12 +338,14 @@ public final class AdAstraHudOverlay {
         private final HudRow temperatureRow;
         private final HudRow gravityRow;
         private final HudRow energyRow;
+        private final boolean hasWarning;
 
-        private HudData(HudRow oxygenRow, HudRow temperatureRow, HudRow gravityRow, HudRow energyRow) {
+        private HudData(HudRow oxygenRow, HudRow temperatureRow, HudRow gravityRow, HudRow energyRow, boolean hasWarning) {
             this.oxygenRow = oxygenRow;
             this.temperatureRow = temperatureRow;
             this.gravityRow = gravityRow;
             this.energyRow = energyRow;
+            this.hasWarning = hasWarning;
         }
 
         private static HudData from(EntityPlayer player, EnvironmentSnapshot environment) {
@@ -311,7 +355,26 @@ public final class AdAstraHudOverlay {
             String oxygenValue = totals.oxygenCapacity > 0 ? percent(totals.oxygen, totals.oxygenCapacity)
                 : environment.oxygen ? I18n.format("hud.ad_astra.local") : I18n.format("hud.ad_astra.none");
             double oxygenRatio = totals.oxygenCapacity > 0 ? ratio(totals.oxygen, totals.oxygenCapacity) : environment.oxygen ? 1.0d : 0.0d;
-            int oxygenColor = environment.oxygen ? 0x55FF55 : totals.oxygenCapacity > 0 && totals.oxygen <= 0 ? 0xE53253 : 0x99CCFF;
+
+            // Low oxygen warning detection
+            boolean lowOxygen = !environment.oxygen && totals.oxygenCapacity > 0 && oxygenRatio < LOW_OXYGEN_THRESHOLD;
+            boolean noOxygen = !environment.oxygen && totals.oxygenCapacity > 0 && totals.oxygen <= 0;
+
+            // 浣庢哀璀﹀憡锛氭哀姘斿閲?0涓旀哀姘斺墹0鏃舵樉绀虹孩鑹诧紝浣庝簬20%鏃舵樉绀烘鑹茶鍛婏紝鍚﹀垯鏄剧ず钃濊壊
+            int oxygenColor;
+            if (environment.oxygen) {
+                oxygenColor = 0x55FF55;
+            } else if (totals.oxygenCapacity > 0) {
+                if (totals.oxygen <= 0) {
+                    oxygenColor = 0xE53253;
+                } else if (oxygenRatio < 0.2d) {
+                    oxygenColor = 0xFF9944;
+                } else {
+                    oxygenColor = 0x99CCFF;
+                }
+            } else {
+                oxygenColor = 0x99CCFF;
+            }
 
             HudRow oxygenRow = new HudRow(
                 I18n.format("hud.ad_astra.oxygen"),
@@ -319,7 +382,12 @@ public final class AdAstraHudOverlay {
                 oxygenRatio,
                 0xDCEFFF,
                 oxygenColor,
-                oxygenColor);
+                oxygenColor,
+                noOxygen || lowOxygen);
+
+            // Extreme temperature warning
+            boolean extremeTemp = environment.hasTemperature && !protectedBySuit &&
+                (environment.temperature < EXTREME_TEMP_LOW || environment.temperature > EXTREME_TEMP_HIGH);
 
             String temperatureValue = environment.hasTemperature ? I18n.format("text.ad_astra.temperature", String.valueOf(environment.temperature))
                 : protectedBySuit ? I18n.format("hud.ad_astra.suit") : I18n.format("hud.ad_astra.pending");
@@ -331,7 +399,8 @@ public final class AdAstraHudOverlay {
                 environment.hasTemperature ? temperatureRatio(environment.temperature) : protectedBySuit ? 1.0d : 0.0d,
                 0xFFE6D4,
                 temperatureColor,
-                temperatureColor);
+                temperatureColor,
+                extremeTemp);
 
             HudRow gravityRow = new HudRow(
                 I18n.format("hud.ad_astra.gravity"),
@@ -339,7 +408,8 @@ public final class AdAstraHudOverlay {
                 Math.max(0.0d, Math.min(1.0d, environment.gravityValue / 19.6d)),
                 0xE7E0FF,
                 environment.hasGravity ? 0xBA8CFF : 0x88AAFF,
-                environment.hasGravity ? 0xBA8CFF : 0xDDDDDD);
+                environment.hasGravity ? 0xBA8CFF : 0xDDDDDD,
+                false);
 
             String energyValue = totals.energyCapacity > 0 ? percent(totals.energy, totals.energyCapacity) : I18n.format("hud.ad_astra.none");
             int energyColor = totals.energyCapacity > 0 && totals.energy <= 0 ? 0xE53253 : 0x55FFFF;
@@ -349,9 +419,12 @@ public final class AdAstraHudOverlay {
                 ratio(totals.energy, totals.energyCapacity),
                 0xDAFFFF,
                 energyColor,
-                totals.energyCapacity > 0 ? energyColor : 0xAAAAAA);
+                totals.energyCapacity > 0 ? energyColor : 0xAAAAAA,
+                false);
 
-            return new HudData(oxygenRow, temperatureRow, gravityRow, energyRow);
+            boolean hasWarning = noOxygen || lowOxygen || extremeTemp;
+
+            return new HudData(oxygenRow, temperatureRow, gravityRow, energyRow, hasWarning);
         }
     }
 
@@ -363,14 +436,16 @@ public final class AdAstraHudOverlay {
         private final int labelColor;
         private final int barColor;
         private final int valueColor;
+        private final boolean warning;
 
-        private HudRow(String label, String value, double ratio, int labelColor, int barColor, int valueColor) {
+        private HudRow(String label, String value, double ratio, int labelColor, int barColor, int valueColor, boolean warning) {
             this.label = label;
             this.value = value;
             this.ratio = ratio;
             this.labelColor = labelColor;
             this.barColor = barColor;
             this.valueColor = valueColor;
+            this.warning = warning;
         }
     }
 

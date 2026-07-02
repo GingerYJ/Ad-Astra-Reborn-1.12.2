@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "nuggetDesh"
+      "tag": "ad_astra:desh_nuggets"
     }
   },
   "pattern": [

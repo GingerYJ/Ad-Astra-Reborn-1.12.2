@@ -3,8 +3,7 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "ingotCalorite"
+      "tag": "ad_astra:calorite_ingots"
     }
   },
   "pattern": [

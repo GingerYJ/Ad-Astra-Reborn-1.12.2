@@ -1,5 +1,8 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.recipe.AlloySmeltingRecipe;
+import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.block.Block;
@@ -50,28 +53,101 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
     }
 
     private void tickAlloying() {
-        if (!hasIronIngot() || !hasCoal() || !canAddOutput(new ItemStack(ModItems.STEEL_INGOT))) {
+        // Try to find a matching recipe from the registry
+        AlloySmeltingRecipe recipe = findAlloyingRecipe();
+        if (recipe == null) {
             cookTime = 0;
             cookTimeTotal = 0;
             setLit(false);
             return;
         }
 
-        if (energy.extractEnergy(ALLOYING_ENERGY_PER_TICK, true) < ALLOYING_ENERGY_PER_TICK) {
+        // Check if we can output the result
+        if (!canAddOutput(recipe.getResult())) {
+            cookTime = 0;
+            cookTimeTotal = 0;
             setLit(false);
             return;
         }
 
-        cookTimeTotal = ALLOYING_COOK_TIME;
-        energy.extractEnergy(ALLOYING_ENERGY_PER_TICK, false);
+        int energyPerTick = recipe.getEnergyPerTick();
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(energyPerTick);
+        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
+            setLit(false);
+            return;
+        }
+
+        // Apply config speed multiplier to processing time
+        cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(recipe.getProcessingTime());
+        energy.extractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
 
         if (cookTime >= cookTimeTotal) {
-            craftSteelIngot();
+            craftAlloying(recipe);
             cookTime = 0;
         }
         markDirty();
+    }
+
+    private AlloySmeltingRecipe findAlloyingRecipe() {
+        // Try all combinations of input slots
+        for (int slot1 = FIRST_INPUT_SLOT; slot1 <= LAST_INPUT_SLOT; slot1++) {
+            ItemStack stack1 = items.getStackInSlot(slot1);
+            if (stack1.isEmpty()) continue;
+
+            for (int slot2 = slot1 + 1; slot2 <= LAST_INPUT_SLOT; slot2++) {
+                ItemStack stack2 = items.getStackInSlot(slot2);
+                if (stack2.isEmpty()) continue;
+
+                AlloySmeltingRecipe recipe = RecipeRegistry.findAlloyingRecipe(stack1, stack2);
+                if (recipe != null) {
+                    return recipe;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void craftAlloying(AlloySmeltingRecipe recipe) {
+        // Find and consume the matching inputs
+        boolean consumedFirst = false;
+        boolean consumedSecond = false;
+
+        // Try to consume both inputs
+        for (int slot = FIRST_INPUT_SLOT; slot <= LAST_INPUT_SLOT && (!consumedFirst || !consumedSecond); slot++) {
+            ItemStack stack = items.getStackInSlot(slot);
+            if (stack.isEmpty()) continue;
+
+            if (!consumedFirst) {
+                // Try to match first input
+                ItemStack[] testInputs = {stack, ItemStack.EMPTY};
+                if (recipe.matches(testInputs)) {
+                    stack.shrink(1);
+                    if (stack.isEmpty()) {
+                        items.setStackInSlot(slot, ItemStack.EMPTY);
+                    }
+                    consumedFirst = true;
+                    continue;
+                }
+            }
+
+            if (!consumedSecond) {
+                // Try to match second input
+                ItemStack[] testInputs = {ItemStack.EMPTY, stack};
+                if (recipe.matches(testInputs)) {
+                    stack.shrink(1);
+                    if (stack.isEmpty()) {
+                        items.setStackInSlot(slot, ItemStack.EMPTY);
+                    }
+                    consumedSecond = true;
+                }
+            }
+        }
+
+        if (consumedFirst && consumedSecond) {
+            addOutput(recipe.getResult());
+        }
     }
 
     private void tickBlasting() {
@@ -91,13 +167,14 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
             activeBlastingSlot = target.inputSlot;
         }
 
-        cookTimeTotal = target.recipe.cookingTime;
+        cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(target.recipe.cookingTime);
         if (!canProcessBlasting(target.recipe)) {
             setLit(false);
             return;
         }
 
-        energy.extractEnergy(target.recipe.energyPerTick, false);
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(target.recipe.energyPerTick);
+        energy.extractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
 
@@ -130,7 +207,8 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
     }
 
     private boolean canProcessBlasting(BlastingRecipe recipe) {
-        return energy.extractEnergy(recipe.energyPerTick, true) >= recipe.energyPerTick && canAddOutput(recipe.result);
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.energyPerTick);
+        return energy.extractEnergy(modifiedEnergy, true) >= modifiedEnergy && canAddOutput(recipe.result);
     }
 
     private void craftBlasting(BlastingTarget target) {
@@ -231,7 +309,24 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         if (stack.isEmpty() || index < FIRST_INPUT_SLOT || index > LAST_INPUT_SLOT) {
             return false;
         }
-        return stack.getItem() == Items.IRON_INGOT || stack.getItem() == Items.COAL || getBlastingRecipe(stack) != null;
+        // Check if valid for current mode
+        if (mode == FurnaceMode.BLASTING) {
+            return getBlastingRecipe(stack) != null;
+        } else {
+            // For alloying, check if it's part of any recipe
+            return isValidAlloyingIngredient(stack) || stack.getItem() == Items.IRON_INGOT || stack.getItem() == Items.COAL;
+        }
+    }
+
+    private boolean isValidAlloyingIngredient(ItemStack stack) {
+        // Check if this item is used in any alloying recipe
+        for (AlloySmeltingRecipe recipe : RecipeRegistry.getAllAlloyingRecipes()) {
+            if (recipe.matches(new ItemStack[]{stack, ItemStack.EMPTY}) ||
+                recipe.matches(new ItemStack[]{ItemStack.EMPTY, stack})) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

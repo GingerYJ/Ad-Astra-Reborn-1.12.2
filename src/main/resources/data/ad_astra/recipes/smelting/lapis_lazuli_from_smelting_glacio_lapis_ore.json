@@ -6,8 +6,5 @@
   "ingredient": {
     "item": "ad_astra:glacio_lapis_ore"
   },
-  "result": {
-    "item": "minecraft:dye",
-    "data": 4
-  }
+  "result": "minecraft:lapis_lazuli"
 }

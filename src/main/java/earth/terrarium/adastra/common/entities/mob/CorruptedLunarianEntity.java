@@ -10,7 +10,9 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
@@ -57,22 +59,42 @@ public class CorruptedLunarianEntity extends AdAstraPlaceholderMob implements IR
     }
 
     @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.ENTITY_ZOMBIE_HURT; // 1.12 fallback for pillager
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ENTITY_ZOMBIE_DEATH; // 1.12 fallback for pillager
+    }
+
+    @Override
     protected double getMobMaxHealth() {
-        return 20.0d;
+        return 20.0d; // 1.20.x: 20
     }
 
     @Override
     protected double getMobMovementSpeed() {
-        return 0.3d;
+        return 0.30d; // 1.20.x: 0.3
     }
 
     @Override
     protected double getMobAttackDamage() {
-        return 2.0d;
+        return 2.0d; // 1.20.x: 2
     }
 
     @Override
     protected double getMobFollowRange() {
-        return 36.0d;
+        return 35.0d;
+    }
+
+    @Override
+    protected void dropFewItems(boolean wasRecentlyHit, int lootingModifier) {
+        super.dropFewItems(wasRecentlyHit, lootingModifier);
+        // Drops ice_shard (0-2)
+        int count = rand.nextInt(3); // 0-2
+        for (int i = 0; i < count; i++) {
+            dropItem(earth.terrarium.adastra.common.registry.ModItems.ICE_SHARD, 1);
+        }
     }
 }

@@ -4,10 +4,5 @@
   "ingredient": {
     "item": "ad_astra:permafrost"
   },
-  "result": "ad_astra:permafrost_pillar",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "ad_astra:permafrost_pillar"
 }

@@ -15,9 +15,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import java.util.Locale;
@@ -27,6 +30,8 @@ public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityPr
     public static final PropertyEnum<AdAstraEightDirection> FACING = PropertyEnum.create("facing", AdAstraEightDirection.class);
     public static final PropertyEnum<Half> HALF = PropertyEnum.create("half", Half.class);
     public static final PropertyBool WATERLOGGED = PropertyBool.create("waterlogged");
+    private static final AxisAlignedBB LOWER_BOX = new AxisAlignedBB(6.0 / 16.0, 0.0, 6.0 / 16.0, 10.0 / 16.0, 1.0, 10.0 / 16.0);
+    private static final AxisAlignedBB UPPER_BOX = new AxisAlignedBB(7.0 / 16.0, 0.0, 7.0 / 16.0, 9.0 / 16.0, 1.5, 9.0 / 16.0);
 
     public AdAstraFlagBlock() {
         super(Material.WOOD, 1.0f, 1.0f);
@@ -52,6 +57,16 @@ public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityPr
             meta |= 8;
         }
         return meta;
+    }
+
+    @Override
+    public EnumBlockRenderType getRenderType(IBlockState state) {
+        return state.getValue(HALF) == Half.LOWER ? EnumBlockRenderType.MODEL : EnumBlockRenderType.INVISIBLE;
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return state.getValue(HALF) == Half.LOWER ? LOWER_BOX : UPPER_BOX;
     }
 
     @Override

@@ -1,0 +1,497 @@
+package earth.terrarium.adastra.common.world.custom;
+
+import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+public final class CustomPlanetDefinition {
+
+    public static final int DEFAULT_DAY_LENGTH = 24000;
+
+    private final ResourceLocation id;
+    private final String planetName;
+    @Nullable
+    private final String displayName;
+    private final int dimensionId;
+    private final String saveFolder;
+    private final ResourceLocation biomeId;
+    private final IBlockState surfaceBlock;
+    private final IBlockState stoneBlock;
+    private final ItemStack iconStack;
+    private final boolean hasSkyLight;
+    private final boolean canRespawn;
+    private final boolean oxygen;
+    private final short temperature;
+    private final float gravity;
+    private final int solarPower;
+    private final int tier;
+    private final int dayLength;
+    private final Vec3d fogColor;
+    private final Vec3d skyColor;
+    private final boolean registerDimension;
+    private final List<OreDefinition> ores;
+    private final List<FluidLakeDefinition> fluidLakes;
+
+    private CustomPlanetDefinition(Builder builder) {
+        this.id = builder.id;
+        this.planetName = builder.planetName == null ? sanitizeName(builder.id.getPath()) : sanitizeName(builder.planetName);
+        this.displayName = builder.displayName;
+        this.dimensionId = builder.dimensionId;
+        this.saveFolder = builder.saveFolder == null ? defaultSaveFolder(builder.id) : builder.saveFolder;
+        this.biomeId = builder.biomeId;
+        this.surfaceBlock = builder.surfaceBlock;
+        this.stoneBlock = builder.stoneBlock;
+        this.iconStack = builder.iconStack.copy();
+        this.hasSkyLight = builder.hasSkyLight;
+        this.canRespawn = builder.canRespawn;
+        this.oxygen = builder.oxygen;
+        this.temperature = builder.temperature;
+        this.gravity = builder.gravity;
+        this.solarPower = builder.solarPower;
+        this.tier = builder.tier;
+        this.dayLength = builder.dayLength;
+        this.fogColor = builder.fogColor;
+        this.skyColor = builder.skyColor;
+        this.registerDimension = builder.registerDimension;
+        this.ores = Collections.unmodifiableList(new ArrayList<>(builder.ores));
+        this.fluidLakes = Collections.unmodifiableList(new ArrayList<>(builder.fluidLakes));
+    }
+
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    public String getPlanetName() {
+        return planetName;
+    }
+
+    @Nullable
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getTranslationKey() {
+        return "planet." + id.getNamespace() + "." + id.getPath();
+    }
+
+    public int getDimensionId() {
+        return dimensionId;
+    }
+
+    public String getSaveFolder() {
+        return saveFolder;
+    }
+
+    public ResourceLocation getBiomeId() {
+        return biomeId;
+    }
+
+    public IBlockState getSurfaceBlock() {
+        return surfaceBlock;
+    }
+
+    public IBlockState getStoneBlock() {
+        return stoneBlock;
+    }
+
+    public ItemStack getIconStack() {
+        return iconStack.copy();
+    }
+
+    public boolean hasSkyLight() {
+        return hasSkyLight;
+    }
+
+    public boolean canRespawn() {
+        return canRespawn;
+    }
+
+    public boolean hasOxygen() {
+        return oxygen;
+    }
+
+    public short getTemperature() {
+        return temperature;
+    }
+
+    public float getGravity() {
+        return gravity;
+    }
+
+    public int getSolarPower() {
+        return solarPower;
+    }
+
+    public int getTier() {
+        return tier;
+    }
+
+    public int getDayLength() {
+        return dayLength;
+    }
+
+    public Vec3d getFogColor() {
+        return fogColor;
+    }
+
+    public Vec3d getSkyColor() {
+        return skyColor;
+    }
+
+    public boolean shouldRegisterDimension() {
+        return registerDimension;
+    }
+
+    public List<OreDefinition> getOres() {
+        return ores;
+    }
+
+    public List<FluidLakeDefinition> getFluidLakes() {
+        return fluidLakes;
+    }
+
+    public PlanetDimensionProperties toDimensionProperties() {
+        return new PlanetDimensionProperties(
+            planetName,
+            dimensionId,
+            saveFolder,
+            resolveBiome(),
+            surfaceBlock,
+            stoneBlock,
+            hasSkyLight,
+            canRespawn,
+            oxygen,
+            temperature,
+            gravity,
+            solarPower,
+            tier,
+            dayLength,
+            fogColor,
+            skyColor);
+    }
+
+    public Biome resolveBiome() {
+        Biome biome = ForgeRegistries.BIOMES.getValue(biomeId);
+        return biome == null ? Biomes.PLAINS : biome;
+    }
+
+    public static Builder builder(String id, int dimensionId) {
+        return builder(parseId(id), dimensionId);
+    }
+
+    public static Builder builder(ResourceLocation id, int dimensionId) {
+        return new Builder(id, dimensionId);
+    }
+
+    public static ResourceLocation parseId(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Custom planet id cannot be empty.");
+        }
+        String trimmed = id.trim().toLowerCase(Locale.ROOT);
+        return trimmed.indexOf(':') >= 0 ? new ResourceLocation(trimmed) : new ResourceLocation(Reference.MOD_ID, trimmed);
+    }
+
+    public static PlanetDimensionProperties fallbackProperties(int dimensionId) {
+        return builder(new ResourceLocation(Reference.MOD_ID, "missing_custom_" + dimensionId), dimensionId)
+            .saveFolder("DIM_AD_ASTRA_MISSING_CUSTOM_" + dimensionId)
+            .build()
+            .toDimensionProperties();
+    }
+
+    public static IBlockState stateFromBlock(Block block, int meta) {
+        if (block == null) {
+            throw new IllegalArgumentException("block cannot be null.");
+        }
+        return block.getStateFromMeta(meta);
+    }
+
+    private static String defaultSaveFolder(ResourceLocation id) {
+        return "DIM_AD_ASTRA_CUSTOM_" + sanitizeName(id.getNamespace() + "_" + id.getPath()).toUpperCase(Locale.ROOT);
+    }
+
+    private static String sanitizeName(String value) {
+        String lower = value == null ? "custom_planet" : value.toLowerCase(Locale.ROOT);
+        StringBuilder builder = new StringBuilder(lower.length());
+        for (int i = 0; i < lower.length(); i++) {
+            char c = lower.charAt(i);
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') {
+                builder.append(c);
+            } else {
+                builder.append('_');
+            }
+        }
+        return builder.length() == 0 ? "custom_planet" : builder.toString();
+    }
+
+    private static IBlockState requireState(IBlockState state, String name) {
+        if (state == null) {
+            throw new IllegalArgumentException(name + " cannot be null.");
+        }
+        return state;
+    }
+
+    private static int positive(int value, String name) {
+        if (value <= 0) {
+            throw new IllegalArgumentException(name + " must be positive.");
+        }
+        return value;
+    }
+
+    private static int nonNegative(int value, String name) {
+        if (value < 0) {
+            throw new IllegalArgumentException(name + " cannot be negative.");
+        }
+        return value;
+    }
+
+    private static int clampY(int value, String name) {
+        if (value < 0 || value > 255) {
+            throw new IllegalArgumentException(name + " must be between 0 and 255.");
+        }
+        return value;
+    }
+
+    public static final class OreDefinition {
+
+        private final IBlockState oreBlock;
+        private final IBlockState replaceBlock;
+        private final int veinSize;
+        private final int countPerChunk;
+        private final int minY;
+        private final int maxY;
+
+        public OreDefinition(IBlockState oreBlock, IBlockState replaceBlock, int veinSize, int countPerChunk, int minY, int maxY) {
+            this.oreBlock = requireState(oreBlock, "oreBlock");
+            this.replaceBlock = requireState(replaceBlock, "replaceBlock");
+            this.veinSize = positive(veinSize, "veinSize");
+            this.countPerChunk = nonNegative(countPerChunk, "countPerChunk");
+            this.minY = clampY(minY, "minY");
+            this.maxY = clampY(maxY, "maxY");
+            if (this.minY > this.maxY) {
+                throw new IllegalArgumentException("minY cannot be greater than maxY.");
+            }
+        }
+
+        public IBlockState getOreBlock() {
+            return oreBlock;
+        }
+
+        public IBlockState getReplaceBlock() {
+            return replaceBlock;
+        }
+
+        public int getVeinSize() {
+            return veinSize;
+        }
+
+        public int getCountPerChunk() {
+            return countPerChunk;
+        }
+
+        public int getMinY() {
+            return minY;
+        }
+
+        public int getMaxY() {
+            return maxY;
+        }
+    }
+
+    public static final class FluidLakeDefinition {
+
+        @Nullable
+        private final Fluid fluid;
+        private final IBlockState fluidBlock;
+        private final int countPerChunk;
+        private final int minY;
+        private final int maxY;
+
+        public FluidLakeDefinition(@Nullable Fluid fluid, IBlockState fluidBlock, int countPerChunk, int minY, int maxY) {
+            this.fluid = fluid;
+            this.fluidBlock = requireState(fluidBlock, "fluidBlock");
+            this.countPerChunk = nonNegative(countPerChunk, "countPerChunk");
+            this.minY = clampY(minY, "minY");
+            this.maxY = clampY(maxY, "maxY");
+            if (this.minY > this.maxY) {
+                throw new IllegalArgumentException("minY cannot be greater than maxY.");
+            }
+        }
+
+        @Nullable
+        public Fluid getFluid() {
+            return fluid;
+        }
+
+        public IBlockState getFluidBlock() {
+            return fluidBlock;
+        }
+
+        public int getCountPerChunk() {
+            return countPerChunk;
+        }
+
+        public int getMinY() {
+            return minY;
+        }
+
+        public int getMaxY() {
+            return maxY;
+        }
+    }
+
+    public static final class Builder {
+
+        private final ResourceLocation id;
+        private final int dimensionId;
+        @Nullable
+        private String planetName;
+        @Nullable
+        private String displayName;
+        @Nullable
+        private String saveFolder;
+        private ResourceLocation biomeId = new ResourceLocation("minecraft", "plains");
+        private IBlockState surfaceBlock = Blocks.STONE.getDefaultState();
+        private IBlockState stoneBlock = Blocks.STONE.getDefaultState();
+        private ItemStack iconStack = new ItemStack(Blocks.STONE);
+        private boolean hasSkyLight = true;
+        private boolean canRespawn = true;
+        private boolean oxygen;
+        private short temperature;
+        private float gravity = 1.0F;
+        private int solarPower = 10;
+        private int tier = 1;
+        private int dayLength = DEFAULT_DAY_LENGTH;
+        private Vec3d fogColor = new Vec3d(0.0D, 0.0D, 0.0D);
+        private Vec3d skyColor = new Vec3d(0.5D, 0.7D, 1.0D);
+        private boolean registerDimension;
+        private final List<OreDefinition> ores = new ArrayList<>();
+        private final List<FluidLakeDefinition> fluidLakes = new ArrayList<>();
+
+        private Builder(ResourceLocation id, int dimensionId) {
+            if (id == null) {
+                throw new IllegalArgumentException("Custom planet id cannot be null.");
+            }
+            if (dimensionId == 0) {
+                throw new IllegalArgumentException("Custom planets cannot use the overworld dimension id.");
+            }
+            this.id = id;
+            this.dimensionId = dimensionId;
+        }
+
+        public Builder planetName(String planetName) {
+            this.planetName = planetName;
+            return this;
+        }
+
+        public Builder displayName(@Nullable String displayName) {
+            this.displayName = displayName;
+            return this;
+        }
+
+        public Builder saveFolder(String saveFolder) {
+            if (saveFolder == null || saveFolder.trim().isEmpty()) {
+                throw new IllegalArgumentException("saveFolder cannot be empty.");
+            }
+            this.saveFolder = saveFolder.trim();
+            return this;
+        }
+
+        public Builder biome(ResourceLocation biomeId) {
+            if (biomeId == null) {
+                throw new IllegalArgumentException("biomeId cannot be null.");
+            }
+            this.biomeId = biomeId;
+            return this;
+        }
+
+        public Builder surfaceBlock(IBlockState surfaceBlock) {
+            this.surfaceBlock = requireState(surfaceBlock, "surfaceBlock");
+            return this;
+        }
+
+        public Builder stoneBlock(IBlockState stoneBlock) {
+            this.stoneBlock = requireState(stoneBlock, "stoneBlock");
+            return this;
+        }
+
+        public Builder iconStack(ItemStack iconStack) {
+            if (iconStack == null || iconStack.isEmpty()) {
+                throw new IllegalArgumentException("iconStack cannot be empty.");
+            }
+            this.iconStack = iconStack.copy();
+            return this;
+        }
+
+        public Builder skyLight(boolean hasSkyLight) {
+            this.hasSkyLight = hasSkyLight;
+            return this;
+        }
+
+        public Builder canRespawn(boolean canRespawn) {
+            this.canRespawn = canRespawn;
+            return this;
+        }
+
+        public Builder environment(boolean oxygen, short temperature, float gravity, int solarPower) {
+            this.oxygen = oxygen;
+            this.temperature = temperature;
+            this.gravity = gravity;
+            this.solarPower = solarPower;
+            return this;
+        }
+
+        public Builder tier(int tier) {
+            this.tier = positive(tier, "tier");
+            return this;
+        }
+
+        public Builder dayLength(int dayLength) {
+            this.dayLength = positive(dayLength, "dayLength");
+            return this;
+        }
+
+        public Builder fogColor(double red, double green, double blue) {
+            this.fogColor = new Vec3d(red, green, blue);
+            return this;
+        }
+
+        public Builder skyColor(double red, double green, double blue) {
+            this.skyColor = new Vec3d(red, green, blue);
+            return this;
+        }
+
+        public Builder registerDimension(boolean registerDimension) {
+            this.registerDimension = registerDimension;
+            return this;
+        }
+
+        public Builder addOre(IBlockState oreBlock, IBlockState replaceBlock, int veinSize, int countPerChunk, int minY, int maxY) {
+            this.ores.add(new OreDefinition(oreBlock, replaceBlock, veinSize, countPerChunk, minY, maxY));
+            return this;
+        }
+
+        public Builder addFluidLake(@Nullable Fluid fluid, IBlockState fluidBlock, int countPerChunk, int minY, int maxY) {
+            this.fluidLakes.add(new FluidLakeDefinition(fluid, fluidBlock, countPerChunk, minY, maxY));
+            return this;
+        }
+
+        public CustomPlanetDefinition build() {
+            return new CustomPlanetDefinition(this);
+        }
+    }
+}

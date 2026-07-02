@@ -1,14 +1,11 @@
 package earth.terrarium.adastra.common.tile;
 
-import earth.terrarium.adastra.common.registry.ModBlocks;
-import earth.terrarium.adastra.common.registry.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
+import earth.terrarium.adastra.common.recipe.NASAWorkbenchRecipe;
+import earth.terrarium.adastra.common.recipe.RecipeRegistry;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
 
@@ -17,7 +14,7 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
     private static final int OUTPUT_SLOT = 14;
     private static final int[] SLOTS_FOR_FACE = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
 
-    private NasaWorkbenchRecipe activeRecipe;
+    private NASAWorkbenchRecipe activeRecipe;
 
     public NasaWorkbenchTileEntity() {
         super("nasa_workbench", 15, 0, 0, 0, 0);
@@ -25,66 +22,55 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     protected void tickMachine() {
-        NasaWorkbenchRecipe recipe = getRecipe();
+        NASAWorkbenchRecipe recipe = getRecipe();
         setActiveRecipe(recipe);
-        setLit(recipe != null);
-
-        if (recipe != null && canCraft(recipe)) {
-            craft(recipe);
-            setActiveRecipe(getRecipe());
-            setLit(activeRecipe != null);
-        }
     }
 
-    private NasaWorkbenchRecipe getRecipe() {
-        for (NasaWorkbenchRecipe recipe : NasaWorkbenchRecipe.values()) {
-            if (recipe.matches(this)) {
-                return recipe;
-            }
-        }
-        return null;
+    private NASAWorkbenchRecipe getRecipe() {
+        return RecipeRegistry.findNASAWorkbenchRecipe(getInputStacks());
     }
 
-    private void setActiveRecipe(NasaWorkbenchRecipe recipe) {
+    private void setActiveRecipe(NASAWorkbenchRecipe recipe) {
         if (activeRecipe != recipe) {
             activeRecipe = recipe;
             markDirty();
         }
     }
 
-    private boolean canCraft(NasaWorkbenchRecipe recipe) {
-        return recipe.matches(this) && canStoreResult(recipe.result);
+    public boolean isOutputSlot(int index) {
+        return index == OUTPUT_SLOT;
     }
 
-    private void craft(NasaWorkbenchRecipe recipe) {
+    public boolean hasCraftingResult() {
+        return getRecipe() != null;
+    }
+
+    public ItemStack getCraftingResult() {
+        NASAWorkbenchRecipe recipe = getRecipe();
+        return recipe == null ? ItemStack.EMPTY : recipe.getResult();
+    }
+
+    public boolean craftActiveRecipe(EntityPlayer player) {
+        NASAWorkbenchRecipe recipe = getRecipe();
+        if (recipe == null) {
+            setActiveRecipe(null);
+            return false;
+        }
+
+        ItemStack[] inputs = getInputStacks();
+        if (!recipe.consumeInputs(inputs)) {
+            setActiveRecipe(null);
+            return false;
+        }
+
         for (int slot = FIRST_INPUT_SLOT; slot <= LAST_INPUT_SLOT; slot++) {
-            ItemStack stack = items.getStackInSlot(slot);
-            stack.shrink(1);
-            if (stack.isEmpty()) {
-                items.setStackInSlot(slot, ItemStack.EMPTY);
-            }
+            items.setStackInSlot(slot, inputs[slot].isEmpty() ? ItemStack.EMPTY : inputs[slot]);
         }
 
-        addResult(recipe.result);
+        items.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
+        setActiveRecipe(getRecipe());
         markDirty();
-    }
-
-    private boolean canStoreResult(ItemStack result) {
-        ItemStack output = items.getStackInSlot(OUTPUT_SLOT);
-        if (output.isEmpty()) {
-            return true;
-        }
-        return ItemHandlerHelper.canItemStacksStack(output, result)
-            && output.getCount() + result.getCount() <= Math.min(output.getMaxStackSize(), items.getSlotLimit(OUTPUT_SLOT));
-    }
-
-    private void addResult(ItemStack result) {
-        ItemStack output = items.getStackInSlot(OUTPUT_SLOT);
-        if (output.isEmpty()) {
-            items.setStackInSlot(OUTPUT_SLOT, result.copy());
-        } else {
-            output.grow(result.getCount());
-        }
+        return true;
     }
 
     @Override
@@ -92,7 +78,7 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
         if (stack.isEmpty() || index < FIRST_INPUT_SLOT || index > LAST_INPUT_SLOT) {
             return false;
         }
-        for (NasaWorkbenchRecipe recipe : NasaWorkbenchRecipe.values()) {
+        for (NASAWorkbenchRecipe recipe : RecipeRegistry.getAllNASAWorkbenchRecipes()) {
             if (recipe.isValidForSlot(index, stack)) {
                 return true;
             }
@@ -112,119 +98,68 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
-        return index == OUTPUT_SLOT && !stack.isEmpty();
+        return false;
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int index) {
+        if (index == OUTPUT_SLOT) {
+            return getCraftingResult();
+        }
+        return super.getStackInSlot(index);
+    }
+
+    @Override
+    public ItemStack decrStackSize(int index, int count) {
+        if (index == OUTPUT_SLOT) {
+            ItemStack result = getCraftingResult();
+            if (!result.isEmpty() && count < result.getCount()) {
+                result.setCount(count);
+            }
+            return result;
+        }
+        return super.decrStackSize(index, count);
+    }
+
+    @Override
+    public ItemStack removeStackFromSlot(int index) {
+        if (index == OUTPUT_SLOT) {
+            return getCraftingResult();
+        }
+        return super.removeStackFromSlot(index);
+    }
+
+    @Override
+    public void setInventorySlotContents(int index, ItemStack stack) {
+        if (index == OUTPUT_SLOT) {
+            items.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
+            return;
+        }
+        super.setInventorySlotContents(index, stack);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        activeRecipe = compound.hasKey("ActiveRecipe") ? NasaWorkbenchRecipe.byName(compound.getString("ActiveRecipe")) : null;
+        items.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
+        activeRecipe = compound.hasKey("ActiveRecipe") ? RecipeRegistry.findNASAWorkbenchRecipe(compound.getString("ActiveRecipe")) : null;
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         if (activeRecipe != null) {
-            compound.setString("ActiveRecipe", activeRecipe.name());
+            compound.setString("ActiveRecipe", activeRecipe.getId());
         }
         return compound;
     }
 
-    private enum NasaWorkbenchRecipe {
-        TIER_1("blockSteel", ModBlocks.STEEL_BLOCK, ModItems.STEEL_TANK, ModItems.STEEL_ENGINE, ModItems.TIER_1_ROCKET),
-        TIER_2("blockDesh", ModBlocks.DESH_BLOCK, ModItems.DESH_TANK, ModItems.DESH_ENGINE, ModItems.TIER_2_ROCKET),
-        TIER_3("blockOstrum", ModBlocks.OSTRUM_BLOCK, ModItems.OSTRUM_TANK, ModItems.OSTRUM_ENGINE, ModItems.TIER_3_ROCKET),
-        TIER_4("blockCalorite", ModBlocks.CALORITE_BLOCK, ModItems.CALORITE_TANK, ModItems.CALORITE_ENGINE, ModItems.TIER_4_ROCKET);
-
-        private final String bodyOre;
-        private final Block bodyBlock;
-        private final Item tank;
-        private final Item engine;
-        private final ItemStack result;
-
-        NasaWorkbenchRecipe(String bodyOre, Block bodyBlock, Item tank, Item engine, Item result) {
-            this.bodyOre = bodyOre;
-            this.bodyBlock = bodyBlock;
-            this.tank = tank;
-            this.engine = engine;
-            this.result = new ItemStack(result);
+    private ItemStack[] getInputStacks() {
+        ItemStack[] inputs = new ItemStack[LAST_INPUT_SLOT - FIRST_INPUT_SLOT + 1];
+        for (int slot = FIRST_INPUT_SLOT; slot <= LAST_INPUT_SLOT; slot++) {
+            inputs[slot - FIRST_INPUT_SLOT] = items.getStackInSlot(slot);
         }
-
-        private boolean matches(NasaWorkbenchTileEntity tile) {
-            return isItem(tile.items.getStackInSlot(0), ModItems.ROCKET_NOSE_CONE)
-                && matchesBody(tile.items.getStackInSlot(1))
-                && matchesBody(tile.items.getStackInSlot(2))
-                && matchesBody(tile.items.getStackInSlot(3))
-                && matchesBody(tile.items.getStackInSlot(4))
-                && matchesBody(tile.items.getStackInSlot(5))
-                && matchesBody(tile.items.getStackInSlot(6))
-                && isItem(tile.items.getStackInSlot(7), ModItems.ROCKET_FIN)
-                && isItem(tile.items.getStackInSlot(8), tank)
-                && isItem(tile.items.getStackInSlot(9), tank)
-                && isItem(tile.items.getStackInSlot(10), ModItems.ROCKET_FIN)
-                && isItem(tile.items.getStackInSlot(11), ModItems.ROCKET_FIN)
-                && isItem(tile.items.getStackInSlot(12), engine)
-                && isItem(tile.items.getStackInSlot(13), ModItems.ROCKET_FIN);
-        }
-
-        private boolean isValidForSlot(int slot, ItemStack stack) {
-            switch (slot) {
-                case 0:
-                    return isItem(stack, ModItems.ROCKET_NOSE_CONE);
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                    return matchesBody(stack);
-                case 7:
-                case 10:
-                case 11:
-                case 13:
-                    return isItem(stack, ModItems.ROCKET_FIN);
-                case 8:
-                case 9:
-                    return isItem(stack, tank);
-                case 12:
-                    return isItem(stack, engine);
-                default:
-                    return false;
-            }
-        }
-
-        private boolean matchesBody(ItemStack stack) {
-            return isBlock(stack, bodyBlock) || isOre(stack, bodyOre);
-        }
-
-        private static boolean isItem(ItemStack stack, Item item) {
-            return !stack.isEmpty() && stack.getItem() == item;
-        }
-
-        private static boolean isBlock(ItemStack stack, Block block) {
-            return isItem(stack, Item.getItemFromBlock(block));
-        }
-
-        private static boolean isOre(ItemStack stack, String oreName) {
-            if (stack.isEmpty()) {
-                return false;
-            }
-            int oreId = OreDictionary.getOreID(oreName);
-            for (int stackOreId : OreDictionary.getOreIDs(stack)) {
-                if (stackOreId == oreId) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static NasaWorkbenchRecipe byName(String name) {
-            for (NasaWorkbenchRecipe recipe : values()) {
-                if (recipe.name().equals(name)) {
-                    return recipe;
-                }
-            }
-            return null;
-        }
+        return inputs;
     }
 }
+

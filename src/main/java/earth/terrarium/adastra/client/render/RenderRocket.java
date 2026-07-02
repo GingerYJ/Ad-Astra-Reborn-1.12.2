@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -25,10 +24,6 @@ class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
 
     @Override
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        if (entity.motionY > 0.05D) {
-            entityYaw += MathHelper.sin((entity.ticksExisted + partialTicks) * 2.7f) * 0.35f;
-        }
-
         GlStateManager.pushMatrix();
         GlStateManager.translate((float) x, (float) y + 1.55f, (float) z);
         GlStateManager.rotate(180.0f - entityYaw, 0.0f, 1.0f, 0.0f);

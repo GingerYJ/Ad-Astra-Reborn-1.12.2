@@ -6,10 +6,5 @@
   "ingredient": {
     "item": "ad_astra:mercury_iron_ore"
   },
-  "result": "minecraft:iron_ingot",
-  "conditions": [
-    {
-      "type": "forge:false"
-    }
-  ]
+  "result": "minecraft:iron_ingot"
 }

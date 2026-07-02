@@ -1,78 +1,209 @@
-# CleanroomModTemplate
-Mod development template for Cleanroom, uses a custom [Unimined fork](https://github.com/kappa-maintainer/Unimined) ([original](https://github.com/unimined/Unimined))
+# Ad Astra Reborn
 
-### WARNING: Custom Unimined Fork
-May have issues, report here or [here](https://github.com/kappa-maintainer/Unimined) when you encountered impossible field names or impossible Scala compiler errors. 
+Ad Astra Reborn is a Minecraft 1.12.2 / Cleanroom port of Ad Astra. The goal of the project is to bring the Ad Astra 1.20.x space-exploration content back to the 1.12.2 ecosystem while reusing the original assets for blocks, items, models, GUIs, vehicles and planets wherever possible.
 
-## DOs and DON'Ts
-### Choose Branch
-Choose mixin branch if you want to use Mixin.
+[中文说明](README_zh_cn.md)
 
-Use scala and kotlin branch if you want to use those languages. 
+## Status
 
-There are 4 branches available:
-- main
-- mixin
-- scala
-- kotlin
+This repository is an active port and gameplay reconstruction, not a finished release. Rockets, launch pads, machines, space stations, planet travel, environment systems and CraftTweaker hooks are implemented, but many behaviors still need in-game validation on real modpacks.
 
-If you want to use non-main branches, after clicked *Create a new repository* under *Use this template*, check the *Include all branches* checkbox.
+Author and maintainer: GingerYJ
 
-### Running Client or Server
-If you are using IntelliJ, **DO NOT** use the `Minecraft Client` configure with a blue icon. Just use the `2. Run Client` Gradle task.
+Credits: original Ad Astra content by Terrarium and Ad Astra contributors.
 
-### Adding Mod Dependencies
-You can find dependencies block in `gradle/scripts/dependencies.gradle`.
+## Features
 
-No more `rfg.deobf()` or `fg.deobf`. You **MUST** add mods by using `modImplementation` or `modRuntimeOnly`, or the game will crash when running.
+- Tiered rockets, launch pads, landers and rover gameplay.
+- Planet travel for the Moon, Mars, Mercury, Venus and Glacio, plus optional Nether and End travel through rockets.
+- Orbit and space station gameplay with configurable construction materials.
+- Space environment systems for oxygen, temperature and gravity.
+- Machines and GUIs such as the NASA Workbench, compressor, fuel refinery, oxygen loader, oxygen distributor, gravity normalizer, energizer, cryo freezer, coal generator, solar panel, water pump and etrionic blast furnace.
+- HEI recipe displays for Ad Astra machine recipes.
+- Patchouli guide book integration.
+- CraftTweaker APIs for NASA Workbench recipes, rocket fuel tiers, planet rocket tiers, space station recipes and custom planet definitions.
 
-### Non-Mod Dependencies
-Two new configuration types `contain` and `shadow` are available, check more details in `dependencies.gradle`.
+## Requirements
 
-### gradle.properties
-Edit gradle.properties and set your modid, mod version, mod name, package, etc.
+- Minecraft 1.12.2 with Cleanroom Loader / Forge-compatible 1.12.2 runtime.
+- Java toolchain configured by Gradle. The project currently uses Java 25 for the Gradle toolchain and Java 21 source/target compatibility.
+- Patchouli is required at runtime.
+- Had Enough Items is used for recipe integration.
+- CraftTweaker is optional at runtime, but required when using the provided scripts and ZenScript APIs.
 
-If you are writing a coremod, remember to set related settings to true.
+## Build And Run
 
-### Reference Class
-There will be a `Reference` class under your top package.
+```powershell
+.\gradlew.bat compileJava
+.\gradlew.bat build
+.\gradlew.bat runClient
+```
 
-This is used to store mod version so you can fill it to `@Mod` annotation.
+The generated mod jar is produced under `build/libs`.
 
-You should change its location to fit your new package name.
+The default development CraftTweaker script is stored at:
 
-You can find its template under `src/main/java-templates`.
+```text
+run/client/scripts/ad_astra_defaults.zs
+```
 
-### Mixin
-1. Rename json config file to include your modid. You will need one json per phase (`PRE_INIT`, `DEFAULT`, `MOD`) 
-2. Add your mixin classes there.
-3. Use `IMixinConfigPlugin` to control if certain mixin should be enabled. You can call `Loader.isModLoaded()` for `MOD` phase mixins.
-4. Don't worry about refmap, Unimined will handle it automatically. You can still `disableRefmap()` manually though
+## Configuration
 
-### Access Transformer
-You **MUST** write AT file in MCP name. It will be remapped back to SRG name in artifact jar.
+The generated config file is placed in its own folder:
 
-Rename AT file name to your modid before using it. There's an example entry in AT file, remove it if you want to use AT.
+```text
+config/ad_astra/ad_astra.cfg
+```
 
-### Vanilla Source Code with Comments
-Run `genSources` task in gradle. If it didn't work, run again until a file with `-sources.jar` suffix appeared.
+Important options include oxygen, temperature, gravity, machine speed and energy multipliers, planet dimension toggles, Nether/End rocket travel, world generation and per-entity spawn caps for planet dimensions.
 
-If you want to `find usage` from vanilla like RFG, just change the scope in IntelliJ settings.
+## CraftTweaker APIs
 
-### GitHub Action
-This template comes with three workflows.
+Use these imports in ZenScript:
 
-`build.yml` will build and upload artifact for every commit. Useful when you want to provide test builds for debugging.
+```zenscript
+import mods.ad_astra.NASAWorkbench;
+import mods.ad_astra.RocketFuel;
+import mods.ad_astra.PlanetTiers;
+import mods.ad_astra.SpaceStation;
+import mods.ad_astra.CustomPlanets;
+```
 
-`release.yml` will make a GitHub release if you pushed a git tag.
+### NASA Workbench
 
-`release-to-cf-mr.yml` can publish your mod to CurseForge and/or Modrinth.
+```zenscript
+NASAWorkbench.addRecipe(String id, IItemStack[] inputs, IItemStack output, int width, int height, int time, int energy);
+NASAWorkbench.removeRecipe(String id);
+NASAWorkbench.removeByOutput(IItemStack output);
+```
 
-You need to fill in your project IDs and configure your tokens in GitHub repository first.
+Example:
 
-By default, you will need to manually trigger the workflow in web page, but you can also enable tag triggering by merging the third yml into `release.yml`.
+```zenscript
+NASAWorkbench.addRecipe("ad_astra:tier_5_rocket_from_crt",
+    [
+        <ad_astra:rocket_nose_cone>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <minecraft:beacon>,
+        <ad_astra:rocket_fin>,
+        <ad_astra:calorite_tank>,
+        <ad_astra:calorite_tank>,
+        <ad_astra:rocket_fin>,
+        <ad_astra:rocket_fin>,
+        <ad_astra:calorite_engine>,
+        <ad_astra:rocket_fin>
+    ],
+    <ad_astra:tier_5_rocket>,
+    3,
+    5,
+    200,
+    10);
+```
 
-### Credit
-Thanks @Karnatour for fixing shadow plugin
+### Rocket Fuel
 
-Thanks @ghostflyby for making kotlin branch
+```zenscript
+RocketFuel.addFuel(String fluidName, int fuelTier);
+RocketFuel.removeFuel(String fluidName);
+```
+
+Higher-tier fuel can power lower-tier rockets. Lower-tier fuel cannot power higher-tier rockets.
+
+Example:
+
+```zenscript
+RocketFuel.addFuel("lava", 3);
+```
+
+### Planet Rocket Tiers
+
+```zenscript
+PlanetTiers.setPlanetTier(int dimensionId, int tier);
+PlanetTiers.removePlanetTier(int dimensionId);
+```
+
+Example:
+
+```zenscript
+PlanetTiers.setPlanetTier(1201, 1); // Moon
+```
+
+### Space Stations
+
+```zenscript
+SpaceStation.setRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.setRecipe(String orbit, IIngredient[] ingredients);
+SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients);
+SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.addRecipe(String orbit, IIngredient[] ingredients);
+SpaceStation.removeRecipe(String orbit);
+SpaceStation.removeRecipeById(String id);
+```
+
+Example:
+
+```zenscript
+SpaceStation.setRecipe("nether_orbit",
+    [
+        <minecraft:obsidian>,
+        <minecraft:glowstone>,
+        <minecraft:quartz_block>,
+        <minecraft:iron_block>
+    ],
+    [64, 32, 32, 16]);
+```
+
+### Custom Planets
+
+```zenscript
+CustomPlanets.create(String id, int dimensionId);
+CustomPlanets.getRegisteredCount();
+CustomPlanets.hasPlanet(String id);
+```
+
+The builder returned by `CustomPlanets.create` supports:
+
+```zenscript
+.name(String name)
+.displayName(String displayName)
+.saveFolder(String saveFolder)
+.biome(String biomeId)
+.surface(IBlock block)
+.stone(IBlock block)
+.icon(IItemStack stack)
+.iconBlock(IBlock block)
+.skyLight(boolean hasSkyLight)
+.canRespawn(boolean canRespawn)
+.environment(boolean oxygen, int temperature, double gravity, int solarPower)
+.tier(int tier)
+.dayLength(int dayLength)
+.colors(double fogRed, double fogGreen, double fogBlue, double skyRed, double skyGreen, double skyBlue)
+.addOre(IBlock oreBlock, IBlock replaceBlock, int veinSize, int countPerChunk, int minY, int maxY)
+.addFluidLake(ILiquidStack fluidStack, int countPerChunk, int minY, int maxY)
+.addFluidBlock(IBlock fluidBlock, int countPerChunk, int minY, int maxY)
+.enableDimensionRegistration(boolean enabled)
+.register()
+```
+
+Template:
+
+```zenscript
+CustomPlanets.create("example:basalt_moon", 1301)
+    .displayName("Basalt Moon")
+    .tier(2)
+    .biome("minecraft:desert")
+    .surface(<block:minecraft:stone>)
+    .stone(<block:minecraft:stone>)
+    .icon(<minecraft:obsidian>)
+    .environment(false, -40, 0.42, 18)
+    .addOre(<block:minecraft:iron_ore>, <block:minecraft:stone>, 6, 6, 4, 48)
+    .addFluidLake(<liquid:lava> * 1000, 1, 8, 32)
+    .register();
+```
+
+See `docs/custom_planets_crt_template.zs` for a larger example.

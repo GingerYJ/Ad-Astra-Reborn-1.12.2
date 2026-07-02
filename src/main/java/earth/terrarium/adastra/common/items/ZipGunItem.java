@@ -40,8 +40,8 @@ public class ZipGunItem extends Item {
     private static final int USE_DURATION = 72_000;
     private static final int FUEL_PER_TICK = 1;
     private static final int BAR_COLOR = 0x99ccff;
-    private static final float EARTH_GRAVITY = 9.80665F;
-    private static final float ZERO_GRAVITY_THRESHOLD = 0.05F;
+    /** 重力倍率低于此值视为“低重力”，压缩枪推进大幅增强。地球=1.0，月球≈0.165、火星≈0.38。 */
+    private static final float LOW_GRAVITY_RATIO_THRESHOLD = 0.5F;
 
     public ZipGunItem(String name) {
         setRegistryName(Reference.MOD_ID, name);
@@ -177,7 +177,7 @@ public class ZipGunItem extends Item {
         double propelForce = 0.2D;
         double propelYForce = 0.2D;
 
-        boolean lowGravity = EnvironmentUtils.getGravity(player) <= ZERO_GRAVITY_THRESHOLD;
+        boolean lowGravity = EnvironmentUtils.getGravityRatio(player) <= LOW_GRAVITY_RATIO_THRESHOLD;
         if (lowGravity) {
             propelForce *= 0.1D;
             propelYForce *= 0.1D;

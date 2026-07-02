@@ -3,15 +3,13 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateSteel"
+      "tag": "ad_astra:steel_plates"
     },
     "G": {
       "item": "ad_astra:large_gas_tank"
     },
     "|": {
-      "type": "forge:ore_dict",
-      "ore": "rodSteel"
+      "tag": "ad_astra:steel_rods"
     }
   },
   "pattern": [

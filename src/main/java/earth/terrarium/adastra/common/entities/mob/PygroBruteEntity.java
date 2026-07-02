@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
+import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.world.World;
 
 public class PygroBruteEntity extends AdAstraPlaceholderMob {
@@ -34,5 +35,15 @@ public class PygroBruteEntity extends AdAstraPlaceholderMob {
     @Override
     protected boolean canDespawnNaturally() {
         return false;
+    }
+
+    @Override
+    protected void dropFewItems(boolean wasRecentlyHit, int lootingModifier) {
+        super.dropFewItems(wasRecentlyHit, lootingModifier);
+        // Drops calorite nuggets (1-3, +looting) - more than regular Pygro
+        int count = 1 + rand.nextInt(3) + rand.nextInt(1 + lootingModifier);
+        for (int i = 0; i < count; i++) {
+            dropItem(ModItems.CALORITE_NUGGET, 1);
+        }
     }
 }

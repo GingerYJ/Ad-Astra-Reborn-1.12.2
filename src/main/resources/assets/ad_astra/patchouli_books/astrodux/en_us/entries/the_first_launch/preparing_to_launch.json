@@ -10,7 +10,7 @@
     },
     {
       "type": "text",
-      "text": "Place these items in the inventory of your rocket, and ensure that you always have them every time you launch a rocket. Finally, you should bring multiple full gas tanks, plentiful food, glowstone or other space-safe lighting (normal torches will burn out), weapons and tools. Once you have this, you are ready to launch! Enter the rocket and press $(k:jump)!"
+      "text": "Place these items in the inventory of your rocket, and ensure that you always have them every time you launch a rocket. Finally, you should bring multiple full gas tanks, plentiful food, soul torches or glowstone (normal torches will burn out), weapons and tools. Once you have this, you are ready to launch! Enter the rocket and press $(k:jump)!"
     }
   ]
 }

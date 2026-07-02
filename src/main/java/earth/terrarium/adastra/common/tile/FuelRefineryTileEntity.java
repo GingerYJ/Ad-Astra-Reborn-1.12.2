@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -67,7 +68,8 @@ public class FuelRefineryTileEntity extends AdAstraMachineTileEntity {
     }
 
     private boolean refineFuel() {
-        if (energy.extractEnergy(ENERGY_PER_OPERATION, true) < ENERGY_PER_OPERATION) {
+        int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(ENERGY_PER_OPERATION);
+        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             return false;
         }
         FluidStack input = inputTank.getFluid();
@@ -78,7 +80,7 @@ public class FuelRefineryTileEntity extends AdAstraMachineTileEntity {
             return false;
         }
 
-        energy.extractEnergy(ENERGY_PER_OPERATION, false);
+        energy.extractEnergy(modifiedEnergy, false);
         inputTank.drainInternal(INPUT_PER_OPERATION, true);
         outputTank.fillInternal(new FluidStack(ModFluids.FUEL, OUTPUT_PER_OPERATION), true);
         return true;

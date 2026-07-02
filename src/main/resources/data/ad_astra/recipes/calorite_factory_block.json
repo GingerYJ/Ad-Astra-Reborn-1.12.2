@@ -3,12 +3,10 @@
   "category": "misc",
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "plateCalorite"
+      "tag": "ad_astra:calorite_plates"
     },
     "C": {
-      "type": "forge:ore_dict",
-      "ore": "ingotCalorite"
+      "tag": "ad_astra:calorite_ingots"
     }
   },
   "pattern": [
