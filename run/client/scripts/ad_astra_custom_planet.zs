@@ -4,41 +4,42 @@ import mods.ad_astra.CustomPlanets;
 import mods.ad_astra.SpaceStation;
 
 // ============================================================
-// Custom Planet: Mineral World (øÛŒÔ ¿ΩÁ)
+// Custom Planet: Mineral World
 // A planet rich in ores, with lava lakes and extreme gravity.
 // ============================================================
+
+var ironBlock = game.getBlock("minecraft:iron_block");
+var ironOre = game.getBlock("minecraft:iron_ore");
+var goldOre = game.getBlock("minecraft:gold_ore");
+var diamondOre = game.getBlock("minecraft:diamond_ore");
+var redstoneOre = game.getBlock("minecraft:redstone_ore");
+var coalOre = game.getBlock("minecraft:coal_ore");
+var lapisOre = game.getBlock("minecraft:lapis_ore");
+var emeraldOre = game.getBlock("minecraft:emerald_ore");
+var goldBlock = game.getBlock("minecraft:gold_block");
+var diamondBlock = game.getBlock("minecraft:diamond_block");
+var stone = game.getBlock("minecraft:stone");
 
 CustomPlanets.create("ad_astra:mineral_world", 1301)
     .name("mineral_world")
     .displayName("Mineral World")
     .tier(3)
     .biome("minecraft:desert")
-    .surface(<block:minecraft:iron_block>)
-    .stone(<block:minecraft:iron_ore>)
+    .surface(ironBlock)
+    .stone(ironOre)
     .icon(<minecraft:diamond_block>)
     .environment(false, 80, 1.5, 32)
     .colors(0.55, 0.35, 0.15, 0.75, 0.55, 0.25)
-    // Iron ore veins (very common, replaces stone)
-    .addOre(<block:minecraft:iron_ore>, <block:minecraft:stone>, 12, 25, 0, 128)
-    // Gold ore veins
-    .addOre(<block:minecraft:gold_ore>, <block:minecraft:stone>, 6, 12, 0, 64)
-    // Diamond ore veins
-    .addOre(<block:minecraft:diamond_ore>, <block:minecraft:stone>, 4, 8, 0, 32)
-    // Redstone ore veins
-    .addOre(<block:minecraft:redstone_ore>, <block:minecraft:stone>, 8, 15, 0, 48)
-    // Coal ore veins (surface level)
-    .addOre(<block:minecraft:coal_ore>, <block:minecraft:stone>, 10, 20, 32, 128)
-    // Lapis lazuli ore veins
-    .addOre(<block:minecraft:lapis_ore>, <block:minecraft:stone>, 5, 10, 0, 48)
-    // Emerald ore veins (rare)
-    .addOre(<block:minecraft:emerald_ore>, <block:minecraft:stone>, 3, 4, 0, 32)
-    // Iron block veins (very rare, treasure clusters)
-    .addOre(<block:minecraft:iron_block>, <block:minecraft:stone>, 4, 2, 0, 24)
-    // Gold block veins (extremely rare)
-    .addOre(<block:minecraft:gold_block>, <block:minecraft:stone>, 2, 1, 0, 16)
-    // Diamond block veins (legendary)
-    .addOre(<block:minecraft:diamond_block>, <block:minecraft:stone>, 1, 1, 0, 12)
-    // Lava lakes (common, surface to deep)
+    .addOre(ironOre, stone, 12, 25, 0, 128)
+    .addOre(goldOre, stone, 6, 12, 0, 64)
+    .addOre(diamondOre, stone, 4, 8, 0, 32)
+    .addOre(redstoneOre, stone, 8, 15, 0, 48)
+    .addOre(coalOre, stone, 10, 20, 32, 128)
+    .addOre(lapisOre, stone, 5, 10, 0, 48)
+    .addOre(emeraldOre, stone, 3, 4, 0, 32)
+    .addOre(ironBlock, stone, 4, 2, 0, 24)
+    .addOre(goldBlock, stone, 2, 1, 0, 16)
+    .addOre(diamondBlock, stone, 1, 1, 0, 12)
     .addFluidLake(<liquid:lava> * 1000, 8, 8, 64)
     .enableDimensionRegistration(true)
     .register();
