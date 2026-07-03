@@ -320,61 +320,110 @@ print("Ad Astra: Mineral World custom planet and space station loaded.");
 
 通过 CraftTweaker 添加或修改 NASA 工作台的合成配方。NASA 工作台用于制作火箭和太空装备。
 
+**NASA 工作台槽位布局：**
+- 共 **14个输入槽位**（索引 0-13），排列为不规则形状
+- 1个输出槽位（索引 14）
+- 配方通过 width 和 height 定义在输入区域中的形状
+- 当输入物品数超过 9 个时，使用精确槽位匹配（每个槽位必须对应正确物品）
+- 当输入物品数不超过 9 个时，使用3x3网格匹配（支持在区域内平移和镜像）
+
 ### 接口类
 
-```zenscript
+`zenscript
 mods.ad_astra.NASAWorkbench
-```
+`
 
 ### 方法
 
-#### `addRecipe(String recipeName, IItemStack output, IIngredient[][] inputs)`
+#### addRecipe(String id, IItemStack[] inputs, IItemStack output, int width, int height, int time, int energy)
 
 添加一个新的 NASA 工作台配方。
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| `recipeName` | String | 配方唯一名称。用于标识和后续删除。建议使用 `"modid:recipe_name"` 格式。 |
-| `output` | IItemStack | 合成产物。如 `<ad_astra:rocket_t1>`（1级火箭）。 |
-| `inputs` | IIngredient[][] | 3x3 合成网格的原料。二维数组，第一维是行，第二维是列。空位使用 `null` 表示。 |
+| id | String | 配方唯一名称。用于标识和后续删除。建议使用 modid:recipe_name 格式。 |
+| inputs | IItemStack[] | 输入物品数组。按行优先顺序排列，长度为 width * height。空位使用 null 表示。 |
+| output | IItemStack | 合成产物。如 <ad_astra:rocket_t1>（1级火箭）。 |
+| width | int | 配方在输入区域中的宽度（1-3）。 |
+| height | int | 配方在输入区域中的高度（1-3）。 |
+| time | int | 合成所需时间（刻）。20刻 = 1秒。 |
+| energy | int | 每刻消耗的能量。 |
 
-**示例：**
-```zenscript
+**示例1 - 标准3x3配方（9个输入）：**
+`zenscript
 import mods.ad_astra.NASAWorkbench;
 
-// 添加一个5级火箭配方（需要信标）
-NASAWorkbench.addRecipe("ad_astra:rocket_t5_custom",
-    <ad_astra:rocket_t5>,
+// 添加一个3x3配方（width=3, height=3）
+NASAWorkbench.addRecipe(ad_astra:rocket_t1_custom,
     [
-        [<minecraft:diamond_block>, <minecraft:beacon>, <minecraft:diamond_block>],
-        [<minecraft:iron_block>, <ad_astra:rocket_t4>, <minecraft:iron_block>],
-        [<minecraft:obsidian>, <minecraft:obsidian>, <minecraft:obsidian>]
-    ]
+        <minecraft:iron_block>, <minecraft:iron_block>, <minecraft:iron_block>,
+        <minecraft:iron_block>, null,                    <minecraft:iron_block>,
+        <minecraft:iron_block>, <minecraft:iron_block>, <minecraft:iron_block>
+    ],
+    <ad_astra:rocket_t1>,
+    3, 3, 200, 10
 );
-```
+`
+
+**示例2 - 复杂配方（14个输入，精确槽位）：**
+`zenscript
+// 添加一个14输入的火箭配方
+// 注意：当 inputs 数组长度超过9时，使用精确槽位匹配
+NASAWorkbench.addRecipe(ad_astra:rocket_t5_custom,
+    [
+        <minecraft:diamond_block>, <minecraft:beacon>,      <minecraft:diamond_block>,
+        <minecraft:iron_block>,    <ad_astra:rocket_t4>,    <minecraft:iron_block>,
+        <minecraft:obsidian>,      <minecraft:obsidian>,    <minecraft:obsidian>,
+        <minecraft:glowstone>,     <minecraft:redstone_block>, <minecraft:glowstone>,
+        <minecraft:iron_block>,    <minecraft:iron_block>
+    ],
+    <ad_astra:rocket_t5>,
+    3, 3, 400, 20
+);
+`
+
+**示例3 - 小型配方（2x2）：**
+`zenscript
+// 添加一个2x2配方
+NASAWorkbench.addRecipe(ad_astra:small_part,
+    [
+        <minecraft:iron_ingot>, <minecraft:iron_ingot>,
+        <minecraft:iron_ingot>, <minecraft:iron_ingot>
+    ],
+    <ad_astra:iron_plate>,
+    2, 2, 100, 5
+);
+`
 
 ---
 
-#### `removeRecipe(String recipeName)`
+#### removeRecipe(String id)
 
 删除指定的 NASA 工作台配方。
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| `recipeName` | String | 要删除的配方名称。 |
+| id | String | 要删除的配方ID。 |
 
 **示例：**
-```zenscript
-NASAWorkbench.removeRecipe("ad_astra:rocket_t1");
-```
+`zenscript
+NASAWorkbench.removeRecipe(ad_astra:rocket_t1);
+`
 
 ---
 
-#### `removeAllRecipes()`
+#### removeByOutput(IItemStack output)
 
-删除所有 NASA 工作台配方（谨慎使用）。
+删除所有产出指定物品的 NASA 工作台配方。
 
----
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| output | IItemStack | 要移除的产出物品。 |
+
+**示例：**
+`zenscript
+NASAWorkbench.removeByOutput(<ad_astra:rocket_t1>);
+`
 
 ## 火箭燃料
 
