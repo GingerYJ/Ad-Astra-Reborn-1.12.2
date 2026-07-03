@@ -346,8 +346,8 @@ mods.ad_astra.NASAWorkbench
 | output | IItemStack | 合成产物。如 <ad_astra:rocket_t1>（1级火箭）。 |
 | width | int | 配方在输入区域中的宽度（1-3）。 |
 | height | int | 配方在输入区域中的高度（1-3）。 |
-| time | int | 合成所需时间（刻）。20刻 = 1秒。 |
-| energy | int | 每刻消耗的能量。 |
+| time | int | 合成所需时间（刻）。**当前版本未实现，建议填 0。** |
+| energy | int | 每刻消耗的能量。**当前版本未实现，建议填 0。** |
 
 **示例1 - 标准3x3配方（9个输入）：**
 `zenscript
