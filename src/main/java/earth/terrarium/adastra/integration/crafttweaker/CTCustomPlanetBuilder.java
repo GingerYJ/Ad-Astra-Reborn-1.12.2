@@ -9,6 +9,7 @@ import crafttweaker.api.minecraft.CraftTweakerMC;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
@@ -56,9 +57,21 @@ public final class CTCustomPlanetBuilder {
         return this;
     }
 
+    @ZenMethod("surface")
+    public CTCustomPlanetBuilder surface(IItemStack stack) {
+        builder.surfaceBlock(toBlockState(stack));
+        return this;
+    }
+
     @ZenMethod("stone")
     public CTCustomPlanetBuilder stone(IBlock block) {
         builder.stoneBlock(toBlockState(block));
+        return this;
+    }
+
+    @ZenMethod("stone")
+    public CTCustomPlanetBuilder stone(IItemStack stack) {
+        builder.stoneBlock(toBlockState(stack));
         return this;
     }
 
@@ -118,6 +131,12 @@ public final class CTCustomPlanetBuilder {
         return this;
     }
 
+    @ZenMethod("addOre")
+    public CTCustomPlanetBuilder addOre(IItemStack oreStack, IItemStack replaceStack, int veinSize, int countPerChunk, int minY, int maxY) {
+        builder.addOre(toBlockState(oreStack), toBlockState(replaceStack), veinSize, countPerChunk, minY, maxY);
+        return this;
+    }
+
     @ZenMethod("addFluidLake")
     public CTCustomPlanetBuilder addFluidLake(ILiquidStack fluidStack, int countPerChunk, int minY, int maxY) {
         FluidStack mcStack = CraftTweakerMC.getLiquidStack(fluidStack);
@@ -156,6 +175,19 @@ public final class CTCustomPlanetBuilder {
         return CustomPlanetDefinition.stateFromBlock(mcBlock, safeMeta(block));
     }
 
+    private static IBlockState toBlockState(IItemStack stack) {
+        ItemStack mcStack = toItemStack(stack);
+        Item item = mcStack.getItem();
+        if (item == null) {
+            throw new IllegalArgumentException("Item stack " + stack + " has no item.");
+        }
+        Block block = Block.getBlockFromItem(item);
+        if (block == null) {
+            throw new IllegalArgumentException("Item stack " + stack + " does not correspond to a block.");
+        }
+        return CustomPlanetDefinition.stateFromBlock(block, mcStack.getMetadata());
+    }
+
     private static Block toBlock(IBlock block) {
         if (block == null) {
             throw new IllegalArgumentException("Block cannot be null.");
@@ -182,3 +214,4 @@ public final class CTCustomPlanetBuilder {
         return Math.max(0, block.getMeta());
     }
 }
+

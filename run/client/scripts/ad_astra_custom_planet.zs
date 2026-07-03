@@ -3,22 +3,19 @@
 import mods.ad_astra.CustomPlanets;
 import mods.ad_astra.SpaceStation;
 
-// ============================================================
 // Custom Planet: Mineral World
-// A planet rich in ores, with lava lakes and extreme gravity.
-// ============================================================
 
-var ironBlock = <block:minecraft:iron_block>;
-var ironOre = <block:minecraft:iron_ore>;
-var goldOre = <block:minecraft:gold_ore>;
-var diamondOre = <block:minecraft:diamond_ore>;
-var redstoneOre = <block:minecraft:redstone_ore>;
-var coalOre = <block:minecraft:coal_ore>;
-var lapisOre = <block:minecraft:lapis_ore>;
-var emeraldOre = <block:minecraft:emerald_ore>;
-var goldBlock = <block:minecraft:gold_block>;
-var diamondBlock = <block:minecraft:diamond_block>;
-var stone = <block:minecraft:stone>;
+var ironBlock = <minecraft:iron_block>;
+var ironOre = <minecraft:iron_ore>;
+var goldOre = <minecraft:gold_ore>;
+var diamondOre = <minecraft:diamond_ore>;
+var redstoneOre = <minecraft:redstone_ore>;
+var coalOre = <minecraft:coal_ore>;
+var lapisOre = <minecraft:lapis_ore>;
+var emeraldOre = <minecraft:emerald_ore>;
+var goldBlock = <minecraft:gold_block>;
+var diamondBlock = <minecraft:diamond_block>;
+var stone = <minecraft:stone>;
 
 CustomPlanets.create("ad_astra:mineral_world", 1301)
     .name("mineral_world")
@@ -43,10 +40,6 @@ CustomPlanets.create("ad_astra:mineral_world", 1301)
     .addFluidLake(<liquid:lava> * 1000, 8, 8, 64)
     .enableDimensionRegistration(true)
     .register();
-
-// ============================================================
-// Space Station Recipe for Mineral World Orbit
-// ============================================================
 
 SpaceStation.setRecipe("mineral_world_orbit",
     [
