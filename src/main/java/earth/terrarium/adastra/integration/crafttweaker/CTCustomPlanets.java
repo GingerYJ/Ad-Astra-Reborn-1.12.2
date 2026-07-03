@@ -17,7 +17,7 @@ public final class CTCustomPlanets {
 
     @ZenMethod("create")
     public static CTCustomPlanetBuilder create(String id, int dimensionId) {
-        return new CTCustomPlanetBuilder(CustomPlanetDefinition.builder(id, dimensionId));
+        return new CTCustomPlanetBuilder(CustomPlanetDefinition.builder(CustomPlanetDefinition.parseId(id), dimensionId));
     }
 
     @ZenMethod("getRegisteredCount")

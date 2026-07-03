@@ -37,7 +37,6 @@ CustomPlanets.create("ad_astra:mineral_world", 1301)
     .addOre(ironBlock, stone, 4, 2, 0, 24)
     .addOre(goldBlock, stone, 2, 1, 0, 16)
     .addOre(diamondBlock, stone, 1, 1, 0, 12)
-    .addFluidLake(<liquid:lava> * 1000, 8, 8, 64)
     .enableDimensionRegistration(true)
     .register();
 
@@ -52,3 +51,4 @@ SpaceStation.setRecipe("mineral_world_orbit",
     [64, 32, 16, 64, 32]);
 
 print("Ad Astra: Mineral World custom planet and space station loaded.");
+

@@ -197,19 +197,20 @@ public class PlanetTerrainConfig {
     }
 
     /**
-     * Default flat config for unknown planets.
+     * Default config for custom/unknown planets.
+     * Provides varied terrain comparable to Mars.
      */
     private static PlanetTerrainConfig defaultConfig() {
         return new Builder()
             .baseHeight(63)
-            .minHeight(63)
-            .maxHeight(63)
-            .surfaceDepth(1)
-            .fillerDepth(62)
-            .octaves(1)
+            .minHeight(45)
+            .maxHeight(85)
+            .surfaceDepth(2)
+            .fillerDepth(61)
+            .octaves(4)
             .persistence(0.5)
             .scale(100.0)
-            .caves(false, 0.6, 5, 60)
+            .caves(true, 0.55, 5, 60)
             .build();
     }
 

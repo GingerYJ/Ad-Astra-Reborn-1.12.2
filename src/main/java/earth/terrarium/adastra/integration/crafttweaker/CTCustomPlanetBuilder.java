@@ -137,23 +137,6 @@ public final class CTCustomPlanetBuilder {
         return this;
     }
 
-    @ZenMethod("addFluidLake")
-    public CTCustomPlanetBuilder addFluidLake(ILiquidStack fluidStack, int countPerChunk, int minY, int maxY) {
-        FluidStack mcStack = CraftTweakerMC.getLiquidStack(fluidStack);
-        if (mcStack == null || mcStack.getFluid() == null || mcStack.getFluid().getBlock() == null) {
-            throw new IllegalArgumentException("Liquid stack must expose a fluid block.");
-        }
-        Fluid fluid = mcStack.getFluid();
-        builder.addFluidLake(fluid, fluid.getBlock().getDefaultState(), countPerChunk, minY, maxY);
-        return this;
-    }
-
-    @ZenMethod("addFluidBlock")
-    public CTCustomPlanetBuilder addFluidBlock(IBlock fluidBlock, int countPerChunk, int minY, int maxY) {
-        builder.addFluidLake(null, toBlockState(fluidBlock), countPerChunk, minY, maxY);
-        return this;
-    }
-
     @ZenMethod("enableDimensionRegistration")
     public CTCustomPlanetBuilder enableDimensionRegistration(boolean enabled) {
         builder.registerDimension(enabled);
@@ -163,10 +146,6 @@ public final class CTCustomPlanetBuilder {
     @ZenMethod("register")
     public void register() {
         CustomPlanetDefinition definition = builder.build();
-        if (definition.shouldRegisterDimension()) {
-            CraftTweakerAPI.logWarning("Ad Astra custom planet " + definition.getId()
-                + " requested dimension registration from CraftTweaker. The definition is stored, but dimensions must be registered from an early Java/config hook.");
-        }
         CTCustomPlanets.apply(definition);
     }
 

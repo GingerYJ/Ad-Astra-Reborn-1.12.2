@@ -1,17 +1,17 @@
 package earth.terrarium.adastra.common.world.noise;
 
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.gen.NoiseGeneratorPerlin;
 
 import java.util.Random;
 
 /**
  * Noise generator for Ad Astra terrain generation.
- * Wraps Minecraft 1.12.2's NoiseGeneratorPerlin with multi-octave support.
+ * Uses a custom hash-based noise implementation that works reliably in Minecraft 1.12.2,
+ * replacing the problematic NoiseGeneratorPerlin which can produce flat/constant output.
  */
 public class AdAstraNoiseGenerator {
 
-    private final NoiseGeneratorPerlin[] octaves;
+    private final long seed;
     private final int octaveCount;
     private final double persistence;
     private final double scale;
@@ -28,15 +28,12 @@ public class AdAstraNoiseGenerator {
         this.octaveCount = octaveCount;
         this.persistence = persistence;
         this.scale = scale;
-        this.octaves = new NoiseGeneratorPerlin[octaveCount];
-
-        for (int i = 0; i < octaveCount; i++) {
-            this.octaves[i] = new NoiseGeneratorPerlin(random, 1);
-        }
+        this.seed = random.nextLong();
     }
 
     /**
      * Generates 2D noise value at given coordinates.
+     * Uses a hash-based pseudo-random noise that varies smoothly with position.
      *
      * @param x X coordinate
      * @param z Z coordinate
@@ -52,7 +49,7 @@ public class AdAstraNoiseGenerator {
             double sampleX = x * frequency / scale;
             double sampleZ = z * frequency / scale;
 
-            double noise = octaves[i].getValue(sampleX, sampleZ);
+            double noise = valueNoise(sampleX, sampleZ, i);
             total += noise * amplitude;
 
             maxValue += amplitude;
@@ -83,8 +80,8 @@ public class AdAstraNoiseGenerator {
             double sampleY = y * frequency / scale;
             double sampleZ = z * frequency / scale;
 
-            // Use XZ plane noise combined with Y offset for 3D effect
-            double noise = octaves[i].getValue(sampleX + sampleY, sampleZ);
+            // Combine Y into the noise sampling for 3D variation
+            double noise = valueNoise(sampleX + sampleY, sampleZ + sampleY, i);
             total += noise * amplitude;
 
             maxValue += amplitude;
@@ -119,6 +116,56 @@ public class AdAstraNoiseGenerator {
         // Apply smoothstep for more natural terrain
         double smoothed = smoothstep(raw);
         return (int) MathHelper.clamp(minY + smoothed * (maxY - minY), minY, maxY);
+    }
+
+    /**
+     * Custom value noise that uses bilinear interpolation of hash-based corner values.
+     * This avoids the issues with NoiseGeneratorPerlin in MC 1.12.2.
+     */
+    private double valueNoise(double x, double z, int octave) {
+        int floorX = (int) Math.floor(x);
+        int floorZ = (int) Math.floor(z);
+
+        double fracX = x - floorX;
+        double fracZ = z - floorZ;
+
+        // Smooth interpolation using fade curve (6t^5 - 15t^4 + 10t^3)
+        double u = fade(fracX);
+        double v = fade(fracZ);
+
+        // Get hash values at the four corners
+        double n00 = hashValue(floorX, floorZ, octave);
+        double n10 = hashValue(floorX + 1, floorZ, octave);
+        double n01 = hashValue(floorX, floorZ + 1, octave);
+        double n11 = hashValue(floorX + 1, floorZ + 1, octave);
+
+        // Bilinear interpolation
+        double nx0 = n00 + (n10 - n00) * u;
+        double nx1 = n01 + (n11 - n01) * u;
+
+        return nx0 + (nx1 - nx0) * v;
+    }
+
+    /**
+     * Hash function that produces a deterministic pseudo-random value for a given coordinate.
+     */
+    private double hashValue(int x, int z, int octave) {
+        long h = seed;
+        h ^= x * 374761393L + h * 668265263L;
+        h ^= z * 1274126177L + h * 668265263L;
+        h ^= octave * 2912359L + h * 668265263L;
+        h = (h ^ (h >> 13)) * 1274126177L;
+        h = h ^ (h >> 16);
+        // Convert to double in range [-1, 1]
+        return (h & 0x7FFFFFFFFFFFFFFFL) / (double) 0x7FFFFFFFFFFFFFFFL * 2.0 - 1.0;
+    }
+
+    /**
+     * Fade curve for smooth interpolation (Perlin's improved fade function).
+     * 6t^5 - 15t^4 + 10t^3
+     */
+    private double fade(double t) {
+        return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
     }
 
     private double smoothstep(double x) {

@@ -7,6 +7,7 @@ import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
 import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -254,6 +255,10 @@ public final class PlanetTravelHelper {
         if (planetDimensionId == END_DIMENSION_ID && AdAstraConfig.isEndPlanetEnabled()) {
             return ModDimensions.END_ORBIT_ID;
         }
+        CustomPlanetDefinition custom = CustomPlanetRegistry.getByDimensionId(planetDimensionId);
+        if (custom != null) {
+            return custom.getOrbitDimensionId();
+        }
         return Integer.MIN_VALUE;
     }
 
@@ -329,6 +334,11 @@ public final class PlanetTravelHelper {
         }
         if (orbitDimensionId == ModDimensions.END_ORBIT_ID) {
             return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "the_end_orbit");
+        }
+        for (CustomPlanetDefinition custom : CustomPlanetRegistry.getDefinitions()) {
+            if (custom.getOrbitDimensionId() == orbitDimensionId) {
+                return custom.getOrbitDimensionLocation();
+            }
         }
         return null;
     }

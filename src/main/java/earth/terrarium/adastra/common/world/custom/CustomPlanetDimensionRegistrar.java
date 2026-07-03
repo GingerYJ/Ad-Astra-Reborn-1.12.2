@@ -19,28 +19,49 @@ public final class CustomPlanetDimensionRegistrar {
                 continue;
             }
             int dimensionId = definition.getDimensionId();
-            if (CustomPlanetRegistry.getDimensionType(dimensionId) != null) {
-                continue;
-            }
-            if (DimensionManager.isDimensionRegistered(dimensionId)) {
+            int orbitDimensionId = definition.getOrbitDimensionId();
+
+            // Register planet dimension
+            if (CustomPlanetRegistry.getDimensionType(dimensionId) == null
+                && !DimensionManager.isDimensionRegistered(dimensionId)) {
+                String suffix = sanitize(definition.getId().getNamespace() + "_" + definition.getId().getPath());
+                DimensionType type = DimensionType.register(
+                    Reference.MOD_ID + "_custom_" + suffix,
+                    "_" + Reference.MOD_ID + "_custom_" + suffix,
+                    dimensionId,
+                    WorldProviderCustomPlanet.class,
+                    false);
+                DimensionManager.registerDimension(dimensionId, type);
+                CustomPlanetRegistry.registerDimensionType(dimensionId, type);
+                registered++;
+                AdAstraReborn.LOGGER.info("Registered custom planet dimension {} for {}.", dimensionId, definition.getId());
+            } else if (DimensionManager.isDimensionRegistered(dimensionId)) {
                 AdAstraReborn.LOGGER.warn(
                     "Custom planet {} requested dimension id {}, but that id is already registered.",
                     definition.getId(),
                     dimensionId);
-                continue;
             }
 
-            String suffix = sanitize(definition.getId().getNamespace() + "_" + definition.getId().getPath());
-            DimensionType type = DimensionType.register(
-                Reference.MOD_ID + "_custom_" + suffix,
-                "_" + Reference.MOD_ID + "_custom_" + suffix,
-                dimensionId,
-                WorldProviderCustomPlanet.class,
-                false);
-            DimensionManager.registerDimension(dimensionId, type);
-            CustomPlanetRegistry.registerDimensionType(dimensionId, type);
-            registered++;
-            AdAstraReborn.LOGGER.info("Registered custom planet dimension {} for {}.", dimensionId, definition.getId());
+            // Register orbit dimension
+            if (CustomPlanetRegistry.getDimensionType(orbitDimensionId) == null
+                && !DimensionManager.isDimensionRegistered(orbitDimensionId)) {
+                String orbitSuffix = sanitize(definition.getId().getNamespace() + "_" + definition.getId().getPath() + "_orbit");
+                DimensionType orbitType = DimensionType.register(
+                    Reference.MOD_ID + "_custom_" + orbitSuffix,
+                    "_" + Reference.MOD_ID + "_custom_" + orbitSuffix,
+                    orbitDimensionId,
+                    WorldProviderCustomPlanetOrbit.class,
+                    false);
+                DimensionManager.registerDimension(orbitDimensionId, orbitType);
+                CustomPlanetRegistry.registerDimensionType(orbitDimensionId, orbitType);
+                registered++;
+                AdAstraReborn.LOGGER.info("Registered custom planet orbit dimension {} for {}.", orbitDimensionId, definition.getId());
+            } else if (DimensionManager.isDimensionRegistered(orbitDimensionId)) {
+                AdAstraReborn.LOGGER.warn(
+                    "Custom planet {} requested orbit dimension id {}, but that id is already registered.",
+                    definition.getId(),
+                    orbitDimensionId);
+            }
         }
         return registered;
     }

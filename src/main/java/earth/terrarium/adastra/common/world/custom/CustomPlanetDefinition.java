@@ -28,10 +28,12 @@ public final class CustomPlanetDefinition {
     @Nullable
     private final String displayName;
     private final int dimensionId;
+    private final int orbitDimensionId;
     private final String saveFolder;
     private final ResourceLocation biomeId;
     private final IBlockState surfaceBlock;
     private final IBlockState stoneBlock;
+    private final IBlockState fillerBlock;
     private final ItemStack iconStack;
     private final boolean hasSkyLight;
     private final boolean canRespawn;
@@ -45,17 +47,18 @@ public final class CustomPlanetDefinition {
     private final Vec3d skyColor;
     private final boolean registerDimension;
     private final List<OreDefinition> ores;
-    private final List<FluidLakeDefinition> fluidLakes;
 
     private CustomPlanetDefinition(Builder builder) {
         this.id = builder.id;
         this.planetName = builder.planetName == null ? sanitizeName(builder.id.getPath()) : sanitizeName(builder.planetName);
         this.displayName = builder.displayName;
         this.dimensionId = builder.dimensionId;
+        this.orbitDimensionId = builder.orbitDimensionId;
         this.saveFolder = builder.saveFolder == null ? defaultSaveFolder(builder.id) : builder.saveFolder;
         this.biomeId = builder.biomeId;
         this.surfaceBlock = builder.surfaceBlock;
         this.stoneBlock = builder.stoneBlock;
+        this.fillerBlock = builder.fillerBlock == null ? builder.stoneBlock : builder.fillerBlock;
         this.iconStack = builder.iconStack.copy();
         this.hasSkyLight = builder.hasSkyLight;
         this.canRespawn = builder.canRespawn;
@@ -69,7 +72,6 @@ public final class CustomPlanetDefinition {
         this.skyColor = builder.skyColor;
         this.registerDimension = builder.registerDimension;
         this.ores = Collections.unmodifiableList(new ArrayList<>(builder.ores));
-        this.fluidLakes = Collections.unmodifiableList(new ArrayList<>(builder.fluidLakes));
     }
 
     public ResourceLocation getId() {
@@ -93,6 +95,10 @@ public final class CustomPlanetDefinition {
         return dimensionId;
     }
 
+    public int getOrbitDimensionId() {
+        return orbitDimensionId;
+    }
+
     public String getSaveFolder() {
         return saveFolder;
     }
@@ -107,6 +113,10 @@ public final class CustomPlanetDefinition {
 
     public IBlockState getStoneBlock() {
         return stoneBlock;
+    }
+
+    public IBlockState getFillerBlock() {
+        return fillerBlock;
     }
 
     public ItemStack getIconStack() {
@@ -161,8 +171,9 @@ public final class CustomPlanetDefinition {
         return ores;
     }
 
-    public List<FluidLakeDefinition> getFluidLakes() {
-        return fluidLakes;
+
+    public static Builder builder(ResourceLocation id, int dimensionId) {
+        return new Builder(id, dimensionId);
     }
 
     public PlanetDimensionProperties toDimensionProperties() {
@@ -170,9 +181,9 @@ public final class CustomPlanetDefinition {
             planetName,
             dimensionId,
             saveFolder,
-            resolveBiome(),
+            ForgeRegistries.BIOMES.getValue(biomeId) == null ? Biomes.DEFAULT : ForgeRegistries.BIOMES.getValue(biomeId),
             surfaceBlock,
-            stoneBlock,
+            fillerBlock,
             hasSkyLight,
             canRespawn,
             oxygen,
@@ -182,28 +193,29 @@ public final class CustomPlanetDefinition {
             tier,
             dayLength,
             fogColor,
-            skyColor);
+            skyColor
+        );
     }
 
-    public Biome resolveBiome() {
-        Biome biome = ForgeRegistries.BIOMES.getValue(biomeId);
-        return biome == null ? Biomes.PLAINS : biome;
-    }
-
-    public static Builder builder(String id, int dimensionId) {
-        return builder(parseId(id), dimensionId);
-    }
-
-    public static Builder builder(ResourceLocation id, int dimensionId) {
-        return new Builder(id, dimensionId);
-    }
-
-    public static ResourceLocation parseId(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("Custom planet id cannot be empty.");
-        }
-        String trimmed = id.trim().toLowerCase(Locale.ROOT);
-        return trimmed.indexOf(':') >= 0 ? new ResourceLocation(trimmed) : new ResourceLocation(Reference.MOD_ID, trimmed);
+    public PlanetDimensionProperties toOrbitDimensionProperties() {
+        return new PlanetDimensionProperties(
+            planetName + "_orbit",
+            orbitDimensionId,
+            saveFolder + "_ORBIT",
+            ForgeRegistries.BIOMES.getValue(biomeId) == null ? Biomes.DEFAULT : ForgeRegistries.BIOMES.getValue(biomeId),
+            Blocks.AIR.getDefaultState(),
+            Blocks.AIR.getDefaultState(),
+            true,
+            false,
+            false,
+            (short) -270,
+            0.0F,
+            solarPower,
+            tier,
+            dayLength,
+            new Vec3d(0.0D, 0.0D, 0.0D),
+            new Vec3d(0.0D, 0.0D, 0.0D)
+        );
     }
 
     public static PlanetDimensionProperties fallbackProperties(int dimensionId) {
@@ -213,6 +225,28 @@ public final class CustomPlanetDefinition {
             .toDimensionProperties();
     }
 
+    public static PlanetDimensionProperties fallbackOrbitProperties(int orbitDimensionId) {
+        int planetDimensionId = orbitDimensionId - 1;
+        return builder(new ResourceLocation(Reference.MOD_ID, "missing_custom_orbit_" + orbitDimensionId), planetDimensionId)
+            .saveFolder("DIM_AD_ASTRA_MISSING_CUSTOM_ORBIT_" + orbitDimensionId)
+            .build()
+            .toOrbitDimensionProperties();
+    }
+
+
+    public static ResourceLocation parseId(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("id cannot be null or empty.");
+        }
+        if (id.contains(":")) {
+            return new ResourceLocation(id);
+        }
+        return new ResourceLocation(Reference.MOD_ID, id);
+    }
+
+    public ResourceLocation getOrbitDimensionLocation() {
+        return new ResourceLocation(id.getNamespace(), id.getPath() + "_orbit");
+    }
     public static IBlockState stateFromBlock(Block block, int meta) {
         if (block == null) {
             throw new IllegalArgumentException("block cannot be null.");
@@ -312,62 +346,20 @@ public final class CustomPlanetDefinition {
         }
     }
 
-    public static final class FluidLakeDefinition {
-
-        @Nullable
-        private final Fluid fluid;
-        private final IBlockState fluidBlock;
-        private final int countPerChunk;
-        private final int minY;
-        private final int maxY;
-
-        public FluidLakeDefinition(@Nullable Fluid fluid, IBlockState fluidBlock, int countPerChunk, int minY, int maxY) {
-            this.fluid = fluid;
-            this.fluidBlock = requireState(fluidBlock, "fluidBlock");
-            this.countPerChunk = nonNegative(countPerChunk, "countPerChunk");
-            this.minY = clampY(minY, "minY");
-            this.maxY = clampY(maxY, "maxY");
-            if (this.minY > this.maxY) {
-                throw new IllegalArgumentException("minY cannot be greater than maxY.");
-            }
-        }
-
-        @Nullable
-        public Fluid getFluid() {
-            return fluid;
-        }
-
-        public IBlockState getFluidBlock() {
-            return fluidBlock;
-        }
-
-        public int getCountPerChunk() {
-            return countPerChunk;
-        }
-
-        public int getMinY() {
-            return minY;
-        }
-
-        public int getMaxY() {
-            return maxY;
-        }
-    }
-
     public static final class Builder {
 
         private final ResourceLocation id;
-        private final int dimensionId;
-        @Nullable
         private String planetName;
         @Nullable
         private String displayName;
-        @Nullable
+        private final int dimensionId;
+        private int orbitDimensionId;
         private String saveFolder;
         private ResourceLocation biomeId = new ResourceLocation("minecraft", "plains");
-        private IBlockState surfaceBlock = Blocks.STONE.getDefaultState();
+        private IBlockState surfaceBlock = Blocks.GRASS.getDefaultState();
         private IBlockState stoneBlock = Blocks.STONE.getDefaultState();
-        private ItemStack iconStack = new ItemStack(Blocks.STONE);
+        private IBlockState fillerBlock;
+        private ItemStack iconStack = new ItemStack(Blocks.GRASS);
         private boolean hasSkyLight = true;
         private boolean canRespawn = true;
         private boolean oxygen;
@@ -380,7 +372,6 @@ public final class CustomPlanetDefinition {
         private Vec3d skyColor = new Vec3d(0.5D, 0.7D, 1.0D);
         private boolean registerDimension;
         private final List<OreDefinition> ores = new ArrayList<>();
-        private final List<FluidLakeDefinition> fluidLakes = new ArrayList<>();
 
         private Builder(ResourceLocation id, int dimensionId) {
             if (id == null) {
@@ -391,6 +382,7 @@ public final class CustomPlanetDefinition {
             }
             this.id = id;
             this.dimensionId = dimensionId;
+            this.orbitDimensionId = dimensionId + 1;
         }
 
         public Builder planetName(String planetName) {
@@ -426,6 +418,19 @@ public final class CustomPlanetDefinition {
 
         public Builder stoneBlock(IBlockState stoneBlock) {
             this.stoneBlock = requireState(stoneBlock, "stoneBlock");
+            return this;
+        }
+
+        public Builder fillerBlock(IBlockState fillerBlock) {
+            this.fillerBlock = requireState(fillerBlock, "fillerBlock");
+            return this;
+        }
+
+        public Builder orbitDimensionId(int orbitDimensionId) {
+            if (orbitDimensionId == 0) {
+                throw new IllegalArgumentException("Orbit dimension id cannot be 0 (overworld).");
+            }
+            this.orbitDimensionId = orbitDimensionId;
             return this;
         }
 
@@ -485,10 +490,6 @@ public final class CustomPlanetDefinition {
             return this;
         }
 
-        public Builder addFluidLake(@Nullable Fluid fluid, IBlockState fluidBlock, int countPerChunk, int minY, int maxY) {
-            this.fluidLakes.add(new FluidLakeDefinition(fluid, fluidBlock, countPerChunk, minY, maxY));
-            return this;
-        }
 
         public CustomPlanetDefinition build() {
             return new CustomPlanetDefinition(this);
