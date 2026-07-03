@@ -8,17 +8,17 @@ import mods.ad_astra.SpaceStation;
 // A planet rich in ores, with lava lakes and extreme gravity.
 // ============================================================
 
-var ironBlock = game.getBlock("minecraft:iron_block");
-var ironOre = game.getBlock("minecraft:iron_ore");
-var goldOre = game.getBlock("minecraft:gold_ore");
-var diamondOre = game.getBlock("minecraft:diamond_ore");
-var redstoneOre = game.getBlock("minecraft:redstone_ore");
-var coalOre = game.getBlock("minecraft:coal_ore");
-var lapisOre = game.getBlock("minecraft:lapis_ore");
-var emeraldOre = game.getBlock("minecraft:emerald_ore");
-var goldBlock = game.getBlock("minecraft:gold_block");
-var diamondBlock = game.getBlock("minecraft:diamond_block");
-var stone = game.getBlock("minecraft:stone");
+var ironBlock = <block:minecraft:iron_block>;
+var ironOre = <block:minecraft:iron_ore>;
+var goldOre = <block:minecraft:gold_ore>;
+var diamondOre = <block:minecraft:diamond_ore>;
+var redstoneOre = <block:minecraft:redstone_ore>;
+var coalOre = <block:minecraft:coal_ore>;
+var lapisOre = <block:minecraft:lapis_ore>;
+var emeraldOre = <block:minecraft:emerald_ore>;
+var goldBlock = <block:minecraft:gold_block>;
+var diamondBlock = <block:minecraft:diamond_block>;
+var stone = <block:minecraft:stone>;
 
 CustomPlanets.create("ad_astra:mineral_world", 1301)
     .name("mineral_world")
