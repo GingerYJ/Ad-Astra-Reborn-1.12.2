@@ -28,20 +28,6 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
     protected void tickMachine() {
         NASAWorkbenchRecipe recipe = getRecipe();
         setActiveRecipe(recipe);
-
-        // Spawn working particles when inputs are present and recipe is valid
-        if (recipe != null && world != null && !world.isRemote) {
-            boolean hasInputs = false;
-            for (int i = FIRST_INPUT_SLOT; i <= LAST_INPUT_SLOT; i++) {
-                if (!items.getStackInSlot(i).isEmpty()) {
-                    hasInputs = true;
-                    break;
-                }
-            }
-            if (hasInputs) {
-                spawnWorkingParticles();
-            }
-        }
     }
 
     private NASAWorkbenchRecipe getRecipe() {
@@ -174,17 +160,6 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
             compound.setString("ActiveRecipe", activeRecipe.getId());
         }
         return compound;
-    }
-
-    private void spawnWorkingParticles() {
-        if (world == null || world.isRemote) return;
-        WorldServer serverWorld = (WorldServer) world;
-        for (int i = 0; i < 3; i++) {
-            double x = pos.getX() + 0.5 + (world.rand.nextDouble() - 0.5) * 0.24;
-            double y = pos.getY() + 1.5 + (world.rand.nextDouble() - 0.5) * 0.24;
-            double z = pos.getZ() + 0.5 + (world.rand.nextDouble() - 0.5) * 0.24;
-            serverWorld.spawnParticle(EnumParticleTypes.FIREWORKS_SPARK, x, y, z, 1, 0, 0, 0, 0.15);
-        }
     }
 
     private void spawnResultParticles() {
