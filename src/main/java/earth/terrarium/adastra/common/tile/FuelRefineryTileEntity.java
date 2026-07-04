@@ -69,7 +69,7 @@ public class FuelRefineryTileEntity extends AdAstraMachineTileEntity {
 
     private boolean refineFuel() {
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(ENERGY_PER_OPERATION);
-        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
+        if (energy.internalExtractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             return false;
         }
         FluidStack input = inputTank.getFluid();
@@ -80,7 +80,7 @@ public class FuelRefineryTileEntity extends AdAstraMachineTileEntity {
             return false;
         }
 
-        energy.extractEnergy(modifiedEnergy, false);
+        energy.internalExtractEnergy(modifiedEnergy, false);
         inputTank.drainInternal(INPUT_PER_OPERATION, true);
         outputTank.fillInternal(new FluidStack(ModFluids.FUEL, OUTPUT_PER_OPERATION), true);
         return true;

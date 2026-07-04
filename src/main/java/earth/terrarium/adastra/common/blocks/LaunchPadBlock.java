@@ -24,7 +24,7 @@ import java.util.Locale;
 public class LaunchPadBlock extends AdAstraModelBlock {
 
     public static final PropertyEnum<Part> PART = PropertyEnum.create("part", Part.class);
-    private static final AxisAlignedBB COLLISION_BOX = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 0.0625, 1.0);
+    private static final AxisAlignedBB COLLISION_BOX = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 2.0 / 16.0, 1.0);
     private boolean removingStructure;
 
     public LaunchPadBlock(Material material, float hardness, float resistance) {

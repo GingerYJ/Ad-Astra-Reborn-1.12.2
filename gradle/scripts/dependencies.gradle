@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     compileOnly "com.cleanroommc:sponge-mixin:0.20.13+mixin.0.8.7"
+    contain "javazoom:jlayer:1.0.1"
     if (propertyBool('enable_lwjglx')) {
         compileOnly "com.cleanroommc:lwjglx:1.0.0"
     }

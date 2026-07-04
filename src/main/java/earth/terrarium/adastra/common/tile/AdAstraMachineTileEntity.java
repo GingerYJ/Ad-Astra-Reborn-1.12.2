@@ -1,7 +1,8 @@
 package earth.terrarium.adastra.common.tile;
 
-import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.performance.PerformanceTracker;
+import earth.terrarium.adastra.common.util.MachineStateUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -28,17 +29,17 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISidedInventory, ITickable {
 
-    protected static final int IRON_ENERGY = 10_000;
-    protected static final int IRON_IO = 100;
-    protected static final int STEEL_ENERGY = 20_000;
-    protected static final int STEEL_IO = 150;
-    protected static final int STEEL_FLUID = 3_000;
-    protected static final int DESH_ENERGY = 50_000;
-    protected static final int DESH_IO = 250;
-    protected static final int DESH_FLUID = 5_000;
-    protected static final int OSTRUM_ENERGY = 100_000;
-    protected static final int OSTRUM_IO = 500;
-    protected static final int OSTRUM_FLUID = 10_000;
+    protected static final int IRON_ENERGY = AdAstraConfig.ironEnergyCapacity;
+    protected static final int IRON_IO = AdAstraConfig.ironMaxEnergyInOut;
+    protected static final int STEEL_ENERGY = AdAstraConfig.steelEnergyCapacity;
+    protected static final int STEEL_IO = AdAstraConfig.steelMaxEnergyInOut;
+    protected static final int STEEL_FLUID = AdAstraConfig.steelFluidCapacity;
+    protected static final int DESH_ENERGY = AdAstraConfig.deshEnergyCapacity;
+    protected static final int DESH_IO = AdAstraConfig.deshMaxEnergyInOut;
+    protected static final int DESH_FLUID = AdAstraConfig.deshFluidCapacity;
+    protected static final int OSTRUM_ENERGY = AdAstraConfig.ostrumEnergyCapacity;
+    protected static final int OSTRUM_IO = AdAstraConfig.ostrumMaxEnergyInOut;
+    protected static final int OSTRUM_FLUID = AdAstraConfig.ostrumFluidCapacity;
 
     private final String machineName;
     protected final ItemStackHandler items;
@@ -47,6 +48,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     protected final IItemHandler[] itemHandlers = new IItemHandler[EnumFacing.values().length];
     protected AdAstraRedstoneControl redstoneControl = AdAstraRedstoneControl.ALWAYS_ON;
     protected final AdAstraSideMode[][] sideModes = new AdAstraSideMode[EnumFacing.values().length][SideConfigType.values().length];
+    protected final AdAstraSideMode[][] defaultSideModes = new AdAstraSideMode[EnumFacing.values().length][SideConfigType.values().length];
 
     // Performance optimization fields
     protected int idleTicks = 0;
@@ -65,6 +67,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
         for (EnumFacing facing : EnumFacing.values()) {
             for (SideConfigType type : SideConfigType.values()) {
                 sideModes[facing.getIndex()][type.ordinal()] = AdAstraSideMode.NONE;
+                defaultSideModes[facing.getIndex()][type.ordinal()] = AdAstraSideMode.NONE;
             }
         }
         this.items = new ItemStackHandler(slots) {
@@ -274,8 +277,13 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             return;
         }
         IBlockState state = world.getBlockState(pos);
-        if (state.getBlock() instanceof AdAstraMachineBlock && state.getValue(AdAstraMachineBlock.LIT) != lit) {
-            world.setBlockState(pos, state.withProperty(AdAstraMachineBlock.LIT, lit), 3);
+        if (MachineStateUtils.hasLitProperty(state) && MachineStateUtils.isLit(state) != lit) {
+            TileEntity tile = world.getTileEntity(pos);
+            world.setBlockState(pos, MachineStateUtils.withLit(state, lit), 3);
+            if (tile == this && world.getTileEntity(pos) != this) {
+                validate();
+                world.setTileEntity(pos, this);
+            }
         }
     }
 
@@ -283,11 +291,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
         if (world == null || pos == null) {
             return false;
         }
-        IBlockState state = world.getBlockState(pos);
-        if (state.getBlock() instanceof AdAstraMachineBlock) {
-            return state.getValue(AdAstraMachineBlock.LIT);
-        }
-        return false;
+        return MachineStateUtils.isLit(world.getBlockState(pos));
     }
 
     public AdAstraSideMode getSideMode(EnumFacing facing, SideConfigType type) {
@@ -302,7 +306,17 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     protected void setAllSideModes(SideConfigType type, AdAstraSideMode mode) {
         for (EnumFacing facing : EnumFacing.values()) {
             sideModes[facing.getIndex()][type.ordinal()] = mode;
+            defaultSideModes[facing.getIndex()][type.ordinal()] = mode;
         }
+    }
+
+    public void resetSideModesToDefaults() {
+        for (EnumFacing facing : EnumFacing.values()) {
+            for (SideConfigType type : SideConfigType.values()) {
+                sideModes[facing.getIndex()][type.ordinal()] = defaultSideModes[facing.getIndex()][type.ordinal()];
+            }
+        }
+        markDirty();
     }
 
     protected void pushEnergyToSides() {

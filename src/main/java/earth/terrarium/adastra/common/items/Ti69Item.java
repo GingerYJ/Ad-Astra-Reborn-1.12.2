@@ -1,12 +1,16 @@
 package earth.terrarium.adastra.common.items;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.client.render.Ti69App;
+import earth.terrarium.adastra.client.render.Ti69Renderer;
 import earth.terrarium.adastra.common.AdAstraCreativeTab;
-import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
 import earth.terrarium.adastra.common.registry.ModBlocks;
+import earth.terrarium.adastra.common.systems.GravitySystem;
+import earth.terrarium.adastra.common.systems.TemperatureSystem;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.util.EnvironmentUtils;
+import earth.terrarium.adastra.common.util.MachineStateUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -74,7 +78,7 @@ public class Ti69Item extends Item {
     }
 
     private static boolean isMachineLit(IBlockState state) {
-        return state.getPropertyKeys().contains(AdAstraMachineBlock.LIT) && state.getValue(AdAstraMachineBlock.LIT);
+        return MachineStateUtils.isLit(state);
     }
 
     private static boolean reachesOxygenDistributor(World world, BlockPos distributorPos, BlockPos playerPos) {
@@ -138,15 +142,13 @@ public class Ti69Item extends Item {
 
         private static EnvironmentReading read(EntityPlayer player) {
             World world = player.world;
-            Object provider = world.provider;
-            Number temperature = invokeNumber(provider, "getTemperature");
-            Number gravity = invokeNumber(provider, "getGravity");
+            BlockPos playerPos = player.getPosition();
 
             boolean oxygen = EnvironmentUtils.hasOxygen(player);
-            boolean hasGravity = gravity != null;
-            float gravityValue = gravity == null ? EARTH_GRAVITY : gravity.floatValue();
+            int temperature = TemperatureSystem.getTemperatureAtPos(world, playerPos);
+            boolean hasGravity = true;
+            float gravityValue = GravitySystem.getGravityAtPos(world, playerPos) * EARTH_GRAVITY;
 
-            BlockPos playerPos = player.getPosition();
             BlockPos min = playerPos.add(
                 -EnvironmentUtils.DEFAULT_ENVIRONMENT_SCAN_RADIUS,
                 -EnvironmentUtils.DEFAULT_ENVIRONMENT_SCAN_RADIUS,
@@ -164,20 +166,17 @@ public class Ti69Item extends Item {
                 Block block = state.getBlock();
                 if (block == ModBlocks.OXYGEN_DISTRIBUTOR && isMachineLit(state) && reachesOxygenDistributor(world, mutablePos, playerPos)) {
                     oxygen = true;
-                } else if (block == ModBlocks.GRAVITY_NORMALIZER && isMachineLit(state) && reachesGravityNormalizer(world, mutablePos, playerPos)) {
-                    hasGravity = true;
-                    gravityValue = getTargetGravity(world, mutablePos) * EARTH_GRAVITY;
                 }
 
-                if (oxygen && hasGravity) {
+                if (oxygen) {
                     break;
                 }
             }
 
             return new EnvironmentReading(
                 oxygen,
-                temperature != null,
-                temperature == null ? 0 : temperature.intValue(),
+                true,
+                temperature,
                 hasGravity,
                 gravityValue);
         }

@@ -17,6 +17,7 @@ import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
+import earth.terrarium.adastra.common.items.AdAstraBucketItem;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
@@ -37,7 +38,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBucket;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -96,11 +97,11 @@ public final class ModItems {
     public static final Item ROCKET_FIN = item("rocket_fin");
     public static final Item ICE_SHARD = item("ice_shard");
 
-    public static final Item OXYGEN_BUCKET = bucket("oxygen_bucket", ModBlocks.OXYGEN);
-    public static final Item HYDROGEN_BUCKET = bucket("hydrogen_bucket", ModBlocks.HYDROGEN);
-    public static final Item OIL_BUCKET = bucket("oil_bucket", ModBlocks.OIL);
-    public static final Item FUEL_BUCKET = bucket("fuel_bucket", ModBlocks.FUEL);
-    public static final Item CRYO_FUEL_BUCKET = bucket("cryo_fuel_bucket", ModBlocks.CRYO_FUEL);
+    public static final Item OXYGEN_BUCKET = bucket("oxygen_bucket", ModBlocks.OXYGEN, ModFluids.OXYGEN);
+    public static final Item HYDROGEN_BUCKET = bucket("hydrogen_bucket", ModBlocks.HYDROGEN, ModFluids.HYDROGEN);
+    public static final Item OIL_BUCKET = bucket("oil_bucket", ModBlocks.OIL, ModFluids.OIL);
+    public static final Item FUEL_BUCKET = bucket("fuel_bucket", ModBlocks.FUEL, ModFluids.FUEL);
+    public static final Item CRYO_FUEL_BUCKET = bucket("cryo_fuel_bucket", ModBlocks.CRYO_FUEL, ModFluids.CRYO_FUEL);
 
     public static final Item TI_69 = ti69("ti_69");
     public static final Item WRENCH = wrench("wrench");
@@ -241,8 +242,8 @@ public final class ModItems {
         return item;
     }
 
-    private static Item bucket(String name, Block fluidBlock) {
-        Item item = new ItemBucket(fluidBlock);
+    private static Item bucket(String name, Block fluidBlock, Fluid fluid) {
+        Item item = new AdAstraBucketItem(fluidBlock, fluid);
         item.setRegistryName(Reference.MOD_ID, name);
         item.setTranslationKey(Reference.MOD_ID + "." + name);
         item.setCreativeTab(AdAstraCreativeTab.INSTANCE);

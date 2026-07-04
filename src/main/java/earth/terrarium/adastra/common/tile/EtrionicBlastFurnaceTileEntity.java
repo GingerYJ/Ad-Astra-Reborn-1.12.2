@@ -23,7 +23,6 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
     private static final int LAST_OUTPUT_SLOT = 8;
     private static final int ALLOYING_ENERGY_PER_TICK = 20;
     private static final int ALLOYING_COOK_TIME = 100;
-    private static final int BLASTING_ENERGY_PER_TICK = 20;
     private static final int BLASTING_COOK_TIME = 100;
 
     private FurnaceMode mode = FurnaceMode.ALLOYING;
@@ -72,14 +71,14 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
         int energyPerTick = recipe.getEnergyPerTick();
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(energyPerTick);
-        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
+        if (energy.internalExtractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             setLit(false);
             return;
         }
 
         // Apply config speed multiplier to processing time
         cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(recipe.getProcessingTime());
-        energy.extractEnergy(modifiedEnergy, false);
+        energy.internalExtractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
 
@@ -174,7 +173,7 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         }
 
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(target.recipe.energyPerTick);
-        energy.extractEnergy(modifiedEnergy, false);
+        energy.internalExtractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
 
@@ -208,7 +207,7 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
     private boolean canProcessBlasting(BlastingRecipe recipe) {
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.energyPerTick);
-        return energy.extractEnergy(modifiedEnergy, true) >= modifiedEnergy && canAddOutput(recipe.result);
+        return energy.internalExtractEnergy(modifiedEnergy, true) >= modifiedEnergy && canAddOutput(recipe.result);
     }
 
     private void craftBlasting(BlastingTarget target) {
@@ -461,7 +460,7 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
         private final StackPredicate input;
         private final ItemStack result;
         private final int cookingTime = BLASTING_COOK_TIME;
-        private final int energyPerTick = BLASTING_ENERGY_PER_TICK;
+        private final int energyPerTick = AdAstraConfig.etrionicBlastFurnaceBlastingEnergyPerItem;
 
         BlastingRecipe(String oreName, Item output) {
             this(stack -> hasOreName(stack, oreName), new ItemStack(output));

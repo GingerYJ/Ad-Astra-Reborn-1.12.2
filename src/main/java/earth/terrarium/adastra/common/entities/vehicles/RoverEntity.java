@@ -1,10 +1,19 @@
 package earth.terrarium.adastra.common.entities.vehicles;
 
+import earth.terrarium.adastra.common.network.NetworkHandler;
+import earth.terrarium.adastra.common.network.packet.PacketOpenVehicleGui;
+import earth.terrarium.adastra.common.network.packet.PacketPlayRadioStation;
+import earth.terrarium.adastra.common.tile.RadioTileEntity;
+import earth.terrarium.adastra.common.util.radio.RadioHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -16,11 +25,13 @@ import java.util.List;
 /**
  * Rover entity with dual-passenger support, 18-slot inventory, and fuel consumption.
  */
-public class RoverEntity extends VehicleBase {
+public class RoverEntity extends VehicleBase implements RadioHolder {
 
     private static final int ROVER_INVENTORY_SIZE = 18;
     private static final int ROVER_FUEL_CAPACITY = 2000; // 2 buckets
     private static final int FUEL_PER_MOVEMENT = 1; // Fuel consumed per movement tick
+    private static final double RUN_OVER_MIN_SPEED = 0.15D;
+    private static final DataParameter<String> RADIO_URL = EntityDataManager.createKey(RoverEntity.class, DataSerializers.STRING);
 
     private float acceleration = 0.0f;
     private float steering = 0.0f;
@@ -34,6 +45,29 @@ public class RoverEntity extends VehicleBase {
                    stack.getFluid().getName().contains("gasoline");
         });
         setSize(2.2f, 0.9f);
+        addVehiclePart("radio", 0.6f, 0.7f, 0.6D, 1.0D, 0.5D, (player, hand) -> {
+            if (player.getRidingEntity() != this) {
+                return false;
+            }
+            if (!world.isRemote && player instanceof EntityPlayerMP) {
+                NetworkHandler.CHANNEL.sendTo(
+                    new PacketOpenVehicleGui(getEntityId(), PacketOpenVehicleGui.VehicleGuiType.ROVER_RADIO),
+                    (EntityPlayerMP) player);
+            }
+            return true;
+        });
+        addVehiclePart("cargo", 1.1f, 0.7f, 0.15D, 0.8D, -1.7D, (player, hand) -> {
+            if (!world.isRemote) {
+                openInventoryGUI(player);
+            }
+            return true;
+        });
+    }
+
+    @Override
+    protected void entityInit() {
+        super.entityInit();
+        dataManager.register(RADIO_URL, "");
     }
 
     @Override
@@ -52,6 +86,7 @@ public class RoverEntity extends VehicleBase {
         // Handle rover movement
         if (!world.isRemote) {
             handleRoverMovement();
+            runOverEntities();
         }
     }
 
@@ -120,6 +155,41 @@ public class RoverEntity extends VehicleBase {
         }
     }
 
+    private void runOverEntities() {
+        double horizontalSpeed = Math.sqrt(motionX * motionX + motionZ * motionZ);
+        if (horizontalSpeed <= RUN_OVER_MIN_SPEED) {
+            return;
+        }
+
+        List<EntityLivingBase> entities = world.getEntitiesWithinAABB(
+            EntityLivingBase.class,
+            getEntityBoundingBox().grow(1.001D));
+        if (entities.isEmpty()) {
+            return;
+        }
+
+        Entity driver = getControllingPassenger();
+        DamageSource source = driver instanceof EntityLivingBase
+            ? DamageSource.causeMobDamage((EntityLivingBase) driver)
+            : DamageSource.GENERIC;
+        double power = horizontalSpeed * 0.4D;
+        float damage = (float) (power * 50.0D);
+        double yaw = Math.toRadians(rotationYaw);
+        double knockbackX = -Math.sin(yaw) * 0.1D;
+        double knockbackZ = Math.cos(yaw) * 0.1D;
+
+        for (EntityLivingBase entity : entities) {
+            if (getPassengers().contains(entity)) {
+                continue;
+            }
+            entity.motionX += knockbackX;
+            entity.motionY += power;
+            entity.motionZ += knockbackZ;
+            entity.velocityChanged = true;
+            entity.attackEntityFrom(source, damage);
+        }
+    }
+
     @Override
     protected boolean canFitPassenger(Entity passenger) {
         // Allow 2 passengers: driver + passenger
@@ -160,9 +230,6 @@ public class RoverEntity extends VehicleBase {
             );
         }
 
-        // Sync rotation
-        passenger.rotationYaw = this.rotationYaw;
-        passenger.prevRotationYaw = this.prevRotationYaw;
     }
 
     @Override
@@ -171,11 +238,25 @@ public class RoverEntity extends VehicleBase {
     }
 
     @Override
+    public Vec3d getDismountPosition(EntityLivingBase passenger) {
+        double zOffset = getControllingPassenger() == passenger ? 1.75D : -1.75D;
+        double angle = -Math.toRadians(rotationYaw) - Math.PI / 2.0D;
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double localX = -0.5D;
+        double localZ = zOffset;
+        double x = localX * cos + localZ * sin;
+        double z = localZ * cos - localX * sin;
+        return new Vec3d(posX + x, posY, posZ + z);
+    }
+
+    @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
         acceleration = compound.getFloat("Acceleration");
         steering = compound.getFloat("Steering");
         fuelConsumptionTick = compound.getInteger("FuelConsumptionTick");
+        setRadioUrl(compound.getString("RadioUrl"));
     }
 
     @Override
@@ -184,6 +265,29 @@ public class RoverEntity extends VehicleBase {
         compound.setFloat("Acceleration", acceleration);
         compound.setFloat("Steering", steering);
         compound.setInteger("FuelConsumptionTick", fuelConsumptionTick);
+        compound.setString("RadioUrl", getRadioUrl());
+    }
+
+    @Override
+    public String getRadioUrl() {
+        return dataManager.get(RADIO_URL);
+    }
+
+    @Override
+    public void setRadioUrl(String url) {
+        String normalized = RadioTileEntity.normalizeStation(url);
+        dataManager.set(RADIO_URL, normalized);
+        if (!world.isRemote) {
+            syncRadioToPassengers(normalized);
+        }
+    }
+
+    private void syncRadioToPassengers(String url) {
+        for (Entity passenger : getPassengers()) {
+            if (passenger instanceof EntityPlayerMP) {
+                NetworkHandler.CHANNEL.sendTo(new PacketPlayRadioStation(url), (EntityPlayerMP) passenger);
+            }
+        }
     }
 
     /**

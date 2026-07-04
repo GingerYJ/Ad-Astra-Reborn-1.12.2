@@ -13,7 +13,11 @@ public interface IProxy {
 
     void postInit(FMLPostInitializationEvent event);
 
-    void openPlanetSelection(int rocketTier);
+    void openPlanetSelection(int rocketTier, int rocketEntityId);
 
     void openRadio(BlockPos pos, String station, boolean playing);
+
+    void openFlagUrl(BlockPos pos);
+
+    void syncRadioPlayback(BlockPos pos, String station, boolean playing);
 }

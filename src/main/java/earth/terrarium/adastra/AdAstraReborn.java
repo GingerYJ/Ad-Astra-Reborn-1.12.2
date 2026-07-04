@@ -13,6 +13,7 @@ import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModOreDictionary;
 import earth.terrarium.adastra.common.registry.ModSmeltingRecipes;
 import earth.terrarium.adastra.common.registry.ModTileEntities;
+import earth.terrarium.adastra.common.tags.ModBlockTags;
 import earth.terrarium.adastra.common.world.AdAstraStructureWorldGenerator;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDimensionRegistrar;
 import earth.terrarium.adastra.proxy.IProxy;
@@ -66,6 +67,7 @@ public class AdAstraReborn {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        ModBlockTags.registerDefaults();
         ModOreDictionary.register();
 
         // Load all machine recipes from JSON

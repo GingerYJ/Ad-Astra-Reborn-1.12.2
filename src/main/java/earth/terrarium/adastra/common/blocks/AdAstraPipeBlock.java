@@ -11,6 +11,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -19,6 +20,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class AdAstraPipeBlock extends Block implements ITileEntityProvider {
 
@@ -84,6 +88,17 @@ public class AdAstraPipeBlock extends Block implements ITileEntityProvider {
     }
 
     @Override
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
+        IBlockState actual = isActualState ? state : getActualState(state, world, pos);
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, CORE_AABB);
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (getConnectionValue(actual, facing) != AdAstraPipeConnection.NONE) {
+                addCollisionBoxToList(pos, entityBox, collidingBoxes, CONNECTION_BOXES[facing.getIndex()]);
+            }
+        }
+    }
+
+    @Override
     public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
@@ -121,14 +136,14 @@ public class AdAstraPipeBlock extends Block implements ITileEntityProvider {
             return AdAstraPipeConnection.NORMAL;
         }
         AdAstraPipeConnection configured = getConfiguredConnection(world, pos, facing);
-        if (isEnergyCable() && world instanceof World) {
-            TileEntity tile = ((World) world).getTileEntity(neighborPos);
+        if (isEnergyCable()) {
+            TileEntity tile = world.getTileEntity(neighborPos);
             if (tile != null && tile.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite())) {
                 return configured;
             }
         }
-        if (isFluidPipe() && world instanceof World) {
-            TileEntity tile = ((World) world).getTileEntity(neighborPos);
+        if (isFluidPipe()) {
+            TileEntity tile = world.getTileEntity(neighborPos);
             if (tile != null && tile.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite())) {
                 return configured;
             }
@@ -137,21 +152,19 @@ public class AdAstraPipeBlock extends Block implements ITileEntityProvider {
     }
 
     private AdAstraPipeConnection getConfiguredConnection(IBlockAccess world, BlockPos pos, EnumFacing facing) {
-        if (world instanceof World) {
-            TileEntity tile = ((World) world).getTileEntity(pos);
-            if (tile instanceof AdAstraPipeTileEntity) {
-                return ((AdAstraPipeTileEntity) tile).getConnection(facing);
-            }
+        TileEntity tile = world.getTileEntity(pos);
+        if (tile instanceof AdAstraPipeTileEntity) {
+            return ((AdAstraPipeTileEntity) tile).getConnection(facing);
         }
         return AdAstraPipeConnection.NORMAL;
     }
 
     private boolean isEnergyCable() {
-        return this == ModBlocks.STEEL_CABLE || this == ModBlocks.DESH_CABLE;
+        return this == ModBlocks.STEEL_CABLE || this == ModBlocks.DESH_CABLE || this == ModBlocks.CABLE_DUCT;
     }
 
     private boolean isFluidPipe() {
-        return this == ModBlocks.DESH_FLUID_PIPE || this == ModBlocks.OSTRUM_FLUID_PIPE;
+        return this == ModBlocks.DESH_FLUID_PIPE || this == ModBlocks.OSTRUM_FLUID_PIPE || this == ModBlocks.FLUID_PIPE_DUCT;
     }
 
     private AdAstraPipeConnection getConnectionValue(IBlockState state, EnumFacing facing) {

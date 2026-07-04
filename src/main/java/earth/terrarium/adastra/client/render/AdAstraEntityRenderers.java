@@ -28,6 +28,7 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier7RocketEntity;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -86,17 +87,27 @@ public final class AdAstraEntityRenderers {
         RenderingRegistry.registerEntityRenderingHandler(PygroBruteEntity.class,
             manager -> new RenderTexturedMob<PygroBruteEntity>(manager, new ModelPygroBrute(), texture("mob/pygro_brute"), 0.5f));
         RenderingRegistry.registerEntityRenderingHandler(MoglerEntity.class,
-            manager -> new RenderTexturedMob<MoglerEntity>(manager, new ModelMogler(), texture("mob/mogler"), 0.7f));
+            manager -> new RenderTexturedMob<MoglerEntity>(manager, new ModelMogler(), texture("mob/mogler"), 0.7f) {
+                @Override
+                public void doRender(MoglerEntity entity, double x, double y, double z, float entityYaw, float partialTicks) {
+                    if (entity.isConverting()) {
+                        x += entity.getRNG().nextGaussian() * 0.02D;
+                        z += entity.getRNG().nextGaussian() * 0.02D;
+                    }
+                    super.doRender(entity, x, y, z, entityYaw, partialTicks);
+                }
+            });
         RenderingRegistry.registerEntityRenderingHandler(ZombifiedMoglerEntity.class,
             manager -> new RenderTexturedMob<ZombifiedMoglerEntity>(manager, new ModelMogler(), texture("mob/zombified_mogler"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(SulfurCreeperEntity.class, RenderSulfurCreeper::new);
         RenderingRegistry.registerEntityRenderingHandler(GlacianRamEntity.class,
-            manager -> new RenderTexturedMob<GlacianRamEntity>(manager, new ModelGlacianRam(), texture("mob/glacian_ram/glacian_ram"), 0.7f) {
+            manager -> new RenderLiving<GlacianRamEntity>(manager, new ModelGlacianRam(), 0.7f) {
+                private final ResourceLocation mainTexture = texture("mob/glacian_ram/glacian_ram");
                 private final ResourceLocation shearedTexture = texture("mob/glacian_ram/sheared_glacian_ram");
 
                 @Override
-                protected ResourceLocation getTexture(GlacianRamEntity entity) {
-                    return entity.isSheared() ? shearedTexture : super.getTexture(entity);
+                protected ResourceLocation getEntityTexture(GlacianRamEntity entity) {
+                    return entity.isSheared() ? shearedTexture : mainTexture;
                 }
             });
 

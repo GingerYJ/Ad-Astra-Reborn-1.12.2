@@ -154,8 +154,15 @@ public class AdAstraSensorBlock extends AdAstraModelBlock implements ITileEntity
         }
 
         public DetectionType next() {
-            DetectionType[] values = values();
-            return values[(ordinal() + 1) % values.length];
+            switch (this) {
+                case OXYGEN:
+                    return GRAVITY;
+                case GRAVITY:
+                    return TEMPERATURE;
+                case TEMPERATURE:
+                default:
+                    return OXYGEN;
+            }
         }
 
         public String getMessageKey() {

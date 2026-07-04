@@ -1,5 +1,7 @@
 package earth.terrarium.adastra.common.blocks;
 
+import earth.terrarium.adastra.AdAstraReborn;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.registry.ModTileEntities;
 import earth.terrarium.adastra.common.tile.FlagTileEntity;
 import net.minecraft.block.ITileEntityProvider;
@@ -9,6 +11,7 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -20,9 +23,12 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Locale;
 
 public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityProvider {
@@ -30,6 +36,8 @@ public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityPr
     public static final PropertyEnum<AdAstraEightDirection> FACING = PropertyEnum.create("facing", AdAstraEightDirection.class);
     public static final PropertyEnum<Half> HALF = PropertyEnum.create("half", Half.class);
     public static final PropertyBool WATERLOGGED = PropertyBool.create("waterlogged");
+    private static final AxisAlignedBB LOWER_BASE_BOX = new AxisAlignedBB(6.0 / 16.0, 0.0, 6.0 / 16.0, 10.0 / 16.0, 8.0 / 16.0, 10.0 / 16.0);
+    private static final AxisAlignedBB LOWER_POLE_BOX = new AxisAlignedBB(7.0 / 16.0, 8.0 / 16.0, 7.0 / 16.0, 9.0 / 16.0, 1.0, 9.0 / 16.0);
     private static final AxisAlignedBB LOWER_BOX = new AxisAlignedBB(6.0 / 16.0, 0.0, 6.0 / 16.0, 10.0 / 16.0, 1.0, 10.0 / 16.0);
     private static final AxisAlignedBB UPPER_BOX = new AxisAlignedBB(7.0 / 16.0, 0.0, 7.0 / 16.0, 9.0 / 16.0, 1.5, 9.0 / 16.0);
 
@@ -70,6 +78,16 @@ public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityPr
     }
 
     @Override
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
+        if (state.getValue(HALF) == Half.LOWER) {
+            addCollisionBoxToList(pos, entityBox, collidingBoxes, LOWER_BASE_BOX);
+            addCollisionBoxToList(pos, entityBox, collidingBoxes, LOWER_POLE_BOX);
+            return;
+        }
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, UPPER_BOX);
+    }
+
+    @Override
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         return getDefaultState().withProperty(FACING, AdAstraEightDirection.fromYaw(placer.rotationYaw));
     }
@@ -97,20 +115,33 @@ public class AdAstraFlagBlock extends AdAstraModelBlock implements ITileEntityPr
             return false;
         }
 
-        if (!world.isRemote) {
-            FlagTileEntity flag = (FlagTileEntity) tile;
-            if (player.isSneaking()) {
+        FlagTileEntity flag = (FlagTileEntity) tile;
+        if (player.isSneaking()) {
+            if (!world.isRemote) {
                 flag.setFlagUrl("");
                 flag.setPattern("");
                 flag.setBaseColor(0xFFFFFF);
                 player.sendStatusMessage(new TextComponentString("Flag content reset"), true);
-            } else {
-                String owner = flag.getOwnerName().isEmpty() ? "unknown owner" : flag.getOwnerName();
-                String content = flag.hasCustomContent() ? describeContent(flag) : "default flag";
-                player.sendStatusMessage(new TextComponentString("Flag: " + content + " (" + owner + ")"), true);
             }
+            return true;
+        }
+
+        if (world.isRemote) {
+            if ((AdAstraConfig.allowFlagImages || player.canUseCommand(2, "")) && isOwner(flag, player)) {
+                AdAstraReborn.proxy.openFlagUrl(tilePos);
+            } else if (!isOwner(flag, player)) {
+                player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.flag.not_owner"), true);
+            }
+        } else {
+            String owner = flag.getOwnerName().isEmpty() ? "unknown owner" : flag.getOwnerName();
+            String content = flag.hasCustomContent() ? describeContent(flag) : "default flag";
+            player.sendStatusMessage(new TextComponentString("Flag: " + content + " (" + owner + ")"), true);
         }
         return true;
+    }
+
+    private static boolean isOwner(FlagTileEntity flag, EntityPlayer player) {
+        return flag.getOwnerId() != null && player.getUniqueID().equals(flag.getOwnerId());
     }
 
     private static String describeContent(FlagTileEntity flag) {

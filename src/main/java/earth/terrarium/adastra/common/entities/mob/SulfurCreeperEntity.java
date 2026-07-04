@@ -1,6 +1,9 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
+import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.registry.ModItems;
+import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
@@ -9,12 +12,20 @@ import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+
+import java.util.Collection;
+import java.util.List;
 
 public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
 
@@ -24,6 +35,8 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
     private static final double START_FUSE_DISTANCE_SQ = 9.0d;
     private static final double STOP_FUSE_DISTANCE_SQ = 49.0d;
     private static final float EXPLOSION_STRENGTH = 3.0f;
+    private static final double OXYGEN_DRAIN_RADIUS = 7.0d;
+    private static final int OXYGEN_DRAIN_PER_BLOCK = 125;
 
     private int lastFuse;
     private int fuse;
@@ -157,9 +170,67 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
     private void explode() {
         if (!isDead) {
             float power = getPowered() ? 2.0f : 1.0f;
+            drainOxygenFromNearbySpaceSuits();
             world.createExplosion(this, posX, posY, posZ, EXPLOSION_STRENGTH * power, true);
+            spawnEffectCloud();
             setDead();
         }
+    }
+
+    private void drainOxygenFromNearbySpaceSuits() {
+        AxisAlignedBB area = getEntityBoundingBox().grow(OXYGEN_DRAIN_RADIUS);
+        List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, area);
+        for (EntityPlayer player : players) {
+            if (!hasFullSpaceSuit(player)) {
+                continue;
+            }
+
+            double distance = getDistance(player);
+            if (distance > OXYGEN_DRAIN_RADIUS) {
+                continue;
+            }
+
+            int amount = Math.max(0, (int) ((OXYGEN_DRAIN_RADIUS - distance) * OXYGEN_DRAIN_PER_BLOCK));
+            if (amount <= 0) {
+                continue;
+            }
+
+            ItemStack chest = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+            if (GasTankItem.drainOxygen(chest, amount, false) > 0) {
+                player.inventory.markDirty();
+            }
+        }
+    }
+
+    private boolean hasFullSpaceSuit(EntityPlayer player) {
+        return hasArmorSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
+            || hasArmorSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
+            || hasArmorSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
+    }
+
+    private boolean hasArmorSet(EntityPlayer player, Item helmet, Item chest, Item legs, Item boots) {
+        return player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem() == helmet
+            && player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() == chest
+            && player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() == legs
+            && player.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() == boots;
+    }
+
+    private void spawnEffectCloud() {
+        Collection<PotionEffect> effects = getActivePotionEffects();
+        if (effects.isEmpty()) {
+            return;
+        }
+
+        EntityAreaEffectCloud cloud = new EntityAreaEffectCloud(world, posX, posY, posZ);
+        cloud.setRadius(2.5f);
+        cloud.setRadiusOnUse(-0.5f);
+        cloud.setWaitTime(10);
+        cloud.setDuration(cloud.getDuration() / 2);
+        cloud.setRadiusPerTick(-cloud.getRadius() / (float) cloud.getDuration());
+        for (PotionEffect effect : effects) {
+            cloud.addEffect(new PotionEffect(effect));
+        }
+        world.spawnEntity(cloud);
     }
 
     @Override

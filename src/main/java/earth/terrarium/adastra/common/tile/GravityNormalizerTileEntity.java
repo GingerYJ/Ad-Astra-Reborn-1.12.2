@@ -2,13 +2,17 @@ package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.registry.ModSounds;
+import earth.terrarium.adastra.common.systems.GravitySystem;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
 
-    private static final int MAX_DISTRIBUTION_BLOCKS = 6000;
-    private static final int DISTRIBUTION_REFRESH_RATE = 100;
+    private static final int MAX_DISTRIBUTION_BLOCKS = AdAstraConfig.maxDistributionBlocks;
+    private static final int DISTRIBUTION_REFRESH_RATE = AdAstraConfig.distributionRefreshRate;
     private static final int TARGET_GRAVITY_SCALE = 1000;
     private static final int MAX_WORKING_RADIUS = calculateMaxRadius(MAX_DISTRIBUTION_BLOCKS);
     private static final int DEFAULT_WORKING_RADIUS = MAX_WORKING_RADIUS;
@@ -16,16 +20,31 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
 
     private boolean normalizingGravity;
     private int workingRadius = DEFAULT_WORKING_RADIUS;
-    private int plannedBlocksCount = countBlocksInRadius(DEFAULT_WORKING_RADIUS);
+    private int plannedBlocksCount;
     private int distributedBlocksCount;
     private int energyPerTick;
     private int ticksUntilRefresh;
     private int soundCooldown;
     private float targetGravity = 1.0f;
+    private float animation;
+    private float lastAnimation;
+    private final Set<BlockPos> lastDistributedBlocks = new HashSet<>();
 
     public GravityNormalizerTileEntity() {
         super("gravity_normalizer", 1, DESH_ENERGY, DESH_IO, 0, 0);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PULL);
+    }
+
+    @Override
+    public void update() {
+        if (world != null && world.isRemote) {
+            lastAnimation = animation;
+            if (isLit()) {
+                animation = (animation + 10.0f) % 360.0f;
+            }
+            return;
+        }
+        super.update();
     }
 
     @Override
@@ -45,11 +64,11 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
             return;
         }
 
-        energy.extractEnergy(requiredEnergy, false);
+        energy.internalExtractEnergy(requiredEnergy, false);
 
         // Clear gravity cache when normalizer starts working
         if (!normalizingGravity) {
-            earth.terrarium.adastra.common.systems.GravitySystem.clearCache();
+            GravitySystem.clearCache();
         }
 
         normalizingGravity = true;
@@ -72,28 +91,92 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
             ticksUntilRefresh--;
             return;
         }
-        plannedBlocksCount = Math.min(countBlocksInRadius(workingRadius), MAX_DISTRIBUTION_BLOCKS);
+        updateGravityPositionsSpherical();
+        plannedBlocksCount = lastDistributedBlocks.size();
         ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
     }
 
+    private void updateGravityPositionsSpherical() {
+        if (world == null || world.isRemote || pos == null) {
+            return;
+        }
+
+        Set<BlockPos> positions = new HashSet<>();
+        int radiusSq = workingRadius * workingRadius;
+
+        for (int x = -workingRadius; x <= workingRadius; x++) {
+            for (int y = -workingRadius; y <= workingRadius; y++) {
+                for (int z = -workingRadius; z <= workingRadius; z++) {
+                    if (x * x + y * y + z * z <= radiusSq) {
+                        positions.add(pos.add(x, y, z));
+                        if (positions.size() >= MAX_DISTRIBUTION_BLOCKS) {
+                            break;
+                        }
+                    }
+                }
+                if (positions.size() >= MAX_DISTRIBUTION_BLOCKS) {
+                    break;
+                }
+            }
+            if (positions.size() >= MAX_DISTRIBUTION_BLOCKS) {
+                break;
+            }
+        }
+
+        updateGravityPositions(positions);
+    }
+
+    private void updateGravityPositions(Set<BlockPos> newPositions) {
+        if (world == null || world.isRemote) {
+            return;
+        }
+
+        Set<BlockPos> toRemove = new HashSet<>(lastDistributedBlocks);
+        toRemove.removeAll(newPositions);
+        if (!toRemove.isEmpty()) {
+            GravitySystem.removeGravity(world, toRemove);
+        }
+
+        Set<BlockPos> toAdd = new HashSet<>(newPositions);
+        toAdd.removeAll(lastDistributedBlocks);
+        if (!toAdd.isEmpty()) {
+            GravitySystem.setGravity(world, toAdd, targetGravity);
+        }
+
+        lastDistributedBlocks.clear();
+        lastDistributedBlocks.addAll(newPositions);
+        GravitySystem.clearCache();
+    }
+
     private boolean canMaintainDistribution(int requiredEnergy) {
-        return plannedBlocksCount > 0 && energy.extractEnergy(requiredEnergy, true) >= requiredEnergy;
+        return plannedBlocksCount > 0 && energy.internalExtractEnergy(requiredEnergy, true) >= requiredEnergy;
     }
 
     private void stopNormalizing() {
-        if (normalizingGravity || distributedBlocksCount != 0 || energyPerTick != 0) {
+        if (normalizingGravity || distributedBlocksCount != 0 || energyPerTick != 0 || !lastDistributedBlocks.isEmpty()) {
             normalizingGravity = false;
             distributedBlocksCount = 0;
             energyPerTick = 0;
+            clearGravityBlocks();
             markDirty();
 
             // Clear gravity cache when normalizer stops working
-            earth.terrarium.adastra.common.systems.GravitySystem.clearCache();
+            GravitySystem.clearCache();
         }
         setLit(false);
     }
 
+    private void clearGravityBlocks() {
+        if (world != null && !world.isRemote && !lastDistributedBlocks.isEmpty()) {
+            GravitySystem.removeGravity(world, lastDistributedBlocks);
+            lastDistributedBlocks.clear();
+        }
+    }
+
     private int calculateEnergyPerTick(int blocksCount) {
+        if (blocksCount <= 0) {
+            return 0;
+        }
         int baseEnergy = Math.max(1, blocksCount / 24);
         return (int) (baseEnergy * AdAstraConfig.gravityNormalizerEnergyMultiplier);
     }
@@ -122,8 +205,7 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         int clamped = clamp(radius, 1, MAX_WORKING_RADIUS);
         if (workingRadius != clamped) {
             workingRadius = clamped;
-            plannedBlocksCount = Math.min(countBlocksInRadius(workingRadius), MAX_DISTRIBUTION_BLOCKS);
-            ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+            ticksUntilRefresh = 0;
             markDirty();
         }
     }
@@ -164,8 +246,32 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         float clamped = Math.max(0.0f, Math.min(2.0f, targetGravity));
         if (this.targetGravity != clamped) {
             this.targetGravity = clamped;
+            if (world != null && !world.isRemote && !lastDistributedBlocks.isEmpty()) {
+                GravitySystem.setGravity(world, lastDistributedBlocks, clamped);
+                GravitySystem.clearCache();
+            }
             markDirty();
         }
+    }
+
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        clearGravityBlocks();
+    }
+
+    @Override
+    public void onChunkUnload() {
+        super.onChunkUnload();
+        clearGravityBlocks();
+    }
+
+    public float getAnimation() {
+        return animation;
+    }
+
+    public float getLastAnimation() {
+        return lastAnimation;
     }
 
     @Override

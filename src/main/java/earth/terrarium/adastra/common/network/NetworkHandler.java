@@ -8,18 +8,24 @@ import earth.terrarium.adastra.common.network.packet.PacketLandSpaceStation;
 import earth.terrarium.adastra.common.network.packet.PacketOpenRadioGui;
 import earth.terrarium.adastra.common.network.packet.PacketOpenPlanetSelection;
 import earth.terrarium.adastra.common.network.packet.PacketOpenVehicleGui;
+import earth.terrarium.adastra.common.network.packet.PacketPlayRadioStation;
+import earth.terrarium.adastra.common.network.packet.PacketRequestRadioStations;
 import earth.terrarium.adastra.common.network.packet.PacketResetSideConfig;
 import earth.terrarium.adastra.common.network.packet.PacketSetFlagUrl;
 import earth.terrarium.adastra.common.network.packet.PacketSetFurnaceMode;
 import earth.terrarium.adastra.common.network.packet.PacketSetGravityNormalizerTarget;
 import earth.terrarium.adastra.common.network.packet.PacketSetRadioStation;
 import earth.terrarium.adastra.common.network.packet.PacketSetRedstoneControl;
+import earth.terrarium.adastra.common.network.packet.PacketSetRoverRadioStation;
 import earth.terrarium.adastra.common.network.packet.PacketSetSideConfig;
 import earth.terrarium.adastra.common.network.packet.PacketSyncEnvironment;
 import earth.terrarium.adastra.common.network.packet.PacketSyncKeybinds;
+import earth.terrarium.adastra.common.network.packet.PacketSyncLocalPlanetData;
 import earth.terrarium.adastra.common.network.packet.PacketSyncMachine;
+import earth.terrarium.adastra.common.network.packet.PacketSyncPlanetDefinitions;
 import earth.terrarium.adastra.common.network.packet.PacketSyncPlanetData;
 import earth.terrarium.adastra.common.network.packet.PacketSyncPlayerCapability;
+import earth.terrarium.adastra.common.network.packet.PacketSyncRadioStations;
 import earth.terrarium.adastra.common.network.packet.PacketSyncVehicle;
 import earth.terrarium.adastra.common.network.packet.PacketVehicleControl;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -62,5 +68,21 @@ public final class NetworkHandler {
         CHANNEL.registerMessage(PacketSetFurnaceMode.Handler.class, PacketSetFurnaceMode.class, discriminator++, Side.SERVER);
         CHANNEL.registerMessage(PacketSetGravityNormalizerTarget.Handler.class, PacketSetGravityNormalizerTarget.class, discriminator++, Side.SERVER);
         CHANNEL.registerMessage(PacketClearFluidTank.Handler.class, PacketClearFluidTank.class, discriminator++, Side.SERVER);
+
+        // Radio station list packets.
+        CHANNEL.registerMessage(PacketSyncRadioStations.Handler.class, PacketSyncRadioStations.class, discriminator++, Side.CLIENT);
+        CHANNEL.registerMessage(PacketRequestRadioStations.Handler.class, PacketRequestRadioStations.class, discriminator++, Side.SERVER);
+
+        // Local player environment data packet.
+        CHANNEL.registerMessage(PacketSyncLocalPlanetData.Handler.class, PacketSyncLocalPlanetData.class, discriminator++, Side.CLIENT);
+
+        // Planet API definition sync packet.
+        CHANNEL.registerMessage(PacketSyncPlanetDefinitions.Handler.class, PacketSyncPlanetDefinitions.class, discriminator++, Side.CLIENT);
+
+        // Radio playback packet.
+        CHANNEL.registerMessage(PacketPlayRadioStation.Handler.class, PacketPlayRadioStation.class, discriminator++, Side.CLIENT);
+
+        // Rover radio packet.
+        CHANNEL.registerMessage(PacketSetRoverRadioStation.Handler.class, PacketSetRoverRadioStation.class, discriminator++, Side.SERVER);
     }
 }

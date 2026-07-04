@@ -52,7 +52,7 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
 
         // Apply config energy multiplier to energy consumption
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
-        energy.extractEnergy(modifiedEnergy, false);
+        energy.internalExtractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
         if (cookTime >= cookTimeTotal) {
@@ -63,7 +63,7 @@ public class CompressorTileEntity extends AdAstraMachineTileEntity {
 
     private boolean canProcess(CompressingRecipe recipe) {
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
-        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
+        if (energy.internalExtractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             return false;
         }
 

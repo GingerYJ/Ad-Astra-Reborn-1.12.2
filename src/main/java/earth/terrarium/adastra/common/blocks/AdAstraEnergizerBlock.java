@@ -1,6 +1,8 @@
 package earth.terrarium.adastra.common.blocks;
 
+import earth.terrarium.adastra.common.items.AdAstraEnergizerItemBlock;
 import earth.terrarium.adastra.common.registry.ModTileEntities;
+import earth.terrarium.adastra.common.tile.EnergizerTileEntity;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
@@ -17,8 +19,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class AdAstraEnergizerBlock extends AdAstraModelBlock implements ITileEntityProvider {
@@ -51,6 +55,24 @@ public class AdAstraEnergizerBlock extends AdAstraModelBlock implements ITileEnt
         world.setBlockState(pos, state
             .withProperty(FACING, placer.getHorizontalFacing().getOpposite())
             .withProperty(POWERED, world.isBlockPowered(pos)), 2);
+        if (!world.isRemote) {
+            TileEntity tile = world.getTileEntity(pos);
+            if (tile instanceof EnergizerTileEntity) {
+                ((EnergizerTileEntity) tile).restoreStoredEnergy(AdAstraEnergizerItemBlock.getEnergyStored(stack));
+            }
+        }
+    }
+
+    @Override
+    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+        TileEntity tile = world.getTileEntity(pos);
+        if (tile instanceof EnergizerTileEntity) {
+            ItemStack stack = new ItemStack(this);
+            AdAstraEnergizerItemBlock.setEnergyStored(stack, ((EnergizerTileEntity) tile).getEnergyStorage().getEnergyStored());
+            drops.add(stack);
+            return;
+        }
+        super.getDrops(drops, world, pos, state, fortune);
     }
 
     @Override

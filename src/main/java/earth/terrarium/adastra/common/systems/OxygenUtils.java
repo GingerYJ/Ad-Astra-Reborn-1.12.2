@@ -4,6 +4,7 @@ import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.registry.ModItems;
 import earth.terrarium.adastra.common.util.EnvironmentUtils;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -92,8 +93,15 @@ public final class OxygenUtils {
         int consumed = GasTankItem.drainOxygen(chest, amount, false);
         if (consumed > 0) {
             player.inventory.markDirty();
+            syncInventory(player);
         }
         return consumed;
+    }
+
+    public static void syncInventory(EntityPlayer player) {
+        if (player instanceof EntityPlayerMP) {
+            ((EntityPlayerMP) player).inventoryContainer.detectAndSendChanges();
+        }
     }
 
     /**

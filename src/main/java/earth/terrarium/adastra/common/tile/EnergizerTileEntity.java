@@ -1,5 +1,8 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.blocks.AdAstraEnergizerBlock;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -7,9 +10,10 @@ import net.minecraftforge.energy.IEnergyStorage;
 public class EnergizerTileEntity extends AdAstraMachineTileEntity {
 
     private static final int CHARGE_SLOT = 0;
+    private long lastSparkParticleTick = Long.MIN_VALUE;
 
     public EnergizerTileEntity() {
-        super("energizer", 1, 2_000_000, OSTRUM_IO, OSTRUM_IO, 0);
+        super("energizer", 1, AdAstraConfig.energizerEnergyCapacity, OSTRUM_IO, OSTRUM_IO, 0);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PUSH_PULL);
     }
 
@@ -22,6 +26,7 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
 
         boolean chargedItem = chargeItem();
         pushEnergyToSides();
+        updatePowerState();
         setLit(chargedItem || energy.getEnergyStored() > 0);
     }
 
@@ -55,6 +60,36 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
         return false;
     }
 
+    public void restoreStoredEnergy(int stored) {
+        if (energy == null) {
+            return;
+        }
+
+        energy.setEnergyStored(Math.max(0, Math.min(energy.getMaxEnergyStored(), stored)));
+        updatePowerState();
+        setLit(energy.getEnergyStored() > 0);
+        markDirty();
+    }
+
+    private void updatePowerState() {
+        if (world == null || pos == null || energy == null) {
+            return;
+        }
+
+        IBlockState state = world.getBlockState(pos);
+        if (!state.getPropertyKeys().contains(AdAstraEnergizerBlock.POWER)) {
+            return;
+        }
+
+        int charge = energy.getMaxEnergyStored() <= 0
+            ? 0
+            : Math.round(energy.getEnergyStored() / (float) energy.getMaxEnergyStored() * 5.0f);
+        charge = Math.max(0, Math.min(5, charge));
+        if (state.getValue(AdAstraEnergizerBlock.POWER) != charge) {
+            world.setBlockState(pos, state.withProperty(AdAstraEnergizerBlock.POWER, charge), 3);
+        }
+    }
+
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
         return index == CHARGE_SLOT && !stack.isEmpty() && stack.hasCapability(CapabilityEnergy.ENERGY, null);
@@ -63,5 +98,28 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
     @Override
     public int[] getSlotsForFace(net.minecraft.util.EnumFacing side) {
         return new int[]{CHARGE_SLOT};
+    }
+
+    public boolean shouldRenderChargeSparks() {
+        if (world == null || !world.isRemote || energy == null || energy.getEnergyStored() <= 0) {
+            return false;
+        }
+
+        ItemStack stack = items.getStackInSlot(CHARGE_SLOT);
+        if (stack.isEmpty() || !stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
+            return false;
+        }
+
+        IEnergyStorage itemEnergy = stack.getCapability(CapabilityEnergy.ENERGY, null);
+        if (itemEnergy == null || !itemEnergy.canReceive() || itemEnergy.receiveEnergy(1, true) <= 0) {
+            return false;
+        }
+
+        long tick = world.getTotalWorldTime();
+        if (lastSparkParticleTick == tick) {
+            return false;
+        }
+        lastSparkParticleTick = tick;
+        return true;
     }
 }

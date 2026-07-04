@@ -1,11 +1,9 @@
 package earth.terrarium.adastra.common.network.packet;
 
 import earth.terrarium.adastra.common.tile.AdAstraMachineTileEntity;
-import earth.terrarium.adastra.common.tile.AdAstraSideMode;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -71,19 +69,7 @@ public class PacketResetSideConfig implements IMessage {
 
             AdAstraMachineTileEntity machine = (AdAstraMachineTileEntity) tile;
 
-            // Reset all side configurations to defaults
-            for (EnumFacing side : EnumFacing.values()) {
-                // Reset item sides to NONE
-                machine.setSideMode(side, AdAstraMachineTileEntity.SideConfigType.ITEM, AdAstraSideMode.NONE);
-
-                // Reset energy sides to NONE (or PUSH for generators)
-                machine.setSideMode(side, AdAstraMachineTileEntity.SideConfigType.ENERGY, AdAstraSideMode.NONE);
-
-                // Reset fluid sides to NONE
-                machine.setSideMode(side, AdAstraMachineTileEntity.SideConfigType.FLUID, AdAstraSideMode.NONE);
-            }
-
-            machine.markDirty();
+            machine.resetSideModesToDefaults();
         }
     }
 }

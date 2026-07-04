@@ -1,14 +1,17 @@
 package earth.terrarium.adastra.common.systems;
 
-import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
+import earth.terrarium.adastra.api.events.AdAstraEvents;
+import earth.terrarium.adastra.api.systems.PlanetData;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
+import earth.terrarium.adastra.common.util.MachineStateUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
@@ -29,7 +32,7 @@ public class GravitySystem {
 
     private static final int NORMALIZER_SCAN_RADIUS = 16;
     private static final int CACHE_CLEANUP_INTERVAL = 200;  // 10 seconds
-    private static final int CACHE_EXPIRY_TIME = 100;       // 5 seconds
+    private static final int CACHE_EXPIRY_TIME = 20;        // Keep HUD and movement gravity responsive without scanning every tick.
 
     // Cache for entity gravity calculations (Entity UUID -> CachedGravity)
     private static final Map<Integer, CachedGravity> ENTITY_GRAVITY_CACHE = new ConcurrentHashMap<>();
@@ -74,21 +77,21 @@ public class GravitySystem {
             return getGravityInDimension(world);
         }
 
-        // Check for active Gravity Normalizer first (highest priority)
+        // Check per-position overrides
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        PlanetData data = storage.getData(pos);
+
+        if (data != null) {
+            return data.gravity();
+        }
+
+        // Compatibility fallback for normalizers that have not refreshed their covered positions yet.
         Float normalizerGravity = getGravityFromNormalizer(world, pos);
         if (normalizerGravity != null) {
             return normalizerGravity;
         }
 
-        // Check per-position overrides
-        PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
-
-        if (data == null) {
-            return getGravityInDimension(world);
-        }
-
-        return data.gravity();
+        return getGravityInDimension(world);
     }
 
     /**
@@ -117,6 +120,7 @@ public class GravitySystem {
 
         // Calculate gravity and cache it
         float gravity = getGravityAtPos(entity.world, entity.getPosition());
+        gravity = AdAstraEvents.EntityGravityEvent.fire(entity, gravity);
         ENTITY_GRAVITY_CACHE.put(entityId, new CachedGravity(gravity, currentTime));
 
         return gravity;
@@ -200,8 +204,7 @@ public class GravitySystem {
     }
 
     private static boolean isMachineLit(IBlockState state) {
-        return state.getPropertyKeys().contains(AdAstraMachineBlock.LIT)
-            && state.getValue(AdAstraMachineBlock.LIT);
+        return MachineStateUtils.isLit(state);
     }
 
     public static void setGravity(World world, BlockPos pos, float gravity) {
@@ -250,13 +253,7 @@ public class GravitySystem {
      * @return The gravity multiplier (1.0 = Earth gravity)
      */
     public static float getGravityMultiplier(World world, BlockPos pos) {
-        if (isInNormalizerRange(world, pos)) {
-            return 1.0f;
-        }
-        if (world.provider instanceof earth.terrarium.adastra.common.world.AdAstraWorldProvider) {
-            return ((earth.terrarium.adastra.common.world.AdAstraWorldProvider) world.provider).getGravity();
-        }
-        return 1.0f;
+        return getGravityAtPos(world, pos);
     }
 
     /**
@@ -276,6 +273,17 @@ public class GravitySystem {
         EntityLivingBase entity = event.getEntityLiving();
         if (!entity.world.isRemote && !entity.onGround) {
             float gravity = getGravityMultiplier(entity.world, entity.getPosition());
+            gravity = AdAstraEvents.EntityGravityEvent.fire(entity, gravity);
+
+            Vec3d travelVector = new Vec3d(entity.motionX, entity.motionY, entity.motionZ);
+            if (gravity == 0.0f) {
+                if (!AdAstraEvents.ZeroGravityTickEvent.fire(entity.world, entity, travelVector, entity.getPosition())) {
+                    return;
+                }
+            } else if (!AdAstraEvents.GravityTickEvent.fire(entity.world, entity, travelVector, entity.getPosition())) {
+                return;
+            }
+
             if (gravity != 1.0f) {
                 entity.motionY *= gravity;
             }
@@ -289,6 +297,7 @@ public class GravitySystem {
     @SubscribeEvent
     public void onLivingJump(LivingJumpEvent event) {
         float gravity = getGravityMultiplier(event.getEntity().world, event.getEntity().getPosition());
+        gravity = AdAstraEvents.EntityGravityEvent.fire(event.getEntity(), gravity);
         if (gravity < 1.0f) {
             event.getEntity().motionY /= gravity;
         }
@@ -301,6 +310,7 @@ public class GravitySystem {
     @SubscribeEvent
     public void onLivingFall(LivingFallEvent event) {
         float gravity = getGravityMultiplier(event.getEntity().world, event.getEntity().getPosition());
+        gravity = AdAstraEvents.EntityGravityEvent.fire(event.getEntity(), gravity);
         event.setDistance(event.getDistance() * gravity);
     }
 }

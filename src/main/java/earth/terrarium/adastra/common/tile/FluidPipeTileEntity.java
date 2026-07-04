@@ -14,6 +14,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 public class FluidPipeTileEntity extends AdAstraPipeTileEntity implements ITickable {
 
     private static final int DESH_TRANSFER_RATE = 150;
+    private static final int DUCT_TRANSFER_RATE = 250;
     private static final int OSTRUM_TRANSFER_RATE = 500;
 
     private final FluidTank buffer = new FluidTank(OSTRUM_TRANSFER_RATE) {
@@ -107,6 +108,9 @@ public class FluidPipeTileEntity extends AdAstraPipeTileEntity implements ITicka
     }
 
     private int getTransferRate() {
+        if (world != null && pos != null && world.getBlockState(pos).getBlock() == ModBlocks.FLUID_PIPE_DUCT) {
+            return DUCT_TRANSFER_RATE;
+        }
         if (world != null && pos != null && world.getBlockState(pos).getBlock() == ModBlocks.OSTRUM_FLUID_PIPE) {
             return OSTRUM_TRANSFER_RATE;
         }

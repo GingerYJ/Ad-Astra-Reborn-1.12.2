@@ -123,6 +123,13 @@ public final class PlanetTravelHelper {
     }
 
     public static boolean landPlayer(EntityPlayerMP player, int dimensionId, int rocketTier) {
+        Entity vehicle = player.getRidingEntity();
+        RocketEntity rocket = vehicle instanceof RocketEntity ? (RocketEntity) vehicle : null;
+        ItemStack rocketStack = rocket == null ? ItemStack.EMPTY : rocket.getDropStack();
+        return landPlayer(player, dimensionId, rocketTier, rocket, rocketStack);
+    }
+
+    public static boolean landPlayer(EntityPlayerMP player, int dimensionId, int rocketTier, RocketEntity rocket, ItemStack rocketStack) {
         PlanetDimensionProperties planet = getPlanetByDimensionId(dimensionId);
         if (!canRocketTierReach(rocketTier, planet)) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.planets.unreachable"), true);
@@ -156,9 +163,6 @@ public final class PlanetTravelHelper {
         double y = landingPos.getY();
         double z = landingPos.getZ() + 0.5D;
 
-        Entity vehicle = player.getRidingEntity();
-        RocketEntity rocket = vehicle instanceof RocketEntity ? (RocketEntity) vehicle : null;
-        ItemStack rocketStack = rocket == null ? ItemStack.EMPTY : rocket.getDropStack();
         player.dismountRidingEntity();
         beginRocketTravel(player, dimensionId);
         try {
@@ -483,11 +487,10 @@ public final class PlanetTravelHelper {
             if (!rocketStack.isEmpty()) {
                 lander.getInventory().set(0, rocketStack);
             }
-            int targetSlot = 1;
-            for (int i = 0; i < rocket.getInventory().size() && targetSlot < lander.getInventory().size(); i++) {
+            for (int i = 0; i < rocket.getInventory().size() && i + 1 < lander.getInventory().size(); i++) {
                 ItemStack stack = rocket.getInventory().get(i);
                 if (!stack.isEmpty()) {
-                    lander.getInventory().set(targetSlot++, stack.copy());
+                    lander.getInventory().set(i + 1, stack.copy());
                     rocket.getInventory().set(i, ItemStack.EMPTY);
                 }
             }

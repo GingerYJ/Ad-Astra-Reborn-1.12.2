@@ -1,6 +1,5 @@
 package earth.terrarium.adastra.common.util;
 
-import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.systems.GravitySystem;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
@@ -137,7 +136,7 @@ public final class EnvironmentUtils {
     }
 
     private static boolean isMachineLit(IBlockState state) {
-        return state.getPropertyKeys().contains(AdAstraMachineBlock.LIT) && state.getValue(AdAstraMachineBlock.LIT);
+        return MachineStateUtils.isLit(state);
     }
 
     private static Object invokeNoArg(Object target, String methodName) {

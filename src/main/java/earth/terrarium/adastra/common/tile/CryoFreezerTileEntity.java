@@ -74,7 +74,7 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
 
         // Apply config energy multiplier to energy consumption
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
-        energy.extractEnergy(modifiedEnergy, false);
+        energy.internalExtractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
         if (cookTime >= cookTimeTotal) {
@@ -85,7 +85,7 @@ public class CryoFreezerTileEntity extends AdAstraMachineTileEntity {
 
     private boolean canProcess(CryoFreezingRecipe recipe) {
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(recipe.getEnergyPerTick());
-        if (energy.extractEnergy(modifiedEnergy, true) < modifiedEnergy) {
+        if (energy.internalExtractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             return false;
         }
         return outputTank.fillInternal(new FluidStack(recipe.getOutputFluid(), recipe.getOutputAmount()), false) == recipe.getOutputAmount();

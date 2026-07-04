@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.world.data;
 
+import earth.terrarium.adastra.api.systems.PlanetData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 

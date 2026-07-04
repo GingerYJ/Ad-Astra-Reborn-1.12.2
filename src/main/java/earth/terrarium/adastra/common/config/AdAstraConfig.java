@@ -17,6 +17,18 @@ public final class AdAstraConfig {
     public static boolean disableTemperature;
     public static boolean disableGravity;
     public static boolean enableAirVortexes;
+    public static boolean allowFlagImages;
+    public static int radioVolume;
+    public static boolean spaceMuffler;
+    public static boolean jetSuitEnabled;
+    public static boolean showOxygenDistributorArea;
+    public static boolean showGravityNormalizerArea;
+    public static int oxygenBarX;
+    public static int oxygenBarY;
+    public static float oxygenBarScale;
+    public static int energyBarX;
+    public static int energyBarY;
+    public static float energyBarScale;
     public static float oxygenDamageAmount;
     public static int oxygenDamageInterval;
     public static int oxygenConsumptionInterval;
@@ -44,6 +56,26 @@ public final class AdAstraConfig {
     public static int cryoFreezerBaseTime;
     public static int etrionicBlastFurnaceBaseTime;
     public static int fuelRefineryBaseTime;
+    public static int ironMaxEnergyInOut = 100;
+    public static int ironEnergyCapacity = 10_000;
+    public static int ironFluidCapacity = 0;
+    public static int steelMaxEnergyInOut = 150;
+    public static int steelEnergyCapacity = 20_000;
+    public static int steelFluidCapacity = 3_000;
+    public static int deshMaxEnergyInOut = 250;
+    public static int deshEnergyCapacity = 50_000;
+    public static int deshFluidCapacity = 5_000;
+    public static int ostrumMaxEnergyInOut = 500;
+    public static int ostrumEnergyCapacity = 100_000;
+    public static int ostrumFluidCapacity = 10_000;
+    public static int coalGeneratorEnergyGenerationPerTick = 20;
+    public static int etrionicBlastFurnaceBlastingEnergyPerItem = 10;
+    public static int waterPumpEnergyPerTick = 20;
+    public static int waterPumpFluidGenerationPerTick = 50;
+    public static int energizerEnergyCapacity = 2_000_000;
+    public static int maxDistributionBlocks = 6000;
+    public static int distributionRefreshRate = 100;
+    public static int pipeRefreshRate = 50;
 
     // Environment Configuration
     public static float temperatureDamageMultiplier;
@@ -56,6 +88,7 @@ public final class AdAstraConfig {
     public static float lowGravityFallDamageThreshold;
 
     // Dimension Configuration
+    public static boolean launchFromAnywhere;
     public static boolean enableMoonDimension;
     public static boolean enableMarsDimension;
     public static boolean enableMercuryDimension;
@@ -161,6 +194,80 @@ public final class AdAstraConfig {
             Configuration.CATEGORY_GENERAL,
             true,
             "当氧气分配器覆盖区域超过上限时，是否生成空气涡流实体。");
+        allowFlagImages = configuration.getBoolean(
+            "allowFlagImages",
+            Configuration.CATEGORY_GENERAL,
+            true,
+            "允许旗帜通过 imgur 图片 URL 设置自定义图片。");
+        radioVolume = configuration.getInt(
+            "radioVolume",
+            Configuration.CATEGORY_GENERAL,
+            50,
+            0,
+            100,
+            "无线电独立音量百分比。0 为静音，100 为最大。");
+        spaceMuffler = configuration.getBoolean(
+            "spaceMuffler",
+            "client",
+            true,
+            "在太空中压低非氧气区域的环境声音，并调整音乐/唱片声音。");
+        jetSuitEnabled = configuration.getBoolean(
+            "jetSuitEnabled",
+            "client",
+            true,
+            "喷气服飞行是否启用。按喷气服飞行按键会切换并保存该值。");
+        showOxygenDistributorArea = configuration.getBoolean(
+            "showOxygenDistributorArea",
+            "client",
+            false,
+            "是否显示氧气分配器工作范围。");
+        showGravityNormalizerArea = configuration.getBoolean(
+            "showGravityNormalizerArea",
+            "client",
+            false,
+            "是否显示重力调节器工作范围。");
+        oxygenBarX = configuration.getInt(
+            "oxygenBarX",
+            "client",
+            5,
+            -10000,
+            10000,
+            "HUD 氧气面板 X 坐标。目标端合并 HUD 使用该值作为面板 X 坐标。");
+        oxygenBarY = configuration.getInt(
+            "oxygenBarY",
+            "client",
+            25,
+            -10000,
+            10000,
+            "HUD 氧气面板 Y 坐标。目标端合并 HUD 使用该值作为面板 Y 坐标。");
+        oxygenBarScale = configuration.getFloat(
+            "oxygenBarScale",
+            "client",
+            1.0f,
+            0.25f,
+            4.0f,
+            "HUD 氧气面板缩放。目标端合并 HUD 使用该值作为整体缩放。");
+        energyBarX = configuration.getInt(
+            "energyBarX",
+            "client",
+            11,
+            -10000,
+            10000,
+            "HUD 电量条 X 坐标。当前 1.12.2 合并 HUD 暂保留该配置用于兼容。");
+        energyBarY = configuration.getInt(
+            "energyBarY",
+            "client",
+            95,
+            -10000,
+            10000,
+            "HUD 电量条 Y 坐标。当前 1.12.2 合并 HUD 暂保留该配置用于兼容。");
+        energyBarScale = configuration.getFloat(
+            "energyBarScale",
+            "client",
+            1.0f,
+            0.25f,
+            4.0f,
+            "HUD 电量条缩放。当前 1.12.2 合并 HUD 暂保留该配置用于兼容。");
         oxygenDamageAmount = configuration.getFloat(
             "oxygenDamageAmount",
             Configuration.CATEGORY_GENERAL,
@@ -311,6 +418,27 @@ public final class AdAstraConfig {
             1000,
             "燃油精炼机配方基础处理时间，单位为 tick。默认 150 tick，即 7.5 秒，会受到机器速度倍率影响。");
 
+        ironMaxEnergyInOut = configuration.getInt("ironMaxEnergyInOut", "machines", 100, 0, Integer.MAX_VALUE, "Iron tier max FE input/output per tick.");
+        ironEnergyCapacity = configuration.getInt("ironEnergyCapacity", "machines", 10000, 0, Integer.MAX_VALUE, "Iron tier internal FE capacity.");
+        ironFluidCapacity = configuration.getInt("ironFluidCapacity", "machines", 0, 0, Integer.MAX_VALUE, "Iron tier internal fluid capacity in mB.");
+        steelMaxEnergyInOut = configuration.getInt("steelMaxEnergyInOut", "machines", 150, 0, Integer.MAX_VALUE, "Steel tier max FE input/output per tick.");
+        steelEnergyCapacity = configuration.getInt("steelEnergyCapacity", "machines", 20000, 0, Integer.MAX_VALUE, "Steel tier internal FE capacity.");
+        steelFluidCapacity = configuration.getInt("steelFluidCapacity", "machines", 3000, 0, Integer.MAX_VALUE, "Steel tier internal fluid capacity in mB.");
+        deshMaxEnergyInOut = configuration.getInt("deshMaxEnergyInOut", "machines", 250, 0, Integer.MAX_VALUE, "Desh tier max FE input/output per tick.");
+        deshEnergyCapacity = configuration.getInt("deshEnergyCapacity", "machines", 50000, 0, Integer.MAX_VALUE, "Desh tier internal FE capacity.");
+        deshFluidCapacity = configuration.getInt("deshFluidCapacity", "machines", 5000, 0, Integer.MAX_VALUE, "Desh tier internal fluid capacity in mB.");
+        ostrumMaxEnergyInOut = configuration.getInt("ostrumMaxEnergyInOut", "machines", 500, 0, Integer.MAX_VALUE, "Ostrum tier max FE input/output per tick.");
+        ostrumEnergyCapacity = configuration.getInt("ostrumEnergyCapacity", "machines", 100000, 0, Integer.MAX_VALUE, "Ostrum tier internal FE capacity.");
+        ostrumFluidCapacity = configuration.getInt("ostrumFluidCapacity", "machines", 10000, 0, Integer.MAX_VALUE, "Ostrum tier internal fluid capacity in mB.");
+        coalGeneratorEnergyGenerationPerTick = configuration.getInt("coalGeneratorEnergyGenerationPerTick", "machines", 20, 0, Integer.MAX_VALUE, "Coal generator FE generated per tick before multipliers.");
+        etrionicBlastFurnaceBlastingEnergyPerItem = configuration.getInt("etrionicBlastFurnaceBlastingEnergyPerItem", "machines", 10, 0, Integer.MAX_VALUE, "Etrionic blast furnace FE used per blasting tick before multipliers.");
+        waterPumpEnergyPerTick = configuration.getInt("waterPumpEnergyPerTick", "machines", 20, 0, Integer.MAX_VALUE, "Water pump FE used per tick before multipliers.");
+        waterPumpFluidGenerationPerTick = configuration.getInt("waterPumpFluidGenerationPerTick", "machines", 50, 0, Integer.MAX_VALUE, "Water generated by the water pump per tick in mB.");
+        energizerEnergyCapacity = configuration.getInt("energizerEnergyCapacity", "machines", 2000000, 0, Integer.MAX_VALUE, "Energizer internal FE capacity.");
+        maxDistributionBlocks = configuration.getInt("maxDistributionBlocks", "machines", 6000, 1, Integer.MAX_VALUE, "Maximum blocks oxygen distributors and gravity normalizers can distribute to.");
+        distributionRefreshRate = configuration.getInt("distributionRefreshRate", "machines", 100, 1, Integer.MAX_VALUE, "Refresh interval in ticks for distributor and gravity normalizer coverage.");
+        pipeRefreshRate = configuration.getInt("pipeRefreshRate", "machines", 50, 1, Integer.MAX_VALUE, "Pipe refresh interval in ticks for compatibility with the source config.");
+
         // Environment Configuration
         temperatureDamageMultiplier = configuration.getFloat(
             "temperatureDamageMultiplier",
@@ -368,6 +496,11 @@ public final class AdAstraConfig {
             "低重力判定阈值。重力低于该值的行星会被视为低重力，摔落伤害可能被降低或禁用。");
 
         // Dimension Configuration
+        launchFromAnywhere = configuration.getBoolean(
+            "launchAnywhere",
+            "dimensions",
+            false,
+            "允许火箭从任何维度发射，即使该维度未被 Ad Astra 识别为行星或轨道。");
         enableMoonDimension = configuration.getBoolean(
             "enableMoonDimension",
             "dimensions",
@@ -607,11 +740,57 @@ public final class AdAstraConfig {
         }
     }
 
+    public static void setRadioVolume(int volume) {
+        radioVolume = clampInt(volume, 0, 100);
+        if (configuration != null) {
+            configuration.get(Configuration.CATEGORY_GENERAL, "radioVolume", 50, "无线电独立音量百分比。0 为静音，100 为最大。").set(radioVolume);
+            if (configuration.hasChanged()) {
+                configuration.save();
+            }
+        }
+    }
+
+    public static void setJetSuitEnabled(boolean enabled) {
+        jetSuitEnabled = enabled;
+        if (configuration != null) {
+            configuration.get("client", "jetSuitEnabled", true, "喷气服飞行是否启用。按喷气服飞行按键会切换并保存该值。").set(jetSuitEnabled);
+            if (configuration.hasChanged()) {
+                configuration.save();
+            }
+        }
+    }
+
+    public static void setShowOxygenDistributorArea(boolean enabled) {
+        showOxygenDistributorArea = enabled;
+        if (configuration != null) {
+            configuration.get("client", "showOxygenDistributorArea", false, "是否显示氧气分配器工作范围。").set(showOxygenDistributorArea);
+            if (configuration.hasChanged()) {
+                configuration.save();
+            }
+        }
+    }
+
+    public static void setShowGravityNormalizerArea(boolean enabled) {
+        showGravityNormalizerArea = enabled;
+        if (configuration != null) {
+            configuration.get("client", "showGravityNormalizerArea", false, "是否显示重力调节器工作范围。").set(showGravityNormalizerArea);
+            if (configuration.hasChanged()) {
+                configuration.save();
+            }
+        }
+    }
+
+    private static int clampInt(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
     private static void setCategoryComments() {
         configuration.setCategoryComment(Configuration.CATEGORY_GENERAL,
             "通用配置：控制氧气、温度、重力、太空环境效果等全局规则。");
         configuration.setCategoryComment("performance",
             "性能配置：用于控制氧气扫描、机器空闲 tick、密封房间缓存等开销较高的逻辑。");
+        configuration.setCategoryComment("client",
+            "客户端配置：控制只影响本地显示和声音的选项。");
         configuration.setCategoryComment("balance",
             "平衡配置：用于调整重力调节器耗能、密封房间大小上限等玩法数值。");
         configuration.setCategoryComment("machines",

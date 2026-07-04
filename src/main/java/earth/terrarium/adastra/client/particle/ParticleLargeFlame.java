@@ -2,8 +2,6 @@ package earth.terrarium.adastra.client.particle;
 
 import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,6 +24,7 @@ public class ParticleLargeFlame extends Particle {
         // Larger size
         this.flameScale = 0.5F + this.rand.nextFloat() * 0.5F;
         this.particleScale = this.flameScale;
+        this.setParticleTextureIndex(48);
 
         // Initial upward velocity
         this.motionX = velocityX + (this.rand.nextDouble() - 0.5D) * 0.1D;
@@ -70,41 +69,13 @@ public class ParticleLargeFlame extends Particle {
     }
 
     @Override
-    public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks,
-                               float rotationX, float rotationZ, float rotationYZ,
-                               float rotationXY, float rotationXZ) {
-        float minU = 0.0F;
-        float maxU = 1.0F;
-        float minV = 0.0F;
-        float maxV = 1.0F;
-
-        float x = (float)(this.prevPosX + (this.posX - this.prevPosX) * partialTicks - interpPosX);
-        float y = (float)(this.prevPosY + (this.posY - this.prevPosY) * partialTicks - interpPosY);
-        float z = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * partialTicks - interpPosZ);
-
-        float scale = this.particleScale;
-
-        int brightness = 240; // Full brightness for flame
-        int lightmapX = 240;
-        int lightmapY = 240;
-
-        buffer.pos(x - rotationX * scale - rotationXY * scale, y - rotationZ * scale, z - rotationYZ * scale - rotationXZ * scale)
-            .tex(maxU, maxV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
-        buffer.pos(x - rotationX * scale + rotationXY * scale, y + rotationZ * scale, z - rotationYZ * scale + rotationXZ * scale)
-            .tex(maxU, minV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
-        buffer.pos(x + rotationX * scale + rotationXY * scale, y + rotationZ * scale, z + rotationYZ * scale + rotationXZ * scale)
-            .tex(minU, minV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
-        buffer.pos(x + rotationX * scale - rotationXY * scale, y - rotationZ * scale, z + rotationYZ * scale - rotationXZ * scale)
-            .tex(minU, maxV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
+    public int getFXLayer() {
+        return 0;
     }
 
     @Override
-    public int getFXLayer() {
-        return 0;
+    public int getBrightnessForRender(float partialTick) {
+        return 0xF000F0;
     }
 
     @Override

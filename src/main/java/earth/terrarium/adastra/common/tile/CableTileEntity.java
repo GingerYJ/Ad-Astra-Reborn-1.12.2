@@ -12,6 +12,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 public class CableTileEntity extends AdAstraPipeTileEntity implements ITickable {
 
     private static final int STEEL_TRANSFER_RATE = 150;
+    private static final int DUCT_TRANSFER_RATE = 250;
     private static final int DESH_TRANSFER_RATE = 500;
 
     private final AdAstraEnergyStorage buffer = new AdAstraEnergyStorage(DESH_TRANSFER_RATE, DESH_TRANSFER_RATE, DESH_TRANSFER_RATE);
@@ -91,6 +92,9 @@ public class CableTileEntity extends AdAstraPipeTileEntity implements ITickable 
     }
 
     private int getTransferRate() {
+        if (world != null && pos != null && world.getBlockState(pos).getBlock() == ModBlocks.CABLE_DUCT) {
+            return DUCT_TRANSFER_RATE;
+        }
         if (world != null && pos != null && world.getBlockState(pos).getBlock() == ModBlocks.DESH_CABLE) {
             return DESH_TRANSFER_RATE;
         }

@@ -1,10 +1,9 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
-import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.entities.mob.lunarians.LunarianMerchantOffers;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.ai.EntityAIAvoidEntity;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -130,33 +129,6 @@ public class LunarianEntity extends AdAstraPlaceholderMob implements IMerchant {
     }
 
     private void populateTradingList() {
-        // Emerald -> Ice Shard (1-2)
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 3),
-            new ItemStack(ModItems.ICE_SHARD, 1 + rand.nextInt(2))
-        ));
-
-        // Emerald -> Cheese (1-3)
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 2),
-            new ItemStack(ModItems.CHEESE, 1 + rand.nextInt(3))
-        ));
-
-        // Moon resources -> Emerald
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(ModItems.ICE_SHARD, 4),
-            new ItemStack(Items.EMERALD, 1)
-        ));
-
-        // Desh Ingot <-> Emerald
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 5),
-            new ItemStack(ModItems.DESH_INGOT, 1)
-        ));
-
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(ModItems.DESH_INGOT, 1),
-            new ItemStack(Items.EMERALD, 3)
-        ));
+        buyingList.addAll(LunarianMerchantOffers.createLunarianTrades(rand));
     }
 }

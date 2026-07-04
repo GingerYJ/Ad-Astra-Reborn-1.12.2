@@ -5,11 +5,14 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.regex.Pattern;
 
 /**
  * Network packet for setting flag custom URL from GUI.
@@ -17,6 +20,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class PacketSetFlagUrl implements IMessage {
 
+    private static final Pattern URL_REGEX = Pattern.compile("^https://i\\.imgur\\.com/(\\w+)\\.(png|jpeg|jpg|webp)$");
     private static final double MAX_DISTANCE_SQ = 64.0D;
     private static final int MAX_URL_LENGTH = 512;
 
@@ -75,6 +79,10 @@ public class PacketSetFlagUrl implements IMessage {
             }
 
             FlagTileEntity flag = (FlagTileEntity) tile;
+            if (flag.getOwnerId() == null || !player.getUniqueID().equals(flag.getOwnerId())) {
+                player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.flag.not_owner"), true);
+                return;
+            }
 
             // Validate URL
             String validatedUrl = validateUrl(message.url);
@@ -112,6 +120,10 @@ public class PacketSetFlagUrl implements IMessage {
             // Basic URL format validation
             String lower = trimmed.toLowerCase();
             if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
+                return null;
+            }
+
+            if (!URL_REGEX.matcher(trimmed).matches()) {
                 return null;
             }
 

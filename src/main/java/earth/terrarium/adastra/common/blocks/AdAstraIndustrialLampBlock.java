@@ -9,6 +9,7 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -18,6 +19,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class AdAstraIndustrialLampBlock extends Block {
 
@@ -32,6 +36,22 @@ public class AdAstraIndustrialLampBlock extends Block {
     private static final AxisAlignedBB FLOOR_Z_AABB = new AxisAlignedBB(0.0d, 0.0d, 0.1875d, 1.0d, 0.5d, 0.8125d);
     private static final AxisAlignedBB CEILING_X_AABB = new AxisAlignedBB(0.1875d, 0.5d, 0.0d, 0.8125d, 1.0d, 1.0d);
     private static final AxisAlignedBB CEILING_Z_AABB = new AxisAlignedBB(0.0d, 0.5d, 0.1875d, 1.0d, 1.0d, 0.8125d);
+    private static final AxisAlignedBB NORTH_MOUNT_AABB = new AxisAlignedBB(0.0d, 3.0d / 16.0d, 14.0d / 16.0d, 1.0d, 13.0d / 16.0d, 1.0d);
+    private static final AxisAlignedBB NORTH_BODY_AABB = new AxisAlignedBB(1.0d / 16.0d, 4.0d / 16.0d, 8.0d / 16.0d, 15.0d / 16.0d, 12.0d / 16.0d, 14.0d / 16.0d);
+    private static final AxisAlignedBB EAST_MOUNT_AABB = new AxisAlignedBB(0.0d, 3.0d / 16.0d, 0.0d, 2.0d / 16.0d, 13.0d / 16.0d, 1.0d);
+    private static final AxisAlignedBB EAST_BODY_AABB = new AxisAlignedBB(2.0d / 16.0d, 4.0d / 16.0d, 1.0d / 16.0d, 8.0d / 16.0d, 12.0d / 16.0d, 15.0d / 16.0d);
+    private static final AxisAlignedBB SOUTH_MOUNT_AABB = new AxisAlignedBB(0.0d, 3.0d / 16.0d, 0.0d, 1.0d, 13.0d / 16.0d, 2.0d / 16.0d);
+    private static final AxisAlignedBB SOUTH_BODY_AABB = new AxisAlignedBB(1.0d / 16.0d, 4.0d / 16.0d, 2.0d / 16.0d, 15.0d / 16.0d, 12.0d / 16.0d, 8.0d / 16.0d);
+    private static final AxisAlignedBB WEST_MOUNT_AABB = new AxisAlignedBB(14.0d / 16.0d, 3.0d / 16.0d, 0.0d, 1.0d, 13.0d / 16.0d, 1.0d);
+    private static final AxisAlignedBB WEST_BODY_AABB = new AxisAlignedBB(8.0d / 16.0d, 4.0d / 16.0d, 1.0d / 16.0d, 14.0d / 16.0d, 12.0d / 16.0d, 15.0d / 16.0d);
+    private static final AxisAlignedBB FLOOR_X_MOUNT_AABB = new AxisAlignedBB(3.0d / 16.0d, 0.0d, 0.0d, 13.0d / 16.0d, 2.0d / 16.0d, 1.0d);
+    private static final AxisAlignedBB FLOOR_X_BODY_AABB = new AxisAlignedBB(4.0d / 16.0d, 2.0d / 16.0d, 1.0d / 16.0d, 12.0d / 16.0d, 8.0d / 16.0d, 15.0d / 16.0d);
+    private static final AxisAlignedBB FLOOR_Z_MOUNT_AABB = new AxisAlignedBB(0.0d, 0.0d, 3.0d / 16.0d, 1.0d, 2.0d / 16.0d, 13.0d / 16.0d);
+    private static final AxisAlignedBB FLOOR_Z_BODY_AABB = new AxisAlignedBB(1.0d / 16.0d, 2.0d / 16.0d, 4.0d / 16.0d, 15.0d / 16.0d, 8.0d / 16.0d, 12.0d / 16.0d);
+    private static final AxisAlignedBB CEILING_X_MOUNT_AABB = new AxisAlignedBB(3.0d / 16.0d, 14.0d / 16.0d, 0.0d, 13.0d / 16.0d, 1.0d, 1.0d);
+    private static final AxisAlignedBB CEILING_X_BODY_AABB = new AxisAlignedBB(4.0d / 16.0d, 8.0d / 16.0d, 1.0d / 16.0d, 12.0d / 16.0d, 14.0d / 16.0d, 15.0d / 16.0d);
+    private static final AxisAlignedBB CEILING_Z_MOUNT_AABB = new AxisAlignedBB(0.0d, 14.0d / 16.0d, 3.0d / 16.0d, 1.0d, 1.0d, 13.0d / 16.0d);
+    private static final AxisAlignedBB CEILING_Z_BODY_AABB = new AxisAlignedBB(1.0d / 16.0d, 8.0d / 16.0d, 4.0d / 16.0d, 15.0d / 16.0d, 14.0d / 16.0d, 12.0d / 16.0d);
 
     private final boolean small;
 
@@ -72,6 +92,17 @@ public class AdAstraIndustrialLampBlock extends Block {
                     default:
                         return NORTH_AABB;
                 }
+        }
+    }
+
+    @Override
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
+        if (small) {
+            addCollisionBoxToList(pos, entityBox, collidingBoxes, smallBox(state));
+            return;
+        }
+        for (AxisAlignedBB box : largeCollisionBoxes(state)) {
+            addCollisionBoxToList(pos, entityBox, collidingBoxes, box);
         }
     }
 
@@ -142,6 +173,32 @@ public class AdAstraIndustrialLampBlock extends Block {
                     case NORTH:
                     default:
                         return new AxisAlignedBB(0.1875d, 0.1875d, 0.5d, 0.8125d, 0.8125d, 1.0d);
+                }
+        }
+    }
+
+    private AxisAlignedBB[] largeCollisionBoxes(IBlockState state) {
+        switch (state.getValue(FACE)) {
+            case FLOOR:
+                return state.getValue(FACING).getAxis() == EnumFacing.Axis.X
+                    ? new AxisAlignedBB[]{FLOOR_X_MOUNT_AABB, FLOOR_X_BODY_AABB}
+                    : new AxisAlignedBB[]{FLOOR_Z_MOUNT_AABB, FLOOR_Z_BODY_AABB};
+            case CEILING:
+                return state.getValue(FACING).getAxis() == EnumFacing.Axis.X
+                    ? new AxisAlignedBB[]{CEILING_X_MOUNT_AABB, CEILING_X_BODY_AABB}
+                    : new AxisAlignedBB[]{CEILING_Z_MOUNT_AABB, CEILING_Z_BODY_AABB};
+            case WALL:
+            default:
+                switch (state.getValue(FACING)) {
+                    case EAST:
+                        return new AxisAlignedBB[]{EAST_MOUNT_AABB, EAST_BODY_AABB};
+                    case SOUTH:
+                        return new AxisAlignedBB[]{SOUTH_MOUNT_AABB, SOUTH_BODY_AABB};
+                    case WEST:
+                        return new AxisAlignedBB[]{WEST_MOUNT_AABB, WEST_BODY_AABB};
+                    case NORTH:
+                    default:
+                        return new AxisAlignedBB[]{NORTH_MOUNT_AABB, NORTH_BODY_AABB};
                 }
         }
     }

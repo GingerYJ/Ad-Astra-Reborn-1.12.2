@@ -69,8 +69,8 @@ public final class ModTileEntities {
         if (block instanceof earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock) return new GlobeTileEntity();
         if (block instanceof earth.terrarium.adastra.common.blocks.AdAstraFlagBlock) return new FlagTileEntity();
         if (block instanceof earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock) return new SlidingDoorTileEntity();
-        if (block == ModBlocks.STEEL_CABLE || block == ModBlocks.DESH_CABLE) return new CableTileEntity();
-        if (block == ModBlocks.DESH_FLUID_PIPE || block == ModBlocks.OSTRUM_FLUID_PIPE) return new FluidPipeTileEntity();
+        if (block == ModBlocks.STEEL_CABLE || block == ModBlocks.DESH_CABLE || block == ModBlocks.CABLE_DUCT) return new CableTileEntity();
+        if (block == ModBlocks.DESH_FLUID_PIPE || block == ModBlocks.OSTRUM_FLUID_PIPE || block == ModBlocks.FLUID_PIPE_DUCT) return new FluidPipeTileEntity();
         if (block == ModBlocks.RADIO) return new RadioTileEntity();
         return null;
     }

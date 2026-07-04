@@ -78,8 +78,10 @@ public class AdAstraMachineContainer extends Container {
 
     // Client -> server interaction channel (vanilla Container.enchantItem / sendEnchantPacket).
     // id == 0: toggle Etrionic Blast Furnace mode.
+    // id == 1: toggle Etrionic Blast Furnace mode backwards.
     // id in [GRAVITY_ID_BASE, GRAVITY_ID_BASE + 200]: set Gravity Normalizer target gravity (0.0 - 2.0).
     public static final int TOGGLE_FURNACE_MODE = 0;
+    public static final int PREVIOUS_FURNACE_MODE = 1;
     public static final int GRAVITY_ID_BASE = 1000;
 
     @Override
@@ -87,9 +89,9 @@ public class AdAstraMachineContainer extends Container {
         if (!canInteractWith(playerIn)) {
             return false;
         }
-        if (id == TOGGLE_FURNACE_MODE && machine instanceof EtrionicBlastFurnaceTileEntity) {
+        if ((id == TOGGLE_FURNACE_MODE || id == PREVIOUS_FURNACE_MODE) && machine instanceof EtrionicBlastFurnaceTileEntity) {
             EtrionicBlastFurnaceTileEntity furnace = (EtrionicBlastFurnaceTileEntity) machine;
-            furnace.setMode(furnace.getMode().next());
+            furnace.setMode(id == PREVIOUS_FURNACE_MODE ? furnace.getMode().previous() : furnace.getMode().next());
             furnace.markDirty();
             detectAndSendChanges();
             return true;
@@ -224,7 +226,7 @@ public class AdAstraMachineContainer extends Container {
                     .slot(3, 127, 22, true)
                     .slot(4, 127, 52, false);
             case ModGuiIds.SOLAR_PANEL:
-                return new Layout("solar_panel", 177, 230, 8, 148);
+                return new Layout("solar_panel", 177, 230, 8, 148).batterySlot(154, -25);
             case ModGuiIds.WATER_PUMP:
                 return new Layout("water_pump", 177, 191, 8, 109).batterySlot(154, -25);
             case ModGuiIds.ENERGIZER:

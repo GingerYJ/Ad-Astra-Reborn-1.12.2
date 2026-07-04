@@ -2,7 +2,9 @@ package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
 import earth.terrarium.adastra.common.registry.ModItems;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.world.World;
 
@@ -47,6 +49,16 @@ public class ZombifiedMoglerEntity extends AdAstraPlaceholderMob {
     @Override
     public EnumCreatureAttribute getCreatureAttribute() {
         return EnumCreatureAttribute.UNDEAD;
+    }
+
+    @Override
+    public void setAttackTarget(EntityLivingBase entitylivingbaseIn) {
+        super.setAttackTarget(entitylivingbaseIn instanceof ZombifiedMoglerEntity ? null : entitylivingbaseIn);
+    }
+
+    @Override
+    public boolean attackEntityAsMob(Entity entity) {
+        return !(entity instanceof ZombifiedMoglerEntity) && super.attackEntityAsMob(entity);
     }
 
     @Override

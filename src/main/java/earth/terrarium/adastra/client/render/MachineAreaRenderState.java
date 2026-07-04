@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.client.render;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import net.minecraft.client.Minecraft;
@@ -29,38 +30,44 @@ public final class MachineAreaRenderState {
         if (pos == null) {
             showGravityNormalizerArea = false;
             gravityNormalizerPos = null;
+            AdAstraConfig.setShowGravityNormalizerArea(false);
             return;
         }
         if (showGravityNormalizerArea && pos.equals(gravityNormalizerPos)) {
             showGravityNormalizerArea = false;
             gravityNormalizerPos = null;
+            AdAstraConfig.setShowGravityNormalizerArea(false);
         } else {
             showGravityNormalizerArea = true;
             gravityNormalizerPos = pos.toImmutable();
+            AdAstraConfig.setShowGravityNormalizerArea(true);
         }
     }
 
     public static boolean isShowingGravityNormalizer(BlockPos pos) {
-        return showGravityNormalizerArea && pos != null && pos.equals(gravityNormalizerPos);
+        return AdAstraConfig.showGravityNormalizerArea && showGravityNormalizerArea && pos != null && pos.equals(gravityNormalizerPos);
     }
 
     public static void toggleOxygenDistributor(BlockPos pos) {
         if (pos == null) {
             showOxygenDistributorArea = false;
             oxygenDistributorPos = null;
+            AdAstraConfig.setShowOxygenDistributorArea(false);
             return;
         }
         if (showOxygenDistributorArea && pos.equals(oxygenDistributorPos)) {
             showOxygenDistributorArea = false;
             oxygenDistributorPos = null;
+            AdAstraConfig.setShowOxygenDistributorArea(false);
         } else {
             showOxygenDistributorArea = true;
             oxygenDistributorPos = pos.toImmutable();
+            AdAstraConfig.setShowOxygenDistributorArea(true);
         }
     }
 
     public static boolean isShowingOxygenDistributor(BlockPos pos) {
-        return showOxygenDistributorArea && pos != null && pos.equals(oxygenDistributorPos);
+        return AdAstraConfig.showOxygenDistributorArea && showOxygenDistributorArea && pos != null && pos.equals(oxygenDistributorPos);
     }
 
     public static void clear() {
@@ -82,7 +89,7 @@ public final class MachineAreaRenderState {
     }
 
     private static void renderGravityNormalizer(RenderWorldLastEvent event, Minecraft minecraft) {
-        if (!showGravityNormalizerArea || gravityNormalizerPos == null) {
+        if (!AdAstraConfig.showGravityNormalizerArea || !showGravityNormalizerArea || gravityNormalizerPos == null) {
             return;
         }
 
@@ -90,6 +97,7 @@ public final class MachineAreaRenderState {
         if (!(tile instanceof GravityNormalizerTileEntity)) {
             showGravityNormalizerArea = false;
             gravityNormalizerPos = null;
+            AdAstraConfig.setShowGravityNormalizerArea(false);
             return;
         }
 
@@ -98,7 +106,7 @@ public final class MachineAreaRenderState {
     }
 
     private static void renderOxygenDistributor(RenderWorldLastEvent event, Minecraft minecraft) {
-        if (!showOxygenDistributorArea || oxygenDistributorPos == null) {
+        if (!AdAstraConfig.showOxygenDistributorArea || !showOxygenDistributorArea || oxygenDistributorPos == null) {
             return;
         }
 
@@ -106,6 +114,7 @@ public final class MachineAreaRenderState {
         if (!(tile instanceof OxygenDistributorTileEntity)) {
             showOxygenDistributorArea = false;
             oxygenDistributorPos = null;
+            AdAstraConfig.setShowOxygenDistributorArea(false);
             return;
         }
 

@@ -1,12 +1,16 @@
 package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.api.planets.PlanetApi;
 import earth.terrarium.adastra.client.render.MachineAreaRenderState;
 import earth.terrarium.adastra.common.container.AdAstraMachineContainer;
 import earth.terrarium.adastra.common.network.NetworkHandler;
+import earth.terrarium.adastra.common.network.packet.PacketClearFluidTank;
+import earth.terrarium.adastra.common.network.packet.PacketResetSideConfig;
 import earth.terrarium.adastra.common.network.packet.PacketSetRedstoneControl;
 import earth.terrarium.adastra.common.network.packet.PacketSetSideConfig;
 import earth.terrarium.adastra.common.registry.ModGuiIds;
+import earth.terrarium.adastra.common.tile.AdAstraEnergyStorage;
 import earth.terrarium.adastra.common.tile.AdAstraRedstoneControl;
 import earth.terrarium.adastra.common.tile.AdAstraSideMode;
 import earth.terrarium.adastra.common.tile.AdAstraMachineTileEntity.SideConfigType;
@@ -38,6 +42,7 @@ public class AdAstraMachineGui extends GuiContainer {
     private static final ResourceLocation SLIDER = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/slider.png");
     private static final ResourceLocation OPTIONS_BAR = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/options_bar.png");
     private static final ResourceLocation SETTINGS_BUTTON = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/settings_button.png");
+    private static final ResourceLocation RESET_BUTTON = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/reset_button.png");
     private static final ResourceLocation SHOW_BUTTON = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/show_button.png");
     private static final ResourceLocation HIDE_BUTTON = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/hide_button.png");
     private static final ResourceLocation CRAFTING_BUTTON = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/crafting_button.png");
@@ -61,7 +66,6 @@ public class AdAstraMachineGui extends GuiContainer {
     private static final int ENERGY_HEIGHT = 46;
     private static final int FLUID_WIDTH = 12;
     private static final int FLUID_HEIGHT = 46;
-    private static final int SOLAR_POWER = 16;
     private static final int EARTH_GRAVITY = 10;
     private static final int MAX_GRAVITY = 20;
     private static final int REDSTONE_BUTTON_SIZE = 18;
@@ -80,6 +84,8 @@ public class AdAstraMachineGui extends GuiContainer {
     private final ResourceLocation slotTexture;
     private final int guiId;
     private boolean sideConfigOpen;
+    private int lastEnergy = -1;
+    private int energyDifference;
 
     public AdAstraMachineGui(InventoryPlayer playerInventory, AdAstraMachineContainer container) {
         super(container);
@@ -100,11 +106,21 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     @Override
+    public void updateScreen() {
+        super.updateScreen();
+        updateEnergyDifference();
+    }
+
+    @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws java.io.IOException {
         int left = getGuiLeft();
         int top = getGuiTop();
 
         if (sideConfigOpen && handleSideConfigClick(mouseX, mouseY, mouseButton, left, top)) {
+            return;
+        }
+
+        if (mouseButton == 1 && isShiftKeyDown() && handleClearFluidTankClick(mouseX, mouseY, left, top)) {
             return;
         }
 
@@ -138,7 +154,7 @@ public class AdAstraMachineGui extends GuiContainer {
         }
 
         if (guiId == ModGuiIds.ETRIONIC_BLAST_FURNACE && isMouseIn(mouseX, mouseY, left + 23, top + 79, 45, 19)) {
-            sendButton(AdAstraMachineContainer.TOGGLE_FURNACE_MODE);
+            sendFurnaceModeButton();
         } else if (guiId == ModGuiIds.GRAVITY_NORMALIZER) {
             handleGravitySliderClick(mouseX, left);
         }
@@ -146,7 +162,7 @@ public class AdAstraMachineGui extends GuiContainer {
 
     private void handleLeadingOptionsButton() {
         if (guiId == ModGuiIds.ETRIONIC_BLAST_FURNACE) {
-            sendButton(AdAstraMachineContainer.TOGGLE_FURNACE_MODE);
+            sendFurnaceModeButton();
         } else if (guiId == ModGuiIds.GRAVITY_NORMALIZER) {
             MachineAreaRenderState.toggleGravityNormalizer(container.getMachine().getPos());
         } else if (guiId == ModGuiIds.OXYGEN_DISTRIBUTOR) {
@@ -174,28 +190,70 @@ public class AdAstraMachineGui extends GuiContainer {
         sendButton(AdAstraMachineContainer.GRAVITY_ID_BASE + steps);
     }
 
+    private void updateEnergyDifference() {
+        int currentEnergy = field(0);
+        if (lastEnergy >= 0) {
+            energyDifference = currentEnergy - lastEnergy;
+        }
+        lastEnergy = currentEnergy;
+    }
+
+    private boolean handleClearFluidTankClick(int mouseX, int mouseY, int left, int top) {
+        switch (guiId) {
+            case ModGuiIds.FUEL_REFINERY:
+                return tryClearFluidTank(mouseX, mouseY, left + 43, top + 22, field(2), 0)
+                    || tryClearFluidTank(mouseX, mouseY, left + 100, top + 22, field(4), 1);
+            case ModGuiIds.OXYGEN_LOADER:
+                return tryClearFluidTank(mouseX, mouseY, left + 43, top + 22, field(2), 0)
+                    || tryClearFluidTank(mouseX, mouseY, left + 100, top + 22, field(4), 1);
+            case ModGuiIds.WATER_PUMP:
+                return tryClearFluidTank(mouseX, mouseY, left + 81, top + 31, field(2), 0);
+            case ModGuiIds.CRYO_FREEZER:
+                return tryClearFluidTank(mouseX, mouseY, left + 86, top + 38, field(2), 0);
+            case ModGuiIds.OXYGEN_DISTRIBUTOR:
+                return tryClearFluidTank(mouseX, mouseY, left + 51, top + 82, field(2), 0)
+                    || tryClearFluidTank(mouseX, mouseY, left + 116, top + 82, field(10), 0);
+            default:
+                return false;
+        }
+    }
+
+    private boolean tryClearFluidTank(int mouseX, int mouseY, int x, int y, int amount, int tank) {
+        if (amount <= 0 || !isMouseIn(mouseX, mouseY, x, y, FLUID_WIDTH, FLUID_HEIGHT)) {
+            return false;
+        }
+        NetworkHandler.CHANNEL.sendToServer(new PacketClearFluidTank(container.getMachine().getPos(), tank));
+        return true;
+    }
+
     private void sendButton(int id) {
         mc.playerController.sendEnchantPacket(container.windowId, id);
     }
 
+    private void sendFurnaceModeButton() {
+        sendButton(isShiftKeyDown()
+            ? AdAstraMachineContainer.PREVIOUS_FURNACE_MODE
+            : AdAstraMachineContainer.TOGGLE_FURNACE_MODE);
+    }
+
     private void cycleRedstoneControl() {
         AdAstraRedstoneControl current = container.getMachine().getRedstoneControl();
-        AdAstraRedstoneControl next = getNextRedstoneControl(current);
+        AdAstraRedstoneControl next = getNextRedstoneControl(current, isShiftKeyDown());
         container.getMachine().setRedstoneControl(next);
         NetworkHandler.CHANNEL.sendToServer(new PacketSetRedstoneControl(container.getMachine().getPos(), next));
     }
 
-    private AdAstraRedstoneControl getNextRedstoneControl(AdAstraRedstoneControl current) {
+    private AdAstraRedstoneControl getNextRedstoneControl(AdAstraRedstoneControl current, boolean backwards) {
         switch (current) {
             case ALWAYS_ON:
-                return AdAstraRedstoneControl.ACTIVE_WITH_SIGNAL;
+                return backwards ? AdAstraRedstoneControl.NEVER : AdAstraRedstoneControl.ACTIVE_WITH_SIGNAL;
             case ACTIVE_WITH_SIGNAL:
-                return AdAstraRedstoneControl.ACTIVE_WITHOUT_SIGNAL;
+                return backwards ? AdAstraRedstoneControl.ALWAYS_ON : AdAstraRedstoneControl.ACTIVE_WITHOUT_SIGNAL;
             case ACTIVE_WITHOUT_SIGNAL:
-                return AdAstraRedstoneControl.NEVER;
+                return backwards ? AdAstraRedstoneControl.ACTIVE_WITH_SIGNAL : AdAstraRedstoneControl.NEVER;
             case NEVER:
             default:
-                return AdAstraRedstoneControl.ALWAYS_ON;
+                return backwards ? AdAstraRedstoneControl.ACTIVE_WITHOUT_SIGNAL : AdAstraRedstoneControl.ALWAYS_ON;
         }
     }
 
@@ -305,6 +363,7 @@ public class AdAstraMachineGui extends GuiContainer {
         drawRect(left, top, left + SIDE_CONFIG_WIDTH, top + 1, 0xFF8E8290);
         drawRect(left, top + SIDE_CONFIG_HEIGHT - 1, left + SIDE_CONFIG_WIDTH, top + SIDE_CONFIG_HEIGHT, 0xFF1E1A20);
         fontRenderer.drawString(I18n.format("side_config.ad_astra.title", ""), left + 6, top + 6, 0xD8D0D8);
+        drawOptionsButton(RESET_BUTTON, left + SIDE_CONFIG_WIDTH - SIDE_CONFIG_BUTTON - 6, top + 5);
 
         EnumFacing[] sides = getConfigSides();
         for (int i = 0; i < sides.length; i++) {
@@ -335,6 +394,11 @@ public class AdAstraMachineGui extends GuiContainer {
             return false;
         }
 
+        if (isMouseIn(mouseX, mouseY, panelLeft + SIDE_CONFIG_WIDTH - SIDE_CONFIG_BUTTON - 6, panelTop + 5, SIDE_CONFIG_BUTTON, SIDE_CONFIG_BUTTON)) {
+            resetSideConfig();
+            return true;
+        }
+
         EnumFacing[] sides = getConfigSides();
         SideConfigType[] types = SideConfigType.values();
         for (int row = 0; row < types.length; row++) {
@@ -354,6 +418,11 @@ public class AdAstraMachineGui extends GuiContainer {
         AdAstraSideMode next = container.getMachine().getSideMode(side, type).next();
         container.getMachine().setSideMode(side, type, next);
         NetworkHandler.CHANNEL.sendToServer(new PacketSetSideConfig(container.getMachine().getPos(), side, type, next));
+    }
+
+    private void resetSideConfig() {
+        container.getMachine().resetSideModesToDefaults();
+        NetworkHandler.CHANNEL.sendToServer(new PacketResetSideConfig(container.getMachine().getPos()));
     }
 
     private void drawOptionsButton(ResourceLocation texture, int x, int y) {
@@ -564,7 +633,7 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     private boolean hasRedstoneOptionsBar() {
-        return guiId != ModGuiIds.SOLAR_PANEL && guiId != ModGuiIds.NASA_WORKBENCH;
+        return guiId != ModGuiIds.NASA_WORKBENCH;
     }
 
     private boolean hasLeadingOptionsButton() {
@@ -614,12 +683,31 @@ public class AdAstraMachineGui extends GuiContainer {
 
     private void drawSolarPanelStatus(int left, int top) {
         boolean full = field(1) > 0 && field(0) >= field(1);
-        int generation = full ? 0 : SOLAR_POWER;
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(SUN);
-        drawModalRectWithCustomSizedTexture(left + 35, top + 59, 0.0f, 0.0f, 21, 21, 21, 21);
+        int solarPower = getSolarPower();
+        boolean daytime = isSolarPanelDaytime();
+        int generation = daytime && !full ? solarPower : 0;
+        if (daytime) {
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+            mc.getTextureManager().bindTexture(SUN);
+            drawModalRectWithCustomSizedTexture(left + 35, top + 59, 0.0f, 0.0f, 21, 21, 21, 21);
+        }
         fontRenderer.drawString(I18n.format("tooltip.ad_astra.energy_per_tick", generation), left + 27, top + 9, 0x68D975);
-        fontRenderer.drawString(I18n.format("tooltip.ad_astra.max_generation", SOLAR_POWER), left + 27, top + 19, 0x68D975);
+        fontRenderer.drawString(I18n.format("tooltip.ad_astra.max_generation", solarPower), left + 27, top + 19, 0x68D975);
+    }
+
+    private boolean isSolarPanelDaytime() {
+        if (mc.world == null || container.getMachine().getPos() == null || !mc.world.provider.hasSkyLight()) {
+            return false;
+        }
+        long dayTime = mc.world.getWorldTime() % 24000L;
+        return dayTime <= 12000L && mc.world.canBlockSeeSky(container.getMachine().getPos().up());
+    }
+
+    private int getSolarPower() {
+        if (mc.world == null) {
+            return 10;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, PlanetApi.API.getSolarPower(mc.world));
     }
 
     private void drawGravityStatus(int left, int top) {
@@ -720,7 +808,7 @@ public class AdAstraMachineGui extends GuiContainer {
 
         BarSpec energy = getEnergyBarSpec();
         if (energy != null && isMouseIn(mouseX, mouseY, left + energy.x, top + energy.y, ENERGY_WIDTH, ENERGY_HEIGHT)) {
-            tooltip.add(formatEnergy(field(0), field(1)));
+            addEnergyTooltip(tooltip);
             return tooltip;
         }
 
@@ -736,6 +824,16 @@ public class AdAstraMachineGui extends GuiContainer {
 
         addStatusTooltip(tooltip, mouseX, mouseY, left, top);
         return tooltip;
+    }
+
+    private void addEnergyTooltip(List<String> tooltip) {
+        AdAstraEnergyStorage storage = container.getMachine().getEnergyStorage();
+        tooltip.add(I18n.format("tooltip.ad_astra.energy_stored", field(0), field(1)));
+        tooltip.add(I18n.format("tooltip.ad_astra.energy_transfer_tick", energyDifference));
+        if (storage != null) {
+            tooltip.add(I18n.format("tooltip.ad_astra.max_energy_in", storage.getMaxReceive()));
+            tooltip.add(I18n.format("tooltip.ad_astra.max_energy_out", storage.getMaxExtract()));
+        }
     }
 
     private void addFluidTooltip(List<String> tooltip, int mouseX, int mouseY, int left, int top) {
@@ -767,6 +865,9 @@ public class AdAstraMachineGui extends GuiContainer {
         if (tooltip.isEmpty() && isMouseIn(mouseX, mouseY, x, y, FLUID_WIDTH, FLUID_HEIGHT)) {
             tooltip.add(label);
             tooltip.add(formatMillibuckets(amount, capacity));
+            if (amount > 0) {
+                tooltip.add(I18n.format("tooltip.ad_astra.clear_fluid_tank"));
+            }
         }
     }
 
@@ -854,6 +955,11 @@ public class AdAstraMachineGui extends GuiContainer {
 
         int panelLeft = left + SIDE_CONFIG_X;
         int panelTop = top + SIDE_CONFIG_Y;
+        if (isMouseIn(mouseX, mouseY, panelLeft + SIDE_CONFIG_WIDTH - SIDE_CONFIG_BUTTON - 6, panelTop + 5, SIDE_CONFIG_BUTTON, SIDE_CONFIG_BUTTON)) {
+            tooltip.add(I18n.format("tooltip.ad_astra.reset_to_default"));
+            return;
+        }
+
         EnumFacing[] sides = getConfigSides();
         SideConfigType[] types = SideConfigType.values();
         for (int row = 0; row < types.length; row++) {
@@ -894,10 +1000,6 @@ public class AdAstraMachineGui extends GuiContainer {
 
     private float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
-    }
-
-    private String formatEnergy(int energy, int capacity) {
-        return energy + " / " + capacity + " FE";
     }
 
     private String formatMillibuckets(int amount, int capacity) {

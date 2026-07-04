@@ -122,6 +122,9 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
         if (isEntityInvulnerable(source) || isDead) {
             return false;
         }
+        if (source.isProjectile()) {
+            return false;
+        }
 
         Entity attacker = source.getTrueSource();
         if (!(attacker instanceof EntityPlayer)) {
@@ -169,19 +172,7 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
     @Override
     public void updatePassenger(Entity passenger) {
         if (isPassenger(passenger)) {
-            // Position passenger at mount offset
             passenger.setPosition(posX, posY + getMountedYOffset() + passenger.getYOffset(), posZ);
-
-            // Sync passenger rotation with vehicle for immersive control
-            if (vehicleType == VehicleType.ROVER) {
-                // Rover: passenger looks where vehicle is heading
-                passenger.rotationYaw = this.rotationYaw;
-                passenger.prevRotationYaw = this.prevRotationYaw;
-            } else {
-                // Rocket: passenger rotation is synced but can look around slightly
-                passenger.rotationYaw = this.rotationYaw;
-                passenger.prevRotationYaw = this.prevRotationYaw;
-            }
         }
     }
 
@@ -386,7 +377,7 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
         }
         if (passenger instanceof EntityPlayerMP) {
             planetSelectionOpened = true;
-            NetworkHandler.CHANNEL.sendTo(new PacketOpenPlanetSelection(Math.max(1, rocketTier)), (EntityPlayerMP) passenger);
+            NetworkHandler.CHANNEL.sendTo(new PacketOpenPlanetSelection(Math.max(1, rocketTier), getEntityId()), (EntityPlayerMP) passenger);
         }
     }
 

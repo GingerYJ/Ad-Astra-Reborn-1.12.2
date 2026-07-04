@@ -20,6 +20,7 @@ import earth.terrarium.adastra.common.blocks.AdAstraModelBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraMushroomBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraOreBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPipeBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraPipeDuctBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPressurePlateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraRadioBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSensorBlock;
@@ -30,6 +31,8 @@ import earth.terrarium.adastra.common.blocks.AdAstraTransparentBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
+import earth.terrarium.adastra.common.items.AdAstraEnergizerItemBlock;
+import earth.terrarium.adastra.common.items.AdAstraPipeItemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.SoundType;
@@ -63,8 +66,8 @@ public final class ModBlocks {
     public static final Block DESH_CABLE = pipe("desh_cable", 0.5f, 9.0f);
     public static final Block DESH_FLUID_PIPE = pipe("desh_fluid_pipe", 0.5f, 9.0f);
     public static final Block OSTRUM_FLUID_PIPE = pipe("ostrum_fluid_pipe", 0.5f, 16.0f);
-    public static final Block CABLE_DUCT = metal("cable_duct", 0.5f, 12.0f);
-    public static final Block FLUID_PIPE_DUCT = metal("fluid_pipe_duct", 0.5f, 9.0f);
+    public static final Block CABLE_DUCT = pipeDuct("cable_duct", 0.5f, 12.0f);
+    public static final Block FLUID_PIPE_DUCT = pipeDuct("fluid_pipe_duct", 0.5f, 9.0f);
 
     public static final Block COAL_GENERATOR = machine("coal_generator", Material.IRON, 5.0f, 6.0f);
     public static final Block COMPRESSOR = machine("compressor", Material.IRON, 5.0f, 6.0f);
@@ -427,6 +430,20 @@ public final class ModBlocks {
         } else if (block instanceof AdAstraSlabBlock.Single) {
             BlockSlab doubleSlab = findDoubleSlab(block);
             item = new ItemSlab(block, (BlockSlab) block, doubleSlab);
+        } else if (block instanceof AdAstraEnergizerBlock) {
+            item = new AdAstraEnergizerItemBlock(block);
+        } else if (block == STEEL_CABLE) {
+            item = new AdAstraPipeItemBlock(block, true, 150, "info.ad_astra.cable");
+        } else if (block == DESH_CABLE) {
+            item = new AdAstraPipeItemBlock(block, true, 500, "info.ad_astra.cable");
+        } else if (block == CABLE_DUCT) {
+            item = new AdAstraPipeItemBlock(block, true, 250, "info.ad_astra.cable_duct");
+        } else if (block == DESH_FLUID_PIPE) {
+            item = new AdAstraPipeItemBlock(block, false, 150, "info.ad_astra.fluid_pipe");
+        } else if (block == OSTRUM_FLUID_PIPE) {
+            item = new AdAstraPipeItemBlock(block, false, 500, "info.ad_astra.fluid_pipe");
+        } else if (block == FLUID_PIPE_DUCT) {
+            item = new AdAstraPipeItemBlock(block, false, 250, "info.ad_astra.fluid_duct");
         } else {
             item = new ItemBlock(block);
         }
@@ -481,6 +498,10 @@ public final class ModBlocks {
 
     private static Block pipe(String name, float hardness, float resistance) {
         return register(name, new AdAstraPipeBlock(hardness, resistance));
+    }
+
+    private static Block pipeDuct(String name, float hardness, float resistance) {
+        return register(name, new AdAstraPipeDuctBlock(hardness, resistance));
     }
 
     private static Block fluid(String name, net.minecraftforge.fluids.Fluid fluid) {

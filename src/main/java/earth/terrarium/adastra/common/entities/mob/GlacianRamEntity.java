@@ -1,7 +1,19 @@
 package earth.terrarium.adastra.common.entities.mob;
 
-import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
+import earth.terrarium.adastra.common.entities.ai.EntityAIEatPermafrost;
 import earth.terrarium.adastra.common.registry.ModBlocks;
+import earth.terrarium.adastra.common.registry.ModItems;
+import net.minecraft.entity.EntityAgeable;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIFollowParent;
+import net.minecraft.entity.ai.EntityAILookIdle;
+import net.minecraft.entity.ai.EntityAIMate;
+import net.minecraft.entity.ai.EntityAIPanic;
+import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.EntityAITempt;
+import net.minecraft.entity.ai.EntityAIWander;
+import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
@@ -14,10 +26,9 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class GlacianRamEntity extends AdAstraPlaceholderMob {
+public class GlacianRamEntity extends EntityAnimal {
 
     private static final DataParameter<Boolean> SHEARED = EntityDataManager.createKey(GlacianRamEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> EAT_TIMER = EntityDataManager.createKey(GlacianRamEntity.class, DataSerializers.VARINT);
@@ -28,51 +39,25 @@ public class GlacianRamEntity extends AdAstraPlaceholderMob {
     }
 
     @Override
-    protected void entityInit() {
-        super.entityInit();
-        dataManager.register(SHEARED, false);
-        dataManager.register(EAT_TIMER, 0);
-    }
-
-    @Override
-    protected boolean isHostileMob() {
-        return false;
-    }
-
-    @Override
-    protected boolean isNeutralMob() {
-        return false;
-    }
-
-    @Override
-    protected boolean usesMeleeAttack() {
-        return false;
+    protected void initEntityAI() {
+        tasks.addTask(0, new EntityAISwimming(this));
+        tasks.addTask(1, new EntityAIPanic(this, 1.25d));
+        tasks.addTask(2, new EntityAIMate(this, 1.0d));
+        tasks.addTask(3, new EntityAITempt(this, 1.1d, ModItems.ICE_SHARD, false));
+        tasks.addTask(4, new EntityAIFollowParent(this, 1.1d));
+        tasks.addTask(5, new EntityAIEatPermafrost(this));
+        tasks.addTask(6, new EntityAIWander(this, 1.0d));
+        tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0f));
+        tasks.addTask(8, new EntityAILookIdle(this));
     }
 
     @Override
     public void onLivingUpdate() {
         super.onLivingUpdate();
 
-        // Eating animation timer
         int eatTimer = getEatTimer();
         if (eatTimer > 0) {
             setEatTimer(eatTimer - 1);
-        }
-
-        // Occasionally attempt to eat permafrost blocks
-        if (!world.isRemote && !isSheared() && rand.nextInt(1000) == 0) {
-            BlockPos pos = getPosition();
-            BlockPos belowPos = pos.down();
-
-            if (world.getBlockState(belowPos).getBlock() == ModBlocks.PERMAFROST) {
-                if (world.getGameRules().getBoolean("mobGriefing")) {
-                    world.setBlockToAir(belowPos);
-                    setEatTimer(40);
-                    world.setEntityState(this, (byte) 10);
-                    // Regrow fur after eating
-                    setSheared(false);
-                }
-            }
         }
     }
 
@@ -114,37 +99,33 @@ public class GlacianRamEntity extends AdAstraPlaceholderMob {
     }
 
     @Override
-    protected double getMobMaxHealth() {
-        return 16.0d;
+    protected void entityInit() {
+        super.entityInit();
+        dataManager.register(SHEARED, false);
+        dataManager.register(EAT_TIMER, 0);
     }
 
     @Override
-    protected double getMobMovementSpeed() {
-        return 0.20d;
+    protected void applyEntityAttributes() {
+        super.applyEntityAttributes();
+        getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0d);
+        getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20d);
+        getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(20.0d);
     }
 
     @Override
-    protected double getMobAttackDamage() {
-        return 0.0d;
+    public boolean isBreedingItem(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() == ModItems.ICE_SHARD;
     }
 
     @Override
-    protected double getMobFollowRange() {
-        return 20.0d;
+    public GlacianRamEntity createChild(EntityAgeable ageable) {
+        return new GlacianRamEntity(world);
     }
 
     @Override
-    public void writeEntityToNBT(NBTTagCompound compound) {
-        super.writeEntityToNBT(compound);
-        compound.setBoolean("Sheared", isSheared());
-        compound.setInteger("EatTimer", getEatTimer());
-    }
-
-    @Override
-    public void readEntityFromNBT(NBTTagCompound compound) {
-        super.readEntityFromNBT(compound);
-        setSheared(compound.getBoolean("Sheared"));
-        setEatTimer(compound.getInteger("EatTimer"));
+    protected boolean canDespawn() {
+        return false;
     }
 
     @Override
@@ -176,6 +157,13 @@ public class GlacianRamEntity extends AdAstraPlaceholderMob {
 
     public void setEatTimer(int timer) {
         dataManager.set(EAT_TIMER, timer);
+    }
+
+    public void onEatPermafrost() {
+        setSheared(false);
+        if (isChild()) {
+            ageUp(60, true);
+        }
     }
 
     public float getNeckAngle(float partialTicks) {
@@ -222,5 +210,19 @@ public class GlacianRamEntity extends AdAstraPlaceholderMob {
                 entityDropItem(new ItemStack(ModBlocks.GLACIAN_FUR), 0.0f);
             }
         }
+    }
+
+    @Override
+    public void writeEntityToNBT(NBTTagCompound compound) {
+        super.writeEntityToNBT(compound);
+        compound.setBoolean("Sheared", isSheared());
+        compound.setInteger("EatTimer", getEatTimer());
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
+        setSheared(compound.getBoolean("Sheared"));
+        setEatTimer(compound.getInteger("EatTimer"));
     }
 }

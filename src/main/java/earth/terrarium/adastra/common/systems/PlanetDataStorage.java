@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.systems;
 
+import earth.terrarium.adastra.api.systems.PlanetData;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;

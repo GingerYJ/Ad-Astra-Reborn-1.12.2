@@ -1,7 +1,7 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
-import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.entities.mob.lunarians.LunarianMerchantOffers;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -59,6 +59,10 @@ public class LunarianWanderingTraderEntity extends AdAstraPlaceholderMob impleme
         if (compound.hasKey("DespawnDelay")) {
             despawnDelay = compound.getInteger("DespawnDelay");
         }
+    }
+
+    public void setDespawnDelay(int despawnDelay) {
+        this.despawnDelay = despawnDelay;
     }
 
     @Override
@@ -155,30 +159,6 @@ public class LunarianWanderingTraderEntity extends AdAstraPlaceholderMob impleme
     }
 
     private void populateTradingList() {
-        // Rare/expensive trades for wandering trader
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 8),
-            new ItemStack(ModItems.ETRIUM_INGOT, 1)
-        ));
-
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 6),
-            new ItemStack(ModItems.OSTRUM_INGOT, 1)
-        ));
-
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 4),
-            new ItemStack(ModItems.STEEL_INGOT, 2)
-        ));
-
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 10),
-            new ItemStack(ModItems.OXYGEN_GEAR, 1)
-        ));
-
-        buyingList.add(new MerchantRecipe(
-            new ItemStack(Items.EMERALD, 3),
-            new ItemStack(ModItems.CHEESE, 4)
-        ));
+        buyingList.addAll(LunarianMerchantOffers.createWanderingTraderTrades(rand));
     }
 }

@@ -1,7 +1,9 @@
 {
-  "variants": {
-    "normal": {
-      "model": "ad_astra:fluid_pipe_duct"
+  "multipart": [
+    {
+      "apply": {
+        "model": "ad_astra:fluid_pipe_duct"
+      }
     }
-  }
+  ]
 }

@@ -1,5 +1,8 @@
 package earth.terrarium.adastra.common.systems;
 
+import earth.terrarium.adastra.api.systems.PlanetData;
+import earth.terrarium.adastra.common.registry.ModDimensions;
+import earth.terrarium.adastra.common.world.AdAstraWorldProvider;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -12,6 +15,13 @@ import java.util.Collection;
 public class OxygenSystemExtended {
 
     public static boolean hasOxygenInDimension(World world) {
+        if (world == null || world.provider == null) {
+            return true;
+        }
+        if (world.provider instanceof AdAstraWorldProvider) {
+            return ((AdAstraWorldProvider) world.provider).hasOxygen();
+        }
+
         int dimension = world.provider.getDimension();
 
         switch (dimension) {
@@ -20,12 +30,21 @@ public class OxygenSystemExtended {
                 return false;
             case 0:  // Overworld
                 return true;
-            case -28: // Moon
-            case -29: // Mars
-            case -30: // Venus
-            case -31: // Mercury
-            case -32: // Glacio
+            case ModDimensions.MOON_ID:
+            case ModDimensions.MARS_ID:
+            case ModDimensions.MERCURY_ID:
+            case ModDimensions.VENUS_ID:
+            case ModDimensions.EARTH_ORBIT_ID:
+            case ModDimensions.MOON_ORBIT_ID:
+            case ModDimensions.MARS_ORBIT_ID:
+            case ModDimensions.MERCURY_ORBIT_ID:
+            case ModDimensions.VENUS_ORBIT_ID:
+            case ModDimensions.GLACIO_ORBIT_ID:
+            case ModDimensions.NETHER_ORBIT_ID:
+            case ModDimensions.END_ORBIT_ID:
                 return false;
+            case ModDimensions.GLACIO_ID:
+                return true;
             default:
                 return true;
         }

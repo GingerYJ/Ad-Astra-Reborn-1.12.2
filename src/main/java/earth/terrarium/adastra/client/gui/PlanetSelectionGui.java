@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.api.client.events.AdAstraClientEvents;
 import earth.terrarium.adastra.common.capability.AdAstraCapabilities;
 import earth.terrarium.adastra.common.capability.IAdAstraPlayer;
 import earth.terrarium.adastra.common.capability.SpaceStation;
@@ -44,6 +45,7 @@ public class PlanetSelectionGui extends GuiScreen {
     private static final ResourceLocation PLUS_BUTTON = texture("plus_button");
     private static final ResourceLocation PLUS_BUTTON_HIGHLIGHTED = texture("plus_button_highlighted");
     private static final ResourceLocation SUN = new ResourceLocation(Reference.MOD_ID, "textures/environment/sun.png");
+    private static final ResourceLocation SOLAR_SYSTEM = new ResourceLocation(Reference.MOD_ID, "solar_system");
 
     private static final int MENU_X = 7;
     private static final int MENU_WIDTH = 209;
@@ -53,12 +55,14 @@ public class PlanetSelectionGui extends GuiScreen {
     private static final int BUTTON_HEIGHT = 20;
 
     private final int rocketTier;
+    private final int rocketEntityId;
     private final List<PlanetDimensionProperties> planets = new ArrayList<>();
     private PlanetDimensionProperties selectedPlanet;
     private int scrollAmount;
 
-    public PlanetSelectionGui(int rocketTier) {
+    public PlanetSelectionGui(int rocketTier, int rocketEntityId) {
         this.rocketTier = rocketTier;
+        this.rocketEntityId = rocketEntityId;
     }
 
     @Override
@@ -110,7 +114,7 @@ public class PlanetSelectionGui extends GuiScreen {
         }
 
         if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 107, height / 2 - 77, BUTTON_WIDTH, BUTTON_HEIGHT)) {
-            NetworkHandler.CHANNEL.sendToServer(new PacketLandPlanet(selectedPlanet.getDimensionId()));
+            NetworkHandler.CHANNEL.sendToServer(new PacketLandPlanet(selectedPlanet.getDimensionId(), rocketTier, rocketEntityId));
             mc.displayGuiScreen(null);
         }
         if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 107, height / 2 - 41, 12, 12)
@@ -414,6 +418,11 @@ public class PlanetSelectionGui extends GuiScreen {
         drawPlanetIcon("venus", 60, 0.55F, partialTicks, 16);
         drawPlanetIcon("moon", 90, 0.35F, partialTicks, 8);
         drawPlanetIcon("mars", 120, 0.22F, partialTicks, 16);
+        AdAstraClientEvents.RenderSolarSystemEvent.fire(
+            new AdAstraClientEvents.RenderContext(mc, this, partialTicks),
+            SOLAR_SYSTEM,
+            width,
+            height);
     }
 
     private void drawOrbit(int radius, int color) {

@@ -1,7 +1,7 @@
 package earth.terrarium.adastra.common.network.packet;
 
 import earth.terrarium.adastra.AdAstraReborn;
-import earth.terrarium.adastra.common.systems.PlanetData;
+import earth.terrarium.adastra.api.systems.PlanetData;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

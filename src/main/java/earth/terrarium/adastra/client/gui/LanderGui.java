@@ -20,8 +20,8 @@ public class LanderGui extends GuiContainer {
     public LanderGui(InventoryPlayer playerInventory, LanderContainer container) {
         super(container);
         this.container = container;
-        this.xSize = 176;
-        this.ySize = 166;
+        this.xSize = 177;
+        this.ySize = 174;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class LanderGui extends GuiContainer {
         this.mc.getTextureManager().bindTexture(TEXTURE);
         int left = (this.width - this.xSize) / 2;
         int top = (this.height - this.ySize) / 2;
-        this.drawTexturedModalRect(left, top, 0, 0, this.xSize, this.ySize);
+        this.drawModalRectWithCustomSizedTexture(left - 8, top, 0.0f, 0.0f, this.xSize, this.ySize, this.xSize, this.ySize);
 
         // Draw fuel bar
         drawFuelBar(left, top);
@@ -55,37 +55,32 @@ public class LanderGui extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         String title = I18n.format("entity.ad_astra.lander.name");
-        this.fontRenderer.drawString(title, this.xSize / 2 - this.fontRenderer.getStringWidth(title) / 2, 6, 4210752);
-        this.fontRenderer.drawString(I18n.format("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
+        this.fontRenderer.drawString(title, -3, 6, 0x2a262b);
+        this.fontRenderer.drawString(I18n.format("container.inventory"), -3, this.ySize - 94, 0x2a262b);
 
         // Draw descent controls help text
-        this.fontRenderer.drawString("W: Thrust", 8, 55, 0x666666);
-        this.fontRenderer.drawString("A/D: Steer", 8, 64, 0x666666);
-
-        int left = (this.width - this.xSize) / 2;
-        int top = (this.height - this.ySize) / 2;
-        int mouseXRel = mouseX - left;
-        int mouseYRel = mouseY - top;
+        this.fontRenderer.drawString("W: Thrust", 8, 75, 0x666666);
+        this.fontRenderer.drawString("A/D: Steer", 8, 84, 0x666666);
 
         // Fuel bar hover tooltip
-        if (mouseXRel >= 7 && mouseXRel <= 20 && mouseYRel >= 18 && mouseYRel <= 50) {
+        if (mouseX >= 7 && mouseX <= 20 && mouseY >= 18 && mouseY <= 50) {
             int fuel = container.getLander().getFluidFuelAmount();
             int maxFuel = container.getLander().getFluidFuelCapacity();
-            this.drawHoveringText("Fuel: " + fuel + " / " + maxFuel + " mB", mouseXRel, mouseYRel);
+            this.drawHoveringText("Fuel: " + fuel + " / " + maxFuel + " mB", mouseX, mouseY);
         }
 
         // Thruster status hover tooltip
-        if (mouseXRel >= 155 && mouseXRel <= 165 && mouseYRel >= 20 && mouseYRel <= 30) {
+        if (mouseX >= 155 && mouseX <= 165 && mouseY >= 20 && mouseY <= 30) {
             String status = container.getLander().isThrusting() ? "Thrusters: Active" : "Thrusters: Inactive";
-            this.drawHoveringText(status, mouseXRel, mouseYRel);
+            this.drawHoveringText(status, mouseX, mouseY);
         }
 
         // Descent speed warning
         double landingSpeed = container.getLander().getLastLandingSpeed();
         if (landingSpeed > 0.5D && landingSpeed < 1.5D) {
-            this.fontRenderer.drawString("Warning: High Speed!", 55, 55, 0xFFAA00);
+            this.fontRenderer.drawString("Warning: High Speed!", 55, 75, 0xFFAA00);
         } else if (landingSpeed >= 1.5D) {
-            this.fontRenderer.drawString("DANGER: CRASH IMMINENT!", 40, 55, 0xFF0000);
+            this.fontRenderer.drawString("DANGER: CRASH IMMINENT!", 40, 75, 0xFF0000);
         }
     }
 

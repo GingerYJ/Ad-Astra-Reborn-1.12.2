@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.entities.vehicles;
 
+import earth.terrarium.adastra.api.systems.OxygenApi;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,6 +9,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
@@ -16,7 +18,7 @@ import net.minecraft.world.World;
  */
 public class LanderEntity extends VehicleBase {
 
-    private static final int LANDER_INVENTORY_SIZE = 6;
+    private static final int LANDER_INVENTORY_SIZE = 11;
     private static final int LANDER_FUEL_CAPACITY = 1000; // 1 bucket
     private static final int FUEL_PER_THRUST = 5;
     private static final double THRUST_POWER = 0.08D;
@@ -48,6 +50,9 @@ public class LanderEntity extends VehicleBase {
     @Override
     public void onUpdate() {
         super.onUpdate();
+        if (isDead) {
+            return;
+        }
         handleDescentControl();
         if (onGround && Math.abs(motionY) > 0.01D) {
             handleLanding();
@@ -102,6 +107,11 @@ public class LanderEntity extends VehicleBase {
         } else {
             thrusting = false;
         }
+        if (isInWater()) {
+            motionY = Math.min(0.06D, motionY + 0.15D);
+            motionX *= 0.9D;
+            motionZ *= 0.9D;
+        }
         if (!onGround) lastLandingSpeed = Math.abs(motionY);
     }
 
@@ -134,10 +144,17 @@ public class LanderEntity extends VehicleBase {
         lastLandingSpeed = 0.0D;
     }
 
+    @Override
+    public void fall(float distance, float damageMultiplier) {
+        super.fall(distance, damageMultiplier);
+        if (!world.isRemote && distance > 40.0F && onGround && !isDead) {
+            explode();
+        }
+    }
+
     private void explode() {
         if (!world.isRemote) {
-            world.createExplosion(this, posX, posY, posZ, 3.0f, false);
-            dropInventory();
+            world.createExplosion(this, posX, posY, posZ, 10.0f, OxygenApi.API.hasOxygen(world));
             setDead();
         }
     }
@@ -177,5 +194,21 @@ public class LanderEntity extends VehicleBase {
 
     public double getLastLandingSpeed() {
         return lastLandingSpeed;
+    }
+
+    @Override
+    public boolean hideRider() {
+        return true;
+    }
+
+    @Override
+    public boolean zoomOutCameraInThirdPerson() {
+        return true;
+    }
+
+    @Override
+    public Vec3d getDismountPosition(EntityLivingBase passenger) {
+        Vec3d offset = getHorizontalLookOffset(passenger, 1.0D);
+        return new Vec3d(passenger.posX + offset.x, passenger.posY - 2.0D, passenger.posZ + offset.z);
     }
 }

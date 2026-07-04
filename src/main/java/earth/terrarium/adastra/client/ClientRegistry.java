@@ -14,6 +14,7 @@ import earth.terrarium.adastra.client.render.TileGlobeRenderer;
 import earth.terrarium.adastra.client.render.TileGravityNormalizerRenderer;
 import earth.terrarium.adastra.client.render.TileOxygenDistributorRenderer;
 import earth.terrarium.adastra.client.render.TileSlidingDoorRenderer;
+import earth.terrarium.adastra.client.render.TileWaterPumpRenderer;
 import earth.terrarium.adastra.client.render.VehicleItemStackRenderer;
 import earth.terrarium.adastra.common.tile.FlagTileEntity;
 import earth.terrarium.adastra.common.tile.GlobeTileEntity;
@@ -21,6 +22,7 @@ import earth.terrarium.adastra.common.tile.EnergizerTileEntity;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.tile.SlidingDoorTileEntity;
+import earth.terrarium.adastra.common.tile.WaterPumpTileEntity;
 import earth.terrarium.adastra.common.blocks.AdAstraDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFenceGateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
@@ -62,6 +64,7 @@ public final class ClientRegistry {
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(EnergizerTileEntity.class, new TileEnergizerRenderer());
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(OxygenDistributorTileEntity.class, new TileOxygenDistributorRenderer());
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(GravityNormalizerTileEntity.class, new TileGravityNormalizerRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(WaterPumpTileEntity.class, new TileWaterPumpRenderer());
     }
 
     public static void registerModels() {
@@ -80,6 +83,8 @@ public final class ClientRegistry {
         for (Item item : ModItems.ITEMS) {
             registerItemModel(item);
         }
+        registerGravityNormalizerModels();
+        registerOxygenDistributorTopModel();
     }
 
     public static void registerParticles() {
@@ -143,6 +148,16 @@ public final class ClientRegistry {
             registerItemModel(item);
             return;
         }
+        if (block == ModBlocks.OXYGEN_DISTRIBUTOR) {
+            item.setTileEntityItemStackRenderer(TileOxygenDistributorRenderer.ITEM_RENDERER);
+            registerItemModel(item);
+            return;
+        }
+        if (block == ModBlocks.GRAVITY_NORMALIZER) {
+            item.setTileEntityItemStackRenderer(TileGravityNormalizerRenderer.ITEM_RENDERER);
+            registerItemModel(item);
+            return;
+        }
         if (block instanceof AdAstraSlidingDoorBlock) {
             registerSlidingDoorRenderVariants(item, block);
             registerItemModel(item);
@@ -175,6 +190,27 @@ public final class ClientRegistry {
             new ModelResourceLocation(block.getRegistryName(), "normal"));
     }
 
+    private static void registerOxygenDistributorTopModel() {
+        Item item = getRegisteredBlockItem(ModBlocks.OXYGEN_DISTRIBUTOR);
+        if (item == null || item == Items.AIR) {
+            return;
+        }
+        net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
+            item,
+            TileOxygenDistributorRenderer.TOP_MODEL);
+    }
+
+    private static void registerGravityNormalizerModels() {
+        Item item = getRegisteredBlockItem(ModBlocks.GRAVITY_NORMALIZER);
+        if (item == null || item == Items.AIR) {
+            return;
+        }
+        net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
+            item,
+            TileGravityNormalizerRenderer.TOP_MODEL,
+            TileGravityNormalizerRenderer.TOE_MODEL);
+    }
+
     private static Item getRegisteredBlockItem(Block block) {
         if (block.getRegistryName() != null) {
             Item registryItem = ForgeRegistries.ITEMS.getValue(block.getRegistryName());
@@ -205,7 +241,7 @@ public final class ClientRegistry {
 
         @Override
         protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
-            return new ModelResourceLocation("forge:fluid", state.getBlock().getRegistryName().getPath());
+            return new ModelResourceLocation(state.getBlock().getRegistryName(), "normal");
         }
     }
 

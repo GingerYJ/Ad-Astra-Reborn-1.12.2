@@ -40,4 +40,15 @@ public class AdAstraEnergyStorage extends EnergyStorage {
         }
         return energyReceived;
     }
+
+    public int internalExtractEnergy(int maxExtract, boolean simulate) {
+        if (maxExtract <= 0) {
+            return 0;
+        }
+        int energyExtracted = Math.min(energy, maxExtract);
+        if (!simulate) {
+            energy -= energyExtracted;
+        }
+        return energyExtracted;
+    }
 }

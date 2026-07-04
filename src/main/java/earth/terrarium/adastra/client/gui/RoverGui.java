@@ -2,17 +2,21 @@ package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.container.RoverContainer;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 
+import java.io.IOException;
+
 /**
  * GUI for Rover inventory and fuel display.
  */
 public class RoverGui extends GuiContainer {
 
+    private static final int RADIO_BUTTON = 20;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/rover.png");
 
     private final RoverContainer container;
@@ -22,6 +26,22 @@ public class RoverGui extends GuiContainer {
         this.container = container;
         this.xSize = 177;
         this.ySize = 181;
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+        this.buttonList.add(new GuiButton(RADIO_BUTTON, this.guiLeft + 126, this.guiTop + 4, 42, 18,
+            I18n.format("gui.ad_astra.rover.radio_short")));
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException {
+        if (button.id == RADIO_BUTTON) {
+            this.mc.displayGuiScreen(new RoverRadioGui(container.getRover(), this));
+            return;
+        }
+        super.actionPerformed(button);
     }
 
     @Override

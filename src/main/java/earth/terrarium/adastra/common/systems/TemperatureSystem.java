@@ -1,5 +1,7 @@
 package earth.terrarium.adastra.common.systems;
 
+import earth.terrarium.adastra.api.events.AdAstraEvents;
+import earth.terrarium.adastra.api.systems.PlanetData;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.registry.ModDimensions;
@@ -236,8 +238,19 @@ public class TemperatureSystem {
             return;
         }
 
+        if ((temperature > MAX_LIVEABLE_TEMPERATURE || temperature < MIN_LIVEABLE_TEMPERATURE)
+            && world instanceof WorldServer
+            && !AdAstraEvents.TemperatureTickEvent.fire((WorldServer) world, entity)) {
+            return;
+        }
+
         // Apply heat damage (>70°C)
         if (temperature > MAX_LIVEABLE_TEMPERATURE) {
+            if (world instanceof WorldServer
+                && !AdAstraEvents.HotTemperatureTickEvent.fire((WorldServer) world, entity)) {
+                return;
+            }
+
             // Check for fire resistance potion effect
             if (!entity.isImmuneToFire() && !entity.isPotionActive(net.minecraft.init.MobEffects.FIRE_RESISTANCE)) {
                 entity.attackEntityFrom(HEAT_DAMAGE_SOURCE, BURN_DAMAGE);
@@ -246,6 +259,11 @@ public class TemperatureSystem {
         }
         // Apply freeze damage (<-50°C)
         else if (temperature < MIN_LIVEABLE_TEMPERATURE) {
+            if (world instanceof WorldServer
+                && !AdAstraEvents.ColdTemperatureTickEvent.fire((WorldServer) world, entity)) {
+                return;
+            }
+
             entity.attackEntityFrom(FREEZE_DAMAGE_SOURCE, FREEZE_DAMAGE);
             // Note: 1.12.2 doesn't have freeze mechanics like 1.20 (setTicksFrozen)
             // We just apply damage instead

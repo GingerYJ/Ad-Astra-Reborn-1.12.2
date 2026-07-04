@@ -11,15 +11,13 @@ import net.minecraft.util.EnumFacing;
 public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
 
     private static final int FUEL_SLOT = 1;
-    private static final int ENERGY_CAPACITY = 50_000;
-    private static final int ENERGY_GENERATED_PER_TICK = 30;
     private static final int MAX_BURN_TIME = 20_000;
 
     protected int burnTime;
     protected int maxBurnTime;
 
     public CoalGeneratorTileEntity() {
-        super("coal_generator", 2, ENERGY_CAPACITY, 0, IRON_IO, 0);
+        super("coal_generator", 2, IRON_ENERGY, 0, IRON_IO, 0);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PUSH);
     }
 
@@ -43,7 +41,7 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
             burnTime--;
             // Generate energy if there's space (respecting config multiplier)
             if (energy.getEnergyStored() < energy.getMaxEnergyStored()) {
-                int modifiedEnergy = AdAstraConfig.getModifiedEnergyGeneration(ENERGY_GENERATED_PER_TICK, "coal");
+                int modifiedEnergy = AdAstraConfig.getModifiedEnergyGeneration(AdAstraConfig.coalGeneratorEnergyGenerationPerTick, "coal");
                 energy.internalReceiveEnergy(modifiedEnergy, false);
                 markDirty();
             }

@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.tile;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -8,13 +9,10 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class WaterPumpTileEntity extends AdAstraMachineTileEntity {
 
-    private static final int ENERGY_CAPACITY = 10_000;
-    private static final int FLUID_CAPACITY = 16_000;
-    private static final int ENERGY_PER_TICK = 20;
-    private static final int WATER_GENERATED_PER_TICK = 50;
+    private long lastBubbleParticleTick = Long.MIN_VALUE;
 
     public WaterPumpTileEntity() {
-        super("water_pump", 1, ENERGY_CAPACITY, DESH_IO, 0, FLUID_CAPACITY);
+        super("water_pump", 1, DESH_ENERGY, DESH_IO, 0, DESH_FLUID);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PULL);
         setAllSideModes(SideConfigType.FLUID, AdAstraSideMode.PUSH);
     }
@@ -31,8 +29,8 @@ public class WaterPumpTileEntity extends AdAstraMachineTileEntity {
 
         // Check if we can pump water
         if (canPump()) {
-            energy.extractEnergy(ENERGY_PER_TICK, false);
-            fluidTank.fill(new FluidStack(FluidRegistry.WATER, WATER_GENERATED_PER_TICK), true);
+            energy.internalExtractEnergy(AdAstraConfig.waterPumpEnergyPerTick, false);
+            fluidTank.fill(new FluidStack(FluidRegistry.WATER, AdAstraConfig.waterPumpFluidGenerationPerTick), true);
             pumped = true;
             markDirty();
         }
@@ -52,12 +50,12 @@ public class WaterPumpTileEntity extends AdAstraMachineTileEntity {
         }
 
         // Check if we have enough energy
-        if (energy.extractEnergy(ENERGY_PER_TICK, true) < ENERGY_PER_TICK) {
+        if (energy.internalExtractEnergy(AdAstraConfig.waterPumpEnergyPerTick, true) < AdAstraConfig.waterPumpEnergyPerTick) {
             return false;
         }
 
         // Check if we have space for water
-        return fluidTank.fill(new FluidStack(FluidRegistry.WATER, WATER_GENERATED_PER_TICK), false) > 0;
+        return fluidTank.fill(new FluidStack(FluidRegistry.WATER, AdAstraConfig.waterPumpFluidGenerationPerTick), false) > 0;
     }
 
     @Override
@@ -78,5 +76,17 @@ public class WaterPumpTileEntity extends AdAstraMachineTileEntity {
     @Override
     public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
         return false;
+    }
+
+    public boolean consumeBubbleParticleTick() {
+        if (world == null || !world.isRemote) {
+            return false;
+        }
+        long tick = world.getTotalWorldTime();
+        if (lastBubbleParticleTick == tick) {
+            return false;
+        }
+        lastBubbleParticleTick = tick;
+        return true;
     }
 }

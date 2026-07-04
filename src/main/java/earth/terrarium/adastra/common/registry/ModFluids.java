@@ -1,13 +1,11 @@
 package earth.terrarium.adastra.common.registry;
 
+import earth.terrarium.adastra.Reference;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 
 public final class ModFluids {
-
-    private static final ResourceLocation STILL = new ResourceLocation("minecraft", "blocks/water_still");
-    private static final ResourceLocation FLOWING = new ResourceLocation("minecraft", "blocks/water_flow");
 
     public static final Fluid OXYGEN = register("oxygen", 0xffdae6f0, -1, 0, 300, true);
     public static final Fluid HYDROGEN = register("hydrogen", 0xff89cff0, -1, 0, 300, true);
@@ -23,7 +21,9 @@ public final class ModFluids {
     }
 
     private static Fluid register(String name, int color, int density, int viscosity, int temperature, boolean gaseous) {
-        Fluid fluid = new Fluid(name, STILL, FLOWING)
+        Fluid fluid = new Fluid(name,
+            new ResourceLocation(Reference.MOD_ID, "blocks/" + name + "_still"),
+            new ResourceLocation(Reference.MOD_ID, "blocks/" + name + "_flow"))
             .setColor(color)
             .setDensity(density)
             .setViscosity(viscosity)

@@ -2,13 +2,25 @@ package earth.terrarium.adastra.common.handler;
 
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.systems.GravitySystem;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.item.EntityExpBottle;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityFishHook;
+import net.minecraft.entity.projectile.EntityPotion;
+import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 /**
  * Enhanced gravity event handler.
@@ -21,6 +33,14 @@ public class GravityEventHandler {
     private static final float LOW_GRAVITY_THRESHOLD = 0.3F;
     private static final float LOW_GRAVITY_FALL_DISTANCE_MULTIPLIER = 3.0F;
     private static final double JUMP_BOOST_SCALE = 0.42D;  // Vanilla jump motion
+
+    private static final double DEFAULT_ENTITY_GRAVITY = 0.04D;
+    private static final double ARROW_GRAVITY = 0.05D;
+    private static final double FISHING_HOOK_GRAVITY = 0.03D;
+    private static final double THROWABLE_GRAVITY = 0.03D;
+    private static final double POTION_GRAVITY = 0.05D;
+    private static final double EXPERIENCE_BOTTLE_GRAVITY = 0.07D;
+    private static final double BOAT_GRAVITY = 0.04D;
 
     /**
      * Applies gravity motion override to entities.
@@ -67,6 +87,70 @@ public class GravityEventHandler {
         double compensation = VANILLA_GRAVITY * (1.0D - gravityMultiplier);
         entity.motionY += compensation;
         entity.velocityChanged = true;
+    }
+
+    @SubscribeEvent
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (AdAstraConfig.disableGravity || event.phase != TickEvent.Phase.END) {
+            return;
+        }
+
+        World world = event.world;
+        if (world == null) {
+            return;
+        }
+
+        Entity[] entities = world.loadedEntityList.toArray(new Entity[0]);
+        for (Entity entity : entities) {
+            applyNonLivingEntityGravity(entity);
+        }
+    }
+
+    private void applyNonLivingEntityGravity(Entity entity) {
+        if (entity == null || entity.world == null || entity instanceof EntityLivingBase || entity.hasNoGravity()) {
+            return;
+        }
+        if (entity.isInWater() || entity.isInLava()) {
+            return;
+        }
+
+        double vanillaGravity = getVanillaGravity(entity);
+        if (vanillaGravity <= 0.0D) {
+            return;
+        }
+
+        float gravityMultiplier = GravitySystem.getGravityForEntity(entity);
+        if (Math.abs(gravityMultiplier - 1.0F) < GRAVITY_EPSILON) {
+            return;
+        }
+
+        entity.motionY += vanillaGravity * (1.0D - gravityMultiplier);
+        entity.velocityChanged = true;
+    }
+
+    private double getVanillaGravity(Entity entity) {
+        if (entity instanceof EntityExpBottle) {
+            return EXPERIENCE_BOTTLE_GRAVITY;
+        }
+        if (entity instanceof EntityPotion) {
+            return POTION_GRAVITY;
+        }
+        if (entity instanceof EntityThrowable) {
+            return THROWABLE_GRAVITY;
+        }
+        if (entity instanceof EntityArrow) {
+            return ARROW_GRAVITY;
+        }
+        if (entity instanceof EntityFishHook) {
+            return FISHING_HOOK_GRAVITY;
+        }
+        if (entity instanceof EntityBoat) {
+            return BOAT_GRAVITY;
+        }
+        if (entity instanceof EntityItem || entity instanceof EntityTNTPrimed || entity instanceof EntityMinecart) {
+            return DEFAULT_ENTITY_GRAVITY;
+        }
+        return 0.0D;
     }
 
     /**

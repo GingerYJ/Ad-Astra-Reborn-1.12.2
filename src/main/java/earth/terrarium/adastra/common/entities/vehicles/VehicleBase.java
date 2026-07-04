@@ -4,29 +4,39 @@ import earth.terrarium.adastra.common.container.AdAstraFluidTank;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.util.RocketFuelHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IEntityMultiPart;
+import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
  * Extended vehicle base with fuel tanks and inventory systems.
  * Provides abstraction for rockets, rovers, and landers.
  */
-public abstract class VehicleBase extends AdAstraVehicleEntity {
+public abstract class VehicleBase extends AdAstraVehicleEntity implements IEntityMultiPart {
 
     protected AdAstraFluidTank fuelTank;
     protected NonNullList<ItemStack> inventory;
     protected final int inventorySize;
     protected final int fuelCapacity;
+    private final List<AdAstraVehiclePart> vehicleParts = new ArrayList<>();
+    private Entity[] vehiclePartArray = new Entity[0];
 
     // Launch control state
     protected boolean isLaunching = false;
@@ -46,6 +56,43 @@ public abstract class VehicleBase extends AdAstraVehicleEntity {
 
         // Initialize inventory
         this.inventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
+    }
+
+    protected AdAstraVehiclePart addVehiclePart(String name, float width, float height,
+                                                double offsetX, double offsetY, double offsetZ,
+                                                AdAstraVehiclePart.InteractionHandler interactionHandler) {
+        AdAstraVehiclePart part = new AdAstraVehiclePart(this, name, width, height, offsetX, offsetY, offsetZ, interactionHandler);
+        vehicleParts.add(part);
+        vehiclePartArray = vehicleParts.toArray(new Entity[0]);
+        part.updatePartPosition();
+        return part;
+    }
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        updateVehicleParts();
+    }
+
+    protected void updateVehicleParts() {
+        for (AdAstraVehiclePart part : vehicleParts) {
+            part.updatePartPosition();
+        }
+    }
+
+    @Override
+    public Entity[] getParts() {
+        return vehiclePartArray;
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
+    }
+
+    @Override
+    public boolean attackEntityFromPart(MultiPartEntityPart part, DamageSource source, float damage) {
+        return attackEntityFrom(source, damage);
     }
 
     @Override
@@ -203,6 +250,9 @@ public abstract class VehicleBase extends AdAstraVehicleEntity {
         if (!world.isRemote) {
             dropInventory();
         }
+        for (AdAstraVehiclePart part : vehicleParts) {
+            part.setDead();
+        }
         super.setDead();
     }
 
@@ -243,5 +293,73 @@ public abstract class VehicleBase extends AdAstraVehicleEntity {
      */
     public boolean hasLaunched() {
         return hasLaunched;
+    }
+
+    /**
+     * Checks if the rider should use Minecraft's seated riding pose.
+     */
+    public boolean shouldSit() {
+        return true;
+    }
+
+    /**
+     * Checks if passengers should be hidden while riding this vehicle.
+     */
+    public boolean hideRider() {
+        return false;
+    }
+
+    /**
+     * Checks if third-person camera should zoom out while riding this vehicle.
+     */
+    public boolean zoomOutCameraInThirdPerson() {
+        return false;
+    }
+
+    @Nullable
+    public Vec3d getDismountPosition(EntityLivingBase passenger) {
+        return null;
+    }
+
+    protected Vec3d getHorizontalLookOffset(EntityLivingBase passenger, double distance) {
+        Vec3d look = passenger.getLookVec();
+        double x = look.x;
+        double z = look.z;
+        double length = Math.sqrt(x * x + z * z);
+        if (length < 1.0E-4D) {
+            double yaw = Math.toRadians(passenger.rotationYaw);
+            x = -Math.sin(yaw);
+            z = Math.cos(yaw);
+            length = 1.0D;
+        }
+        return new Vec3d(x / length * distance, 0.0D, z / length * distance);
+    }
+
+    protected Vec3d lowerUntilSolid(Vec3d position, int maxSteps) {
+        Vec3d result = position;
+        for (int i = 0; i < maxSteps; i++) {
+            if (!world.isAirBlock(new BlockPos(result.x, result.y, result.z))) {
+                break;
+            }
+            result = result.subtract(0.0D, 1.0D, 0.0D);
+        }
+        return result;
+    }
+
+    /**
+     * Unsafe dismounts require holding sneak before the rider is allowed to leave.
+     */
+    public boolean isSafeToDismount(EntityPlayer player) {
+        if (getVehicleType() == VehicleType.LANDER) {
+            return onGround;
+        }
+        if (getVehicleType() == VehicleType.ROCKET) {
+            return !isLaunching() && !hasLaunched();
+        }
+        if (getVehicleType() == VehicleType.ROVER) {
+            double horizontalSpeed = Math.sqrt(motionX * motionX + motionZ * motionZ);
+            return horizontalSpeed < 0.1D;
+        }
+        return true;
     }
 }

@@ -1,10 +1,14 @@
 package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
+import net.minecraft.init.MobEffects;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
@@ -13,7 +17,10 @@ import net.minecraft.world.World;
 
 public class MoglerEntity extends AdAstraPlaceholderMob {
 
+    private static final int CONVERSION_TIME = 300;
+
     private int attackCooldown;
+    private int conversionTime;
 
     public MoglerEntity(World world) {
         super(world);
@@ -27,6 +34,7 @@ public class MoglerEntity extends AdAstraPlaceholderMob {
         if (attackCooldown > 0) {
             attackCooldown--;
         }
+        tickConversion();
     }
 
     @Override
@@ -72,6 +80,22 @@ public class MoglerEntity extends AdAstraPlaceholderMob {
     }
 
     @Override
+    public void writeEntityToNBT(NBTTagCompound compound) {
+        super.writeEntityToNBT(compound);
+        compound.setInteger("ConversionTime", conversionTime);
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound compound) {
+        super.readEntityFromNBT(compound);
+        conversionTime = compound.getInteger("ConversionTime");
+    }
+
+    public boolean isConverting() {
+        return conversionTime > 0;
+    }
+
+    @Override
     protected double getMobMaxHealth() {
         return 50.0d;
     }
@@ -113,5 +137,37 @@ public class MoglerEntity extends AdAstraPlaceholderMob {
         for (int i = 0; i < leatherCount; i++) {
             dropItem(Items.LEATHER, 1);
         }
+    }
+
+    private void tickConversion() {
+        if (world.isRemote) {
+            return;
+        }
+        if (isPiglinSafeDimension()) {
+            conversionTime = 0;
+            return;
+        }
+        if (++conversionTime >= CONVERSION_TIME) {
+            finishConversion();
+        }
+    }
+
+    private boolean isPiglinSafeDimension() {
+        if (world.provider == null) {
+            return false;
+        }
+        int dimension = world.provider.getDimension();
+        return dimension == -1 || dimension == ModDimensions.MERCURY_ID || dimension == ModDimensions.VENUS_ID;
+    }
+
+    private void finishConversion() {
+        ZombifiedMoglerEntity zombified = new ZombifiedMoglerEntity(world);
+        zombified.copyLocationAndAnglesFrom(this);
+        if (hasCustomName()) {
+            zombified.setCustomNameTag(getCustomNameTag());
+        }
+        zombified.addPotionEffect(new PotionEffect(MobEffects.NAUSEA, 200, 0));
+        world.spawnEntity(zombified);
+        setDead();
     }
 }

@@ -31,7 +31,7 @@ public abstract class AdAstraOrbitWorldProvider extends AdAstraWorldProvider {
 
     @Override
     public float getCloudHeight() {
-        return -8.0F;
+        return 256.0F;
     }
 
     @Override

@@ -1,9 +1,13 @@
 package earth.terrarium.adastra.common.entities.vehicles;
 
 import earth.terrarium.adastra.client.particle.ParticleHelper;
+import earth.terrarium.adastra.api.planets.Planet;
+import earth.terrarium.adastra.api.systems.OxygenApi;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketOpenPlanetSelection;
+import earth.terrarium.adastra.common.planets.PlanetApiImpl;
 import earth.terrarium.adastra.common.registry.ModSounds;
 import earth.terrarium.adastra.common.util.KeybindManager;
 import net.minecraft.entity.Entity;
@@ -22,11 +26,13 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -37,6 +43,7 @@ public abstract class RocketEntity extends VehicleBase {
     private static final DataParameter<Boolean> DATA_IS_LAUNCHING = EntityDataManager.createKey(RocketEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> DATA_LAUNCH_COUNTDOWN = EntityDataManager.createKey(RocketEntity.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> DATA_HAS_LAUNCHED = EntityDataManager.createKey(RocketEntity.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Boolean> DATA_PLANET_SELECTION_OPENED = EntityDataManager.createKey(RocketEntity.class, DataSerializers.BOOLEAN);
 
     private static final int LAUNCH_COUNTDOWN = 200; // 10 seconds
     private static final int FUEL_PER_TICK = 10; // Fuel consumption per tick while flying
@@ -45,6 +52,7 @@ public abstract class RocketEntity extends VehicleBase {
     private static final double PLANET_SELECTION_ASCENT = 120.0D;
     private static final double LAUNCH_ACCELERATION = 0.005D;
     private static final double MAX_FLIGHT_SPEED = 1.0D;
+    private static final DamageSource ROCKET_FLAMES = new DamageSource("rocket_flames").setFireDamage();
 
     private boolean planetSelectionOpened = false;
     private float flightSpeed = 0.05f;
@@ -72,6 +80,7 @@ public abstract class RocketEntity extends VehicleBase {
         dataManager.register(DATA_IS_LAUNCHING, false);
         dataManager.register(DATA_LAUNCH_COUNTDOWN, -1);
         dataManager.register(DATA_HAS_LAUNCHED, false);
+        dataManager.register(DATA_PLANET_SELECTION_OPENED, false);
     }
 
     @Override
@@ -151,6 +160,13 @@ public abstract class RocketEntity extends VehicleBase {
     }
 
     private void handleClientFlightPrediction() {
+        if (planetSelectionOpened) {
+            motionX = 0.0D;
+            motionY = 0.0D;
+            motionZ = 0.0D;
+            return;
+        }
+
         if (flightSpeed < MAX_FLIGHT_SPEED) {
             flightSpeed += LAUNCH_ACCELERATION;
         }
@@ -188,6 +204,7 @@ public abstract class RocketEntity extends VehicleBase {
                 clientHasFlightTarget = false;
             }
             hasLaunched = launched;
+            planetSelectionOpened = dataManager.get(DATA_PLANET_SELECTION_OPENED);
         }
     }
 
@@ -209,6 +226,13 @@ public abstract class RocketEntity extends VehicleBase {
         hasLaunched = launched;
         if (!world.isRemote) {
             dataManager.set(DATA_HAS_LAUNCHED, launched);
+        }
+    }
+
+    private void setPlanetSelectionOpened(boolean opened) {
+        planetSelectionOpened = opened;
+        if (!world.isRemote) {
+            dataManager.set(DATA_PLANET_SELECTION_OPENED, opened);
         }
     }
 
@@ -240,19 +264,21 @@ public abstract class RocketEntity extends VehicleBase {
         passenger.lastTickPosZ = prevPosZ;
         passenger.setPosition(posX, currentY, posZ);
         passenger.fallDistance = 0.0F;
-        passenger.rotationYaw = rotationYaw;
-        passenger.prevRotationYaw = prevRotationYaw;
     }
 
     /**
      * Validate that rocket is on a launch pad structure.
      */
     private void validateLaunchPad() {
-        if (world.isRemote || ticksExisted % 20 != 0) return;
+        if (world.isRemote || ticksExisted % 5 != 0) return;
         if (isLaunching || hasLaunched) return;
 
-        if (isOnValidLaunchPad()) {
+        BlockPos launchPadCenter = getLaunchPadCenter();
+        if (launchPadCenter != null) {
             launchpadBound = true;
+            if (isLaunchPadPowered(launchPadCenter) && canLaunchFromPoweredPad()) {
+                beginLaunchSequence();
+            }
         } else if (launchpadBound) {
             ItemStack drop = getDropStack();
             if (!drop.isEmpty()) {
@@ -264,9 +290,25 @@ public abstract class RocketEntity extends VehicleBase {
     }
 
     private boolean isOnValidLaunchPad() {
+        return getLaunchPadCenter() != null;
+    }
+
+    private BlockPos getLaunchPadCenter() {
         BlockPos feet = getPosition();
-        return LaunchPadBlock.findLaunchPadCenter(world, feet) != null
-            || LaunchPadBlock.findLaunchPadCenter(world, feet.down()) != null;
+        BlockPos center = LaunchPadBlock.findLaunchPadCenter(world, feet);
+        return center != null ? center : LaunchPadBlock.findLaunchPadCenter(world, feet.down());
+    }
+
+    private boolean isLaunchPadPowered(BlockPos center) {
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                BlockPos partPos = center.add(dx, 0, dz);
+                if (world.getBlockState(partPos).getBlock() instanceof LaunchPadBlock && world.isBlockPowered(partPos)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -275,11 +317,48 @@ public abstract class RocketEntity extends VehicleBase {
     public boolean canLaunch() {
         if (isLaunching || hasLaunched) return false;
         if (!(getControllingPassenger() instanceof EntityPlayer)) return false;
+        if (!canLaunchFromCurrentDimension()) return false;
         if (!launchpadBound && isOnValidLaunchPad()) {
             launchpadBound = true;
         }
         if (!launchpadBound) return false;
+        if (!hasEnoughFuel(LAUNCH_FUEL_COST)) return false;
+        return passengerHasSpaceDown();
+    }
+
+    private boolean canLaunchFromPoweredPad() {
+        if (isLaunching || hasLaunched) return false;
+        if (!(getControllingPassenger() instanceof EntityPlayer)) return false;
+        if (!canLaunchFromCurrentDimension()) return false;
         return hasEnoughFuel(LAUNCH_FUEL_COST);
+    }
+
+    private boolean passengerHasSpaceDown() {
+        Entity passenger = getControllingPassenger();
+        return passenger instanceof EntityPlayer && KeybindManager.jumpDown((EntityPlayer) passenger);
+    }
+
+    private boolean canLaunchFromCurrentDimension() {
+        if (AdAstraConfig.launchFromAnywhere) {
+            return true;
+        }
+
+        int dimensionId = world.provider.getDimension();
+        if (dimensionId == 0) {
+            return true;
+        }
+
+        Map<Integer, Planet> planets = PlanetApiImpl.snapshotPlanets();
+        if (planets.containsKey(dimensionId)) {
+            return true;
+        }
+
+        for (Planet planet : planets.values()) {
+            if (planet.getAdditionalLaunchDimensions().contains(dimensionId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void handleLaunchInput() {
@@ -314,6 +393,10 @@ public abstract class RocketEntity extends VehicleBase {
             return;
         }
 
+        beginLaunchSequence();
+    }
+
+    private void beginLaunchSequence() {
         setLaunching(true);
         setLaunchCountdown(LAUNCH_COUNTDOWN);
         lastCountdownMessageSecond = -1;
@@ -408,9 +491,19 @@ public abstract class RocketEntity extends VehicleBase {
      * Handle rocket flight physics.
      */
     private void handleFlight() {
+        if (planetSelectionOpened) {
+            motionX = 0.0D;
+            motionY = 0.0D;
+            motionZ = 0.0D;
+            return;
+        }
+
         // Check for planet selection height
         if (posY >= getPlanetSelectionY() && !planetSelectionOpened) {
-            openPlanetSelection();
+            if (!openPlanetSelection()) {
+                explode();
+            }
+            return;
         }
 
         // Accelerate
@@ -444,7 +537,7 @@ public abstract class RocketEntity extends VehicleBase {
         }
 
         // Burn entities below rocket
-        if (!world.isRemote && ticksExisted % 10 == 0) {
+        if (!world.isRemote) {
             burnEntitiesBelow();
         }
     }
@@ -464,6 +557,8 @@ public abstract class RocketEntity extends VehicleBase {
         EntityPlayer player = (EntityPlayer) passenger;
         if (isLaunching || hasLaunched) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.rocket_already_launching"), true);
+        } else if (!canLaunchFromCurrentDimension()) {
+            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.invalid_launching_dimension"), true);
         } else if (!launchpadBound && !isOnValidLaunchPad()) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.rocket_requires_launch_pad"), true);
         } else if (!hasEnoughFuel(LAUNCH_FUEL_COST)) {
@@ -492,14 +587,23 @@ public abstract class RocketEntity extends VehicleBase {
     /**
      * Open planet selection GUI for the pilot.
      */
-    private void openPlanetSelection() {
+    private boolean openPlanetSelection() {
         Entity passenger = getControllingPassenger();
         if (passenger instanceof EntityPlayerMP) {
-            planetSelectionOpened = true;
+            setPlanetSelectionOpened(true);
             NetworkHandler.CHANNEL.sendTo(
-                new PacketOpenPlanetSelection(Math.max(1, getRocketTier())),
+                new PacketOpenPlanetSelection(Math.max(1, getRocketTier()), getEntityId()),
                 (EntityPlayerMP) passenger
             );
+            return true;
+        }
+        return false;
+    }
+
+    private void explode() {
+        if (!world.isRemote) {
+            world.createExplosion(this, posX, posY, posZ, 7.0F + getRocketTier() * 2.0F, OxygenApi.API.hasOxygen(world));
+            setDead();
         }
     }
 
@@ -546,14 +650,14 @@ public abstract class RocketEntity extends VehicleBase {
     private void burnEntitiesBelow() {
         List<EntityLivingBase> entities = world.getEntitiesWithinAABB(
             EntityLivingBase.class,
-            getEntityBoundingBox().grow(2.0D, 8.0D, 2.0D).offset(0.0D, -8.0D, 0.0D));
+            getEntityBoundingBox().grow(2.0D, 30.0D, 2.0D).offset(0.0D, -37.0D, 0.0D));
         Entity passenger = getControllingPassenger();
         for (EntityLivingBase entity : entities) {
             if (entity == passenger) {
                 continue;
             }
             entity.setFire(10);
-            entity.attackEntityFrom(DamageSource.IN_FIRE, 10.0F);
+            entity.attackEntityFrom(ROCKET_FLAMES, 10.0F);
         }
     }
 
@@ -582,6 +686,7 @@ public abstract class RocketEntity extends VehicleBase {
             dataManager.set(DATA_IS_LAUNCHING, isLaunching);
             dataManager.set(DATA_LAUNCH_COUNTDOWN, launchCountdown);
             dataManager.set(DATA_HAS_LAUNCHED, hasLaunched);
+            dataManager.set(DATA_PLANET_SELECTION_OPENED, planetSelectionOpened);
         }
     }
 
@@ -600,6 +705,22 @@ public abstract class RocketEntity extends VehicleBase {
     @Override
     public boolean canPassengerSteer() {
         return !isLaunching && !hasLaunched && super.canPassengerSteer();
+    }
+
+    @Override
+    public boolean shouldSit() {
+        return false;
+    }
+
+    @Override
+    public boolean zoomOutCameraInThirdPerson() {
+        return true;
+    }
+
+    @Override
+    public Vec3d getDismountPosition(EntityLivingBase passenger) {
+        Vec3d offset = getHorizontalLookOffset(passenger, 2.0D);
+        return lowerUntilSolid(new Vec3d(passenger.posX + offset.x, passenger.posY, passenger.posZ + offset.z), 6);
     }
 
     /**

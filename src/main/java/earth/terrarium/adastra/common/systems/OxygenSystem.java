@@ -1,8 +1,11 @@
 package earth.terrarium.adastra.common.systems;
 
+import earth.terrarium.adastra.api.events.AdAstraEvents;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.performance.PerformanceTracker;
 import earth.terrarium.adastra.common.registry.ModSounds;
+import earth.terrarium.adastra.common.tags.ModBlockTags;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
@@ -11,6 +14,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -128,7 +132,8 @@ public final class OxygenSystem {
         }
 
         // Check if oxygen is available at player's location
-        if (hasOxygen(player, world)) {
+        boolean hasOxygen = AdAstraEvents.EntityOxygenEvent.fire(player, hasOxygen(player, world));
+        if (hasOxygen) {
             // Player has oxygen, reset air level to full
             if (player.getAir() < MAX_AIR) {
                 player.setAir(MAX_AIR);
@@ -150,6 +155,12 @@ public final class OxygenSystem {
         }
 
         // No oxygen source available - suffocate
+        if (world instanceof WorldServer
+            && !AdAstraEvents.OxygenTickEvent.fire((WorldServer) world, player)) {
+            PerformanceTracker.endSystemTiming("environment");
+            return;
+        }
+
         applySuffocationDamage(player);
         PerformanceTracker.endSystemTiming("environment");
     }
@@ -202,6 +213,7 @@ public final class OxygenSystem {
         if (tryRefillFromInventory(player)) {
             // Successfully refilled from gas tank
             player.inventory.markDirty();
+            OxygenUtils.syncInventory(player);
 
             // Try consuming again after refill
             consumed = OxygenUtils.consumeSpaceSuitOxygen(player, getOxygenConsumptionAmount());
@@ -293,6 +305,8 @@ public final class OxygenSystem {
                 if (transferred != null && transferred.amount > 0) {
                     // Update the gas tank item in inventory
                     player.inventory.setInventorySlotContents(i, tankHandler.getContainer());
+                    player.inventory.markDirty();
+                    OxygenUtils.syncInventory(player);
                     return true;
                 }
             }
@@ -348,8 +362,12 @@ public final class OxygenSystem {
     @Nullable
     private static Set<BlockPos> performFloodFill(World world, BlockPos start, int maxBlocks) {
         // Use LinkedHashSet to maintain insertion order (useful for debugging/rendering)
+        if (isOpenToSky(world, start, start)) {
+            return null;
+        }
+
         Set<BlockPos> visitedPositions = new LinkedHashSet<>();
-        Queue<BlockPos> queue = new LinkedList<>();
+        Queue<BlockPos> queue = new ArrayDeque<>();
 
         queue.add(start);
 
@@ -378,7 +396,7 @@ public final class OxygenSystem {
                 // Check if this neighbor allows oxygen to pass through
                 if (isBlockPassable(world, neighbor, neighborState, direction.getOpposite())) {
                     // If the block is passable (air or non-sealed), check if we're leaking to outside
-                    if (isLeakingToOutside(world, neighbor, neighborState)) {
+                    if (isOpenToSky(world, start, neighbor) || isLeakingToOutside(world, neighbor, neighborState)) {
                         // Room is not sealed - oxygen would leak out
                         return null;
                     }
@@ -399,6 +417,10 @@ public final class OxygenSystem {
         }
 
         return visitedPositions;
+    }
+
+    private static boolean isOpenToSky(World world, BlockPos start, BlockPos pos) {
+        return pos.getY() >= start.getY() && world.canBlockSeeSky(pos);
     }
 
     /**
@@ -439,9 +461,13 @@ public final class OxygenSystem {
             return true;
         }
 
-        // TODO: Add support for block tags when implemented
-        // In 1.20.x, this checks ModBlockTags.PASSES_FLOOD_FILL and BLOCKS_FLOOD_FILL
-        // For now, we'll use basic block property checks
+        Block block = state.getBlock();
+        if (ModBlockTags.PASSES_FLOOD_FILL.contains(block)) {
+            return true;
+        }
+        if (ModBlockTags.BLOCKS_FLOOD_FILL.contains(block)) {
+            return false;
+        }
 
         // Check if block is a full cube (solid on all sides)
         if (state.isFullCube()) {

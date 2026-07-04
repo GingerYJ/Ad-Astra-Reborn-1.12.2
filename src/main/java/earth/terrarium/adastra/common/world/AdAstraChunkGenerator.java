@@ -262,6 +262,9 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     }
 
     private boolean replaceOreBlock(PlanetOreSpec spec, BlockPos pos) {
+        if (!world.isBlockLoaded(pos)) {
+            return false;
+        }
         IBlockState current = world.getBlockState(pos);
         if (spec.canReplace(current.getBlock())) {
             world.setBlockState(pos, spec.oreState, 2);
@@ -360,10 +363,10 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         }
 
         int height = minHeight + random.nextInt(maxHeight - minHeight + 1);
-        placeInfernalSpireCluster(surface.up(), random, height, reach);
+        placeInfernalSpireCluster(surface.up(), random, height, reach, chunkOrigin);
     }
 
-    private void placeInfernalSpireCluster(BlockPos origin, Random random, int height, int reach) {
+    private void placeInfernalSpireCluster(BlockPos origin, Random random, int height, int reach, BlockPos chunkOrigin) {
         boolean dense = random.nextFloat() < 0.9F;
         int spread = Math.min(height, dense ? 5 : 8);
         int attempts = dense ? 50 : 15;
@@ -372,7 +375,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             BlockPos columnOrigin = origin.add(randomRange(random, spread), 0, randomRange(random, spread));
             int columnHeight = height - Math.abs(columnOrigin.getX() - origin.getX()) - Math.abs(columnOrigin.getZ() - origin.getZ());
             if (columnHeight >= 0) {
-                placeInfernalSpireColumnAt(columnOrigin, columnHeight, reach);
+                placeInfernalSpireColumnAt(columnOrigin, columnHeight, reach, chunkOrigin);
             }
         }
     }
@@ -381,9 +384,14 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         return random.nextInt(radius * 2 + 1) - radius;
     }
 
-    private void placeInfernalSpireColumnAt(BlockPos origin, int height, int reach) {
-        for (int x = origin.getX() - reach; x <= origin.getX() + reach; x++) {
-            for (int z = origin.getZ() - reach; z <= origin.getZ() + reach; z++) {
+    private void placeInfernalSpireColumnAt(BlockPos origin, int height, int reach, BlockPos chunkOrigin) {
+        int minChunkX = chunkOrigin.getX();
+        int minChunkZ = chunkOrigin.getZ();
+        int maxChunkX = minChunkX + 15;
+        int maxChunkZ = minChunkZ + 15;
+
+        for (int x = Math.max(origin.getX() - reach, minChunkX); x <= Math.min(origin.getX() + reach, maxChunkX); x++) {
+            for (int z = Math.max(origin.getZ() - reach, minChunkZ); z <= Math.min(origin.getZ() + reach, maxChunkZ); z++) {
                 BlockPos base = new BlockPos(x, origin.getY(), z);
                 int distance = Math.abs(x - origin.getX()) + Math.abs(z - origin.getZ());
                 int columnHeight = height - distance / 2;
@@ -404,6 +412,9 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     }
 
     private boolean canPlaceSpireAt(BlockPos pos) {
+        if (!world.isBlockLoaded(pos) || !world.isBlockLoaded(pos.down())) {
+            return false;
+        }
         Block below = world.getBlockState(pos.down()).getBlock();
         Block current = world.getBlockState(pos).getBlock();
         return (world.isAirBlock(pos) || current == ModBlocks.INFERNAL_SPIRE_BLOCK)

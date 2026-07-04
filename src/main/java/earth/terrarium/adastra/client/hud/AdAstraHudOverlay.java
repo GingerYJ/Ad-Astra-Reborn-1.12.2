@@ -1,12 +1,16 @@
 package earth.terrarium.adastra.client.hud;
 
-import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
+import earth.terrarium.adastra.api.systems.PlanetData;
+import earth.terrarium.adastra.client.systems.ClientData;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModItems;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
+import earth.terrarium.adastra.common.util.MachineStateUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -33,8 +37,6 @@ import java.util.Locale;
 
 public final class AdAstraHudOverlay {
 
-    private static final int PANEL_X = 6;
-    private static final int PANEL_Y = 6;
     private static final int PANEL_PADDING = 5;
     private static final int ROW_HEIGHT = 13;
     private static final int ROW_COUNT = 4;
@@ -65,16 +67,23 @@ public final class AdAstraHudOverlay {
         if (player == null || player.isSpectator() || minecraft.gameSettings.hideGUI || minecraft.gameSettings.showDebugInfo || minecraft.currentScreen != null) {
             return;
         }
+        if (!isWearingSpaceHudSuit(player)) {
+            return;
+        }
 
+        float hudScale = getHudScale();
+        int panelX = AdAstraConfig.oxygenBarX;
+        int panelY = AdAstraConfig.oxygenBarY;
         ScaledResolution resolution = event.getResolution();
-        int panelWidth = Math.min(MAX_PANEL_WIDTH, resolution.getScaledWidth() - PANEL_X * 2);
+        int availableWidth = Math.max(0, (int) (resolution.getScaledWidth() / hudScale) - panelX * 2);
+        int panelWidth = Math.min(MAX_PANEL_WIDTH, availableWidth);
         if (panelWidth < MIN_PANEL_WIDTH) {
             return;
         }
 
         EnvironmentSnapshot environment = getEnvironment(player);
         HudData data = HudData.from(player, environment);
-        draw(minecraft.fontRenderer, panelWidth, data);
+        draw(minecraft.fontRenderer, panelX, panelY, hudScale, panelWidth, data);
     }
 
     private static EnvironmentSnapshot getEnvironment(EntityPlayer player) {
@@ -122,7 +131,7 @@ public final class AdAstraHudOverlay {
     }
 
     private static boolean isMachineLit(IBlockState state) {
-        return state.getPropertyKeys().contains(AdAstraMachineBlock.LIT) && state.getValue(AdAstraMachineBlock.LIT);
+        return MachineStateUtils.isLit(state);
     }
 
     private static boolean reachesOxygenDistributor(World world, BlockPos distributorPos, BlockPos playerPos) {
@@ -151,7 +160,7 @@ public final class AdAstraHudOverlay {
         return 1.0f;
     }
 
-    private static void draw(FontRenderer font, int panelWidth, HudData data) {
+    private static void draw(FontRenderer font, int panelX, int panelY, float hudScale, int panelWidth, HudData data) {
         HudRow[] rows = new HudRow[]{
             data.oxygenRow,
             data.temperatureRow,
@@ -165,11 +174,12 @@ public final class AdAstraHudOverlay {
         }
 
         int panelHeight = PANEL_PADDING * 2 + ROW_COUNT * ROW_HEIGHT;
-        int contentRight = PANEL_X + panelWidth - PANEL_PADDING;
-        int barX = PANEL_X + PANEL_PADDING + LABEL_WIDTH;
+        int contentRight = panelX + panelWidth - PANEL_PADDING;
+        int barX = panelX + PANEL_PADDING + LABEL_WIDTH;
         int barWidth = Math.max(24, contentRight - barX - valueWidth - 6);
 
         GlStateManager.pushMatrix();
+        GlStateManager.scale(hudScale, hudScale, 1.0F);
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
 
@@ -181,17 +191,21 @@ public final class AdAstraHudOverlay {
             borderColor = 0x88000000 | (red << 16) | 0x3333;
         }
 
-        Gui.drawRect(PANEL_X, PANEL_Y, PANEL_X + panelWidth, PANEL_Y + panelHeight, 0x66000000);
-        Gui.drawRect(PANEL_X, PANEL_Y, PANEL_X + 1, PANEL_Y + panelHeight, borderColor);
+        Gui.drawRect(panelX, panelY, panelX + panelWidth, panelY + panelHeight, 0x66000000);
+        Gui.drawRect(panelX, panelY, panelX + 1, panelY + panelHeight, borderColor);
 
-        int y = PANEL_Y + PANEL_PADDING;
+        int y = panelY + PANEL_PADDING;
         for (HudRow row : rows) {
-            drawRow(font, row, PANEL_X + PANEL_PADDING, y, barX, barWidth, contentRight);
+            drawRow(font, row, panelX + PANEL_PADDING, y, barX, barWidth, contentRight);
             y += ROW_HEIGHT;
         }
 
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
+    }
+
+    private static float getHudScale() {
+        return Math.max(0.25F, Math.min(4.0F, AdAstraConfig.oxygenBarScale));
     }
 
     private static void drawRow(FontRenderer font, HudRow row, int labelX, int y, int barX, int barWidth, int contentRight) {
@@ -269,6 +283,10 @@ public final class AdAstraHudOverlay {
     }
 
     private static boolean hasTemperatureProtection(EntityPlayer player) {
+        return isWearingSpaceHudSuit(player);
+    }
+
+    private static boolean isWearingSpaceHudSuit(EntityPlayer player) {
         return isWearingSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
             || isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
             || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
@@ -282,31 +300,23 @@ public final class AdAstraHudOverlay {
     }
 
     private static InventoryTotals collectInventoryTotals(EntityPlayer player) {
-        long oxygen = 0;
-        long oxygenCapacity = 0;
+        ItemStack chest = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+        if (chest.isEmpty()) {
+            return new InventoryTotals(0, 0, 0, 0);
+        }
+
+        OxygenTotals oxygenTotals = getOxygenTotals(chest);
         long energy = 0;
         long energyCapacity = 0;
-
-        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-            ItemStack stack = player.inventory.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-
-            OxygenTotals oxygenTotals = getOxygenTotals(stack);
-            oxygen += oxygenTotals.amount;
-            oxygenCapacity += oxygenTotals.capacity;
-
-            if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-                IEnergyStorage storage = stack.getCapability(CapabilityEnergy.ENERGY, null);
-                if (storage != null && storage.getMaxEnergyStored() > 0) {
-                    energy += Math.max(0, storage.getEnergyStored());
-                    energyCapacity += storage.getMaxEnergyStored();
-                }
+        if (chest.hasCapability(CapabilityEnergy.ENERGY, null)) {
+            IEnergyStorage storage = chest.getCapability(CapabilityEnergy.ENERGY, null);
+            if (storage != null && storage.getMaxEnergyStored() > 0) {
+                energy = Math.max(0, storage.getEnergyStored());
+                energyCapacity = storage.getMaxEnergyStored();
             }
         }
 
-        return new InventoryTotals(oxygen, oxygenCapacity, energy, energyCapacity);
+        return new InventoryTotals(oxygenTotals.amount, oxygenTotals.capacity, energy, energyCapacity);
     }
 
     private static OxygenTotals getOxygenTotals(ItemStack stack) {
@@ -317,7 +327,8 @@ public final class AdAstraHudOverlay {
 
         long amount = 0;
         long capacity = 0;
-        boolean knownOxygenContainer = stack.getItem() instanceof GasTankItem;
+        boolean knownOxygenContainer = stack.getItem() instanceof GasTankItem
+            || stack.getItem() instanceof AdAstraArmorItem;
         for (IFluidTankProperties property : handler.getTankProperties()) {
             FluidStack contents = property.getContents();
             boolean containsOxygen = contents != null && contents.getFluid() == ModFluids.OXYGEN;
@@ -513,6 +524,16 @@ public final class AdAstraHudOverlay {
         }
 
         private static WorldEnvironment from(World world) {
+            PlanetData localData = ClientData.getLocalData();
+            if (localData != null) {
+                return new WorldEnvironment(
+                    localData.oxygen(),
+                    true,
+                    localData.gravity() * 9.8f,
+                    true,
+                    localData.temperature());
+            }
+
             Object provider = world.provider;
             boolean oxygen = invokeBoolean(provider, "hasOxygen", true);
             Number gravity = invokeNumber(provider, "getGravity");

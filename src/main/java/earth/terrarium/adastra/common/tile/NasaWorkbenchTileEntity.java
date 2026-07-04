@@ -8,7 +8,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.world.WorldServer;
 
 public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
@@ -16,6 +15,7 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
     private static final int FIRST_INPUT_SLOT = 0;
     private static final int LAST_INPUT_SLOT = 13;
     private static final int OUTPUT_SLOT = 14;
+    private static final int WORKING_PARTICLE_INTERVAL = 16;
     private static final int[] SLOTS_FOR_FACE = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
 
     private NASAWorkbenchRecipe activeRecipe;
@@ -26,6 +26,10 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
 
     @Override
     protected void tickMachine() {
+        if (hasInputItems()) {
+            spawnWorkingParticles();
+        }
+
         NASAWorkbenchRecipe recipe = getRecipe();
         setActiveRecipe(recipe);
     }
@@ -168,11 +172,31 @@ public class NasaWorkbenchTileEntity extends AdAstraMachineTileEntity {
         serverWorld.spawnParticle(
             EnumParticleTypes.TOTEM,
             pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
-            100, 0.1, 0.1, 0.1, 0.7
+            12, 0.1, 0.1, 0.1, 0.35
         );
         world.playSound(null, pos,
             net.minecraft.init.SoundEvents.ITEM_TOTEM_USE,
             SoundCategory.NEUTRAL, 1.0f, 1.0f);
+    }
+
+    private boolean hasInputItems() {
+        for (int slot = FIRST_INPUT_SLOT; slot <= LAST_INPUT_SLOT; slot++) {
+            if (!items.getStackInSlot(slot).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void spawnWorkingParticles() {
+        if (world == null || world.isRemote) return;
+        if (world.getTotalWorldTime() % WORKING_PARTICLE_INTERVAL != 0) return;
+        WorldServer serverWorld = (WorldServer) world;
+        serverWorld.spawnParticle(
+            EnumParticleTypes.SMOKE_NORMAL,
+            pos.getX() + 0.5, pos.getY() + 1.35, pos.getZ() + 0.5,
+            1, 0.12, 0.06, 0.12, 0.01
+        );
     }
 
     private ItemStack[] getInputStacks() {

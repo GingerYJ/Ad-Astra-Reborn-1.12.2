@@ -17,12 +17,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class AdAstraRadioBlock extends AdAstraModelBlock implements ITileEntityProvider {
 
     public static final PropertyEnum<AdAstraEightDirection> FACING = PropertyEnum.create("facing", AdAstraEightDirection.class);
+    private static final AxisAlignedBB RADIO_BOX = new AxisAlignedBB(1.0 / 16.0, 0.0, 1.0 / 16.0, 15.0 / 16.0, 8.0 / 16.0, 15.0 / 16.0);
 
     public AdAstraRadioBlock() {
         super(Material.WOOD, 1.0f, 1.0f);
@@ -48,6 +51,16 @@ public class AdAstraRadioBlock extends AdAstraModelBlock implements ITileEntityP
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
         world.setBlockState(pos, state.withProperty(FACING, AdAstraEightDirection.fromYaw(placer.rotationYaw)), 2);
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return RADIO_BOX;
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return RADIO_BOX;
     }
 
     @Override

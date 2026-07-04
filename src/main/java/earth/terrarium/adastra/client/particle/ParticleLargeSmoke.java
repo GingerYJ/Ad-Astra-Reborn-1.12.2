@@ -2,8 +2,6 @@ package earth.terrarium.adastra.client.particle;
 
 import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -27,6 +25,7 @@ public class ParticleLargeSmoke extends Particle {
         // Large size
         this.smokeScale = 0.8F + this.rand.nextFloat() * 0.7F;
         this.particleScale = this.smokeScale;
+        this.setParticleTextureIndex(7);
 
         // Initial velocity with some randomness
         this.motionX = velocityX + (this.rand.nextDouble() - 0.5D) * 0.1D;
@@ -65,6 +64,7 @@ public class ParticleLargeSmoke extends Particle {
         // Expand and fade
         float ageRatio = (float)this.particleAge / (float)this.particleMaxAge;
         this.particleScale = this.smokeScale * (1.0F + ageRatio * 2.0F);
+        this.setParticleTextureIndex(7 - Math.min(7, this.particleAge * 8 / this.particleMaxAge));
 
         // Fade out gradually, more quickly near the end
         if (ageRatio < 0.6F) {
@@ -78,39 +78,6 @@ public class ParticleLargeSmoke extends Particle {
         this.particleRed = Math.min(1.0F, this.particleRed + lightening);
         this.particleGreen = Math.min(1.0F, this.particleGreen + lightening);
         this.particleBlue = Math.min(1.0F, this.particleBlue + lightening);
-    }
-
-    @Override
-    public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks,
-                               float rotationX, float rotationZ, float rotationYZ,
-                               float rotationXY, float rotationXZ) {
-        float minU = 0.0F;
-        float maxU = 1.0F;
-        float minV = 0.0F;
-        float maxV = 1.0F;
-
-        float x = (float)(this.prevPosX + (this.posX - this.prevPosX) * partialTicks - interpPosX);
-        float y = (float)(this.prevPosY + (this.posY - this.prevPosY) * partialTicks - interpPosY);
-        float z = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * partialTicks - interpPosZ);
-
-        float scale = this.particleScale;
-
-        int brightness = this.getBrightnessForRender(partialTicks);
-        int lightmapX = brightness >> 16 & 65535;
-        int lightmapY = brightness & 65535;
-
-        buffer.pos(x - rotationX * scale - rotationXY * scale, y - rotationZ * scale, z - rotationYZ * scale - rotationXZ * scale)
-            .tex(maxU, maxV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
-        buffer.pos(x - rotationX * scale + rotationXY * scale, y + rotationZ * scale, z - rotationYZ * scale + rotationXZ * scale)
-            .tex(maxU, minV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
-        buffer.pos(x + rotationX * scale + rotationXY * scale, y + rotationZ * scale, z + rotationYZ * scale + rotationXZ * scale)
-            .tex(minU, minV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
-        buffer.pos(x + rotationX * scale - rotationXY * scale, y - rotationZ * scale, z + rotationYZ * scale - rotationXZ * scale)
-            .tex(minU, maxV).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-            .lightmap(lightmapX, lightmapY).endVertex();
     }
 
     @Override

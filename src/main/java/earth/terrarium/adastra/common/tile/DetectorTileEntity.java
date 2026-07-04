@@ -2,6 +2,8 @@ package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.blocks.AdAstraSensorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSensorBlock.DetectionType;
+import earth.terrarium.adastra.common.systems.GravitySystem;
+import earth.terrarium.adastra.common.systems.TemperatureSystem;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -20,6 +22,10 @@ public class DetectorTileEntity extends AdAstraMachineTileEntity {
     public static final int STATUS_NO_DISTRIBUTOR = 3;
     public static final int STATUS_TEMPERATURE_PLACEHOLDER = 4;
     public static final int STATUS_GRAVITY_PLACEHOLDER = 5;
+    public static final int STATUS_TEMPERATURE_SAFE = 6;
+    public static final int STATUS_TEMPERATURE_UNSAFE = 7;
+    public static final int STATUS_GRAVITY_NORMAL = 8;
+    public static final int STATUS_GRAVITY_ABNORMAL = 9;
 
     private boolean detected;
     private boolean powered;
@@ -64,10 +70,10 @@ public class DetectorTileEntity extends AdAstraMachineTileEntity {
             return scanForOxygen();
         }
         if (type == DetectionType.TEMPERATURE) {
-            return DetectionResult.empty(STATUS_TEMPERATURE_PLACEHOLDER);
+            return scanForTemperature();
         }
         if (type == DetectionType.GRAVITY) {
-            return DetectionResult.empty(STATUS_GRAVITY_PLACEHOLDER);
+            return scanForGravity();
         }
         return DetectionResult.empty(STATUS_UNKNOWN);
     }
@@ -124,6 +130,38 @@ public class DetectorTileEntity extends AdAstraMachineTileEntity {
             }
         }
         return false;
+    }
+
+    /**
+     * Scans adjacent positions for a liveable temperature.
+     * Ported from 1.20.x DetectorBlockEntity#hasSafeTemperature.
+     */
+    private DetectionResult scanForTemperature() {
+        BlockPos.MutableBlockPos scanPos = new BlockPos.MutableBlockPos();
+        for (EnumFacing facing : EnumFacing.values()) {
+            scanPos.setPos(pos.offset(facing));
+            if (TemperatureSystem.isLiveable(world, scanPos)) {
+                return new DetectionResult(true, STATUS_TEMPERATURE_SAFE, 0, 0);
+            }
+        }
+        return new DetectionResult(false, STATUS_TEMPERATURE_UNSAFE, 0, 0);
+    }
+
+    /**
+     * Scans adjacent positions for Earth-like gravity (multiplier ~1.0).
+     * Ported from 1.20.x DetectorBlockEntity#hasNormalGravity.
+     */
+    private DetectionResult scanForGravity() {
+        BlockPos.MutableBlockPos scanPos = new BlockPos.MutableBlockPos();
+        for (EnumFacing facing : EnumFacing.values()) {
+            scanPos.setPos(pos.offset(facing));
+            float gravity = GravitySystem.getGravityAtPos(world, scanPos);
+            // Earth gravity in this port is represented as 1.0f; allow a small tolerance
+            if (gravity > 0.9f && gravity < 1.1f) {
+                return new DetectionResult(true, STATUS_GRAVITY_NORMAL, 0, 0);
+            }
+        }
+        return new DetectionResult(false, STATUS_GRAVITY_ABNORMAL, 0, 0);
     }
 
     private void setDetectionState(boolean detected, int status, int nearbyDistributors, int activeDistributors) {

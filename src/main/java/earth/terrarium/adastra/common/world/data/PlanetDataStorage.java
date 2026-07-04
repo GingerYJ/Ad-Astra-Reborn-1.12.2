@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.world.data;
 
+import earth.terrarium.adastra.api.systems.PlanetData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
@@ -72,7 +73,7 @@ public class PlanetDataStorage extends WorldSavedData {
      */
     public boolean getOxygen(BlockPos pos) {
         PlanetData data = planetData.get(pos.toLong());
-        return data != null ? data.hasOxygen() : getDefaultOxygen();
+        return data != null ? data.oxygen() : getDefaultOxygen();
     }
 
     /**
@@ -100,7 +101,7 @@ public class PlanetDataStorage extends WorldSavedData {
      */
     public short getTemperature(BlockPos pos) {
         PlanetData data = planetData.get(pos.toLong());
-        return data != null ? data.getTemperature() : getDefaultTemperature();
+        return data != null ? data.temperature() : getDefaultTemperature();
     }
 
     /**
@@ -121,7 +122,7 @@ public class PlanetDataStorage extends WorldSavedData {
      */
     public float getGravity(BlockPos pos) {
         PlanetData data = planetData.get(pos.toLong());
-        return data != null ? data.getGravity() : getDefaultGravity();
+        return data != null ? data.gravity() : getDefaultGravity();
     }
 
     /**
@@ -207,9 +208,9 @@ public class PlanetDataStorage extends WorldSavedData {
         // Count how many entries are non-default
         int nonDefaultCount = 0;
         for (PlanetData data : planetData.values()) {
-            if (data.hasOxygen() != defaultOxygen ||
-                data.getTemperature() != defaultTemperature ||
-                data.getGravity() != defaultGravity) {
+            if (data.oxygen() != defaultOxygen ||
+                data.temperature() != defaultTemperature ||
+                data.gravity() != defaultGravity) {
                 nonDefaultCount++;
             }
         }
@@ -222,9 +223,9 @@ public class PlanetDataStorage extends WorldSavedData {
             PlanetData data = entry.getValue();
 
             // Only save positions that differ from dimension defaults
-            if (data.hasOxygen() != defaultOxygen ||
-                data.getTemperature() != defaultTemperature ||
-                data.getGravity() != defaultGravity) {
+            if (data.oxygen() != defaultOxygen ||
+                data.temperature() != defaultTemperature ||
+                data.gravity() != defaultGravity) {
 
                 long pos = entry.getKey();
                 dataArray[index++] = (int) (pos >> 32);

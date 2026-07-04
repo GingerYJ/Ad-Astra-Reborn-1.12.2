@@ -25,6 +25,7 @@ public class PlanetSkyRenderers {
     private static final ResourceLocation DEIMOS_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/deimos.png");
     private static final ResourceLocation SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/sun.png");
     private static final ResourceLocation BLUE_SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/blue_sun.png");
+    private static final ResourceLocation VENUS_CLOUDS_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/venus_clouds.png");
 
     public static void registerSkyRenderers(World world) {
         int dimension = world.provider.getDimension();
@@ -34,6 +35,7 @@ public class PlanetSkyRenderers {
             world.provider.setSkyRenderer(createMarsSkyRenderer());
         } else if (dimension == ModDimensions.VENUS_ID) {
             world.provider.setSkyRenderer(createVenusSkyRenderer());
+            world.provider.setCloudRenderer(createVenusCloudRenderer());
         } else if (dimension == ModDimensions.MERCURY_ID) {
             world.provider.setSkyRenderer(createMercurySkyRenderer());
         } else if (dimension == ModDimensions.GLACIO_ID) {
@@ -199,6 +201,10 @@ public class PlanetSkyRenderers {
                 0, 0, 0,
                 0, 0, 0,
                 true, true);
+    }
+
+    private static PlanetCloudRenderer createVenusCloudRenderer() {
+        return new PlanetCloudRenderer(VENUS_CLOUDS_TEXTURE, 192.0f, 160.0f, 0.86f, 0.76f, 0.42f, 0.42f);
     }
 
     /**

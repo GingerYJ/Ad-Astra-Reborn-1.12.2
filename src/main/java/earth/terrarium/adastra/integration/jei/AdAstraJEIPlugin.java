@@ -1,19 +1,32 @@
 package earth.terrarium.adastra.integration.jei;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.container.AdAstraMachineContainer;
 import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.registry.ModBlocks;
+import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModGuiIds;
 import earth.terrarium.adastra.integration.jei.category.*;
-// TODO: Implement transfer handlers
-// import earth.terrarium.adastra.integration.jei.transfer.*;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
+import mezz.jei.api.ingredients.IModIngredientRegistration;
+import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
+import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
+import mezz.jei.plugins.vanilla.ingredients.fluid.FluidStackListFactory;
+import mezz.jei.plugins.vanilla.ingredients.fluid.FluidStackRenderer;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * JEI Integration Plugin for Ad Astra
@@ -28,6 +41,15 @@ public class AdAstraJEIPlugin implements IModPlugin {
     public static final String FUEL_REFINERY_CATEGORY = Reference.MOD_ID + ":fuel_refinery";
     public static final String OXYGEN_LOADER_CATEGORY = Reference.MOD_ID + ":oxygen_loader";
     public static final String NASA_WORKBENCH_CATEGORY = Reference.MOD_ID + ":nasa_workbench";
+
+    @Override
+    public void registerIngredients(IModIngredientRegistration registration) {
+        registration.register(
+            VanillaTypes.FLUID,
+            FluidStackListFactory.create(),
+            new AdAstraFluidStackHelper(),
+            new FluidStackRenderer());
+    }
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
@@ -46,6 +68,8 @@ public class AdAstraJEIPlugin implements IModPlugin {
 
     @Override
     public void register(IModRegistry registry) {
+        hideForgeBucketVariants(registry);
+
         // Register recipe handlers
         registry.handleRecipes(earth.terrarium.adastra.common.recipe.CompressingRecipe.class,
             recipe -> new CompressorRecipeWrapper(recipe), COMPRESSOR_CATEGORY);
@@ -76,19 +100,19 @@ public class AdAstraJEIPlugin implements IModPlugin {
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.OXYGEN_LOADER), OXYGEN_LOADER_CATEGORY);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.NASA_WORKBENCH), NASA_WORKBENCH_CATEGORY);
 
-        // TODO: Add recipe transfer handlers for GUI interaction
-        // registry.getRecipeTransferRegistry().addRecipeTransferHandler(
-        //     new CompressorRecipeTransferHandler(), COMPRESSOR_CATEGORY);
-        // registry.getRecipeTransferRegistry().addRecipeTransferHandler(
-        //     new BlastFurnaceRecipeTransferHandler(), BLAST_FURNACE_CATEGORY);
-        // registry.getRecipeTransferRegistry().addRecipeTransferHandler(
-        //     new CryoFreezerRecipeTransferHandler(), CRYO_FREEZER_CATEGORY);
-        // registry.getRecipeTransferRegistry().addRecipeTransferHandler(
-        //     new FuelRefineryRecipeTransferHandler(), FUEL_REFINERY_CATEGORY);
-        // registry.getRecipeTransferRegistry().addRecipeTransferHandler(
-        //     new OxygenLoaderRecipeTransferHandler(), OXYGEN_LOADER_CATEGORY);
-        // registry.getRecipeTransferRegistry().addRecipeTransferHandler(
-        //     new NASAWorkbenchRecipeTransferHandler(), NASA_WORKBENCH_CATEGORY);
+        // Add recipe transfer handlers for GUI interaction.
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(
+            new MachineRecipeTransferInfo(COMPRESSOR_CATEGORY, ModGuiIds.COMPRESSOR, 1, 1));
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(
+            new MachineRecipeTransferInfo(BLAST_FURNACE_CATEGORY, ModGuiIds.ETRIONIC_BLAST_FURNACE, 1, 4));
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(
+            new MachineRecipeTransferInfo(CRYO_FREEZER_CATEGORY, ModGuiIds.CRYO_FREEZER, 1, 1));
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(
+            new MachineRecipeTransferInfo(FUEL_REFINERY_CATEGORY, ModGuiIds.FUEL_REFINERY, 1, 1));
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(
+            new MachineRecipeTransferInfo(OXYGEN_LOADER_CATEGORY, ModGuiIds.OXYGEN_LOADER, 1, 1));
+        registry.getRecipeTransferRegistry().addRecipeTransferHandler(
+            new MachineRecipeTransferInfo(NASA_WORKBENCH_CATEGORY, ModGuiIds.NASA_WORKBENCH, 0, 14));
 
         // Add click areas in GUIs to open recipe categories
         registry.addRecipeClickArea(earth.terrarium.adastra.client.gui.AdAstraMachineGui.class,
@@ -97,5 +121,79 @@ public class AdAstraJEIPlugin implements IModPlugin {
             75, 50, 20, 12, BLAST_FURNACE_CATEGORY);
         registry.addRecipeClickArea(earth.terrarium.adastra.client.gui.AdAstraMachineGui.class,
             54, 71, 13, 13, CRYO_FREEZER_CATEGORY);
+    }
+
+    private void hideForgeBucketVariants(IModRegistry registry) {
+        hideForgeBucketVariant(registry, ModFluids.OXYGEN);
+        hideForgeBucketVariant(registry, ModFluids.HYDROGEN);
+        hideForgeBucketVariant(registry, ModFluids.OIL);
+        hideForgeBucketVariant(registry, ModFluids.FUEL);
+        hideForgeBucketVariant(registry, ModFluids.CRYO_FUEL);
+    }
+
+    private void hideForgeBucketVariant(IModRegistry registry, Fluid fluid) {
+        ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(fluid, Fluid.BUCKET_VOLUME));
+        if (!stack.isEmpty()) {
+            registry.getJeiHelpers().getIngredientBlacklist().addIngredientToBlacklist(stack);
+        }
+    }
+
+    private static class MachineRecipeTransferInfo implements IRecipeTransferInfo<AdAstraMachineContainer> {
+        private final String categoryUid;
+        private final int guiId;
+        private final int recipeSlotStart;
+        private final int recipeSlotCount;
+
+        private MachineRecipeTransferInfo(String categoryUid, int guiId, int recipeSlotStart, int recipeSlotCount) {
+            this.categoryUid = categoryUid;
+            this.guiId = guiId;
+            this.recipeSlotStart = recipeSlotStart;
+            this.recipeSlotCount = recipeSlotCount;
+        }
+
+        @Override
+        public Class<AdAstraMachineContainer> getContainerClass() {
+            return AdAstraMachineContainer.class;
+        }
+
+        @Override
+        public String getRecipeCategoryUid() {
+            return categoryUid;
+        }
+
+        @Override
+        public boolean canHandle(AdAstraMachineContainer container) {
+            if (container == null || AdAstraMachineContainer.idFor(container.getMachine()) != guiId) {
+                return false;
+            }
+            return recipeSlotStart >= 0
+                && recipeSlotCount > 0
+                && recipeSlotStart + recipeSlotCount <= container.getMachineSlotCount()
+                && container.inventorySlots.size() > container.getMachineSlotCount();
+        }
+
+        @Override
+        public List<Slot> getRecipeSlots(AdAstraMachineContainer container) {
+            if (!canHandle(container)) {
+                return Collections.emptyList();
+            }
+            List<Slot> slots = new ArrayList<>();
+            for (int i = recipeSlotStart; i < recipeSlotStart + recipeSlotCount; i++) {
+                slots.add(container.getSlot(i));
+            }
+            return slots;
+        }
+
+        @Override
+        public List<Slot> getInventorySlots(AdAstraMachineContainer container) {
+            if (!canHandle(container)) {
+                return Collections.emptyList();
+            }
+            List<Slot> slots = new ArrayList<>();
+            for (int i = container.getMachineSlotCount(); i < container.inventorySlots.size(); i++) {
+                slots.add(container.getSlot(i));
+            }
+            return slots;
+        }
     }
 }

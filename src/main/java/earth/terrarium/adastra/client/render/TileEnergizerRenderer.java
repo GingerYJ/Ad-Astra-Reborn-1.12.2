@@ -10,9 +10,12 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+
+import java.util.Random;
 
 @SideOnly(Side.CLIENT)
 public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTileEntity> {
@@ -20,6 +23,7 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
     private static final float BEAM_WIDTH = 0.0625f;
     private static final float BEAM_HEIGHT = 0.5f;
     private static final int BEAM_SEGMENTS = 8;
+    private static final int SPARK_COUNT = 2;
 
     @Override
     public void render(EnergizerTileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
@@ -37,6 +41,10 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
         // Render energy beams if machine is lit
         if (te.isLit()) {
             renderEnergyBeams(te, x, y, z, partialTicks);
+        }
+
+        if (te.isLit() && te.shouldRenderChargeSparks()) {
+            spawnChargeSparks(te);
         }
     }
 
@@ -115,5 +123,26 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
 
         tessellator.draw();
         GlStateManager.popMatrix();
+    }
+
+    private void spawnChargeSparks(EnergizerTileEntity te) {
+        Random random = te.getWorld().rand;
+        for (int i = 0; i < SPARK_COUNT; i++) {
+            double offsetX = (random.nextDouble() - 0.5D) * 0.2D;
+            double offsetY = (random.nextDouble() - 0.5D) * 0.2D;
+            double offsetZ = (random.nextDouble() - 0.5D) * 0.2D;
+            double velocityX = (random.nextDouble() - 0.5D) * 0.1D;
+            double velocityY = (random.nextDouble() - 0.5D) * 0.1D;
+            double velocityZ = (random.nextDouble() - 0.5D) * 0.1D;
+
+            te.getWorld().spawnParticle(
+                EnumParticleTypes.FIREWORKS_SPARK,
+                te.getPos().getX() + 0.5D + offsetX,
+                te.getPos().getY() + 1.8D + offsetY,
+                te.getPos().getZ() + 0.5D + offsetZ,
+                velocityX,
+                velocityY,
+                velocityZ);
+        }
     }
 }

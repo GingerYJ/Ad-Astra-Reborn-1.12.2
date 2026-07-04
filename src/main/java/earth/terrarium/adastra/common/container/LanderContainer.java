@@ -9,12 +9,12 @@ import net.minecraft.item.ItemStack;
 
 /**
  * Container for Lander inventory GUI.
- * Provides 6 storage slots for lander cargo.
+ * Provides 11 retrieval slots for landed rocket cargo.
  */
 public class LanderContainer extends Container {
 
     private final LanderEntity lander;
-    private static final int LANDER_SLOTS = 6;
+    private static final int LANDER_SLOTS = 11;
     private static final int PLAYER_INVENTORY_ROWS = 3;
     private static final int PLAYER_INVENTORY_COLUMNS = 9;
     private static final int HOTBAR_SLOTS = 9;
@@ -22,22 +22,28 @@ public class LanderContainer extends Container {
     public LanderContainer(InventoryPlayer playerInventory, LanderEntity lander) {
         this.lander = lander;
 
-        // Lander inventory slots (1 row of 6)
-        for (int col = 0; col < 6; col++) {
-            this.addSlotToContainer(new VehicleSlot(lander, col, 53 + col * 18, 18));
+        this.addSlotToContainer(new VehicleSlot(lander, 0, 26, 27));
+        this.addSlotToContainer(new VehicleSlot(lander, 1, 11, 58));
+        this.addSlotToContainer(new VehicleSlot(lander, 2, 40, 58));
+
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 4; col++) {
+                int index = 3 + col + row * 4;
+                this.addSlotToContainer(new VehicleSlot(lander, index, 77 + col * 18, 31 + row * 18));
+            }
         }
 
         // Player inventory (3 rows)
         for (int row = 0; row < PLAYER_INVENTORY_ROWS; row++) {
             for (int col = 0; col < PLAYER_INVENTORY_COLUMNS; col++) {
                 this.addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9,
-                    8 + col * 18, 84 + row * 18));
+                    col * 18, 92 + row * 18));
             }
         }
 
         // Player hotbar
         for (int col = 0; col < HOTBAR_SLOTS; col++) {
-            this.addSlotToContainer(new Slot(playerInventory, col, 8 + col * 18, 142));
+            this.addSlotToContainer(new Slot(playerInventory, col, col * 18, 150));
         }
     }
 
@@ -92,8 +98,13 @@ public class LanderContainer extends Container {
 
         @Override
         public void putStack(ItemStack stack) {
-            lander.getInventory().set(slotIndex, stack);
+            lander.getInventory().set(slotIndex, stack == null ? ItemStack.EMPTY : stack);
             this.onSlotChanged();
+        }
+
+        @Override
+        public void onSlotChanged() {
+            // Vehicle inventory is stored on the entity, so there is no backing IInventory to mark dirty.
         }
 
         @Override
@@ -119,7 +130,7 @@ public class LanderContainer extends Container {
 
         @Override
         public boolean isItemValid(ItemStack stack) {
-            return true;
+            return false;
         }
 
         @Override

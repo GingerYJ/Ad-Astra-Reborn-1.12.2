@@ -91,7 +91,7 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
     }
 
     private boolean tryRecipe(Fluid inputFluid, int inputAmount, int outputAmount) {
-        if (energy.extractEnergy(ENERGY_PER_OPERATION, true) < ENERGY_PER_OPERATION) {
+        if (energy.internalExtractEnergy(ENERGY_PER_OPERATION, true) < ENERGY_PER_OPERATION) {
             return false;
         }
         FluidStack input = inputTank.getFluid();
@@ -102,7 +102,7 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
             return false;
         }
 
-        energy.extractEnergy(ENERGY_PER_OPERATION, false);
+        energy.internalExtractEnergy(ENERGY_PER_OPERATION, false);
         inputTank.drainInternal(inputAmount, true);
         outputTank.fillInternal(new FluidStack(ModFluids.OXYGEN, outputAmount), true);
         return true;

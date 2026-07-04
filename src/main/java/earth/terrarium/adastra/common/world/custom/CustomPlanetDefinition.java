@@ -47,6 +47,7 @@ public final class CustomPlanetDefinition {
     private final Vec3d skyColor;
     private final boolean registerDimension;
     private final List<OreDefinition> ores;
+    private final List<FluidLakeDefinition> fluidLakes;
 
     private CustomPlanetDefinition(Builder builder) {
         this.id = builder.id;
@@ -72,6 +73,7 @@ public final class CustomPlanetDefinition {
         this.skyColor = builder.skyColor;
         this.registerDimension = builder.registerDimension;
         this.ores = Collections.unmodifiableList(new ArrayList<>(builder.ores));
+        this.fluidLakes = Collections.unmodifiableList(new ArrayList<>(builder.fluidLakes));
     }
 
     public ResourceLocation getId() {
@@ -169,6 +171,10 @@ public final class CustomPlanetDefinition {
 
     public List<OreDefinition> getOres() {
         return ores;
+    }
+
+    public List<FluidLakeDefinition> getFluidLakes() {
+        return fluidLakes;
     }
 
 
@@ -346,7 +352,55 @@ public final class CustomPlanetDefinition {
         }
     }
 
+    public static final class FluidLakeDefinition {
+
+        private final IBlockState fluidBlock;
+        private final IBlockState replaceBlock;
+        private final int lakeSize;
+        private final int countPerChunk;
+        private final int minY;
+        private final int maxY;
+
+        public FluidLakeDefinition(IBlockState fluidBlock, IBlockState replaceBlock, int lakeSize, int countPerChunk, int minY, int maxY) {
+            this.fluidBlock = requireState(fluidBlock, "fluidBlock");
+            this.replaceBlock = requireState(replaceBlock, "replaceBlock");
+            this.lakeSize = positive(lakeSize, "lakeSize");
+            this.countPerChunk = nonNegative(countPerChunk, "countPerChunk");
+            this.minY = clampY(minY, "minY");
+            this.maxY = clampY(maxY, "maxY");
+            if (this.minY > this.maxY) {
+                throw new IllegalArgumentException("minY cannot be greater than maxY.");
+            }
+        }
+
+        public IBlockState getFluidBlock() {
+            return fluidBlock;
+        }
+
+        public IBlockState getReplaceBlock() {
+            return replaceBlock;
+        }
+
+        public int getLakeSize() {
+            return lakeSize;
+        }
+
+        public int getCountPerChunk() {
+            return countPerChunk;
+        }
+
+        public int getMinY() {
+            return minY;
+        }
+
+        public int getMaxY() {
+            return maxY;
+        }
+    }
+
+
     public static final class Builder {
+
 
         private final ResourceLocation id;
         private String planetName;
@@ -372,6 +426,7 @@ public final class CustomPlanetDefinition {
         private Vec3d skyColor = new Vec3d(0.5D, 0.7D, 1.0D);
         private boolean registerDimension;
         private final List<OreDefinition> ores = new ArrayList<>();
+        private final List<FluidLakeDefinition> fluidLakes = new ArrayList<>();
 
         private Builder(ResourceLocation id, int dimensionId) {
             if (id == null) {
@@ -487,6 +542,11 @@ public final class CustomPlanetDefinition {
 
         public Builder addOre(IBlockState oreBlock, IBlockState replaceBlock, int veinSize, int countPerChunk, int minY, int maxY) {
             this.ores.add(new OreDefinition(oreBlock, replaceBlock, veinSize, countPerChunk, minY, maxY));
+            return this;
+        }
+
+        public Builder addFluidLake(IBlockState fluidBlock, IBlockState replaceBlock, int lakeSize, int countPerChunk, int minY, int maxY) {
+            this.fluidLakes.add(new FluidLakeDefinition(fluidBlock, replaceBlock, lakeSize, countPerChunk, minY, maxY));
             return this;
         }
 
