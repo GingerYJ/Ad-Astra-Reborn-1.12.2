@@ -23,16 +23,16 @@ import java.util.List;
 public final class CompressingRecipes {
 
     private static final String[] GENERATED_RECIPE_PATHS = {
-        "data/ad_astra/recipes/compressing/calorite_plate_from_compressing_calorite_blocks.json",
-        "data/ad_astra/recipes/compressing/calorite_plate_from_compressing_calorite_ingots.json",
-        "data/ad_astra/recipes/compressing/desh_plate_from_compressing_desh_blocks.json",
-        "data/ad_astra/recipes/compressing/desh_plate_from_compressing_desh_ingots.json",
-        "data/ad_astra/recipes/compressing/iron_plate_from_compressing_iron_block.json",
-        "data/ad_astra/recipes/compressing/iron_plate_from_compressing_iron_ingot.json",
-        "data/ad_astra/recipes/compressing/ostrum_plate_from_compressing_ostrum_blocks.json",
-        "data/ad_astra/recipes/compressing/ostrum_plate_from_compressing_ostrum_ingots.json",
-        "data/ad_astra/recipes/compressing/steel_plate_from_compressing_steel_blocks.json",
-        "data/ad_astra/recipes/compressing/steel_plate_from_compressing_steel_ingots.json"
+        "data/ad_astra/machine_recipes/compressing/calorite_plate_from_compressing_calorite_blocks.json",
+        "data/ad_astra/machine_recipes/compressing/calorite_plate_from_compressing_calorite_ingots.json",
+        "data/ad_astra/machine_recipes/compressing/desh_plate_from_compressing_desh_blocks.json",
+        "data/ad_astra/machine_recipes/compressing/desh_plate_from_compressing_desh_ingots.json",
+        "data/ad_astra/machine_recipes/compressing/iron_plate_from_compressing_iron_block.json",
+        "data/ad_astra/machine_recipes/compressing/iron_plate_from_compressing_iron_ingot.json",
+        "data/ad_astra/machine_recipes/compressing/ostrum_plate_from_compressing_ostrum_blocks.json",
+        "data/ad_astra/machine_recipes/compressing/ostrum_plate_from_compressing_ostrum_ingots.json",
+        "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_blocks.json",
+        "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_ingots.json"
     };
 
     private static final List<Recipe> RECIPES = new ArrayList<>();

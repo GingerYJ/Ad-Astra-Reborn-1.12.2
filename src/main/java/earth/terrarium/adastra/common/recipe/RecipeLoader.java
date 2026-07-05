@@ -72,16 +72,16 @@ public final class RecipeLoader {
 
     private static int loadCompressingRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/compressing/calorite_plate_from_compressing_calorite_blocks.json",
-            "data/ad_astra/recipes/compressing/calorite_plate_from_compressing_calorite_ingots.json",
-            "data/ad_astra/recipes/compressing/desh_plate_from_compressing_desh_blocks.json",
-            "data/ad_astra/recipes/compressing/desh_plate_from_compressing_desh_ingots.json",
-            "data/ad_astra/recipes/compressing/iron_plate_from_compressing_iron_block.json",
-            "data/ad_astra/recipes/compressing/iron_plate_from_compressing_iron_ingot.json",
-            "data/ad_astra/recipes/compressing/ostrum_plate_from_compressing_ostrum_blocks.json",
-            "data/ad_astra/recipes/compressing/ostrum_plate_from_compressing_ostrum_ingots.json",
-            "data/ad_astra/recipes/compressing/steel_plate_from_compressing_steel_blocks.json",
-            "data/ad_astra/recipes/compressing/steel_plate_from_compressing_steel_ingots.json"
+            "data/ad_astra/machine_recipes/compressing/calorite_plate_from_compressing_calorite_blocks.json",
+            "data/ad_astra/machine_recipes/compressing/calorite_plate_from_compressing_calorite_ingots.json",
+            "data/ad_astra/machine_recipes/compressing/desh_plate_from_compressing_desh_blocks.json",
+            "data/ad_astra/machine_recipes/compressing/desh_plate_from_compressing_desh_ingots.json",
+            "data/ad_astra/machine_recipes/compressing/iron_plate_from_compressing_iron_block.json",
+            "data/ad_astra/machine_recipes/compressing/iron_plate_from_compressing_iron_ingot.json",
+            "data/ad_astra/machine_recipes/compressing/ostrum_plate_from_compressing_ostrum_blocks.json",
+            "data/ad_astra/machine_recipes/compressing/ostrum_plate_from_compressing_ostrum_ingots.json",
+            "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_blocks.json",
+            "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_ingots.json"
         };
 
         int count = 0;
@@ -96,7 +96,7 @@ public final class RecipeLoader {
 
     private static int loadAlloyingRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/alloying/steel_ingot_from_alloying_iron_ingot_and_coals.json"
+            "data/ad_astra/machine_recipes/alloying/steel_ingot_from_alloying_iron_ingot_and_coals.json"
         };
 
         int count = 0;
@@ -111,10 +111,10 @@ public final class RecipeLoader {
 
     private static int loadCryoFreezingRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice.json",
-            "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_ice.json",
-            "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json",
-            "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_blue_ice.json"
+            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice.json",
+            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_ice.json",
+            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json",
+            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_blue_ice.json"
         };
 
         int count = 0;
@@ -129,8 +129,8 @@ public final class RecipeLoader {
 
     private static int loadOxygenLoadingRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/oxygen_loading/oxygen_from_oxygen_loading_water.json",
-            "data/ad_astra/recipes/oxygen_loading/oxygen_from_oxygen_loading_oxygen.json"
+            "data/ad_astra/machine_recipes/oxygen_loading/oxygen_from_oxygen_loading_water.json",
+            "data/ad_astra/machine_recipes/oxygen_loading/oxygen_from_oxygen_loading_oxygen.json"
         };
 
         int count = 0;
@@ -145,7 +145,7 @@ public final class RecipeLoader {
 
     private static int loadRefiningRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/refining/fuel_from_refining_oil.json"
+            "data/ad_astra/machine_recipes/refining/fuel_from_refining_oil.json"
         };
 
         int count = 0;
@@ -160,10 +160,10 @@ public final class RecipeLoader {
 
     private static int loadNASAWorkbenchRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/nasa_workbench/tier_1_rocket_from_nasa_workbench.json",
-            "data/ad_astra/recipes/nasa_workbench/tier_2_rocket_from_nasa_workbench.json",
-            "data/ad_astra/recipes/nasa_workbench/tier_3_rocket_from_nasa_workbench.json",
-            "data/ad_astra/recipes/nasa_workbench/tier_4_rocket_from_nasa_workbench.json"
+            "data/ad_astra/machine_recipes/nasa_workbench/tier_1_rocket_from_nasa_workbench.json",
+            "data/ad_astra/machine_recipes/nasa_workbench/tier_2_rocket_from_nasa_workbench.json",
+            "data/ad_astra/machine_recipes/nasa_workbench/tier_3_rocket_from_nasa_workbench.json",
+            "data/ad_astra/machine_recipes/nasa_workbench/tier_4_rocket_from_nasa_workbench.json"
         };
 
         int count = 0;
@@ -178,12 +178,12 @@ public final class RecipeLoader {
 
     private static int loadSpaceStationRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/recipes/space_station/earth_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/moon_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/mars_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/venus_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/mercury_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/glacio_orbit_space_station.json"
+            "data/ad_astra/machine_recipes/space_station/earth_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/moon_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/mars_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/venus_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/mercury_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/glacio_orbit_space_station.json"
         };
 
         int count = 0;

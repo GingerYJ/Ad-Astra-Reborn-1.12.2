@@ -24,10 +24,10 @@ import java.util.List;
 public final class CryoFreezingRecipes {
 
     private static final String[] GENERATED_RECIPE_PATHS = {
-        "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_blue_ice.json",
-        "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice.json",
-        "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json",
-        "data/ad_astra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_ice.json"
+        "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_blue_ice.json",
+        "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice.json",
+        "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json",
+        "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_ice.json"
     };
 
     private static final List<Recipe> RECIPES = new ArrayList<>();
