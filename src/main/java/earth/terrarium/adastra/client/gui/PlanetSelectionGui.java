@@ -2,14 +2,9 @@ package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.client.events.AdAstraClientEvents;
-import earth.terrarium.adastra.common.capability.AdAstraCapabilities;
-import earth.terrarium.adastra.common.capability.IAdAstraPlayer;
 import earth.terrarium.adastra.common.capability.SpaceStation;
-import earth.terrarium.adastra.common.network.NetworkHandler;
-import earth.terrarium.adastra.common.network.packet.PacketConstructSpaceStation;
-import earth.terrarium.adastra.common.network.packet.PacketLandPlanet;
-import earth.terrarium.adastra.common.network.packet.PacketLandSpaceStation;
-import earth.terrarium.adastra.common.recipe.RecipeRegistry;
+import earth.terrarium.adastra.common.menus.PlanetsMenu;
+import earth.terrarium.adastra.common.menus.base.PlanetsMenuProvider;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
 import earth.terrarium.adastra.common.util.PlanetTravelHelper;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
@@ -30,7 +25,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,12 +47,16 @@ public class PlanetSelectionGui extends GuiScreen {
     private static final int SMALL_MENU_WIDTH = 105;
     private static final int BUTTON_WIDTH = 99;
     private static final int BUTTON_HEIGHT = 20;
+    private static final int SPACE_STATION_LIST_HEIGHT = 59;
+    private static final int SPACE_STATION_ROW_SPACING = 22;
 
     private final int rocketTier;
     private final int rocketEntityId;
     private final List<PlanetDimensionProperties> planets = new ArrayList<>();
+    private PlanetsMenu menu;
     private PlanetDimensionProperties selectedPlanet;
     private int scrollAmount;
+    private int spaceStationScrollAmount;
 
     public PlanetSelectionGui(int rocketTier, int rocketEntityId) {
         this.rocketTier = rocketTier;
@@ -67,14 +65,15 @@ public class PlanetSelectionGui extends GuiScreen {
 
     @Override
     public void initGui() {
-        planets.clear();
-        if (mc.player != null && mc.player.dimension != 0) {
-            planets.add(PlanetTravelHelper.EARTH_PROPERTIES);
+        if (mc.player == null) {
+            return;
         }
-        for (PlanetDimensionProperties planet : PlanetTravelHelper.getPlanets()) {
-            if (mc.player == null || mc.player.dimension != planet.getDimensionId()) {
-                planets.add(planet);
-            }
+        menu = PlanetsMenuProvider.createClientMenu(mc.player, rocketTier, rocketEntityId);
+        planets.clear();
+        planets.addAll(menu.getAvailablePlanets());
+        selectedPlanet = menu.getCurrentOrbitPlanet();
+        if (selectedPlanet != null && !menu.canReach(selectedPlanet)) {
+            selectedPlanet = null;
         }
     }
 
@@ -88,7 +87,7 @@ public class PlanetSelectionGui extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (mouseButton != 0) {
+        if (mouseButton != 0 || menu == null) {
             return;
         }
 
@@ -96,6 +95,7 @@ public class PlanetSelectionGui extends GuiScreen {
         if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 3, menuY + 3, 12, 12)) {
             selectedPlanet = null;
             scrollAmount = 0;
+            spaceStationScrollAmount = 0;
             return;
         }
 
@@ -107,35 +107,38 @@ public class PlanetSelectionGui extends GuiScreen {
                 continue;
             }
             if (isInside(mouseX, mouseY, MENU_X + 3, buttonY, BUTTON_WIDTH, BUTTON_HEIGHT)
-                && PlanetTravelHelper.canRocketTierReach(rocketTier, planet)) {
+                && menu.canReach(planet)) {
                 selectedPlanet = planet;
+                spaceStationScrollAmount = 0;
                 return;
             }
         }
 
         if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 107, height / 2 - 77, BUTTON_WIDTH, BUTTON_HEIGHT)) {
-            NetworkHandler.CHANNEL.sendToServer(new PacketLandPlanet(selectedPlanet.getDimensionId(), rocketTier, rocketEntityId));
+            menu.landOnPlanet(selectedPlanet);
             mc.displayGuiScreen(null);
         }
         if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 107, height / 2 - 41, 12, 12)
             && canConstructSelectedSpaceStation()) {
-            NetworkHandler.CHANNEL.sendToServer(new PacketConstructSpaceStation(selectedPlanet.getDimensionId()));
+            menu.constructSpaceStation(selectedPlanet);
             mc.displayGuiScreen(null);
             return;
         }
         if (selectedPlanet != null) {
-            int orbitDimensionId = PlanetTravelHelper.getOrbitDimensionId(selectedPlanet.getDimensionId());
             List<SpaceStation> stations = getSelectedSpaceStations();
             int stationTop = height / 2 + 29;
-            for (int i = 0; i < stations.size() && i < 2; i++) {
-                int y = stationTop + i * 22;
+            for (int i = 0; i < stations.size(); i++) {
+                int y = stationTop + i * SPACE_STATION_ROW_SPACING - spaceStationScrollAmount;
+                if (y <= stationTop - BUTTON_HEIGHT || y >= stationTop + SPACE_STATION_LIST_HEIGHT) {
+                    continue;
+                }
                 if (isInside(mouseX, mouseY, MENU_X + 107, y, BUTTON_WIDTH, BUTTON_HEIGHT)) {
                     SpaceStation station = stations.get(i);
                     if (isPlayerAtSpaceStation(station)) {
                         mc.player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.already_here"), true);
                         return;
                     }
-                    NetworkHandler.CHANNEL.sendToServer(new PacketLandSpaceStation(orbitDimensionId, station.getPosition()));
+                    menu.landOnSpaceStation(selectedPlanet, station.getPosition());
                     mc.displayGuiScreen(null);
                     return;
                 }
@@ -162,6 +165,9 @@ public class PlanetSelectionGui extends GuiScreen {
     @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
+        if (menu == null) {
+            return;
+        }
         int wheel = org.lwjgl.input.Mouse.getEventDWheel();
         if (wheel == 0) {
             return;
@@ -172,6 +178,11 @@ public class PlanetSelectionGui extends GuiScreen {
             int maxScroll = Math.max(0, planets.size() * 24 - 131);
             scrollAmount += wheel < 0 ? 12 : -12;
             scrollAmount = Math.max(0, Math.min(maxScroll, scrollAmount));
+        } else if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 107, height / 2 + 29, BUTTON_WIDTH, SPACE_STATION_LIST_HEIGHT)) {
+            List<SpaceStation> stations = getSelectedSpaceStations();
+            int maxScroll = Math.max(0, stations.size() * SPACE_STATION_ROW_SPACING - SPACE_STATION_LIST_HEIGHT);
+            spaceStationScrollAmount += wheel < 0 ? 12 : -12;
+            spaceStationScrollAmount = Math.max(0, Math.min(maxScroll, spaceStationScrollAmount));
         }
     }
 
@@ -181,6 +192,9 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private void drawSelectionMenu(int mouseX, int mouseY) {
+        if (menu == null) {
+            return;
+        }
         int menuY = menuY();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(selectedPlanet == null ? SMALL_SELECTION_MENU : SELECTION_MENU);
@@ -196,14 +210,7 @@ public class PlanetSelectionGui extends GuiScreen {
         drawCenteredString(fontRenderer, title, MENU_X + 50, height / 2 - 60, 0xFFFFFF);
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        int scale = mc.gameSettings.guiScale;
-        if (scale == 0) {
-            scale = 1000;
-        }
-        int factor = 1;
-        while (factor < scale && mc.displayWidth / (factor + 1) >= 320 && mc.displayHeight / (factor + 1) >= 240) {
-            factor++;
-        }
+        int factor = getGuiScaleFactor();
         GL11.glScissor(MENU_X * factor, (height - (height / 2 + 88)) * factor, 112 * factor, 131 * factor);
         drawPlanetButtons(mouseX, mouseY);
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
@@ -219,7 +226,7 @@ public class PlanetSelectionGui extends GuiScreen {
             PlanetDimensionProperties planet = planets.get(i);
             int x = MENU_X + 3;
             int y = listTop + i * 24 - scrollAmount;
-            boolean enabled = PlanetTravelHelper.canRocketTierReach(rocketTier, planet);
+            boolean enabled = menu.canReach(planet);
             boolean hovered = enabled && isInside(mouseX, mouseY, x, y, BUTTON_WIDTH, BUTTON_HEIGHT);
             drawTexturedButton(BUTTON, BUTTON_HIGHLIGHTED, x, y, BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY, enabled);
             int color = enabled ? (hovered || planet == selectedPlanet ? 0xFFFFFF : 0xCFCFCF) : 0x555555;
@@ -250,12 +257,20 @@ public class PlanetSelectionGui extends GuiScreen {
         }
 
         int stationTop = height / 2 + 29;
-        for (int i = 0; i < stations.size() && i < 2; i++) {
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        int factor = getGuiScaleFactor();
+        GL11.glScissor((MENU_X + 107) * factor, (height - (stationTop + SPACE_STATION_LIST_HEIGHT)) * factor,
+            BUTTON_WIDTH * factor, SPACE_STATION_LIST_HEIGHT * factor);
+        for (int i = 0; i < stations.size(); i++) {
             SpaceStation station = stations.get(i);
-            int y = stationTop + i * 22;
+            int y = stationTop + i * SPACE_STATION_ROW_SPACING - spaceStationScrollAmount;
+            if (y <= stationTop - BUTTON_HEIGHT || y >= stationTop + SPACE_STATION_LIST_HEIGHT) {
+                continue;
+            }
             drawTexturedButton(BUTTON, BUTTON_HIGHLIGHTED, MENU_X + 107, y, BUTTON_WIDTH, BUTTON_HEIGHT, mouseX, mouseY, true);
             drawCenteredString(fontRenderer, station.getName(), MENU_X + 156, y + 6, 0xFFFFFF);
         }
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
         drawSpaceStationRequirementTooltip(mouseX, mouseY);
     }
 
@@ -276,7 +291,7 @@ public class PlanetSelectionGui extends GuiScreen {
             }
 
             int x = startX + i * 23;
-            int owned = requirement.countMatching(mc.player.inventory);
+            int owned = menu.getOwnedIngredientCount(requirement);
             int needed = requirement.getCount();
             boolean enough = owned >= needed || mc.player.capabilities.isCreativeMode;
             drawItemStack(displayStack, x, iconY);
@@ -303,7 +318,7 @@ public class PlanetSelectionGui extends GuiScreen {
             }
             int x = startX + i * 23;
             if (isInside(mouseX, mouseY, x, iconY, 16, 16)) {
-                int owned = mc.player == null ? 0 : requirement.countMatching(mc.player.inventory);
+                int owned = menu == null ? 0 : menu.getOwnedIngredientCount(requirement);
                 int needed = requirement.getCount();
                 List<String> tooltip = new ArrayList<>();
                 tooltip.add(displayStack.getDisplayName());
@@ -325,57 +340,29 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private boolean canConstructSelectedSpaceStation() {
-        if (selectedPlanet == null || mc.player == null) {
+        if (selectedPlanet == null || menu == null) {
             return false;
         }
-        if (!PlanetTravelHelper.canRocketTierReach(rocketTier, selectedPlanet)) {
+        if (!menu.canReach(selectedPlanet)) {
             return false;
         }
-        if (hasSelectedSpaceStation()) {
-            return false;
-        }
-        SpaceStationRecipe recipe = getSelectedSpaceStationRecipe();
-        return recipe != null && recipe.canCraft(mc.player);
+        return menu.canConstructSpaceStation(selectedPlanet);
     }
 
     private boolean hasSelectedSpaceStation() {
-        return !getSelectedSpaceStations().isEmpty();
+        return selectedPlanet != null && menu.hasSpaceStation(selectedPlanet);
     }
 
     private SpaceStationRecipe getSelectedSpaceStationRecipe() {
-        if (selectedPlanet == null) {
-            return null;
-        }
-        int orbitDimensionId = PlanetTravelHelper.getOrbitDimensionId(selectedPlanet.getDimensionId());
-        ResourceLocation orbitLocation = PlanetTravelHelper.getOrbitDimensionLocation(orbitDimensionId);
-        return orbitLocation == null ? null : RecipeRegistry.findSpaceStationRecipe(orbitLocation);
+        return selectedPlanet == null ? null : menu.getSpaceStationRecipe(selectedPlanet);
     }
 
     private List<SpaceStation> getSelectedSpaceStations() {
-        List<SpaceStation> stations = new ArrayList<>();
-        if (selectedPlanet == null || mc.player == null) {
-            return stations;
-        }
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(mc.player);
-        if (capability == null) {
-            return stations;
-        }
-        int orbitDimensionId = PlanetTravelHelper.getOrbitDimensionId(selectedPlanet.getDimensionId());
-        for (SpaceStation station : capability.getSpaceStations()) {
-            if (station.getDimension() == orbitDimensionId) {
-                stations.add(station);
-            }
-        }
-        stations.sort(Comparator.comparing(SpaceStation::getName));
-        return stations;
+        return selectedPlanet == null ? new ArrayList<>() : menu.getSpaceStations(selectedPlanet);
     }
 
     private boolean isPlayerAtSpaceStation(SpaceStation station) {
-        return mc.player != null
-            && station != null
-            && mc.player.dimension == station.getDimension()
-            && Math.abs(mc.player.posX - (station.getPosition().getX() + 0.5D)) <= 40.0D
-            && Math.abs(mc.player.posZ - (station.getPosition().getZ() + 0.5D)) <= 40.0D;
+        return menu != null && menu.isPlayerAtSpaceStation(station);
     }
 
     private void drawTexturedButton(ResourceLocation normal, ResourceLocation highlighted, int x, int y, int width, int height,
@@ -455,6 +442,18 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private boolean isInside(int mouseX, int mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+    }
+
+    private int getGuiScaleFactor() {
+        int scale = mc.gameSettings.guiScale;
+        if (scale == 0) {
+            scale = 1000;
+        }
+        int factor = 1;
+        while (factor < scale && mc.displayWidth / (factor + 1) >= 320 && mc.displayHeight / (factor + 1) >= 240) {
+            factor++;
+        }
+        return factor;
     }
 
     private String getPlanetLabel(PlanetDimensionProperties planet) {

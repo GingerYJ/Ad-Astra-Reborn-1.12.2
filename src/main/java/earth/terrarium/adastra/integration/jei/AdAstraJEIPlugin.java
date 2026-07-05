@@ -1,6 +1,10 @@
 package earth.terrarium.adastra.integration.jei;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.client.gui.AdAstraMachineGui;
+import earth.terrarium.adastra.client.gui.machine.CompressorGui;
+import earth.terrarium.adastra.client.gui.machine.CryoFreezerGui;
+import earth.terrarium.adastra.client.gui.machine.EtrionicBlastFurnaceGui;
 import earth.terrarium.adastra.common.container.AdAstraMachineContainer;
 import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.registry.ModBlocks;
@@ -115,11 +119,11 @@ public class AdAstraJEIPlugin implements IModPlugin {
             new MachineRecipeTransferInfo(NASA_WORKBENCH_CATEGORY, ModGuiIds.NASA_WORKBENCH, 0, 14));
 
         // Add click areas in GUIs to open recipe categories
-        registry.addRecipeClickArea(earth.terrarium.adastra.client.gui.AdAstraMachineGui.class,
+        registry.addRecipeClickArea(CompressorGui.class,
             72, 59, 15, 16, COMPRESSOR_CATEGORY);
-        registry.addRecipeClickArea(earth.terrarium.adastra.client.gui.AdAstraMachineGui.class,
+        registry.addRecipeClickArea(EtrionicBlastFurnaceGui.class,
             75, 50, 20, 12, BLAST_FURNACE_CATEGORY);
-        registry.addRecipeClickArea(earth.terrarium.adastra.client.gui.AdAstraMachineGui.class,
+        registry.addRecipeClickArea(CryoFreezerGui.class,
             54, 71, 13, 13, CRYO_FREEZER_CATEGORY);
     }
 

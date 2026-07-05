@@ -1,7 +1,7 @@
 package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
-import earth.terrarium.adastra.common.container.LanderContainer;
+import earth.terrarium.adastra.common.menus.vehicles.LanderMenu;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -15,9 +15,9 @@ public class LanderGui extends GuiContainer {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/lander.png");
 
-    private final LanderContainer container;
+    private final LanderMenu container;
 
-    public LanderGui(InventoryPlayer playerInventory, LanderContainer container) {
+    public LanderGui(InventoryPlayer playerInventory, LanderMenu container) {
         super(container);
         this.container = container;
         this.xSize = 177;

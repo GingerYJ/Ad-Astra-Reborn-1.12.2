@@ -52,45 +52,41 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
     }
 
     private void tickAlloying() {
-        // Try to find a matching recipe from the registry
-        AlloySmeltingRecipe recipe = findAlloyingRecipe();
-        if (recipe == null) {
+        AlloyingTarget target = findAlloyingTarget();
+        if (target == null) {
             cookTime = 0;
             cookTimeTotal = 0;
             setLit(false);
             return;
         }
 
-        // Check if we can output the result
-        if (!canAddOutput(recipe.getResult())) {
+        if (!canAddOutput(target.recipe.getResult())) {
             cookTime = 0;
             cookTimeTotal = 0;
             setLit(false);
             return;
         }
 
-        int energyPerTick = recipe.getEnergyPerTick();
+        int energyPerTick = target.recipe.getEnergyPerTick();
         int modifiedEnergy = AdAstraConfig.getModifiedEnergyConsumption(energyPerTick);
         if (energy.internalExtractEnergy(modifiedEnergy, true) < modifiedEnergy) {
             setLit(false);
             return;
         }
 
-        // Apply config speed multiplier to processing time
-        cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(recipe.getProcessingTime());
+        cookTimeTotal = AdAstraConfig.getModifiedProcessingTime(target.recipe.getProcessingTime());
         energy.internalExtractEnergy(modifiedEnergy, false);
         cookTime++;
         setLit(true);
 
         if (cookTime >= cookTimeTotal) {
-            craftAlloying(recipe);
+            craftAlloying(target);
             cookTime = 0;
         }
         markDirty();
     }
 
-    private AlloySmeltingRecipe findAlloyingRecipe() {
-        // Try all combinations of input slots
+    private AlloyingTarget findAlloyingTarget() {
         for (int slot1 = FIRST_INPUT_SLOT; slot1 <= LAST_INPUT_SLOT; slot1++) {
             ItemStack stack1 = items.getStackInSlot(slot1);
             if (stack1.isEmpty()) continue;
@@ -101,51 +97,30 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
                 AlloySmeltingRecipe recipe = RecipeRegistry.findAlloyingRecipe(stack1, stack2);
                 if (recipe != null) {
-                    return recipe;
+                    return new AlloyingTarget(slot1, slot2, recipe);
                 }
             }
         }
         return null;
     }
 
-    private void craftAlloying(AlloySmeltingRecipe recipe) {
-        // Find and consume the matching inputs
-        boolean consumedFirst = false;
-        boolean consumedSecond = false;
-
-        // Try to consume both inputs
-        for (int slot = FIRST_INPUT_SLOT; slot <= LAST_INPUT_SLOT && (!consumedFirst || !consumedSecond); slot++) {
-            ItemStack stack = items.getStackInSlot(slot);
-            if (stack.isEmpty()) continue;
-
-            if (!consumedFirst) {
-                // Try to match first input
-                ItemStack[] testInputs = {stack, ItemStack.EMPTY};
-                if (recipe.matches(testInputs)) {
-                    stack.shrink(1);
-                    if (stack.isEmpty()) {
-                        items.setStackInSlot(slot, ItemStack.EMPTY);
-                    }
-                    consumedFirst = true;
-                    continue;
-                }
-            }
-
-            if (!consumedSecond) {
-                // Try to match second input
-                ItemStack[] testInputs = {ItemStack.EMPTY, stack};
-                if (recipe.matches(testInputs)) {
-                    stack.shrink(1);
-                    if (stack.isEmpty()) {
-                        items.setStackInSlot(slot, ItemStack.EMPTY);
-                    }
-                    consumedSecond = true;
-                }
-            }
+    private void craftAlloying(AlloyingTarget target) {
+        ItemStack stack1 = items.getStackInSlot(target.inputSlot1);
+        ItemStack stack2 = items.getStackInSlot(target.inputSlot2);
+        if (!target.recipe.matches(new ItemStack[]{stack1, stack2})) {
+            return;
         }
 
-        if (consumedFirst && consumedSecond) {
-            addOutput(recipe.getResult());
+        consumeOneFromSlot(target.inputSlot2);
+        consumeOneFromSlot(target.inputSlot1);
+        addOutput(target.recipe.getResult());
+    }
+
+    private void consumeOneFromSlot(int slot) {
+        ItemStack stack = items.getStackInSlot(slot);
+        stack.shrink(1);
+        if (stack.isEmpty()) {
+            items.setStackInSlot(slot, ItemStack.EMPTY);
         }
     }
 
@@ -318,10 +293,8 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
     }
 
     private boolean isValidAlloyingIngredient(ItemStack stack) {
-        // Check if this item is used in any alloying recipe
         for (AlloySmeltingRecipe recipe : RecipeRegistry.getAllAlloyingRecipes()) {
-            if (recipe.matches(new ItemStack[]{stack, ItemStack.EMPTY}) ||
-                recipe.matches(new ItemStack[]{ItemStack.EMPTY, stack})) {
+            if (recipe.matchesAnyInput(stack)) {
                 return true;
             }
         }
@@ -494,6 +467,18 @@ public class EtrionicBlastFurnaceTileEntity extends AdAstraMachineTileEntity {
 
         private BlastingTarget(int inputSlot, BlastingRecipe recipe) {
             this.inputSlot = inputSlot;
+            this.recipe = recipe;
+        }
+    }
+
+    private static final class AlloyingTarget {
+        private final int inputSlot1;
+        private final int inputSlot2;
+        private final AlloySmeltingRecipe recipe;
+
+        private AlloyingTarget(int inputSlot1, int inputSlot2, AlloySmeltingRecipe recipe) {
+            this.inputSlot1 = inputSlot1;
+            this.inputSlot2 = inputSlot2;
             this.recipe = recipe;
         }
     }

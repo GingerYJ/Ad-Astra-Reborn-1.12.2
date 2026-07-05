@@ -11,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -121,6 +122,26 @@ public class AdAstraMachineBlock extends AdAstraBlock implements ITileEntityProv
     }
 
     @Override
+    public boolean isOpaqueCube(IBlockState state) {
+        return !isNonFullModelMachine();
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state) {
+        return !isNonFullModelMachine();
+    }
+
+    @Override
+    public BlockRenderLayer getRenderLayer() {
+        return isCutoutModelMachine() ? BlockRenderLayer.CUTOUT : super.getRenderLayer();
+    }
+
+    @Override
+    public int getLightOpacity(IBlockState state) {
+        return isNonFullModelMachine() ? 0 : super.getLightOpacity(state);
+    }
+
+    @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState) {
         if (isWaterPump()) {
             for (AxisAlignedBB box : waterPumpBoxes(state)) {
@@ -186,6 +207,26 @@ public class AdAstraMachineBlock extends AdAstraBlock implements ITileEntityProv
 
     private boolean isEtrionicBlastFurnace() {
         return getRegistryName() != null && "etrionic_blast_furnace".equals(getRegistryName().getPath());
+    }
+
+    private boolean isNonFullModelMachine() {
+        if (getRegistryName() == null) {
+            return false;
+        }
+        String path = getRegistryName().getPath();
+        return "nasa_workbench".equals(path)
+            || "solar_panel".equals(path)
+            || "water_pump".equals(path)
+            || "etrionic_blast_furnace".equals(path);
+    }
+
+    private boolean isCutoutModelMachine() {
+        if (getRegistryName() == null) {
+            return false;
+        }
+        String path = getRegistryName().getPath();
+        return "nasa_workbench".equals(path)
+            || "solar_panel".equals(path);
     }
 
     @Override

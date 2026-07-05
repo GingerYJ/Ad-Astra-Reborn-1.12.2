@@ -58,6 +58,16 @@ public final class CustomPlanetRegistry {
         return id == null ? null : DEFINITIONS.get(id);
     }
 
+    @Nullable
+    public static synchronized CustomPlanetDefinition getByOrbitDimensionId(int orbitDimensionId) {
+        for (CustomPlanetDefinition definition : DEFINITIONS.values()) {
+            if (definition.getOrbitDimensionId() == orbitDimensionId) {
+                return definition;
+            }
+        }
+        return null;
+    }
+
     public static synchronized List<CustomPlanetDefinition> getDefinitions() {
         return Collections.unmodifiableList(new ArrayList<>(DEFINITIONS.values()));
     }

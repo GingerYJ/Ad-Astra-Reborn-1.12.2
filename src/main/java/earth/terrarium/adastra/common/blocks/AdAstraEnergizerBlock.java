@@ -15,6 +15,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -22,8 +23,11 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 
 public class AdAstraEnergizerBlock extends AdAstraModelBlock implements ITileEntityProvider {
 
@@ -109,12 +113,64 @@ public class AdAstraEnergizerBlock extends AdAstraModelBlock implements ITileEnt
     }
 
     @Override
+    public BlockRenderLayer getRenderLayer() {
+        return BlockRenderLayer.TRANSLUCENT;
+    }
+
+    @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        return AdAstraMachineGuiHelper.openMachineGui(world, pos, player, hand);
+        TileEntity tile = world.getTileEntity(pos);
+        if (!(tile instanceof EnergizerTileEntity)) {
+            return false;
+        }
+
+        if (world.isRemote) {
+            return true;
+        }
+
+        EnergizerTileEntity energizer = (EnergizerTileEntity) tile;
+        ItemStack held = player.getHeldItem(hand);
+        ItemStack stored = energizer.getStackInSlot(0);
+
+        if (player.isSneaking()) {
+            sendEnergyStatus(player, energizer, stored);
+            return true;
+        }
+
+        if (stored.isEmpty() && !held.isEmpty() && held.getCount() == 1) {
+            energizer.setInventorySlotContents(0, held.copy());
+            player.setHeldItem(hand, ItemStack.EMPTY);
+            energizer.markDirty();
+            world.notifyBlockUpdate(pos, state, state, 3);
+        } else if (held.isEmpty() && !stored.isEmpty()) {
+            player.setHeldItem(hand, energizer.removeStackFromSlot(0));
+            energizer.markDirty();
+            world.notifyBlockUpdate(pos, state, state, 3);
+        }
+        return true;
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
         return ModTileEntities.createForBlock(this);
+    }
+
+    private void sendEnergyStatus(EntityPlayer player, EnergizerTileEntity energizer, ItemStack stored) {
+        IEnergyStorage blockEnergy = energizer.getEnergyStorage();
+        String message = "充能器: " + formatEnergy(blockEnergy);
+        if (!stored.isEmpty() && stored.hasCapability(CapabilityEnergy.ENERGY, null)) {
+            IEnergyStorage itemEnergy = stored.getCapability(CapabilityEnergy.ENERGY, null);
+            if (itemEnergy != null) {
+                message += " | 物品: " + formatEnergy(itemEnergy);
+            }
+        }
+        player.sendStatusMessage(new TextComponentString(message), true);
+    }
+
+    private String formatEnergy(IEnergyStorage energy) {
+        if (energy == null) {
+            return "0/0 FE";
+        }
+        return energy.getEnergyStored() + "/" + energy.getMaxEnergyStored() + " FE";
     }
 }

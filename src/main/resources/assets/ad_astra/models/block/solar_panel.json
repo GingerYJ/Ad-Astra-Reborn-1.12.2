@@ -1,6 +1,7 @@
 {
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
+	"ambientocclusion": false,
 	"render_type": "cutout",
 	"textures": {
 		"0": "ad_astra:block/solar_panel",

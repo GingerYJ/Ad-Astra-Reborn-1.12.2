@@ -6,9 +6,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityExpBottle;
+import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityTNTPrimed;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFishHook;
@@ -41,6 +43,7 @@ public class GravityEventHandler {
     private static final double POTION_GRAVITY = 0.05D;
     private static final double EXPERIENCE_BOTTLE_GRAVITY = 0.07D;
     private static final double BOAT_GRAVITY = 0.04D;
+    private static final double EXPERIENCE_ORB_GRAVITY = 0.03D;
 
     /**
      * Applies gravity motion override to entities.
@@ -147,7 +150,13 @@ public class GravityEventHandler {
         if (entity instanceof EntityBoat) {
             return BOAT_GRAVITY;
         }
-        if (entity instanceof EntityItem || entity instanceof EntityTNTPrimed || entity instanceof EntityMinecart) {
+        if (entity instanceof EntityXPOrb) {
+            return EXPERIENCE_ORB_GRAVITY;
+        }
+        if (entity instanceof EntityItem
+            || entity instanceof EntityTNTPrimed
+            || entity instanceof EntityMinecart
+            || entity instanceof EntityFallingBlock) {
             return DEFAULT_ENTITY_GRAVITY;
         }
         return 0.0D;

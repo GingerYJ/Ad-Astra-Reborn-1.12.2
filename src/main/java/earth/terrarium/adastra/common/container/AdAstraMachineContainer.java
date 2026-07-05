@@ -1,5 +1,8 @@
 package earth.terrarium.adastra.common.container;
 
+import earth.terrarium.adastra.common.container.slots.NasaWorkbenchOutputSlot;
+import earth.terrarium.adastra.common.container.slots.PredicateSlot;
+import earth.terrarium.adastra.common.menus.base.MachineMenu;
 import earth.terrarium.adastra.common.registry.ModGuiIds;
 import earth.terrarium.adastra.common.tile.AdAstraMachineTileEntity;
 import earth.terrarium.adastra.common.tile.CoalGeneratorTileEntity;
@@ -14,42 +17,41 @@ import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenLoaderTileEntity;
 import earth.terrarium.adastra.common.tile.SolarPanelTileEntity;
 import earth.terrarium.adastra.common.tile.WaterPumpTileEntity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdAstraMachineContainer extends Container {
+public class AdAstraMachineContainer extends MachineMenu<AdAstraMachineTileEntity> {
 
     private final AdAstraMachineTileEntity machine;
     private final Layout layout;
     private final int machineSlotCount;
-    private int[] cachedFields;
 
     public AdAstraMachineContainer(InventoryPlayer playerInventory, AdAstraMachineTileEntity machine, Layout layout) {
+        super(playerInventory, machine, layout);
         this.machine = machine;
         this.layout = layout;
         for (SlotSpec slot : layout.machineSlots) {
             addSlotToContainer(createMachineSlot(machine, slot));
         }
         this.machineSlotCount = inventorySlots.size();
-        addPlayerInventory(playerInventory, layout.playerInventoryX, layout.playerInventoryY);
-        this.cachedFields = new int[machine.getFieldCount()];
+        addPlayerInvSlots();
     }
 
     private Slot createMachineSlot(AdAstraMachineTileEntity machine, SlotSpec slot) {
+        if (slot.battery) {
+            return createBatterySlot(machine, slot.index, slot.x, slot.y);
+        }
         if (machine instanceof NasaWorkbenchTileEntity) {
             NasaWorkbenchTileEntity nasaWorkbench = (NasaWorkbenchTileEntity) machine;
             if (nasaWorkbench.isOutputSlot(slot.index)) {
                 return new NasaWorkbenchOutputSlot(nasaWorkbench, slot.index, slot.x, slot.y);
             }
         }
-        return new MachineSlot(machine, slot.index, slot.x, slot.y, slot.canInsert);
+        return new PredicateSlot(machine, slot.index, slot.x, slot.y,
+            stack -> slot.canInsert && machine.isItemValidForSlot(slot.index, stack));
     }
 
     public AdAstraMachineTileEntity getMachine() {
@@ -64,134 +66,24 @@ public class AdAstraMachineContainer extends Container {
         return machineSlotCount;
     }
 
-    public int getSyncedField(int id) {
-        if (id >= 0 && id < cachedFields.length) {
-            return cachedFields[id];
-        }
-        return machine.getField(id);
+    @Override
+    protected int getContainerInputEnd() {
+        return machineSlotCount;
     }
 
     @Override
-    public boolean canInteractWith(EntityPlayer playerIn) {
-        return machine.isUsableByPlayer(playerIn);
-    }
-
-    // Client -> server interaction channel (vanilla Container.enchantItem / sendEnchantPacket).
-    // id == 0: toggle Etrionic Blast Furnace mode.
-    // id == 1: toggle Etrionic Blast Furnace mode backwards.
-    // id in [GRAVITY_ID_BASE, GRAVITY_ID_BASE + 200]: set Gravity Normalizer target gravity (0.0 - 2.0).
-    public static final int TOGGLE_FURNACE_MODE = 0;
-    public static final int PREVIOUS_FURNACE_MODE = 1;
-    public static final int GRAVITY_ID_BASE = 1000;
-
-    @Override
-    public boolean enchantItem(EntityPlayer playerIn, int id) {
-        if (!canInteractWith(playerIn)) {
-            return false;
-        }
-        if ((id == TOGGLE_FURNACE_MODE || id == PREVIOUS_FURNACE_MODE) && machine instanceof EtrionicBlastFurnaceTileEntity) {
-            EtrionicBlastFurnaceTileEntity furnace = (EtrionicBlastFurnaceTileEntity) machine;
-            furnace.setMode(id == PREVIOUS_FURNACE_MODE ? furnace.getMode().previous() : furnace.getMode().next());
-            furnace.markDirty();
-            detectAndSendChanges();
-            return true;
-        }
-        if (id >= GRAVITY_ID_BASE && id <= GRAVITY_ID_BASE + 200 && machine instanceof GravityNormalizerTileEntity) {
-            GravityNormalizerTileEntity normalizer = (GravityNormalizerTileEntity) machine;
-            normalizer.setTargetGravity((id - GRAVITY_ID_BASE) / 100.0f);
-            normalizer.markDirty();
-            detectAndSendChanges();
-            return true;
-        }
-        return false;
+    protected int getInventoryStart() {
+        return machineSlotCount;
     }
 
     @Override
-    public void addListener(IContainerListener listener) {
-        super.addListener(listener);
-        for (int i = 0; i < machine.getFieldCount(); i++) {
-            listener.sendWindowProperty(this, i, machine.getField(i));
-            cachedFields[i] = machine.getField(i);
-        }
+    public int getPlayerInvXOffset() {
+        return layout.playerInventoryX;
     }
 
     @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
-        for (int i = 0; i < machine.getFieldCount(); i++) {
-            int value = machine.getField(i);
-            if (i >= cachedFields.length || cachedFields[i] != value) {
-                for (IContainerListener listener : listeners) {
-                    listener.sendWindowProperty(this, i, value);
-                }
-                if (i < cachedFields.length) {
-                    cachedFields[i] = value;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void updateProgressBar(int id, int data) {
-        if (id >= 0 && id < cachedFields.length) {
-            cachedFields[id] = data;
-        }
-        machine.setField(id, data);
-    }
-
-    @Override
-    public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
-        ItemStack original = ItemStack.EMPTY;
-        Slot slot = inventorySlots.get(index);
-        if (slot == null || !slot.getHasStack()) {
-            return original;
-        }
-
-        ItemStack stack = slot.getStack();
-        original = stack.copy();
-        if (index < machineSlotCount) {
-            if (!mergeItemStack(stack, machineSlotCount, inventorySlots.size(), true)) {
-                return ItemStack.EMPTY;
-            }
-        } else if (!mergeIntoMachineSlots(stack)) {
-            return ItemStack.EMPTY;
-        }
-
-        if (stack.isEmpty()) {
-            slot.putStack(ItemStack.EMPTY);
-        } else {
-            slot.onSlotChanged();
-        }
-
-        if (stack.getCount() == original.getCount()) {
-            return ItemStack.EMPTY;
-        }
-        slot.onTake(playerIn, stack);
-        return original;
-    }
-
-    private boolean mergeIntoMachineSlots(ItemStack stack) {
-        for (int i = 0; i < machineSlotCount; i++) {
-            Slot slot = inventorySlots.get(i);
-            if (!slot.isItemValid(stack)) {
-                continue;
-            }
-            if (mergeItemStack(stack, i, i + 1, false)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void addPlayerInventory(InventoryPlayer playerInventory, int x, int y) {
-        for (int row = 0; row < 3; row++) {
-            for (int column = 0; column < 9; column++) {
-                addSlotToContainer(new Slot(playerInventory, column + row * 9 + 9, x + column * 18, y + row * 18));
-            }
-        }
-        for (int column = 0; column < 9; column++) {
-            addSlotToContainer(new Slot(playerInventory, column, x + column * 18, y + 58));
-        }
+    public int getPlayerInvYOffset() {
+        return layout.playerInventoryY;
     }
 
     public static Layout layoutFor(int id, AdAstraMachineTileEntity machine) {
@@ -329,7 +221,7 @@ public class AdAstraMachineContainer extends Container {
 
         private Layout batterySlot(int x, int y) {
             hasBatterySlot = true;
-            machineSlots.add(new SlotSpec(0, x, y, true));
+            machineSlots.add(new SlotSpec(0, x, y, true, true));
             return this;
         }
 
@@ -355,51 +247,19 @@ public class AdAstraMachineContainer extends Container {
         private final int x;
         private final int y;
         private final boolean canInsert;
+        private final boolean battery;
 
         private SlotSpec(int index, int x, int y, boolean canInsert) {
+            this(index, x, y, canInsert, false);
+        }
+
+        private SlotSpec(int index, int x, int y, boolean canInsert, boolean battery) {
             this.index = index;
             this.x = x;
             this.y = y;
             this.canInsert = canInsert;
+            this.battery = battery;
         }
     }
 
-    private static final class MachineSlot extends Slot {
-        private final boolean canInsert;
-
-        private MachineSlot(AdAstraMachineTileEntity inventory, int index, int xPosition, int yPosition, boolean canInsert) {
-            super(inventory, index, xPosition, yPosition);
-            this.canInsert = canInsert;
-        }
-
-        @Override
-        public boolean isItemValid(ItemStack stack) {
-            return canInsert && inventory.isItemValidForSlot(getSlotIndex(), stack);
-        }
-    }
-
-    private static final class NasaWorkbenchOutputSlot extends Slot {
-        private final NasaWorkbenchTileEntity nasaWorkbench;
-
-        private NasaWorkbenchOutputSlot(NasaWorkbenchTileEntity inventory, int index, int xPosition, int yPosition) {
-            super(inventory, index, xPosition, yPosition);
-            this.nasaWorkbench = inventory;
-        }
-
-        @Override
-        public boolean isItemValid(ItemStack stack) {
-            return false;
-        }
-
-        @Override
-        public boolean canTakeStack(EntityPlayer playerIn) {
-            return nasaWorkbench.hasCraftingResult();
-        }
-
-        @Override
-        public ItemStack onTake(EntityPlayer playerIn, ItemStack stack) {
-            nasaWorkbench.craftActiveRecipe(playerIn);
-            return super.onTake(playerIn, stack);
-        }
-    }
 }

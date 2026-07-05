@@ -2,7 +2,10 @@ package earth.terrarium.adastra.client.render;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.registry.ModDimensions;
+import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
+import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -25,6 +28,7 @@ public class PlanetSkyRenderers {
     private static final ResourceLocation DEIMOS_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/deimos.png");
     private static final ResourceLocation SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/sun.png");
     private static final ResourceLocation BLUE_SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/blue_sun.png");
+    private static final ResourceLocation RED_SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/red_sun.png");
     private static final ResourceLocation VENUS_CLOUDS_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/venus_clouds.png");
 
     public static void registerSkyRenderers(World world) {
@@ -52,6 +56,20 @@ public class PlanetSkyRenderers {
             world.provider.setSkyRenderer(createVenusOrbitSkyRenderer());
         } else if (dimension == ModDimensions.GLACIO_ORBIT_ID) {
             world.provider.setSkyRenderer(createGlacioOrbitSkyRenderer());
+        } else if (dimension == ModDimensions.NETHER_ORBIT_ID) {
+            world.provider.setSkyRenderer(createNetherOrbitSkyRenderer());
+        } else if (dimension == ModDimensions.END_ORBIT_ID) {
+            world.provider.setSkyRenderer(createEndOrbitSkyRenderer());
+        } else {
+            CustomPlanetDefinition planet = CustomPlanetRegistry.getByDimensionId(dimension);
+            if (planet != null) {
+                world.provider.setSkyRenderer(createCustomPlanetSkyRenderer(planet));
+                return;
+            }
+            CustomPlanetDefinition orbitPlanet = CustomPlanetRegistry.getByOrbitDimensionId(dimension);
+            if (orbitPlanet != null) {
+                world.provider.setSkyRenderer(createCustomOrbitSkyRenderer(orbitPlanet));
+            }
         }
     }
 
@@ -150,6 +168,44 @@ public class PlanetSkyRenderers {
                 0, 0, 0,
                 -20, 0, 230,
                 true, true);
+    }
+
+    private static PlanetSkyRenderer createNetherOrbitSkyRenderer() {
+        return new PlanetSkyRenderer(false, 0.05f, 0.0f, 0.0f)
+            .addCelestialBody(RED_SUN_TEXTURE, 18.0f,
+                0, 0, 0,
+                -15, 0, 225,
+                true, true);
+    }
+
+    private static PlanetSkyRenderer createEndOrbitSkyRenderer() {
+        return new PlanetSkyRenderer(false, 0.015f, 0.0f, 0.04f)
+            .addCelestialBody(BLUE_SUN_TEXTURE, 14.0f,
+                0, 0, 0,
+                -20, 0, 230,
+                true, true);
+    }
+
+    private static PlanetSkyRenderer createCustomPlanetSkyRenderer(CustomPlanetDefinition definition) {
+        Vec3d skyColor = definition.getSkyColor();
+        return new PlanetSkyRenderer(false, tint(skyColor.x), tint(skyColor.y), tint(skyColor.z))
+            .addCelestialBody(SUN_TEXTURE, definition.hasOxygen() ? 12.0f : 16.0f,
+                0, 0, 0,
+                0, 0, 0,
+                true, true);
+    }
+
+    private static PlanetSkyRenderer createCustomOrbitSkyRenderer(CustomPlanetDefinition definition) {
+        Vec3d skyColor = definition.getSkyColor();
+        return new PlanetSkyRenderer(false, tint(skyColor.x) * 0.5f, tint(skyColor.y) * 0.5f, tint(skyColor.z) * 0.5f)
+            .addCelestialBody(SUN_TEXTURE, 14.0f,
+                0, 0, 0,
+                -15, 0, 230,
+                true, true);
+    }
+
+    private static float tint(double value) {
+        return (float) Math.max(0.0D, Math.min(0.12D, value * 0.12D));
     }
 
     /**

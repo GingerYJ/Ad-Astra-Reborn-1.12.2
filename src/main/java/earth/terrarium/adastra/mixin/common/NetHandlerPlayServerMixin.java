@@ -2,6 +2,7 @@ package earth.terrarium.adastra.mixin.common;
 
 import earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity;
 import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.systems.GravitySystem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -27,11 +28,11 @@ public abstract class NetHandlerPlayServerMixin {
 
     @Inject(method = "update", at = @At("HEAD"))
     private void adastra$resetAdAstraFloatingChecks(CallbackInfo ci) {
-        if (player == null || player.ticksExisted % 50 != 0) {
+        if (player == null) {
             return;
         }
 
-        if (!player.onGround && adastra$hasJetSuitSet(player)) {
+        if (!player.onGround && (adastra$hasJetSuitSet(player) || adastra$isLowGravity(player))) {
             floatingTickCount = 0;
         }
 
@@ -49,6 +50,10 @@ public abstract class NetHandlerPlayServerMixin {
     }
 
     private boolean adastra$hasItem(EntityPlayerMP player, EntityEquipmentSlot slot, Item item) {
-        return player.getItemStackFromSlot(slot).getItem() == item;
+        return !player.getItemStackFromSlot(slot).isEmpty() && player.getItemStackFromSlot(slot).getItem() == item;
+    }
+
+    private boolean adastra$isLowGravity(EntityPlayerMP player) {
+        return player.world != null && GravitySystem.getGravityForEntity(player) < 1.0F;
     }
 }

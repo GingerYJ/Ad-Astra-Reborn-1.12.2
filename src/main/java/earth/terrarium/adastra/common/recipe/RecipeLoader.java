@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.Reference;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -38,6 +39,7 @@ public final class RecipeLoader {
 
         // Clear existing recipes
         RecipeRegistry.clearAll();
+        ensureOreDictionaryFallbacks();
 
         // Load each recipe type
         int totalLoaded = 0;
@@ -50,6 +52,20 @@ public final class RecipeLoader {
         totalLoaded += loadSpaceStationRecipes();
 
         AdAstraReborn.LOGGER.info("Finished loading {} Ad Astra machine recipes.", totalLoaded);
+    }
+
+    private static void ensureOreDictionaryFallbacks() {
+        ensureOreDictionaryEntry("coal", new ItemStack(Items.COAL, 1, 0));
+        ensureOreDictionaryEntry("coal", new ItemStack(Items.COAL, 1, 1));
+    }
+
+    private static void ensureOreDictionaryEntry(String oreName, ItemStack stack) {
+        for (ItemStack existing : OreDictionary.getOres(oreName)) {
+            if (ItemStack.areItemsEqual(existing, stack)) {
+                return;
+            }
+        }
+        OreDictionary.registerOre(oreName, stack);
     }
 
     // ==================== Recipe Type Loaders ====================
@@ -276,7 +292,7 @@ public final class RecipeLoader {
                 input2,
                 result,
                 cookingTime,
-                energy / cookingTime,
+                Math.max(1, energy),
                 oreName1,
                 oreName2
             );
@@ -629,13 +645,21 @@ public final class RecipeLoader {
         } else if (json.has("tag")) {
             // Support for tag-based ingredients (treat as ore dictionary)
             String tag = json.get("tag").getAsString();
+            int count = json.has("count") ? json.get("count").getAsInt() : 1;
+            if (isCoalTag(tag)) {
+                ensureOreDictionaryFallbacks();
+                return new IngredientInfo(new ItemStack(Items.COAL, count, 0), "coal", count);
+            }
             // Convert tag format to ore dictionary format
             // "minecraft:coals" -> "coals", "ad_astra:steel_blocks" -> "blockSteel"
             String oreName = convertTagToOreName(tag);
-            int count = json.has("count") ? json.get("count").getAsInt() : 1;
             return new IngredientInfo(null, oreName, count);
         }
         return null;
+    }
+
+    private static boolean isCoalTag(String tag) {
+        return "minecraft:coals".equals(tag) || "coals".equals(tag);
     }
 
     /**

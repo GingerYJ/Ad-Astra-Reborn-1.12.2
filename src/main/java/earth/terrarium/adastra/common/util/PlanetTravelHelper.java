@@ -103,6 +103,18 @@ public final class PlanetTravelHelper {
         return custom;
     }
 
+    public static PlanetDimensionProperties getPlanetByOrbitDimensionId(int orbitDimensionId) {
+        if (orbitDimensionId == ModDimensions.EARTH_ORBIT_ID) {
+            return EARTH_PROPERTIES;
+        }
+        for (PlanetDimensionProperties planet : getPlanets()) {
+            if (getOrbitDimensionId(planet.getDimensionId()) == orbitDimensionId) {
+                return planet;
+            }
+        }
+        return null;
+    }
+
     public static boolean canRocketTierReach(int rocketTier, PlanetDimensionProperties planet) {
         if (planet == null) {
             return false;

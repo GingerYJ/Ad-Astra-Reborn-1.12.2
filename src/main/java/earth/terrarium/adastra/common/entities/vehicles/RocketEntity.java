@@ -4,9 +4,13 @@ import earth.terrarium.adastra.client.particle.ParticleHelper;
 import earth.terrarium.adastra.api.planets.Planet;
 import earth.terrarium.adastra.api.systems.OxygenApi;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
+import earth.terrarium.adastra.common.capability.AdAstraCapabilities;
+import earth.terrarium.adastra.common.capability.AdAstraPlayer;
+import earth.terrarium.adastra.common.capability.IAdAstraPlayer;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketOpenPlanetSelection;
+import earth.terrarium.adastra.common.network.packet.PacketSyncPlayerCapability;
 import earth.terrarium.adastra.common.planets.PlanetApiImpl;
 import earth.terrarium.adastra.common.registry.ModSounds;
 import earth.terrarium.adastra.common.util.KeybindManager;
@@ -591,6 +595,7 @@ public abstract class RocketEntity extends VehicleBase {
         Entity passenger = getControllingPassenger();
         if (passenger instanceof EntityPlayerMP) {
             setPlanetSelectionOpened(true);
+            syncPlayerCapability((EntityPlayerMP) passenger);
             NetworkHandler.CHANNEL.sendTo(
                 new PacketOpenPlanetSelection(Math.max(1, getRocketTier()), getEntityId()),
                 (EntityPlayerMP) passenger
@@ -598,6 +603,13 @@ public abstract class RocketEntity extends VehicleBase {
             return true;
         }
         return false;
+    }
+
+    private void syncPlayerCapability(EntityPlayerMP player) {
+        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
+        if (capability instanceof AdAstraPlayer) {
+            NetworkHandler.CHANNEL.sendTo(new PacketSyncPlayerCapability((AdAstraPlayer) capability), player);
+        }
     }
 
     private void explode() {

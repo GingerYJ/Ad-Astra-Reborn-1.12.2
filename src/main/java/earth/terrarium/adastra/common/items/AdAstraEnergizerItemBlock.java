@@ -4,10 +4,12 @@ import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -61,6 +63,18 @@ public class AdAstraEnergizerItemBlock extends ItemBlock {
     @Override
     public int getRGBDurabilityForDisplay(ItemStack stack) {
         return ENERGY_BAR_COLOR;
+    }
+
+    @Override
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+        if (!isInCreativeTab(tab)) {
+            return;
+        }
+
+        items.add(new ItemStack(this));
+        ItemStack charged = new ItemStack(this);
+        setEnergyStored(charged, AdAstraConfig.energizerEnergyCapacity);
+        items.add(charged);
     }
 
     public static int getEnergyStored(ItemStack stack) {

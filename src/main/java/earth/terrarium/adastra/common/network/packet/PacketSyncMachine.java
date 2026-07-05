@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.network.packet;
 
 import earth.terrarium.adastra.common.tile.AdAstraMachineTileEntity;
+import earth.terrarium.adastra.common.util.AdAstraFluidHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
@@ -63,7 +64,7 @@ public class PacketSyncMachine implements IMessage {
         // Read fluid stack
         boolean hasFluid = buf.readBoolean();
         if (hasFluid) {
-            fluidStack = FluidStack.loadFluidStackFromNBT(ByteBufUtils.readTag(buf));
+            fluidStack = AdAstraFluidHelper.loadFluidStackFromNBT(ByteBufUtils.readTag(buf));
         } else {
             fluidStack = null;
         }

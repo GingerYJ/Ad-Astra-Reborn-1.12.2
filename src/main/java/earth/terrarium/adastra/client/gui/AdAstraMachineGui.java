@@ -2,8 +2,29 @@ package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.planets.PlanetApi;
+import earth.terrarium.adastra.client.gui.widget.EnergyBarWidget;
+import earth.terrarium.adastra.client.gui.widget.FluidBarWidget;
+import earth.terrarium.adastra.client.gui.widget.GravitySliderWidget;
+import earth.terrarium.adastra.client.gui.widget.ImageButtonWidget;
+import earth.terrarium.adastra.client.gui.widget.OptionsBarWidget;
+import earth.terrarium.adastra.client.gui.widget.ProgressWidget;
+import earth.terrarium.adastra.client.gui.widget.SidedConfigWidget;
+import earth.terrarium.adastra.client.gui.widget.SlotWidget;
+import earth.terrarium.adastra.client.gui.machine.CoalGeneratorGui;
+import earth.terrarium.adastra.client.gui.machine.CompressorGui;
+import earth.terrarium.adastra.client.gui.machine.CryoFreezerGui;
+import earth.terrarium.adastra.client.gui.machine.EtrionicBlastFurnaceGui;
+import earth.terrarium.adastra.client.gui.machine.FuelRefineryGui;
+import earth.terrarium.adastra.client.gui.machine.GravityNormalizerGui;
+import earth.terrarium.adastra.client.gui.machine.NasaWorkbenchGui;
+import earth.terrarium.adastra.client.gui.machine.OxygenDistributorGui;
+import earth.terrarium.adastra.client.gui.machine.OxygenLoaderGui;
+import earth.terrarium.adastra.client.gui.machine.SolarPanelGui;
+import earth.terrarium.adastra.client.gui.machine.WaterPumpGui;
 import earth.terrarium.adastra.client.render.MachineAreaRenderState;
 import earth.terrarium.adastra.common.container.AdAstraMachineContainer;
+import earth.terrarium.adastra.common.container.slots.ImageSlot;
+import earth.terrarium.adastra.common.menus.base.MachineMenu;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketClearFluidTank;
 import earth.terrarium.adastra.common.network.packet.PacketResetSideConfig;
@@ -27,7 +48,6 @@ import java.util.List;
 
 public class AdAstraMachineGui extends GuiContainer {
 
-    private static final ResourceLocation FALLBACK_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/compressor.png");
     private static final ResourceLocation IRON_SLOT = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/slots/iron.png");
     private static final ResourceLocation STEEL_SLOT = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/slots/steel.png");
     private static final ResourceLocation CRYO_SLOT = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/slots/cryo.png");
@@ -62,24 +82,21 @@ public class AdAstraMachineGui extends GuiContainer {
     private static final ResourceLocation REDSTONE_NEVER = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/redstone/never_on_button.png");
     private static final ResourceLocation REDSTONE_NEVER_HIGHLIGHTED = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/buttons/redstone/never_on_button_highlighted.png");
 
-    private static final int ENERGY_WIDTH = 13;
-    private static final int ENERGY_HEIGHT = 46;
-    private static final int FLUID_WIDTH = 12;
-    private static final int FLUID_HEIGHT = 46;
+    private static final EnergyBarWidget ENERGY_BAR_WIDGET = new EnergyBarWidget(ENERGY_BAR);
+    private static final FluidBarWidget FLUID_BAR_WIDGET = new FluidBarWidget(FLUID_BAR);
+    private static final ProgressWidget FIRE_PROGRESS_WIDGET = new ProgressWidget(15, 15, FIRE, true);
+    private static final ProgressWidget HAMMER_PROGRESS_WIDGET = new ProgressWidget(15, 16, HAMMER, false);
+    private static final ProgressWidget FURNACE_PROGRESS_WIDGET = new ProgressWidget(20, 12, ARROW, false);
+    private static final ProgressWidget SNOWFLAKE_PROGRESS_WIDGET = new ProgressWidget(13, 13, SNOWFLAKE, false);
+    private static final ImageButtonWidget BUTTON_WIDGET = new ImageButtonWidget(18, 18);
+    private static final GravitySliderWidget GRAVITY_SLIDER_WIDGET = new GravitySliderWidget(SLIDER);
+    private static final OptionsBarWidget OPTIONS_BAR_WIDGET = new OptionsBarWidget(OPTIONS_BAR);
+    private static final SidedConfigWidget SIDED_CONFIG_WIDGET = new SidedConfigWidget();
+    private static final SlotWidget SLOT_WIDGET = new SlotWidget();
     private static final int EARTH_GRAVITY = 10;
     private static final int MAX_GRAVITY = 20;
-    private static final int REDSTONE_BUTTON_SIZE = 18;
-    private static final int OPTION_BUTTON_SIZE = 18;
-    private static final int OPTIONS_PADDING = 6;
-    private static final int OPTIONS_SPACING = 3;
-    private static final int OPTIONS_BAR_HEIGHT = 30;
-    private static final int SIDE_CONFIG_X = 8;
-    private static final int SIDE_CONFIG_Y = 18;
-    private static final int SIDE_CONFIG_WIDTH = 162;
-    private static final int SIDE_CONFIG_HEIGHT = 96;
-    private static final int SIDE_CONFIG_BUTTON = 18;
 
-    private final AdAstraMachineContainer container;
+    private final MachineMenu<?> container;
     private final ResourceLocation texture;
     private final ResourceLocation slotTexture;
     private final int guiId;
@@ -87,7 +104,7 @@ public class AdAstraMachineGui extends GuiContainer {
     private int lastEnergy = -1;
     private int energyDifference;
 
-    public AdAstraMachineGui(InventoryPlayer playerInventory, AdAstraMachineContainer container) {
+    public AdAstraMachineGui(InventoryPlayer playerInventory, MachineMenu<?> container) {
         super(container);
         this.container = container;
         AdAstraMachineContainer.Layout layout = container.getLayout();
@@ -96,6 +113,35 @@ public class AdAstraMachineGui extends GuiContainer {
         this.guiId = AdAstraMachineContainer.idFor(container.getMachine());
         this.texture = getTexture(layout);
         this.slotTexture = getSlotTexture(guiId);
+    }
+
+    public static AdAstraMachineGui create(InventoryPlayer playerInventory, MachineMenu<?> container) {
+        switch (AdAstraMachineContainer.idFor(container.getMachine())) {
+            case ModGuiIds.COAL_GENERATOR:
+                return new CoalGeneratorGui(playerInventory, container);
+            case ModGuiIds.COMPRESSOR:
+                return new CompressorGui(playerInventory, container);
+            case ModGuiIds.ETRIONIC_BLAST_FURNACE:
+                return new EtrionicBlastFurnaceGui(playerInventory, container);
+            case ModGuiIds.CRYO_FREEZER:
+                return new CryoFreezerGui(playerInventory, container);
+            case ModGuiIds.FUEL_REFINERY:
+                return new FuelRefineryGui(playerInventory, container);
+            case ModGuiIds.OXYGEN_LOADER:
+                return new OxygenLoaderGui(playerInventory, container);
+            case ModGuiIds.WATER_PUMP:
+                return new WaterPumpGui(playerInventory, container);
+            case ModGuiIds.SOLAR_PANEL:
+                return new SolarPanelGui(playerInventory, container);
+            case ModGuiIds.GRAVITY_NORMALIZER:
+                return new GravityNormalizerGui(playerInventory, container);
+            case ModGuiIds.OXYGEN_DISTRIBUTOR:
+                return new OxygenDistributorGui(playerInventory, container);
+            case ModGuiIds.NASA_WORKBENCH:
+                return new NasaWorkbenchGui(playerInventory, container);
+            default:
+                return new AdAstraMachineGui(playerInventory, container);
+        }
     }
 
     @Override
@@ -125,7 +171,7 @@ public class AdAstraMachineGui extends GuiContainer {
         }
 
         ButtonSpec leadingButton = getLeadingButtonSpec();
-        if (leadingButton != null && isMouseIn(mouseX, mouseY, left + leadingButton.x, top + leadingButton.y, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE)) {
+        if (leadingButton != null && BUTTON_WIDGET.isMouseOver(mouseX, mouseY, left + leadingButton.x, top + leadingButton.y)) {
             if (mouseButton == 0) {
                 handleLeadingOptionsButton();
             }
@@ -133,7 +179,7 @@ public class AdAstraMachineGui extends GuiContainer {
         }
 
         ButtonSpec settingsButton = getSettingsButtonSpec();
-        if (settingsButton != null && isMouseIn(mouseX, mouseY, left + settingsButton.x, top + settingsButton.y, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE)) {
+        if (settingsButton != null && BUTTON_WIDGET.isMouseOver(mouseX, mouseY, left + settingsButton.x, top + settingsButton.y)) {
             if (mouseButton == 0) {
                 sideConfigOpen = !sideConfigOpen;
             }
@@ -141,7 +187,7 @@ public class AdAstraMachineGui extends GuiContainer {
         }
 
         RedstoneButtonSpec redstoneButton = getRedstoneButtonSpec();
-        if (redstoneButton != null && isMouseIn(mouseX, mouseY, left + redstoneButton.x, top + redstoneButton.y, REDSTONE_BUTTON_SIZE, REDSTONE_BUTTON_SIZE)) {
+        if (redstoneButton != null && BUTTON_WIDGET.isMouseOver(mouseX, mouseY, left + redstoneButton.x, top + redstoneButton.y)) {
             if (mouseButton == 0) {
                 cycleRedstoneControl();
             }
@@ -179,15 +225,11 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     private void handleGravitySliderClick(int mouseX, int left) {
-        int trackX = left + 25;
-        int trackWidth = 108;
-        int relative = mouseX - trackX;
-        if (relative < -6 || relative > trackWidth + 6) {
+        int steps = GRAVITY_SLIDER_WIDGET.getStepsFromMouse(mouseX, left + 25);
+        if (steps < 0) {
             return;
         }
-        float fraction = clamp(relative / (float) trackWidth, 0.0f, 1.0f);
-        int steps = Math.round(fraction * 200.0f); // 0..200 -> gravity 0.0..2.0
-        sendButton(AdAstraMachineContainer.GRAVITY_ID_BASE + steps);
+        sendButton(MachineMenu.GRAVITY_ID_BASE + steps);
     }
 
     private void updateEnergyDifference() {
@@ -219,7 +261,7 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     private boolean tryClearFluidTank(int mouseX, int mouseY, int x, int y, int amount, int tank) {
-        if (amount <= 0 || !isMouseIn(mouseX, mouseY, x, y, FLUID_WIDTH, FLUID_HEIGHT)) {
+        if (amount <= 0 || !FLUID_BAR_WIDGET.isMouseOver(mouseX, mouseY, x, y)) {
             return false;
         }
         NetworkHandler.CHANNEL.sendToServer(new PacketClearFluidTank(container.getMachine().getPos(), tank));
@@ -232,8 +274,8 @@ public class AdAstraMachineGui extends GuiContainer {
 
     private void sendFurnaceModeButton() {
         sendButton(isShiftKeyDown()
-            ? AdAstraMachineContainer.PREVIOUS_FURNACE_MODE
-            : AdAstraMachineContainer.TOGGLE_FURNACE_MODE);
+            ? MachineMenu.PREVIOUS_FURNACE_MODE
+            : MachineMenu.TOGGLE_FURNACE_MODE);
     }
 
     private void cycleRedstoneControl() {
@@ -272,13 +314,11 @@ public class AdAstraMachineGui extends GuiContainer {
 
         drawOptionsBar(x, y, mouseX, mouseY);
         drawSlotFrames(x, y);
+        drawSlotIcons(x, y);
         drawMachineVisuals(x, y, mouseX, mouseY);
     }
 
     private ResourceLocation getTexture(AdAstraMachineContainer.Layout layout) {
-        if (guiId == ModGuiIds.ENERGIZER) {
-            return FALLBACK_TEXTURE;
-        }
         return new ResourceLocation(Reference.MOD_ID, "textures/gui/container/" + layout.getTextureName() + ".png");
     }
 
@@ -318,15 +358,22 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     private void drawSlotFrames(int left, int top) {
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         for (int i = 0; i < inventorySlots.inventorySlots.size(); i++) {
             Slot slot = inventorySlots.inventorySlots.get(i);
             ResourceLocation frame = getFrameTexture(i, slot);
             if (frame == null) {
                 continue;
             }
-            mc.getTextureManager().bindTexture(frame);
-            drawModalRectWithCustomSizedTexture(left + slot.xPos - 1, top + slot.yPos - 1, 0.0f, 0.0f, 18, 18, 18, 18);
+            SLOT_WIDGET.renderFrame(mc, frame, left, top, slot);
+        }
+    }
+
+    private void drawSlotIcons(int left, int top) {
+        for (Slot slot : inventorySlots.inventorySlots) {
+            if (!(slot instanceof ImageSlot) || slot.getHasStack()) {
+                continue;
+            }
+            SLOT_WIDGET.renderIcon(mc, ((ImageSlot) slot).getIcon(), left, top, slot);
         }
     }
 
@@ -338,18 +385,16 @@ public class AdAstraMachineGui extends GuiContainer {
 
         int x = left + spec.x;
         int y = top + spec.y;
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(OPTIONS_BAR);
-        drawScaledCustomSizeModalRect(x, y, 0.0f, 0.0f, 30, 30, spec.width, OPTIONS_BAR_HEIGHT, 30.0f, 30.0f);
+        OPTIONS_BAR_WIDGET.render(mc, x, y, spec.width);
 
-        int buttonX = x + OPTIONS_PADDING;
-        int buttonY = y + OPTIONS_PADDING;
+        int buttonIndex = 0;
+        int buttonY = y + OPTIONS_BAR_WIDGET.getButtonOffsetY();
         if (hasLeadingOptionsButton()) {
-            drawOptionsButton(getLeadingOptionsButtonTexture(), buttonX, buttonY);
-            buttonX += OPTION_BUTTON_SIZE + OPTIONS_SPACING;
+            drawOptionsButton(getLeadingOptionsButtonTexture(), x + OPTIONS_BAR_WIDGET.getButtonOffsetX(buttonIndex), buttonY);
+            buttonIndex++;
         }
 
-        drawOptionsButton(SETTINGS_BUTTON, buttonX, buttonY);
+        drawOptionsButton(SETTINGS_BUTTON, x + OPTIONS_BAR_WIDGET.getButtonOffsetX(buttonIndex), buttonY);
     }
 
     private void drawSideConfigPanel(int mouseX, int mouseY) {
@@ -357,29 +402,28 @@ public class AdAstraMachineGui extends GuiContainer {
             return;
         }
 
-        int left = getGuiLeft() + SIDE_CONFIG_X;
-        int top = getGuiTop() + SIDE_CONFIG_Y;
-        drawGradientRect(left, top, left + SIDE_CONFIG_WIDTH, top + SIDE_CONFIG_HEIGHT, 0xEE2E2A31, 0xEE4F4753);
-        drawRect(left, top, left + SIDE_CONFIG_WIDTH, top + 1, 0xFF8E8290);
-        drawRect(left, top + SIDE_CONFIG_HEIGHT - 1, left + SIDE_CONFIG_WIDTH, top + SIDE_CONFIG_HEIGHT, 0xFF1E1A20);
+        int left = SIDED_CONFIG_WIDGET.getLeft(getGuiLeft());
+        int top = SIDED_CONFIG_WIDGET.getTop(getGuiTop());
+        SIDED_CONFIG_WIDGET.renderBackground(left, top);
         fontRenderer.drawString(I18n.format("side_config.ad_astra.title", ""), left + 6, top + 6, 0xD8D0D8);
-        drawOptionsButton(RESET_BUTTON, left + SIDE_CONFIG_WIDTH - SIDE_CONFIG_BUTTON - 6, top + 5);
+        drawOptionsButton(RESET_BUTTON, SIDED_CONFIG_WIDGET.getResetButtonX(left), SIDED_CONFIG_WIDGET.getResetButtonY(top));
 
         EnumFacing[] sides = getConfigSides();
         for (int i = 0; i < sides.length; i++) {
-            fontRenderer.drawString(shortSideName(sides[i]), left + 47 + i * 18, top + 21, 0xBDB4C2);
+            fontRenderer.drawString(shortSideName(sides[i]), SIDED_CONFIG_WIDGET.getSideLabelX(left, i), SIDED_CONFIG_WIDGET.getSideLabelY(top), 0xBDB4C2);
         }
 
         SideConfigType[] types = SideConfigType.values();
         for (int row = 0; row < types.length; row++) {
-            int y = top + 34 + row * 20;
-            fontRenderer.drawString(getSideConfigTypeLabel(types[row]), left + 6, y + 5, 0xD8D0D8);
+            int y = SIDED_CONFIG_WIDGET.getModeButtonY(top, row);
+            fontRenderer.drawString(getSideConfigTypeLabel(types[row]), SIDED_CONFIG_WIDGET.getTypeLabelX(left), SIDED_CONFIG_WIDGET.getTypeLabelY(top, row), 0xD8D0D8);
             for (int column = 0; column < sides.length; column++) {
-                int x = left + 44 + column * 18;
+                int x = SIDED_CONFIG_WIDGET.getModeButtonX(left, column);
                 AdAstraSideMode mode = container.getMachine().getSideMode(sides[column], types[row]);
                 drawOptionsButton(getSideModeTexture(mode), x, y);
             }
         }
+        SIDED_CONFIG_WIDGET.finishRender();
     }
 
     private boolean handleSideConfigClick(int mouseX, int mouseY, int mouseButton, int left, int top) {
@@ -387,14 +431,14 @@ public class AdAstraMachineGui extends GuiContainer {
             return false;
         }
 
-        int panelLeft = left + SIDE_CONFIG_X;
-        int panelTop = top + SIDE_CONFIG_Y;
-        if (!isMouseIn(mouseX, mouseY, panelLeft, panelTop, SIDE_CONFIG_WIDTH, SIDE_CONFIG_HEIGHT)) {
+        int panelLeft = SIDED_CONFIG_WIDGET.getLeft(left);
+        int panelTop = SIDED_CONFIG_WIDGET.getTop(top);
+        if (!SIDED_CONFIG_WIDGET.isInside(mouseX, mouseY, panelLeft, panelTop)) {
             sideConfigOpen = false;
             return false;
         }
 
-        if (isMouseIn(mouseX, mouseY, panelLeft + SIDE_CONFIG_WIDTH - SIDE_CONFIG_BUTTON - 6, panelTop + 5, SIDE_CONFIG_BUTTON, SIDE_CONFIG_BUTTON)) {
+        if (BUTTON_WIDGET.isMouseOver(mouseX, mouseY, SIDED_CONFIG_WIDGET.getResetButtonX(panelLeft), SIDED_CONFIG_WIDGET.getResetButtonY(panelTop))) {
             resetSideConfig();
             return true;
         }
@@ -402,10 +446,10 @@ public class AdAstraMachineGui extends GuiContainer {
         EnumFacing[] sides = getConfigSides();
         SideConfigType[] types = SideConfigType.values();
         for (int row = 0; row < types.length; row++) {
-            int y = panelTop + 34 + row * 20;
+            int y = SIDED_CONFIG_WIDGET.getModeButtonY(panelTop, row);
             for (int column = 0; column < sides.length; column++) {
-                int x = panelLeft + 44 + column * 18;
-                if (isMouseIn(mouseX, mouseY, x, y, SIDE_CONFIG_BUTTON, SIDE_CONFIG_BUTTON)) {
+                int x = SIDED_CONFIG_WIDGET.getModeButtonX(panelLeft, column);
+                if (BUTTON_WIDGET.isMouseOver(mouseX, mouseY, x, y)) {
                     cycleSideMode(sides[column], types[row]);
                     return true;
                 }
@@ -426,9 +470,7 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     private void drawOptionsButton(ResourceLocation texture, int x, int y) {
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(texture);
-        drawModalRectWithCustomSizedTexture(x, y, 0.0f, 0.0f, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE);
+        BUTTON_WIDGET.render(mc, texture, x, y);
     }
 
     private ResourceLocation getFrameTexture(int slotIndex, Slot slot) {
@@ -455,7 +497,7 @@ public class AdAstraMachineGui extends GuiContainer {
     private void drawEnergyForMachine(int left, int top) {
         BarSpec energy = getEnergyBarSpec();
         if (energy != null) {
-            drawEnergyBar(left + energy.x, top + energy.y, field(0), field(1));
+            ENERGY_BAR_WIDGET.render(mc, left + energy.x, top + energy.y, field(0), field(1));
         }
     }
 
@@ -515,13 +557,13 @@ public class AdAstraMachineGui extends GuiContainer {
     private void drawProgressForMachine(int left, int top) {
         switch (guiId) {
             case ModGuiIds.COAL_GENERATOR:
-                drawVerticalProgress(left + 78, top + 54, 15, 15, field(4), field(5), FIRE);
+                FIRE_PROGRESS_WIDGET.render(mc, left + 78, top + 54, field(4), field(5));
                 break;
             case ModGuiIds.COMPRESSOR:
-                drawHorizontalProgress(left + 72, top + 59, 15, 16, field(4), field(5), HAMMER);
+                HAMMER_PROGRESS_WIDGET.render(mc, left + 72, top + 59, field(4), field(5));
                 break;
             case ModGuiIds.ETRIONIC_BLAST_FURNACE:
-                drawHorizontalProgress(left + 75, top + 50, 20, 12, field(4), field(5), ARROW);
+                FURNACE_PROGRESS_WIDGET.render(mc, left + 75, top + 50, field(4), field(5));
                 if (field(5) > 0) {
                     GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
                     mc.getTextureManager().bindTexture(FURNACE_OVERLAY);
@@ -529,7 +571,7 @@ public class AdAstraMachineGui extends GuiContainer {
                 }
                 break;
             case ModGuiIds.CRYO_FREEZER:
-                drawHorizontalProgress(left + 54, top + 71, 13, 13, field(4), field(5), SNOWFLAKE);
+                SNOWFLAKE_PROGRESS_WIDGET.render(mc, left + 54, top + 71, field(4), field(5));
                 break;
             default:
                 break;
@@ -562,14 +604,12 @@ public class AdAstraMachineGui extends GuiContainer {
 
         int x = left + spec.x;
         int y = top + spec.y;
-        boolean isHovered = isMouseIn(mouseX, mouseY, x, y, REDSTONE_BUTTON_SIZE, REDSTONE_BUTTON_SIZE);
+        boolean isHovered = BUTTON_WIDGET.isMouseOver(mouseX, mouseY, x, y);
 
         AdAstraRedstoneControl mode = container.getMachine().getRedstoneControl();
         ResourceLocation texture = getRedstoneButtonTexture(mode, isHovered);
 
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(texture);
-        drawModalRectWithCustomSizedTexture(x, y, 0.0f, 0.0f, REDSTONE_BUTTON_SIZE, REDSTONE_BUTTON_SIZE, REDSTONE_BUTTON_SIZE, REDSTONE_BUTTON_SIZE);
+        BUTTON_WIDGET.render(mc, texture, x, y);
     }
 
     private ResourceLocation getRedstoneButtonTexture(AdAstraRedstoneControl mode, boolean hovered) {
@@ -594,8 +634,8 @@ public class AdAstraMachineGui extends GuiContainer {
 
         int index = hasLeadingOptionsButton() ? 2 : 1;
         return new RedstoneButtonSpec(
-            optionsBar.x + OPTIONS_PADDING + index * (OPTION_BUTTON_SIZE + OPTIONS_SPACING),
-            optionsBar.y + OPTIONS_PADDING
+            optionsBar.x + OPTIONS_BAR_WIDGET.getButtonOffsetX(index),
+            optionsBar.y + OPTIONS_BAR_WIDGET.getButtonOffsetY()
         );
     }
 
@@ -606,8 +646,8 @@ public class AdAstraMachineGui extends GuiContainer {
         }
         int index = hasLeadingOptionsButton() ? 1 : 0;
         return new ButtonSpec(
-            optionsBar.x + OPTIONS_PADDING + index * (OPTION_BUTTON_SIZE + OPTIONS_SPACING),
-            optionsBar.y + OPTIONS_PADDING
+            optionsBar.x + OPTIONS_BAR_WIDGET.getButtonOffsetX(index),
+            optionsBar.y + OPTIONS_BAR_WIDGET.getButtonOffsetY()
         );
     }
 
@@ -616,7 +656,7 @@ public class AdAstraMachineGui extends GuiContainer {
         if (optionsBar == null || !hasLeadingOptionsButton()) {
             return null;
         }
-        return new ButtonSpec(optionsBar.x + OPTIONS_PADDING, optionsBar.y + OPTIONS_PADDING);
+        return new ButtonSpec(optionsBar.x + OPTIONS_BAR_WIDGET.getButtonOffsetX(0), optionsBar.y + OPTIONS_BAR_WIDGET.getButtonOffsetY());
     }
 
     private OptionsBarSpec getOptionsBarSpec() {
@@ -625,11 +665,11 @@ public class AdAstraMachineGui extends GuiContainer {
         }
 
         int buttons = 2 + (container.getLayout().hasBatterySlot() ? 1 : 0) + (hasLeadingOptionsButton() ? 1 : 0);
-        int width = OPTIONS_PADDING * 2 + buttons * OPTION_BUTTON_SIZE + Math.max(0, buttons - 1) * OPTIONS_SPACING;
+        int width = OPTIONS_BAR_WIDGET.getWidth(buttons);
         if (guiId == ModGuiIds.OXYGEN_DISTRIBUTOR) {
             return new OptionsBarSpec(98, 0, width);
         }
-        return new OptionsBarSpec(xSize - width, -OPTIONS_BAR_HEIGHT - 2, width);
+        return new OptionsBarSpec(xSize - width, -OptionsBarWidget.HEIGHT - 2, width);
     }
 
     private boolean hasRedstoneOptionsBar() {
@@ -716,20 +756,13 @@ public class AdAstraMachineGui extends GuiContainer {
         drawCenteredSmallText(gravity, left + 78, top + 32, 0x8CF5F5, 0x32506E);
         drawShadowedSmallText(I18n.format("tooltip.ad_astra.energy_per_tick", field(8)), left + 45, top + 82, 0x8CF5F5, 0x32506E);
         drawShadowedSmallText(I18n.format("tooltip.ad_astra.blocks_distributed", field(6), field(7)), left + 45, top + 93, 0x8CF5F5, 0x32506E);
-        drawGravitySlider(left + 25, top + 52, targetGravity);
+        GRAVITY_SLIDER_WIDGET.render(mc, left + 25, top + 52, targetGravity);
     }
 
     private void drawOxygenDistributorStatus(int left, int top) {
         fontRenderer.drawString(I18n.format("tooltip.ad_astra.energy_per_tick", field(8)), left + 11, top + 9, 0x68D975);
         fontRenderer.drawString(I18n.format("tooltip.ad_astra.fluid_per_tick", field(9)), left + 11, top + 20, 0x68D975);
         fontRenderer.drawString(I18n.format("tooltip.ad_astra.blocks_distributed", field(6), field(7)), left + 11, top + 31, 0x68D975);
-    }
-
-    private void drawGravitySlider(int x, int y, float targetGravity) {
-        int sliderX = x + Math.round(clamp(targetGravity, 0.0f, 2.0f) / 2.0f * 103.0f);
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(SLIDER);
-        drawModalRectWithCustomSizedTexture(sliderX, y - 5, 0.0f, 0.0f, 5, 21, 5, 21);
     }
 
     private void drawModeLabel(int x, int y) {
@@ -739,49 +772,8 @@ public class AdAstraMachineGui extends GuiContainer {
         drawShadowedSmallText(I18n.format("tooltip.ad_astra.etrionic_blast_furnace.mode", I18n.format(modeKey)), x, y, 0x8CF5F5, 0x32506E);
     }
 
-    private void drawEnergyBar(int x, int y, int energy, int capacity) {
-        int fill = getScaled(energy, capacity, ENERGY_HEIGHT);
-        drawInsetFill(x + 3, y + ENERGY_HEIGHT - fill, ENERGY_WIDTH - 6, fill, 0xFF5BD4E8, 0xFF1D5776);
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(ENERGY_BAR);
-        drawModalRectWithCustomSizedTexture(x, y, 0.0f, 0.0f, ENERGY_WIDTH, ENERGY_HEIGHT, ENERGY_WIDTH, ENERGY_HEIGHT);
-    }
-
     private void drawFluidBar(int x, int y, int amount, int capacity, int color) {
-        int fill = getScaled(amount, capacity, FLUID_HEIGHT);
-        int dark = darken(color);
-        drawInsetFill(x + 2, y + FLUID_HEIGHT - fill, FLUID_WIDTH - 4, fill, 0xFF000000 | color, 0xFF000000 | dark);
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(FLUID_BAR);
-        drawModalRectWithCustomSizedTexture(x, y, 0.0f, 0.0f, FLUID_WIDTH, FLUID_HEIGHT, FLUID_WIDTH, FLUID_HEIGHT);
-    }
-
-    private void drawInsetFill(int x, int y, int width, int height, int topColor, int bottomColor) {
-        if (height <= 0) {
-            return;
-        }
-        drawGradientRect(x, y, x + width, y + height, topColor, bottomColor);
-    }
-
-    private void drawHorizontalProgress(int x, int y, int barWidth, int barHeight, int progress, int maxProgress, ResourceLocation sprite) {
-        int fill = getScaled(progress, maxProgress, barWidth);
-        if (fill <= 0) {
-            return;
-        }
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(sprite);
-        drawModalRectWithCustomSizedTexture(x, y, 0.0f, 0.0f, fill, barHeight, barWidth, barHeight);
-    }
-
-    private void drawVerticalProgress(int x, int y, int barWidth, int barHeight, int progress, int maxProgress, ResourceLocation sprite) {
-        int fill = getScaled(progress, maxProgress, barHeight);
-        if (fill <= 0) {
-            return;
-        }
-        int offset = barHeight - fill;
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.getTextureManager().bindTexture(sprite);
-        drawModalRectWithCustomSizedTexture(x, y + offset, 0.0f, offset, barWidth, fill, barWidth, barHeight);
+        FLUID_BAR_WIDGET.render(mc, x, y, amount, capacity, color);
     }
 
     private void drawCenteredSmallText(String text, int x, int y, int color, int shadowColor) {
@@ -807,7 +799,7 @@ public class AdAstraMachineGui extends GuiContainer {
         int top = getGuiTop();
 
         BarSpec energy = getEnergyBarSpec();
-        if (energy != null && isMouseIn(mouseX, mouseY, left + energy.x, top + energy.y, ENERGY_WIDTH, ENERGY_HEIGHT)) {
+        if (energy != null && ENERGY_BAR_WIDGET.isMouseOver(mouseX, mouseY, left + energy.x, top + energy.y)) {
             addEnergyTooltip(tooltip);
             return tooltip;
         }
@@ -862,7 +854,7 @@ public class AdAstraMachineGui extends GuiContainer {
     }
 
     private void addFluidTooltip(List<String> tooltip, int mouseX, int mouseY, int x, int y, String label, int amount, int capacity) {
-        if (tooltip.isEmpty() && isMouseIn(mouseX, mouseY, x, y, FLUID_WIDTH, FLUID_HEIGHT)) {
+        if (tooltip.isEmpty() && FLUID_BAR_WIDGET.isMouseOver(mouseX, mouseY, x, y)) {
             tooltip.add(label);
             tooltip.add(formatMillibuckets(amount, capacity));
             if (amount > 0) {
@@ -874,24 +866,21 @@ public class AdAstraMachineGui extends GuiContainer {
     private void addProgressTooltip(List<String> tooltip, int mouseX, int mouseY, int left, int top) {
         switch (guiId) {
             case ModGuiIds.COAL_GENERATOR:
-                addProgressTooltip(tooltip, mouseX, mouseY, left + 78, top + 54, 15, 15, field(4), field(5));
+                addProgressTooltip(tooltip, mouseX, mouseY, left + 78, top + 54, FIRE_PROGRESS_WIDGET, field(4), field(5));
                 break;
             case ModGuiIds.COMPRESSOR:
-                addProgressTooltip(tooltip, mouseX, mouseY, left + 72, top + 59, 15, 16, field(4), field(5));
                 break;
             case ModGuiIds.ETRIONIC_BLAST_FURNACE:
-                addProgressTooltip(tooltip, mouseX, mouseY, left + 75, top + 50, 20, 12, field(4), field(5));
                 break;
             case ModGuiIds.CRYO_FREEZER:
-                addProgressTooltip(tooltip, mouseX, mouseY, left + 54, top + 71, 13, 13, field(4), field(5));
                 break;
             default:
                 break;
         }
     }
 
-    private void addProgressTooltip(List<String> tooltip, int mouseX, int mouseY, int x, int y, int width, int height, int progress, int maxProgress) {
-        if (isMouseIn(mouseX, mouseY, x, y, width, height)) {
+    private void addProgressTooltip(List<String> tooltip, int mouseX, int mouseY, int x, int y, ProgressWidget widget, int progress, int maxProgress) {
+        if (widget.isMouseOver(mouseX, mouseY, x, y)) {
             tooltip.add(I18n.format("tooltip.ad_astra.progress", progress, maxProgress));
         }
     }
@@ -909,14 +898,14 @@ public class AdAstraMachineGui extends GuiContainer {
 
         // Redstone button tooltip
         RedstoneButtonSpec redstoneButton = getRedstoneButtonSpec();
-        if (redstoneButton != null && isMouseIn(mouseX, mouseY, left + redstoneButton.x, top + redstoneButton.y, REDSTONE_BUTTON_SIZE, REDSTONE_BUTTON_SIZE)) {
+        if (redstoneButton != null && BUTTON_WIDGET.isMouseOver(mouseX, mouseY, left + redstoneButton.x, top + redstoneButton.y)) {
             AdAstraRedstoneControl mode = container.getMachine().getRedstoneControl();
             tooltip.add(I18n.format("tooltip.ad_astra.redstone_control"));
             tooltip.add(I18n.format("tooltip.ad_astra.redstone_control." + mode.name().toLowerCase()));
             return;
         }
 
-        if (guiId == ModGuiIds.GRAVITY_NORMALIZER && isMouseIn(mouseX, mouseY, left + 25, top + 52, 108, 11)) {
+        if (guiId == ModGuiIds.GRAVITY_NORMALIZER && GRAVITY_SLIDER_WIDGET.isMouseOver(mouseX, mouseY, left + 25, top + 52)) {
             tooltip.add(I18n.format("tooltip.ad_astra.gravity_amount", field(9) / 1000.0f * EARTH_GRAVITY, (float) MAX_GRAVITY));
         } else if (guiId == ModGuiIds.ETRIONIC_BLAST_FURNACE && isMouseIn(mouseX, mouseY, left + 23, top + 79, 45, 19)) {
             String modeKey = field(6) == 1
@@ -928,13 +917,13 @@ public class AdAstraMachineGui extends GuiContainer {
 
     private void addOptionsButtonTooltip(List<String> tooltip, int mouseX, int mouseY, int left, int top) {
         ButtonSpec settingsButton = getSettingsButtonSpec();
-        if (settingsButton != null && isMouseIn(mouseX, mouseY, left + settingsButton.x, top + settingsButton.y, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE)) {
+        if (settingsButton != null && BUTTON_WIDGET.isMouseOver(mouseX, mouseY, left + settingsButton.x, top + settingsButton.y)) {
             tooltip.add(I18n.format("tooltip.ad_astra.side_config"));
             return;
         }
 
         ButtonSpec leadingButton = getLeadingButtonSpec();
-        if (leadingButton != null && isMouseIn(mouseX, mouseY, left + leadingButton.x, top + leadingButton.y, OPTION_BUTTON_SIZE, OPTION_BUTTON_SIZE)) {
+        if (leadingButton != null && BUTTON_WIDGET.isMouseOver(mouseX, mouseY, left + leadingButton.x, top + leadingButton.y)) {
             if (guiId == ModGuiIds.ETRIONIC_BLAST_FURNACE) {
                 String modeKey = field(6) == 1
                     ? "tooltip.ad_astra.etrionic_blast_furnace.mode.blasting"
@@ -953,9 +942,9 @@ public class AdAstraMachineGui extends GuiContainer {
             return;
         }
 
-        int panelLeft = left + SIDE_CONFIG_X;
-        int panelTop = top + SIDE_CONFIG_Y;
-        if (isMouseIn(mouseX, mouseY, panelLeft + SIDE_CONFIG_WIDTH - SIDE_CONFIG_BUTTON - 6, panelTop + 5, SIDE_CONFIG_BUTTON, SIDE_CONFIG_BUTTON)) {
+        int panelLeft = SIDED_CONFIG_WIDGET.getLeft(left);
+        int panelTop = SIDED_CONFIG_WIDGET.getTop(top);
+        if (BUTTON_WIDGET.isMouseOver(mouseX, mouseY, SIDED_CONFIG_WIDGET.getResetButtonX(panelLeft), SIDED_CONFIG_WIDGET.getResetButtonY(panelTop))) {
             tooltip.add(I18n.format("tooltip.ad_astra.reset_to_default"));
             return;
         }
@@ -963,10 +952,10 @@ public class AdAstraMachineGui extends GuiContainer {
         EnumFacing[] sides = getConfigSides();
         SideConfigType[] types = SideConfigType.values();
         for (int row = 0; row < types.length; row++) {
-            int y = panelTop + 34 + row * 20;
+            int y = SIDED_CONFIG_WIDGET.getModeButtonY(panelTop, row);
             for (int column = 0; column < sides.length; column++) {
-                int x = panelLeft + 44 + column * 18;
-                if (isMouseIn(mouseX, mouseY, x, y, SIDE_CONFIG_BUTTON, SIDE_CONFIG_BUTTON)) {
+                int x = SIDED_CONFIG_WIDGET.getModeButtonX(panelLeft, column);
+                if (BUTTON_WIDGET.isMouseOver(mouseX, mouseY, x, y)) {
                     AdAstraSideMode mode = container.getMachine().getSideMode(sides[column], types[row]);
                     tooltip.add(I18n.format("side_config.ad_astra.type.type", getSideConfigTypeLabel(types[row])));
                     tooltip.add(I18n.format("side_config.ad_astra.type.direction", sides[column].getName(), I18n.format("side_config.ad_astra.type." + mode.name().toLowerCase())));
@@ -996,10 +985,6 @@ public class AdAstraMachineGui extends GuiContainer {
 
     private boolean isMouseIn(int mouseX, int mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
-    }
-
-    private float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
     }
 
     private String formatMillibuckets(int amount, int capacity) {

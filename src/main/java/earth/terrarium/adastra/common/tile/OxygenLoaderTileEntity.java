@@ -2,6 +2,7 @@ package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModSounds;
+import earth.terrarium.adastra.common.util.AdAstraFluidHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -294,6 +295,17 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
         }
 
         @Override
+        public FluidTank readFromNBT(NBTTagCompound nbt) {
+            setFluid(AdAstraFluidHelper.loadFluidStackFromNBT(nbt));
+            return this;
+        }
+
+        @Override
+        public void setFluid(FluidStack fluid) {
+            super.setFluid(AdAstraFluidHelper.normalizeFluidStack(fluid));
+        }
+
+        @Override
         protected void onContentsChanged() {
             markDirty();
         }
@@ -309,12 +321,23 @@ public class OxygenLoaderTileEntity extends AdAstraMachineTileEntity {
 
         @Override
         public boolean canFillFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+            return AdAstraFluidHelper.isOxygen(fluid);
         }
 
         @Override
         public boolean canDrainFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+            return AdAstraFluidHelper.isOxygen(fluid);
+        }
+
+        @Override
+        public FluidTank readFromNBT(NBTTagCompound nbt) {
+            setFluid(AdAstraFluidHelper.loadFluidStackFromNBT(nbt));
+            return this;
+        }
+
+        @Override
+        public void setFluid(FluidStack fluid) {
+            super.setFluid(AdAstraFluidHelper.normalizeFluidStack(fluid));
         }
 
         @Override

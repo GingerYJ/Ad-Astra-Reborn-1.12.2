@@ -4,10 +4,11 @@ import earth.terrarium.adastra.common.recipe.AlloySmeltingRecipe;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class BlastFurnaceRecipeWrapper implements IRecipeWrapper {
 
@@ -19,11 +20,24 @@ public class BlastFurnaceRecipeWrapper implements IRecipeWrapper {
 
     @Override
     public void getIngredients(@Nonnull IIngredients ingredients) {
-        ingredients.setInputs(VanillaTypes.ITEM, Arrays.asList(
-            recipe.getInput1(),
-            recipe.getInput2()
-        ));
+        List<List<ItemStack>> inputs = java.util.Arrays.asList(
+            Collections.singletonList(recipe.getInput1()),
+            Collections.singletonList(recipe.getInput2())
+        );
+        ingredients.setInputLists(VanillaTypes.ITEM, inputs);
         ingredients.setOutput(VanillaTypes.ITEM, recipe.getResult());
+    }
+
+    public ItemStack getInput1() {
+        return recipe.getInput1();
+    }
+
+    public ItemStack getInput2() {
+        return recipe.getInput2();
+    }
+
+    public ItemStack getResult() {
+        return recipe.getResult();
     }
 
     @Nonnull

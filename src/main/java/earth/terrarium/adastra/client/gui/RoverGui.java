@@ -1,7 +1,7 @@
 package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
-import earth.terrarium.adastra.common.container.RoverContainer;
+import earth.terrarium.adastra.common.menus.vehicles.RoverMenu;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,9 +19,9 @@ public class RoverGui extends GuiContainer {
     private static final int RADIO_BUTTON = 20;
     private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/rover.png");
 
-    private final RoverContainer container;
+    private final RoverMenu container;
 
-    public RoverGui(InventoryPlayer playerInventory, RoverContainer container) {
+    public RoverGui(InventoryPlayer playerInventory, RoverMenu container) {
         super(container);
         this.container = container;
         this.xSize = 177;

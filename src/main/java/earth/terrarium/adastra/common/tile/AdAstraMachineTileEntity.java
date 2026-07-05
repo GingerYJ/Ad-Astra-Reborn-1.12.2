@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.container.AdAstraFluidTank;
 import earth.terrarium.adastra.common.performance.PerformanceTracker;
 import earth.terrarium.adastra.common.util.MachineStateUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -82,7 +83,7 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             }
         };
         this.energy = energyCapacity > 0 ? new AdAstraEnergyStorage(energyCapacity, maxReceive, maxExtract) : null;
-        this.fluidTank = fluidCapacity > 0 ? new FluidTank(fluidCapacity) {
+        this.fluidTank = fluidCapacity > 0 ? new AdAstraFluidTank(fluidCapacity) {
             @Override
             protected void onContentsChanged() {
                 markDirty();

@@ -86,5 +86,8 @@ public class BlastFurnaceRecipeCategory implements IRecipeCategory<BlastFurnaceR
         recipeLayout.getItemStacks().init(2, false, 101, 38);
 
         recipeLayout.getItemStacks().set(ingredients);
+        recipeLayout.getItemStacks().set(0, recipeWrapper.getInput1());
+        recipeLayout.getItemStacks().set(1, recipeWrapper.getInput2());
+        recipeLayout.getItemStacks().set(2, recipeWrapper.getResult());
     }
 }

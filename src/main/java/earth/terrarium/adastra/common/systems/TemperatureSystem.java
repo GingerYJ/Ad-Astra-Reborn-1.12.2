@@ -3,13 +3,11 @@ package earth.terrarium.adastra.common.systems;
 import earth.terrarium.adastra.api.events.AdAstraEvents;
 import earth.terrarium.adastra.api.systems.PlanetData;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
-import earth.terrarium.adastra.common.items.AdAstraArmorItem;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -140,45 +138,15 @@ public class TemperatureSystem {
      * @return Temperature protection in degrees (positive = protects from heat AND cold)
      */
     public static float getTemperatureProtection(EntityLivingBase entity) {
-        // Count space suit pieces
-        int spaceSuitPieces = 0;
-        boolean hasJetSuitPiece = false;
-        boolean hasNetheritePiece = false;
+        return hasFreezeProtection(entity) || hasHeatProtection(entity) ? Float.MAX_VALUE : 0.0f;
+    }
 
-        for (ItemStack armorPiece : entity.getArmorInventoryList()) {
-            if (!armorPiece.isEmpty() && armorPiece.getItem() instanceof AdAstraArmorItem) {
-                AdAstraArmorItem armorItem = (AdAstraArmorItem) armorPiece.getItem();
-                spaceSuitPieces++;
+    public static boolean hasFreezeProtection(EntityLivingBase entity) {
+        return SpaceSuitItem.hasFullSet(entity);
+    }
 
-                // Detect suit type by checking if it's a jet suit or has oxygen capacity
-                if (armorItem.isJetSuitChestPiece()) {
-                    hasJetSuitPiece = true;
-                } else if (armorItem.isOxygenChestPiece()) {
-                    // Check oxygen capacity via NBT or assume netherite if capacity > 1000
-                    // For simplicity, we'll treat all oxygen suits as providing protection
-                    hasNetheritePiece = true;
-                }
-            }
-        }
-
-        // Full set provides complete protection (4 pieces)
-        // In 1.20.x, any full space-resistant armor set provides full protection
-        if (spaceSuitPieces >= 4) {
-            if (hasJetSuitPiece) {
-                // Jet suit provides maximum protection (can handle all extremes)
-                return Float.MAX_VALUE;
-            } else if (hasNetheritePiece) {
-                // Netherite provides excellent protection
-                return Float.MAX_VALUE;
-            } else {
-                // Basic space suit provides standard protection
-                return Float.MAX_VALUE;
-            }
-        }
-
-        // Partial sets provide no protection (aligned with 1.20.x behavior)
-        // In 1.20.x, only full sets provide protection via hasFullSet check
-        return 0.0f;
+    public static boolean hasHeatProtection(EntityLivingBase entity) {
+        return SpaceSuitItem.hasFullHeatResistantSet(entity);
     }
 
     /**
@@ -231,13 +199,6 @@ public class TemperatureSystem {
         BlockPos pos = entity.getPosition();
         short temperature = getTemperatureAtPos(world, pos);
 
-        // Check if wearing full space suit (provides complete protection)
-        float protection = getTemperatureProtection(entity);
-        if (protection >= Float.MAX_VALUE / 2) {
-            // Full suit provides complete protection
-            return;
-        }
-
         if ((temperature > MAX_LIVEABLE_TEMPERATURE || temperature < MIN_LIVEABLE_TEMPERATURE)
             && world instanceof WorldServer
             && !AdAstraEvents.TemperatureTickEvent.fire((WorldServer) world, entity)) {
@@ -246,6 +207,10 @@ public class TemperatureSystem {
 
         // Apply heat damage (>70°C)
         if (temperature > MAX_LIVEABLE_TEMPERATURE) {
+            if (hasHeatProtection(entity)) {
+                return;
+            }
+
             if (world instanceof WorldServer
                 && !AdAstraEvents.HotTemperatureTickEvent.fire((WorldServer) world, entity)) {
                 return;
@@ -259,6 +224,10 @@ public class TemperatureSystem {
         }
         // Apply freeze damage (<-50°C)
         else if (temperature < MIN_LIVEABLE_TEMPERATURE) {
+            if (hasFreezeProtection(entity)) {
+                return;
+            }
+
             if (world instanceof WorldServer
                 && !AdAstraEvents.ColdTemperatureTickEvent.fire((WorldServer) world, entity)) {
                 return;

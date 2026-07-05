@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.container;
 
+import earth.terrarium.adastra.common.registry.ModFluids;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.function.Predicate;
@@ -150,8 +151,7 @@ public class ContainerFactory {
     public static Predicate<FluidStack> oxygenOnly() {
         return fluid -> {
             if (fluid == null || fluid.getFluid() == null) return false;
-            String name = fluid.getFluid().getName();
-            return name.equals("oxygen") || name.contains("oxygen");
+            return fluid.getFluid() == ModFluids.OXYGEN;
         };
     }
 

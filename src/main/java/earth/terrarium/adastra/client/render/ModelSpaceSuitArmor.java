@@ -1,6 +1,6 @@
 package earth.terrarium.adastra.client.render;
 
-import earth.terrarium.adastra.common.items.AdAstraArmorItem;
+import earth.terrarium.adastra.common.items.SpaceSuitMaterial;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ModelSpaceSuitArmor extends ModelBiped {
 
-    public ModelSpaceSuitArmor(AdAstraArmorItem.SuitMaterial material, EntityEquipmentSlot slot) {
+    public ModelSpaceSuitArmor(SpaceSuitMaterial material, EntityEquipmentSlot slot) {
         super(0.0f, 0.0f, 64, 64);
         textureWidth = 64;
         textureHeight = 64;
@@ -41,8 +41,8 @@ public class ModelSpaceSuitArmor extends ModelBiped {
         }
     }
 
-    private void buildHead(AdAstraArmorItem.SuitMaterial material) {
-        float y = material == AdAstraArmorItem.SuitMaterial.NETHERITE_SPACE ? -1.0f : 0.0f;
+    private void buildHead(SpaceSuitMaterial material) {
+        float y = material == SpaceSuitMaterial.NETHERITE_SPACE ? -1.0f : 0.0f;
         bipedHead = part(0, 0);
         bipedHead.addBox(-4.0f, -8.0f + y, -4.0f, 8, 8, 8, 0.6f);
 
@@ -50,16 +50,16 @@ public class ModelSpaceSuitArmor extends ModelBiped {
         bipedHeadwear.addBox(-4.0f, -8.0f + y, -4.0f, 8, 8, 8, 1.0f);
     }
 
-    private void buildChest(AdAstraArmorItem.SuitMaterial material) {
+    private void buildChest(SpaceSuitMaterial material) {
         bipedBody = part(24, 16);
         bipedBody.addBox(-4.0f, 0.0f, -2.0f, 8, 12, 4, 0.6f);
 
-        if (material == AdAstraArmorItem.SuitMaterial.JET) {
+        if (material == SpaceSuitMaterial.JET) {
             bipedBody = part(24, 16);
             bipedBody.addBox(-4.0f, 0.0f, -2.0f, 8, 12, 4, 0.6f);
             bipedBody.setTextureOffset(32, 48).addBox(-4.0f, -1.0f, 3.0f, 8, 12, 4, 0.5f);
             bipedBody.setTextureOffset(32, 32).addBox(-4.0f, 0.0f, -2.0f, 8, 12, 4, 0.9f);
-        } else if (material == AdAstraArmorItem.SuitMaterial.NETHERITE_SPACE) {
+        } else if (material == SpaceSuitMaterial.NETHERITE_SPACE) {
             bipedBody.addChild(box(32, 46, -5.0f, -2.0f, 3.0f, 10, 14, 4, 0.5f));
         } else {
             bipedBody.addChild(box(32, 44, -6.0f, -3.0f, 3.0f, 12, 16, 4, 0.6f));
@@ -68,14 +68,14 @@ public class ModelSpaceSuitArmor extends ModelBiped {
         buildArms(material);
     }
 
-    private void buildArms(AdAstraArmorItem.SuitMaterial material) {
+    private void buildArms(SpaceSuitMaterial material) {
         bipedRightArm = part(16, 32);
         bipedRightArm.setRotationPoint(-5.0f, 2.0f, 0.0f);
         bipedLeftArm = part(16, 32);
         bipedLeftArm.mirror = true;
         bipedLeftArm.setRotationPoint(5.0f, 2.0f, 0.0f);
 
-        if (material == AdAstraArmorItem.SuitMaterial.SPACE) {
+        if (material == SpaceSuitMaterial.SPACE) {
             bipedRightArm.addBox(-3.0f, -2.0f, -2.0f, 4, 12, 4, 0.6f);
             bipedLeftArm.addBox(-1.0f, -2.0f, -2.0f, 4, 12, 4, 0.6f);
             return;
@@ -87,7 +87,7 @@ public class ModelSpaceSuitArmor extends ModelBiped {
         bipedLeftArm.setTextureOffset(16, 48).addBox(-0.5f, -2.0f, -2.0f, 4, 12, 4, 0.6f);
     }
 
-    private void buildLegs(AdAstraArmorItem.SuitMaterial material) {
+    private void buildLegs(SpaceSuitMaterial material) {
         bipedBody = part(0, 16);
         bipedBody.addBox(-4.0f, -0.5f, -2.0f, 8, 12, 4, 0.5f);
 
@@ -101,14 +101,14 @@ public class ModelSpaceSuitArmor extends ModelBiped {
         bipedLeftLeg.addBox(-2.0f, 0.0f, -2.0f, 4, 12, 4, 0.7f);
     }
 
-    private void buildBoots(AdAstraArmorItem.SuitMaterial material) {
+    private void buildBoots(SpaceSuitMaterial material) {
         bipedRightLeg = part(0, 48);
         bipedRightLeg.setRotationPoint(-1.9f, 12.0f, 0.0f);
         bipedLeftLeg = part(0, 48);
         bipedLeftLeg.mirror = true;
         bipedLeftLeg.setRotationPoint(1.9f, 12.0f, 0.0f);
 
-        if (material == AdAstraArmorItem.SuitMaterial.SPACE) {
+        if (material == SpaceSuitMaterial.SPACE) {
             bipedRightLeg.addBox(-2.0f, 0.0f, -2.0f, 4, 12, 4, 0.6f);
             bipedRightLeg.setTextureOffset(16, 48).addBox(-2.0f, 0.0f, -2.0f, 4, 12, 4, 1.0f);
             bipedLeftLeg.addBox(-2.0f, 0.0f, -2.0f, 4, 12, 4, 0.6f);

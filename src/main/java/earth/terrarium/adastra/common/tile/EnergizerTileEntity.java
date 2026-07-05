@@ -10,11 +10,15 @@ import net.minecraftforge.energy.IEnergyStorage;
 public class EnergizerTileEntity extends AdAstraMachineTileEntity {
 
     private static final int CHARGE_SLOT = 0;
-    private long lastSparkParticleTick = Long.MIN_VALUE;
 
     public EnergizerTileEntity() {
         super("energizer", 1, AdAstraConfig.energizerEnergyCapacity, OSTRUM_IO, OSTRUM_IO, 0);
         setAllSideModes(SideConfigType.ENERGY, AdAstraSideMode.PUSH_PULL);
+    }
+
+    @Override
+    protected boolean isIdleOptimizationEnabled() {
+        return false;
     }
 
     @Override
@@ -71,6 +75,12 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
         markDirty();
     }
 
+    public void onExternalEnergyChanged() {
+        updatePowerState();
+        setLit(energy != null && (energy.getEnergyStored() > 0 || !items.getStackInSlot(CHARGE_SLOT).isEmpty()));
+        markDirty();
+    }
+
     private void updatePowerState() {
         if (world == null || pos == null || energy == null) {
             return;
@@ -81,9 +91,10 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
             return;
         }
 
-        int charge = energy.getMaxEnergyStored() <= 0
+        int stored = energy.getEnergyStored();
+        int charge = energy.getMaxEnergyStored() <= 0 || stored <= 0
             ? 0
-            : Math.round(energy.getEnergyStored() / (float) energy.getMaxEnergyStored() * 5.0f);
+            : Math.max(1, Math.round(stored / (float) energy.getMaxEnergyStored() * 5.0f));
         charge = Math.max(0, Math.min(5, charge));
         if (state.getValue(AdAstraEnergizerBlock.POWER) != charge) {
             world.setBlockState(pos, state.withProperty(AdAstraEnergizerBlock.POWER, charge), 3);
@@ -115,11 +126,6 @@ public class EnergizerTileEntity extends AdAstraMachineTileEntity {
             return false;
         }
 
-        long tick = world.getTotalWorldTime();
-        if (lastSparkParticleTick == tick) {
-            return false;
-        }
-        lastSparkParticleTick = tick;
-        return true;
+        return world.getTotalWorldTime() % 3L == 0L;
     }
 }

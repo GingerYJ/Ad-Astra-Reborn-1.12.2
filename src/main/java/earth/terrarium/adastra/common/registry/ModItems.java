@@ -15,13 +15,16 @@ import earth.terrarium.adastra.common.entities.mob.StarCrawlerEntity;
 import earth.terrarium.adastra.common.entities.mob.SulfurCreeperEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
-import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraBucketItem;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.items.JetSuitItem;
+import earth.terrarium.adastra.common.items.NetheriteSpaceSuitItem;
 import earth.terrarium.adastra.common.items.SpacePaintingItem;
+import earth.terrarium.adastra.common.items.SpaceSuitMaterial;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.items.Ti69Item;
 import earth.terrarium.adastra.common.items.VehicleItem;
 import earth.terrarium.adastra.common.items.ZipGunItem;
@@ -110,20 +113,20 @@ public final class ModItems {
     public static final Item GAS_TANK = gasTank("gas_tank", GasTankItem.GAS_TANK_CAPACITY, GasTankItem.GAS_TANK_DISTRIBUTION_AMOUNT);
     public static final Item LARGE_GAS_TANK = gasTank("large_gas_tank", GasTankItem.LARGE_GAS_TANK_CAPACITY, GasTankItem.LARGE_GAS_TANK_DISTRIBUTION_AMOUNT);
 
-    public static final Item SPACE_HELMET = armor("space_helmet", AdAstraArmorItem.SuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
-    public static final Item SPACE_SUIT = armor("space_suit", AdAstraArmorItem.SuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
-    public static final Item SPACE_PANTS = armor("space_pants", AdAstraArmorItem.SuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
-    public static final Item SPACE_BOOTS = armor("space_boots", AdAstraArmorItem.SuitMaterial.SPACE, EntityEquipmentSlot.FEET);
+    public static final Item SPACE_HELMET = armor("space_helmet", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
+    public static final Item SPACE_SUIT = armor("space_suit", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
+    public static final Item SPACE_PANTS = armor("space_pants", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
+    public static final Item SPACE_BOOTS = armor("space_boots", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.FEET);
 
-    public static final Item NETHERITE_SPACE_HELMET = armor("netherite_space_helmet", AdAstraArmorItem.SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
-    public static final Item NETHERITE_SPACE_SUIT = armor("netherite_space_suit", AdAstraArmorItem.SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
-    public static final Item NETHERITE_SPACE_PANTS = armor("netherite_space_pants", AdAstraArmorItem.SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
-    public static final Item NETHERITE_SPACE_BOOTS = armor("netherite_space_boots", AdAstraArmorItem.SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
+    public static final Item NETHERITE_SPACE_HELMET = armor("netherite_space_helmet", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
+    public static final Item NETHERITE_SPACE_SUIT = armor("netherite_space_suit", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
+    public static final Item NETHERITE_SPACE_PANTS = armor("netherite_space_pants", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
+    public static final Item NETHERITE_SPACE_BOOTS = armor("netherite_space_boots", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
 
-    public static final Item JET_SUIT_HELMET = armor("jet_suit_helmet", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.HEAD);
-    public static final Item JET_SUIT = armor("jet_suit", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.CHEST);
-    public static final Item JET_SUIT_PANTS = armor("jet_suit_pants", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.LEGS);
-    public static final Item JET_SUIT_BOOTS = armor("jet_suit_boots", AdAstraArmorItem.SuitMaterial.JET, EntityEquipmentSlot.FEET);
+    public static final Item JET_SUIT_HELMET = armor("jet_suit_helmet", SpaceSuitMaterial.JET, EntityEquipmentSlot.HEAD);
+    public static final Item JET_SUIT = armor("jet_suit", SpaceSuitMaterial.JET, EntityEquipmentSlot.CHEST);
+    public static final Item JET_SUIT_PANTS = armor("jet_suit_pants", SpaceSuitMaterial.JET, EntityEquipmentSlot.LEGS);
+    public static final Item JET_SUIT_BOOTS = armor("jet_suit_boots", SpaceSuitMaterial.JET, EntityEquipmentSlot.FEET);
 
     public static final Item SPACE_PAINTING = spacePainting("space_painting");
     public static final Item TIER_1_ROCKET = vehicle("tier_1_rocket", Tier1RocketEntity::new);
@@ -187,8 +190,20 @@ public final class ModItems {
         return item;
     }
 
-    private static Item armor(String name, AdAstraArmorItem.SuitMaterial material, EntityEquipmentSlot slot) {
-        Item item = new AdAstraArmorItem(name, material, slot);
+    private static Item armor(String name, SpaceSuitMaterial material, EntityEquipmentSlot slot) {
+        Item item;
+        switch (material) {
+            case NETHERITE_SPACE:
+                item = new NetheriteSpaceSuitItem(name, slot);
+                break;
+            case JET:
+                item = new JetSuitItem(name, slot);
+                break;
+            case SPACE:
+            default:
+                item = new SpaceSuitItem(name, slot);
+                break;
+        }
         INTERNAL_ITEMS.add(item);
         return item;
     }

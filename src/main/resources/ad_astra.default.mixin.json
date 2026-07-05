@@ -7,12 +7,14 @@
     "client.EntityRendererMixin",
     "client.ItemRendererMixin",
     "client.ModelBipedMixin",
+    "client.RadioHolderDismountMixin",
     "client.RenderMixin",
     "client.SoundHandlerMixin"
   ],
   "mixins": [
     "common.MinecraftServerMixin",
-    "common.NetHandlerPlayServerMixin"
+    "common.NetHandlerPlayServerMixin",
+    "common.environment.IceBlockMixin"
   ],
   "server": [],
   "setSourceFile": true,

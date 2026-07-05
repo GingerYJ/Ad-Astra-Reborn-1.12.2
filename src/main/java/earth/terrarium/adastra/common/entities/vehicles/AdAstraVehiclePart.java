@@ -2,8 +2,10 @@ package earth.terrarium.adastra.common.entities.vehicles;
 
 import net.minecraft.entity.MultiPartEntityPart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.RayTraceResult;
 
 public class AdAstraVehiclePart extends MultiPartEntityPart {
 
@@ -54,6 +56,11 @@ public class AdAstraVehiclePart extends MultiPartEntityPart {
     }
 
     @Override
+    public boolean canBeCollidedWith() {
+        return !vehicle.isDead;
+    }
+
+    @Override
     public boolean attackEntityFrom(DamageSource source, float amount) {
         return vehicle.attackEntityFrom(source, amount);
     }
@@ -61,5 +68,15 @@ public class AdAstraVehiclePart extends MultiPartEntityPart {
     @Override
     public boolean isEntityEqual(net.minecraft.entity.Entity entity) {
         return this == entity || vehicle == entity;
+    }
+
+    @Override
+    public ItemStack getPickedResult(RayTraceResult target) {
+        return vehicle.getDropStack();
+    }
+
+    @Override
+    public boolean writeToNBTOptional(net.minecraft.nbt.NBTTagCompound compound) {
+        return false;
     }
 }

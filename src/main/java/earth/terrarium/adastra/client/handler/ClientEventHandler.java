@@ -8,6 +8,7 @@ import earth.terrarium.adastra.client.systems.ClientData;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketSyncKeybinds;
 import earth.terrarium.adastra.common.registry.ModDimensions;
@@ -16,11 +17,13 @@ import earth.terrarium.adastra.common.util.radio.RadioHolder;
 import earth.terrarium.adastra.common.world.AdAstraWorldProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -265,25 +268,34 @@ public class ClientEventHandler {
             return;
         }
 
-        spawnJetSuitParticle(minecraft.world, 0.05D, 0.8D, -0.45D);
-        spawnJetSuitParticle(minecraft.world, 0.05D, 0.8D, 0.45D);
-        spawnJetSuitParticle(minecraft.world, 0.05D, 0.0D, -0.1D);
-        spawnJetSuitParticle(minecraft.world, 0.05D, 0.0D, 0.1D);
+        boolean sprinting = minecraft.gameSettings.keyBindSprint.isKeyDown();
+        if (minecraft.gameSettings.particleSetting == 1 && minecraft.player.ticksExisted % 2 != 0) {
+            return;
+        }
+
+        spawnJetSuitParticle(minecraft.player, limbPitch(minecraft.player, 0.05F), sprinting ? 0.0D : 0.8D, -0.45D);
+        spawnJetSuitParticle(minecraft.player, limbPitch(minecraft.player, 0.05F), sprinting ? 0.0D : 0.8D, 0.45D);
+        spawnJetSuitParticle(minecraft.player, limbPitch(minecraft.player, 0.75F), sprinting ? 0.1D : 0.0D, -0.1D);
+        spawnJetSuitParticle(minecraft.player, limbPitch(minecraft.player, -0.75F), sprinting ? 0.1D : 0.0D, 0.1D);
     }
 
-    private void spawnJetSuitParticle(World world, double sideOffset, double yOffset, double forwardOffset) {
-        Minecraft minecraft = Minecraft.getMinecraft();
-        double bodyYaw = minecraft.player.renderYawOffset;
-        double forwardOffsetX = Math.cos(bodyYaw * Math.PI / 180.0D) * forwardOffset;
-        double forwardOffsetZ = Math.sin(bodyYaw * Math.PI / 180.0D) * forwardOffset;
-        double sideOffsetX = Math.cos((bodyYaw - 90.0D) * Math.PI / 180.0D) * sideOffset;
-        double sideOffsetZ = Math.sin((bodyYaw - 90.0D) * Math.PI / 180.0D) * sideOffset;
+    private float limbPitch(EntityPlayer player, float phase) {
+        return MathHelper.cos(player.limbSwing * 0.6662F + phase) * 0.35F * player.limbSwingAmount + 0.05F;
+    }
+
+    private void spawnJetSuitParticle(EntityPlayer player, double sideOffset, double yOffset, double forwardOffset) {
+        double bodyYaw = player.renderYawOffset;
+        double yawRadians = bodyYaw * Math.PI / 180.0D;
+        double forwardOffsetX = Math.cos(yawRadians) * forwardOffset;
+        double forwardOffsetZ = Math.sin(yawRadians) * forwardOffset;
+        double sideOffsetX = Math.cos(yawRadians - Math.PI / 2.0D) * sideOffset;
+        double sideOffsetZ = Math.sin(yawRadians - Math.PI / 2.0D) * sideOffset;
 
         ParticleHelper.spawnLargeFlame(
-            world,
-            minecraft.player.posX + forwardOffsetX + sideOffsetX,
-            minecraft.player.posY + yOffset,
-            minecraft.player.posZ + forwardOffsetZ + sideOffsetZ,
+            player.world,
+            player.posX + forwardOffsetX + sideOffsetX,
+            player.posY + yOffset,
+            player.posZ + forwardOffsetZ + sideOffsetZ,
             0.0D,
             0.0D,
             0.0D);
@@ -297,15 +309,6 @@ public class ClientEventHandler {
 
     private boolean isWearingJetSuitSet() {
         Minecraft minecraft = Minecraft.getMinecraft();
-        return isWearing(EntityEquipmentSlot.HEAD, ModItems.JET_SUIT_HELMET)
-            && isWearing(EntityEquipmentSlot.CHEST, ModItems.JET_SUIT)
-            && isWearing(EntityEquipmentSlot.LEGS, ModItems.JET_SUIT_PANTS)
-            && isWearing(EntityEquipmentSlot.FEET, ModItems.JET_SUIT_BOOTS);
-    }
-
-    private boolean isWearing(EntityEquipmentSlot slot, net.minecraft.item.Item item) {
-        Minecraft minecraft = Minecraft.getMinecraft();
-        ItemStack stack = minecraft.player.getItemStackFromSlot(slot);
-        return !stack.isEmpty() && stack.getItem() == item;
+        return SpaceSuitItem.hasFullJetSuitSet(minecraft.player);
     }
 }

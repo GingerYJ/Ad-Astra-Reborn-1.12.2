@@ -114,6 +114,7 @@ public final class AdAstraConfig {
     public static boolean enableHostileMobsOnVenus;
     public static boolean enableHostileMobsOnGlacio;
     public static int planetEntityCapPerType;
+    public static String[] noOxygenEntityWhitelist;
 
     // World Generation Configuration
     public static boolean enableStructureGeneration;
@@ -636,6 +637,11 @@ public final class AdAstraConfig {
             1,
             1000,
             "每个 Ad Astra 行星维度中，同一种实体类允许同时加载的最大活体实体数量。");
+        noOxygenEntityWhitelist = configuration.getStringList(
+            "noOxygenEntityWhitelist",
+            "mobs",
+            new String[0],
+            "允许在无氧环境中生存的实体白名单。支持实体注册名（如 minecraft:cow）、命名空间通配符（如 some_mod:*）或完整 Java 类名。");
 
         // World Generation Configuration
         enableStructureGeneration = configuration.getBoolean(

@@ -1,12 +1,11 @@
 package earth.terrarium.adastra.common.systems;
 
 import earth.terrarium.adastra.common.items.GasTankItem;
-import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.util.EnvironmentUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -59,9 +58,7 @@ public final class OxygenUtils {
      * @return true if wearing complete space suit, false otherwise
      */
     public static boolean isWearingSpaceSuit(EntityPlayer player) {
-        return isWearingSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
-            || isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
-            || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
+        return player != null && SpaceSuitItem.hasFullSet(player);
     }
 
     /**
@@ -104,33 +101,4 @@ public final class OxygenUtils {
         }
     }
 
-    /**
-     * Check if a player is wearing a complete armor set.
-     *
-     * @param player The player to check
-     * @param helmet Helmet item
-     * @param chest Chest item
-     * @param legs Leggings item
-     * @param boots Boots item
-     * @return true if wearing complete set, false otherwise
-     */
-    private static boolean isWearingSet(EntityPlayer player, Item helmet, Item chest, Item legs, Item boots) {
-        return isWearing(player, EntityEquipmentSlot.HEAD, helmet)
-            && isWearing(player, EntityEquipmentSlot.CHEST, chest)
-            && isWearing(player, EntityEquipmentSlot.LEGS, legs)
-            && isWearing(player, EntityEquipmentSlot.FEET, boots);
-    }
-
-    /**
-     * Check if a player is wearing a specific item in a specific slot.
-     *
-     * @param player The player to check
-     * @param slot Equipment slot
-     * @param item Item to check for
-     * @return true if wearing the item in the slot, false otherwise
-     */
-    private static boolean isWearing(EntityPlayer player, EntityEquipmentSlot slot, Item item) {
-        ItemStack stack = player.getItemStackFromSlot(slot);
-        return !stack.isEmpty() && stack.getItem() == item;
-    }
 }

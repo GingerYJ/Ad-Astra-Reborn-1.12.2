@@ -37,13 +37,20 @@ public class CableTileEntity extends AdAstraPipeTileEntity implements ITickable 
             if (!canPull(facing)) {
                 continue;
             }
-            IEnergyStorage source = getNeighborEnergy(facing);
+            TileEntity sourceTile = world.getTileEntity(pos.offset(facing));
+            if (sourceTile instanceof EnergizerTileEntity && getConnection(facing) != earth.terrarium.adastra.common.blocks.AdAstraPipeConnection.EXTRACT) {
+                continue;
+            }
+            IEnergyStorage source = getNeighborEnergy(sourceTile, facing);
             if (source == null || !source.canExtract()) {
                 continue;
             }
             int extracted = source.extractEnergy(remaining, false);
             if (extracted > 0) {
                 buffer.internalReceiveEnergy(extracted, false);
+                if (sourceTile instanceof EnergizerTileEntity) {
+                    ((EnergizerTileEntity) sourceTile).onExternalEnergyChanged();
+                }
                 markDirty();
                 remaining -= extracted;
                 if (remaining <= 0) {
@@ -63,7 +70,8 @@ public class CableTileEntity extends AdAstraPipeTileEntity implements ITickable 
             if (!canPush(facing)) {
                 continue;
             }
-            IEnergyStorage target = getNeighborEnergy(facing);
+            TileEntity tile = world.getTileEntity(pos.offset(facing));
+            IEnergyStorage target = getNeighborEnergy(tile, facing);
             if (target == null || !target.canReceive()) {
                 continue;
             }
@@ -72,9 +80,11 @@ public class CableTileEntity extends AdAstraPipeTileEntity implements ITickable 
                 buffer.extractEnergy(accepted, false);
                 markDirty();
                 remaining -= accepted;
-                TileEntity tile = world.getTileEntity(pos.offset(facing));
                 if (tile != null) {
                     tile.markDirty();
+                }
+                if (tile instanceof EnergizerTileEntity) {
+                    ((EnergizerTileEntity) tile).onExternalEnergyChanged();
                 }
                 if (remaining <= 0) {
                     return;
@@ -83,8 +93,7 @@ public class CableTileEntity extends AdAstraPipeTileEntity implements ITickable 
         }
     }
 
-    private IEnergyStorage getNeighborEnergy(EnumFacing facing) {
-        TileEntity tile = world.getTileEntity(pos.offset(facing));
+    private IEnergyStorage getNeighborEnergy(TileEntity tile, EnumFacing facing) {
         if (tile == null || !tile.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite())) {
             return null;
         }

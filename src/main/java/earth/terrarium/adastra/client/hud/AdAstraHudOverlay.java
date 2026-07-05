@@ -1,13 +1,16 @@
 package earth.terrarium.adastra.client.hud;
 
+import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.systems.PlanetData;
 import earth.terrarium.adastra.client.systems.ClientData;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
+import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModFluids;
-import earth.terrarium.adastra.common.registry.ModItems;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.util.MachineStateUtils;
@@ -19,11 +22,15 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -50,6 +57,17 @@ public final class AdAstraHudOverlay {
     private static final float LOW_OXYGEN_THRESHOLD = 0.2f;
     private static final int EXTREME_TEMP_LOW = -100;
     private static final int EXTREME_TEMP_HIGH = 100;
+    private static final int ROCKET_BAR_WIDTH = 16;
+    private static final int ROCKET_BAR_HEIGHT = 128;
+    private static final int ROCKET_ICON_WIDTH = 8;
+    private static final int ROCKET_ICON_HEIGHT = 11;
+    private static final int ROCKET_BAR_X = 8;
+    private static final int ROCKET_BAR_Y = 8;
+    private static final double ROCKET_OVERLAY_START_Y = 64.0D;
+    private static final double ROCKET_OVERLAY_TARGET_Y = 180.0D;
+
+    private static final ResourceLocation ROCKET_BAR = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/overlay/rocket_bar.png");
+    private static final ResourceLocation ROCKET = new ResourceLocation(Reference.MOD_ID, "textures/gui/sprites/overlay/rocket.png");
 
     private static int lastEnvironmentScanTick = -ENVIRONMENT_SCAN_INTERVAL_TICKS;
     private static EnvironmentSnapshot cachedEnvironment = EnvironmentSnapshot.EMPTY;
@@ -67,6 +85,9 @@ public final class AdAstraHudOverlay {
         if (player == null || player.isSpectator() || minecraft.gameSettings.hideGUI || minecraft.gameSettings.showDebugInfo || minecraft.currentScreen != null) {
             return;
         }
+
+        renderVehicleOverlays(minecraft, player, event.getResolution());
+
         if (!isWearingSpaceHudSuit(player)) {
             return;
         }
@@ -84,6 +105,78 @@ public final class AdAstraHudOverlay {
         EnvironmentSnapshot environment = getEnvironment(player);
         HudData data = HudData.from(player, environment);
         draw(minecraft.fontRenderer, panelX, panelY, hudScale, panelWidth, data);
+    }
+
+    private static void renderVehicleOverlays(Minecraft minecraft, EntityPlayer player, ScaledResolution resolution) {
+        Entity vehicle = player.getRidingEntity();
+        if (vehicle instanceof RocketEntity) {
+            renderRocketOverlay(minecraft, (RocketEntity) vehicle, resolution);
+        } else if (vehicle instanceof LanderEntity) {
+            renderLanderOverlay(minecraft, (LanderEntity) vehicle, resolution);
+        }
+    }
+
+    private static void renderRocketOverlay(Minecraft minecraft, RocketEntity rocket, ScaledResolution resolution) {
+        FontRenderer font = minecraft.fontRenderer;
+        int width = resolution.getScaledWidth();
+        int height = resolution.getScaledHeight();
+
+        if (rocket.isLaunching()) {
+            int seconds = Math.max(1, (rocket.getLaunchCountdown() + 19) / 20);
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(width / 2.0F, height / 2.0F, 0.0F);
+            GlStateManager.scale(4.0F, 4.0F, 1.0F);
+            drawCenteredString(font, String.valueOf(seconds), 0, -10, 0xE53253);
+            GlStateManager.popMatrix();
+        }
+
+        GlStateManager.enableBlend();
+        minecraft.getTextureManager().bindTexture(ROCKET_BAR);
+        Gui.drawModalRectWithCustomSizedTexture(ROCKET_BAR_X, ROCKET_BAR_Y, 0, 0, ROCKET_BAR_WIDTH, ROCKET_BAR_HEIGHT, ROCKET_BAR_WIDTH, ROCKET_BAR_HEIGHT);
+
+        double ratio = (rocket.posY - ROCKET_OVERLAY_START_Y) / (ROCKET_OVERLAY_TARGET_Y - ROCKET_OVERLAY_START_Y);
+        int iconY = ROCKET_BAR_Y + 113 - MathHelper.clamp((int) Math.round(ratio * 113.0D), 0, 113);
+        minecraft.getTextureManager().bindTexture(ROCKET);
+        Gui.drawModalRectWithCustomSizedTexture(ROCKET_BAR_X + 3, iconY, 0, 0, ROCKET_ICON_WIDTH, ROCKET_ICON_HEIGHT, ROCKET_ICON_WIDTH, ROCKET_ICON_HEIGHT);
+        GlStateManager.disableBlend();
+    }
+
+    private static void renderLanderOverlay(Minecraft minecraft, LanderEntity lander, ScaledResolution resolution) {
+        if (lander.onGround) {
+            return;
+        }
+
+        int width = resolution.getScaledWidth();
+        int height = resolution.getScaledHeight();
+        int ground = lander.world.getHeight(new BlockPos(lander.posX, 0.0D, lander.posZ)).getY();
+        int distance = Math.max(0, MathHelper.floor(lander.posY) - ground);
+        String jumpKey = GameSettings.getKeyDisplayString(minecraft.gameSettings.keyBindJump.getKeyCode()).toUpperCase(Locale.ROOT);
+        String hint = I18n.format("message.ad_astra.lander.onboard", jumpKey);
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(width / 2.0F, height / 2.0F, 0.0F);
+        GlStateManager.scale(1.4F, 1.4F, 1.0F);
+
+        float alpha = MathHelper.clamp(0.1F - (float) (lander.motionY + 0.5D), 0.0F, 1.0F);
+        GlStateManager.enableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
+        drawCenteredString(minecraft.fontRenderer, hint, 0, 60, 0xE53253);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+        int distanceColor = 0x55FF55;
+        if (distance < 100) {
+            distanceColor = 0xFF5555;
+        } else if (distance < 300) {
+            distanceColor = 0xFFFF55;
+        }
+        drawCenteredString(minecraft.fontRenderer, String.valueOf(distance), 0, 30, distanceColor);
+
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
+    private static void drawCenteredString(FontRenderer font, String text, int x, int y, int color) {
+        font.drawStringWithShadow(text, x - font.getStringWidth(text) / 2.0F, y, color);
     }
 
     private static EnvironmentSnapshot getEnvironment(EntityPlayer player) {
@@ -282,21 +375,25 @@ public final class AdAstraHudOverlay {
         return 0x55FF55;
     }
 
-    private static boolean hasTemperatureProtection(EntityPlayer player) {
-        return isWearingSpaceHudSuit(player);
+    private static boolean hasTemperatureProtection(EntityPlayer player, EnvironmentSnapshot environment) {
+        if (!environment.hasTemperature) {
+            return isWearingSpaceHudSuit(player);
+        }
+        if (environment.temperature > EXTREME_TEMP_HIGH) {
+            return isWearingHeatResistantSuit(player);
+        }
+        if (environment.temperature < EXTREME_TEMP_LOW) {
+            return isWearingSpaceHudSuit(player);
+        }
+        return false;
     }
 
     private static boolean isWearingSpaceHudSuit(EntityPlayer player) {
-        return isWearingSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
-            || isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
-            || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
+        return SpaceSuitItem.hasFullSet(player);
     }
 
-    private static boolean isWearingSet(EntityPlayer player, net.minecraft.item.Item helmet, net.minecraft.item.Item chest, net.minecraft.item.Item legs, net.minecraft.item.Item boots) {
-        return player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem() == helmet
-            && player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() == chest
-            && player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() == legs
-            && player.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() == boots;
+    private static boolean isWearingHeatResistantSuit(EntityPlayer player) {
+        return SpaceSuitItem.hasFullHeatResistantSet(player);
     }
 
     private static InventoryTotals collectInventoryTotals(EntityPlayer player) {
@@ -361,7 +458,7 @@ public final class AdAstraHudOverlay {
 
         private static HudData from(EntityPlayer player, EnvironmentSnapshot environment) {
             InventoryTotals totals = collectInventoryTotals(player);
-            boolean protectedBySuit = hasTemperatureProtection(player);
+            boolean protectedBySuit = hasTemperatureProtection(player, environment);
 
             String oxygenValue = totals.oxygenCapacity > 0 ? percent(totals.oxygen, totals.oxygenCapacity)
                 : environment.oxygen ? I18n.format("hud.ad_astra.local") : I18n.format("hud.ad_astra.none");

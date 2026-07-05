@@ -67,6 +67,14 @@ public class AlloySmeltingRecipe extends MachineRecipe {
         return order1 || order2;
     }
 
+    public boolean matchesAnyInput(ItemStack stack) {
+        if (inputs.size() < 2) {
+            return false;
+        }
+        return matchesInput(stack, inputs.get(0), oreDictName1)
+            || matchesInput(stack, inputs.get(1), oreDictName2);
+    }
+
     /**
      * Checks if a stack matches an input, using ore dict if specified.
      */

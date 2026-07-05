@@ -4,18 +4,17 @@ import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.client.render.ModelSpaceSuitArmor;
 import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.registry.ModFluids;
+import earth.terrarium.adastra.common.util.AdAstraFluidHelper;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -23,7 +22,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -42,13 +40,13 @@ public class AdAstraArmorItem extends ItemArmor {
     private static final int ENERGY_BAR_COLOR = 0xffdd66;
     private static final int JET_SUIT_MAX_ENERGY_IN = 1000;
 
-    private final SuitMaterial suitMaterial;
+    private final SpaceSuitMaterial suitMaterial;
     private final String texture;
 
-    public AdAstraArmorItem(String name, SuitMaterial suitMaterial, EntityEquipmentSlot slot) {
-        super(suitMaterial.armorMaterial, 0, slot);
+    public AdAstraArmorItem(String name, SpaceSuitMaterial suitMaterial, EntityEquipmentSlot slot) {
+        super(suitMaterial.armorMaterial(), 0, slot);
         this.suitMaterial = suitMaterial;
-        this.texture = suitMaterial.texture;
+        this.texture = suitMaterial.texture();
         setRegistryName(Reference.MOD_ID, name);
         setTranslationKey(Reference.MOD_ID + "." + name);
         setCreativeTab(AdAstraCreativeTab.INSTANCE);
@@ -71,30 +69,42 @@ public class AdAstraArmorItem extends ItemArmor {
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt) {
         if (isJetSuitChestPiece()) {
-            return new JetSuitCapabilityProvider(stack, suitMaterial.oxygenCapacity, suitMaterial.energyCapacity);
+            return new JetSuitCapabilityProvider(stack, suitMaterial.oxygenCapacity(), suitMaterial.energyCapacity());
         }
-        return isOxygenChestPiece() ? new OxygenSuitFluidHandler(stack, suitMaterial.oxygenCapacity) : super.initCapabilities(stack, nbt);
+        return isOxygenChestPiece() ? new OxygenSuitFluidHandler(stack, suitMaterial.oxygenCapacity()) : super.initCapabilities(stack, nbt);
     }
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
+        addOxygenTooltip(stack, tooltip);
+        addEnergyTooltip(stack, tooltip);
+        addSuitInfoTooltip(stack, tooltip, getSuitInfoTranslationKey());
+    }
+
+    protected void addOxygenTooltip(ItemStack stack, List<String> tooltip) {
         if (isOxygenChestPiece()) {
             tooltip.add(new TextComponentTranslation(
                 "tooltip.ad_astra.gas_tank.oxygen",
                 GasTankItem.getStoredOxygen(stack),
                 GasTankItem.getOxygenCapacity(stack)).getFormattedText());
         }
+    }
+
+    protected void addEnergyTooltip(ItemStack stack, List<String> tooltip) {
         if (hasEnergyStorage()) {
             tooltip.add(new TextComponentTranslation(
                 "tooltip.ad_astra.energy_stored",
                 getEnergyStored(stack),
-                suitMaterial.energyCapacity).getFormattedText());
+                suitMaterial.energyCapacity()).getFormattedText());
             tooltip.add(new TextComponentTranslation(
                 "tooltip.ad_astra.max_energy_in",
                 JET_SUIT_MAX_ENERGY_IN).getFormattedText());
         }
+    }
+
+    protected void addSuitInfoTooltip(ItemStack stack, List<String> tooltip, String translationKey) {
         if (isOxygenChestPiece()) {
-            tooltip.add(TextFormatting.GRAY + new TextComponentTranslation("info.ad_astra.space_suit.oxygen").getFormattedText());
+            tooltip.add(TextFormatting.GRAY + new TextComponentTranslation(translationKey).getFormattedText());
         }
     }
 
@@ -106,7 +116,7 @@ public class AdAstraArmorItem extends ItemArmor {
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
         int stored = isOxygenChestPiece() ? GasTankItem.getStoredOxygen(stack) : getEnergyStored(stack);
-        int capacity = isOxygenChestPiece() ? GasTankItem.getOxygenCapacity(stack) : suitMaterial.energyCapacity;
+        int capacity = isOxygenChestPiece() ? GasTankItem.getOxygenCapacity(stack) : suitMaterial.energyCapacity();
         return capacity <= 0 ? 1.0d : 1.0d - (stored / (double) capacity);
     }
 
@@ -126,20 +136,20 @@ public class AdAstraArmorItem extends ItemArmor {
             ItemStack filled = new ItemStack(this);
             IFluidHandlerItem handler = FluidUtil.getFluidHandler(filled);
             if (handler != null) {
-                handler.fill(new FluidStack(ModFluids.OXYGEN, suitMaterial.oxygenCapacity), true);
+                handler.fill(new FluidStack(ModFluids.OXYGEN, suitMaterial.oxygenCapacity()), true);
                 items.add(handler.getContainer());
             }
         }
         if (hasEnergyStorage()) {
             ItemStack charged = new ItemStack(this);
-            receiveEnergy(charged, suitMaterial.energyCapacity, false);
+            receiveEnergy(charged, suitMaterial.energyCapacity(), false);
             items.add(charged);
 
             if (isOxygenChestPiece()) {
                 ItemStack ready = charged.copy();
                 IFluidHandlerItem handler = FluidUtil.getFluidHandler(ready);
                 if (handler != null) {
-                    handler.fill(new FluidStack(ModFluids.OXYGEN, suitMaterial.oxygenCapacity), true);
+                    handler.fill(new FluidStack(ModFluids.OXYGEN, suitMaterial.oxygenCapacity()), true);
                     items.add(handler.getContainer());
                 }
             }
@@ -147,7 +157,7 @@ public class AdAstraArmorItem extends ItemArmor {
     }
 
     public boolean isOxygenChestPiece() {
-        return armorType == EntityEquipmentSlot.CHEST && suitMaterial.oxygenCapacity > 0;
+        return armorType == EntityEquipmentSlot.CHEST && suitMaterial.oxygenCapacity() > 0;
     }
 
     public boolean isJetSuitChestPiece() {
@@ -155,7 +165,11 @@ public class AdAstraArmorItem extends ItemArmor {
     }
 
     public boolean hasEnergyStorage() {
-        return armorType == EntityEquipmentSlot.CHEST && suitMaterial.energyCapacity > 0;
+        return armorType == EntityEquipmentSlot.CHEST && suitMaterial.energyCapacity() > 0;
+    }
+
+    protected String getSuitInfoTranslationKey() {
+        return "info.ad_astra.space_suit";
     }
 
     public static boolean isJetSuitChest(ItemStack stack) {
@@ -174,56 +188,60 @@ public class AdAstraArmorItem extends ItemArmor {
             return 0;
         }
         AdAstraArmorItem item = (AdAstraArmorItem) stack.getItem();
-        return new ItemStackEnergyStorage(stack, item.suitMaterial.energyCapacity, JET_SUIT_MAX_ENERGY_IN, amount).extractEnergy(amount, simulate);
+        return new ItemStackEnergyStorage(stack, item.suitMaterial.energyCapacity(), JET_SUIT_MAX_ENERGY_IN, amount).extractEnergy(amount, simulate);
     }
 
     private int getEnergyStored(ItemStack stack) {
-        return new ItemStackEnergyStorage(stack, suitMaterial.energyCapacity, JET_SUIT_MAX_ENERGY_IN, 0).getEnergyStored();
+        return new ItemStackEnergyStorage(stack, suitMaterial.energyCapacity(), JET_SUIT_MAX_ENERGY_IN, 0).getEnergyStored();
     }
 
     private int receiveEnergy(ItemStack stack, int amount, boolean simulate) {
-        return new ItemStackEnergyStorage(stack, suitMaterial.energyCapacity, suitMaterial.energyCapacity, 0).receiveEnergy(amount, simulate);
-    }
-
-    public enum SuitMaterial {
-        SPACE("space_suit", 37, new int[]{2, 6, 5, 2}, 14, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0.0f, 1000, 0),
-        NETHERITE_SPACE("netherite_space_suit", 37, new int[]{3, 8, 6, 3}, 15, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 3.0f, 2000, 0),
-        JET("jet_suit", 37, new int[]{4, 9, 7, 4}, 15, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 5.0f, 3000, 1_000_000);
-
-        private final ArmorMaterial armorMaterial;
-        private final String texture;
-        private final int oxygenCapacity;
-        private final int energyCapacity;
-
-        SuitMaterial(String texture, int durability, int[] reductions, int enchantability, SoundEvent equipSound, float toughness, int oxygenCapacity, int energyCapacity) {
-            this.texture = texture;
-            this.oxygenCapacity = oxygenCapacity;
-            this.energyCapacity = energyCapacity;
-            this.armorMaterial = EnumHelper.addArmorMaterial(
-                Reference.MOD_ID + "_" + texture,
-                Reference.MOD_ID + ":" + texture,
-                durability,
-                reductions,
-                enchantability,
-                equipSound,
-                toughness);
-        }
+        return new ItemStackEnergyStorage(stack, suitMaterial.energyCapacity(), suitMaterial.energyCapacity(), 0).receiveEnergy(amount, simulate);
     }
 
     private static final class OxygenSuitFluidHandler extends FluidHandlerItemStack {
 
         private OxygenSuitFluidHandler(ItemStack container, int capacity) {
             super(container, capacity);
+            AdAstraFluidHelper.migrateItemFluidTag(container);
+        }
+
+        @Override
+        public FluidStack getFluid() {
+            FluidStack fluid = AdAstraFluidHelper.normalizeFluidStack(super.getFluid());
+            if (AdAstraFluidHelper.isOxygen(fluid)) {
+                AdAstraFluidHelper.setOxygenBackupAmount(container, fluid.amount);
+                return fluid;
+            }
+            FluidStack restored = AdAstraFluidHelper.restoreOxygenFromBackup(container, capacity);
+            if (restored != null) {
+                super.setFluid(restored);
+            }
+            return restored;
+        }
+
+        @Override
+        protected void setFluid(FluidStack fluid) {
+            if (fluid == null) {
+                if (container.hasTagCompound()) {
+                    container.getTagCompound().removeTag(FLUID_NBT_KEY);
+                }
+                AdAstraFluidHelper.setOxygenBackupAmount(container, 0);
+                return;
+            }
+            FluidStack normalized = AdAstraFluidHelper.normalizeFluidStack(fluid);
+            super.setFluid(normalized);
+            AdAstraFluidHelper.setOxygenBackupAmount(container, AdAstraFluidHelper.isOxygen(normalized) ? normalized.amount : 0);
         }
 
         @Override
         public boolean canFillFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+            return AdAstraFluidHelper.isOxygen(fluid);
         }
 
         @Override
         public boolean canDrainFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+            return AdAstraFluidHelper.isOxygen(fluid);
         }
     }
 
@@ -257,23 +275,23 @@ public class AdAstraArmorItem extends ItemArmor {
 
     @SideOnly(Side.CLIENT)
     private static final class ArmorModels {
-        private static final ModelBiped SPACE_HEAD = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
-        private static final ModelBiped SPACE_CHEST = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
-        private static final ModelBiped SPACE_LEGS = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
-        private static final ModelBiped SPACE_FEET = new ModelSpaceSuitArmor(SuitMaterial.SPACE, EntityEquipmentSlot.FEET);
-        private static final ModelBiped NETHERITE_HEAD = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
-        private static final ModelBiped NETHERITE_CHEST = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
-        private static final ModelBiped NETHERITE_LEGS = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
-        private static final ModelBiped NETHERITE_FEET = new ModelSpaceSuitArmor(SuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
-        private static final ModelBiped JET_HEAD = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.HEAD);
-        private static final ModelBiped JET_CHEST = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.CHEST);
-        private static final ModelBiped JET_LEGS = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.LEGS);
-        private static final ModelBiped JET_FEET = new ModelSpaceSuitArmor(SuitMaterial.JET, EntityEquipmentSlot.FEET);
+        private static final ModelBiped SPACE_HEAD = new ModelSpaceSuitArmor(SpaceSuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
+        private static final ModelBiped SPACE_CHEST = new ModelSpaceSuitArmor(SpaceSuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
+        private static final ModelBiped SPACE_LEGS = new ModelSpaceSuitArmor(SpaceSuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
+        private static final ModelBiped SPACE_FEET = new ModelSpaceSuitArmor(SpaceSuitMaterial.SPACE, EntityEquipmentSlot.FEET);
+        private static final ModelBiped NETHERITE_HEAD = new ModelSpaceSuitArmor(SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
+        private static final ModelBiped NETHERITE_CHEST = new ModelSpaceSuitArmor(SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
+        private static final ModelBiped NETHERITE_LEGS = new ModelSpaceSuitArmor(SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
+        private static final ModelBiped NETHERITE_FEET = new ModelSpaceSuitArmor(SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
+        private static final ModelBiped JET_HEAD = new ModelSpaceSuitArmor(SpaceSuitMaterial.JET, EntityEquipmentSlot.HEAD);
+        private static final ModelBiped JET_CHEST = new ModelSpaceSuitArmor(SpaceSuitMaterial.JET, EntityEquipmentSlot.CHEST);
+        private static final ModelBiped JET_LEGS = new ModelSpaceSuitArmor(SpaceSuitMaterial.JET, EntityEquipmentSlot.LEGS);
+        private static final ModelBiped JET_FEET = new ModelSpaceSuitArmor(SpaceSuitMaterial.JET, EntityEquipmentSlot.FEET);
 
         private ArmorModels() {
         }
 
-        private static ModelBiped get(SuitMaterial material, EntityEquipmentSlot slot) {
+        private static ModelBiped get(SpaceSuitMaterial material, EntityEquipmentSlot slot) {
             switch (material) {
                 case NETHERITE_SPACE:
                     return bySlot(slot, NETHERITE_HEAD, NETHERITE_CHEST, NETHERITE_LEGS, NETHERITE_FEET);

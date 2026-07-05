@@ -16,16 +16,17 @@ import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
 import earth.terrarium.adastra.common.entities.vehicles.VehicleBase;
-import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketPlayRadioStation;
 import earth.terrarium.adastra.common.network.packet.PacketSyncLocalPlanetData;
 import earth.terrarium.adastra.common.network.packet.PacketSyncPlanetDefinitions;
 import earth.terrarium.adastra.common.planets.PlanetApiImpl;
 import earth.terrarium.adastra.common.registry.ModDimensions;
+import earth.terrarium.adastra.common.systems.EntityEnvironmentSystem;
+import earth.terrarium.adastra.common.systems.OxygenSystem;
 import earth.terrarium.adastra.common.registry.ModItems;
-import earth.terrarium.adastra.common.systems.OxygenUtils;
 import earth.terrarium.adastra.common.util.EnvironmentUtils;
 import earth.terrarium.adastra.common.util.KeybindManager;
 import earth.terrarium.adastra.common.util.PlanetTravelHelper;
@@ -54,6 +55,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -68,6 +70,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -86,11 +89,6 @@ public class CommonEventHandler {
     private static final int UNSAFE_DISMOUNT_HOLD_TICKS = 40;
     private static final DamageSource EXTREME_COLD = new DamageSource("freeze").setDamageBypassesArmor();
     private static final DamageSource ACID_RAIN = new DamageSource("acidRain");
-    private static final int JET_SUIT_UPWARD_ENERGY_PER_TICK = 50;
-    private static final int JET_SUIT_FORWARD_ENERGY_PER_TICK = 100;
-    private static final double JET_SUIT_UPWARD_FORCE = 0.075D;
-    private static final double JET_SUIT_FORWARD_FORCE = 0.075D;
-    private static final double JET_SUIT_MAX_FORWARD_SPEED = 2.0D;
     private static final Map<UUID, Integer> DISMOUNT_HOLD_TICKS = new HashMap<>();
     private static final Map<UUID, PendingDismountPosition> PENDING_DISMOUNT_POSITIONS = new HashMap<>();
     private static final Set<Integer> SPACE_SLEEPING_DIMENSIONS = new HashSet<>();
@@ -106,6 +104,7 @@ public class CommonEventHandler {
             return;
         }
 
+        EntityEnvironmentSystem.tick(living);
         tickAcidRain(living);
 
         if (!(living instanceof EntityPlayer)) {
@@ -121,7 +120,6 @@ public class CommonEventHandler {
             SpaceStationLandingProtection.pruneExpired(player.ticksExisted);
         }
 
-        tickJetSuit(player);
         syncLocalPlanetData(player);
 
         if (player.capabilities.isCreativeMode || player.isSpectator()) {
@@ -368,21 +366,7 @@ public class CommonEventHandler {
         if (!PlanetApi.API.isPlanet(world) || OxygenApi.API.hasOxygen(world)) {
             return false;
         }
-        return !canLiveWithoutOxygen(entity);
-    }
-
-    private boolean canLiveWithoutOxygen(EntityLiving entity) {
-        if (entity.getClass().getName().startsWith("earth.terrarium.adastra.common.entities.")) {
-            return true;
-        }
-        return entity instanceof EntityZombie
-            || entity instanceof EntityHusk
-            || entity instanceof AbstractSkeleton
-            || entity instanceof EntityStray
-            || entity instanceof EntitySnowman
-            || entity instanceof EntityBlaze
-            || entity instanceof EntityMagmaCube
-            || entity instanceof EntityPigZombie;
+        return !EntityEnvironmentSystem.canLiveWithoutOxygen(entity);
     }
 
     private void tickAcidRain(EntityLivingBase entity) {
@@ -544,10 +528,7 @@ public class CommonEventHandler {
     }
 
     private boolean hasFullNetheriteSpaceSuit(EntityLivingBase entity) {
-        return isWearing(entity, EntityEquipmentSlot.HEAD, ModItems.NETHERITE_SPACE_HELMET)
-            && isWearing(entity, EntityEquipmentSlot.CHEST, ModItems.NETHERITE_SPACE_SUIT)
-            && isWearing(entity, EntityEquipmentSlot.LEGS, ModItems.NETHERITE_SPACE_PANTS)
-            && isWearing(entity, EntityEquipmentSlot.FEET, ModItems.NETHERITE_SPACE_BOOTS);
+        return SpaceSuitItem.hasFullNetheriteSet(entity);
     }
 
     private boolean exceedsPlanetEntityTypeCap(EntityLiving entity, World world) {
@@ -574,58 +555,8 @@ public class CommonEventHandler {
         return false;
     }
 
-    private void tickJetSuit(EntityPlayer player) {
-        if (player.capabilities.isFlying || player.isSpectator()) {
-            return;
-        }
-        if (!isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS)) {
-            return;
-        }
-        if (!KeybindManager.suitFlightEnabled(player) || !KeybindManager.jumpDown(player)) {
-            return;
-        }
-
-        ItemStack chest = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-        int energyCost = KeybindManager.sprintDown(player) ? JET_SUIT_FORWARD_ENERGY_PER_TICK : JET_SUIT_UPWARD_ENERGY_PER_TICK;
-        if (!player.capabilities.isCreativeMode && AdAstraArmorItem.consumeJetSuitEnergy(chest, energyCost, true) < energyCost) {
-            return;
-        }
-
-        if (KeybindManager.sprintDown(player)) {
-            propelForward(player);
-        } else {
-            propelUpward(player);
-        }
-
-        if (!player.capabilities.isCreativeMode) {
-            AdAstraArmorItem.consumeJetSuitEnergy(chest, energyCost, false);
-            player.inventory.markDirty();
-            OxygenUtils.syncInventory(player);
-        }
-    }
-
-    private void propelUpward(EntityPlayer player) {
-        player.motionY += Math.max(0.0025D, JET_SUIT_UPWARD_FORCE);
-        player.fallDistance = Math.max(player.fallDistance / 1.5F, 0.0F);
-        player.velocityChanged = true;
-    }
-
-    private void propelForward(EntityPlayer player) {
-        Vec3d look = player.getLookVec().normalize();
-        double speed = Math.sqrt(player.motionX * player.motionX + player.motionY * player.motionY + player.motionZ * player.motionZ);
-        if (speed <= JET_SUIT_MAX_FORWARD_SPEED) {
-            player.motionX += look.x * JET_SUIT_FORWARD_FORCE;
-            player.motionY += look.y * JET_SUIT_FORWARD_FORCE;
-            player.motionZ += look.z * JET_SUIT_FORWARD_FORCE;
-            player.fallDistance = Math.max(player.fallDistance / 1.5F, 0.0F);
-            player.velocityChanged = true;
-        }
-    }
-
     private boolean canUseSuitOxygen(EntityPlayer player) {
-        return isWearingSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
-            || isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
-            || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
+        return SpaceSuitItem.hasFullSet(player);
     }
 
     private boolean hasFreezeProtection(EntityPlayer player) {
@@ -633,19 +564,28 @@ public class CommonEventHandler {
     }
 
     private boolean hasHeatProtection(EntityPlayer player) {
-        return isWearingSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
-            || isWearingSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
+        return SpaceSuitItem.hasFullHeatResistantSet(player);
     }
 
-    private boolean isWearingSet(EntityLivingBase player, Item helmet, Item chest, Item legs, Item boots) {
-        return isWearing(player, EntityEquipmentSlot.HEAD, helmet)
-            && isWearing(player, EntityEquipmentSlot.CHEST, chest)
-            && isWearing(player, EntityEquipmentSlot.LEGS, legs)
-            && isWearing(player, EntityEquipmentSlot.FEET, boots);
+    /**
+     * Invalidate nearby sealed-room caches when a block is placed.
+     * This ensures oxygen distributor rooms are re-scanned after
+     * a player builds/expands a room.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onBlockPlace(BlockEvent.PlaceEvent event) {
+        if (event.getWorld().isRemote) return;
+        OxygenSystem.invalidateNearbyCache(
+            (World) event.getWorld(), event.getPos(), 32);
     }
 
-    private boolean isWearing(EntityLivingBase entity, EntityEquipmentSlot slot, Item item) {
-        ItemStack stack = entity.getItemStackFromSlot(slot);
-        return !stack.isEmpty() && stack.getItem() == item;
+    /**
+     * Invalidate nearby sealed-room caches when a block is broken.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onBlockBreak(BlockEvent.BreakEvent event) {
+        if (event.getWorld().isRemote) return;
+        OxygenSystem.invalidateNearbyCache(
+            (World) event.getWorld(), event.getPos(), 32);
     }
 }

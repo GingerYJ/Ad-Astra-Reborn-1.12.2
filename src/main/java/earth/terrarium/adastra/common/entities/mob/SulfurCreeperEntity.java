@@ -2,7 +2,7 @@ package earth.terrarium.adastra.common.entities.mob;
 
 import earth.terrarium.adastra.common.entities.AdAstraPlaceholderMob;
 import earth.terrarium.adastra.common.items.GasTankItem;
-import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -13,7 +13,6 @@ import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -203,16 +202,7 @@ public class SulfurCreeperEntity extends AdAstraPlaceholderMob {
     }
 
     private boolean hasFullSpaceSuit(EntityPlayer player) {
-        return hasArmorSet(player, ModItems.SPACE_HELMET, ModItems.SPACE_SUIT, ModItems.SPACE_PANTS, ModItems.SPACE_BOOTS)
-            || hasArmorSet(player, ModItems.NETHERITE_SPACE_HELMET, ModItems.NETHERITE_SPACE_SUIT, ModItems.NETHERITE_SPACE_PANTS, ModItems.NETHERITE_SPACE_BOOTS)
-            || hasArmorSet(player, ModItems.JET_SUIT_HELMET, ModItems.JET_SUIT, ModItems.JET_SUIT_PANTS, ModItems.JET_SUIT_BOOTS);
-    }
-
-    private boolean hasArmorSet(EntityPlayer player, Item helmet, Item chest, Item legs, Item boots) {
-        return player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem() == helmet
-            && player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() == chest
-            && player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() == legs
-            && player.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() == boots;
+        return SpaceSuitItem.hasFullSet(player);
     }
 
     private void spawnEffectCloud() {

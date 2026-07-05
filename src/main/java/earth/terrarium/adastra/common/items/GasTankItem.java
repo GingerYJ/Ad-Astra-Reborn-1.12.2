@@ -3,6 +3,7 @@ package earth.terrarium.adastra.common.items;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.registry.ModFluids;
+import earth.terrarium.adastra.common.util.AdAstraFluidHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -146,8 +147,7 @@ public class GasTankItem extends Item {
     }
 
     public static int getStoredOxygen(ItemStack stack) {
-        FluidStack contained = FluidUtil.getFluidContained(stack);
-        return contained != null && contained.getFluid() == ModFluids.OXYGEN ? Math.max(0, contained.amount) : 0;
+        return AdAstraFluidHelper.getOxygenAmountWithBackup(stack, FluidUtil.getFluidContained(stack));
     }
 
     public static int getOxygenCapacity(ItemStack stack) {
@@ -212,16 +212,45 @@ public class GasTankItem extends Item {
 
         private OxygenFluidHandler(ItemStack container, int capacity) {
             super(container, capacity);
+            AdAstraFluidHelper.migrateItemFluidTag(container);
+        }
+
+        @Override
+        public FluidStack getFluid() {
+            FluidStack fluid = AdAstraFluidHelper.normalizeFluidStack(super.getFluid());
+            if (AdAstraFluidHelper.isOxygen(fluid)) {
+                AdAstraFluidHelper.setOxygenBackupAmount(container, fluid.amount);
+                return fluid;
+            }
+            FluidStack restored = AdAstraFluidHelper.restoreOxygenFromBackup(container, capacity);
+            if (restored != null) {
+                super.setFluid(restored);
+            }
+            return restored;
+        }
+
+        @Override
+        protected void setFluid(FluidStack fluid) {
+            if (fluid == null) {
+                if (container.hasTagCompound()) {
+                    container.getTagCompound().removeTag(FLUID_NBT_KEY);
+                }
+                AdAstraFluidHelper.setOxygenBackupAmount(container, 0);
+                return;
+            }
+            FluidStack normalized = AdAstraFluidHelper.normalizeFluidStack(fluid);
+            super.setFluid(normalized);
+            AdAstraFluidHelper.setOxygenBackupAmount(container, AdAstraFluidHelper.isOxygen(normalized) ? normalized.amount : 0);
         }
 
         @Override
         public boolean canFillFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+            return AdAstraFluidHelper.isOxygen(fluid);
         }
 
         @Override
         public boolean canDrainFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == ModFluids.OXYGEN;
+            return AdAstraFluidHelper.isOxygen(fluid);
         }
     }
 }

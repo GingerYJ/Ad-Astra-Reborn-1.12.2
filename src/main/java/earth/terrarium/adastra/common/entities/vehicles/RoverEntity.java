@@ -14,6 +14,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -46,8 +47,14 @@ public class RoverEntity extends VehicleBase implements RadioHolder {
         });
         setSize(2.2f, 0.9f);
         addVehiclePart("radio", 0.6f, 0.7f, 0.6D, 1.0D, 0.5D, (player, hand) -> {
-            if (player.getRidingEntity() != this) {
-                return false;
+            if (player.isSneaking()) {
+                if (!world.isRemote) {
+                    openInventoryGUI(player);
+                }
+                return true;
+            }
+            if (mountIfNotRiding(player)) {
+                return true;
             }
             if (!world.isRemote && player instanceof EntityPlayerMP) {
                 NetworkHandler.CHANNEL.sendTo(
@@ -57,11 +64,42 @@ public class RoverEntity extends VehicleBase implements RadioHolder {
             return true;
         });
         addVehiclePart("cargo", 1.1f, 0.7f, 0.15D, 0.8D, -1.7D, (player, hand) -> {
+            if (player.isSneaking()) {
+                if (!world.isRemote) {
+                    openInventoryGUI(player);
+                }
+                return true;
+            }
+            if (mountIfNotRiding(player)) {
+                return true;
+            }
             if (!world.isRemote) {
                 openInventoryGUI(player);
             }
             return true;
         });
+    }
+
+    private boolean mountIfNotRiding(EntityPlayer player) {
+        if (player.getRidingEntity() == this) {
+            return false;
+        }
+        if (!world.isRemote) {
+            player.startRiding(this);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+        if (!player.isSneaking()) {
+            mountIfNotRiding(player);
+            return true;
+        }
+        if (!world.isRemote) {
+            openInventoryGUI(player);
+        }
+        return true;
     }
 
     @Override
@@ -211,30 +249,45 @@ public class RoverEntity extends VehicleBase implements RadioHolder {
         int passengerIndex = passengers.indexOf(passenger);
 
         if (passengerIndex == 0) {
-            // Driver position (front)
-            double offsetX = -Math.sin(Math.toRadians(rotationYaw)) * 0.3;
-            double offsetZ = Math.cos(Math.toRadians(rotationYaw)) * 0.3;
-            passenger.setPosition(
-                posX + offsetX,
-                posY + getMountedYOffset() + passenger.getYOffset(),
-                posZ + offsetZ
-            );
+            positionPassenger(passenger, -0.6D);
         } else if (passengerIndex == 1) {
-            // Passenger position (back)
-            double offsetX = -Math.sin(Math.toRadians(rotationYaw)) * -0.3;
-            double offsetZ = Math.cos(Math.toRadians(rotationYaw)) * -0.3;
-            passenger.setPosition(
-                posX + offsetX,
-                posY + getMountedYOffset() + passenger.getYOffset(),
-                posZ + offsetZ
-            );
+            positionPassenger(passenger, 0.4D);
         }
 
     }
 
+    private void positionPassenger(Entity passenger, double zOffset) {
+        Vec3d position = getSeatOffset(zOffset);
+        passenger.setPosition(
+            posX + position.x,
+            posY + getMountedYOffset() + passenger.getYOffset(),
+            posZ + position.z
+        );
+        applyOrientationToEntity(passenger);
+    }
+
+    private Vec3d getSeatOffset(double zOffset) {
+        double angle = -Math.toRadians(rotationYaw) - Math.PI / 2.0D;
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double localX = -0.5D;
+        double x = localX * cos + zOffset * sin;
+        double z = zOffset * cos - localX * sin;
+        return new Vec3d(x, 0.0D, z);
+    }
+
     @Override
     public double getMountedYOffset() {
-        return height * 0.72D;
+        return isDead ? 0.01D : 0.95D;
+    }
+
+    @Override
+    public void applyOrientationToEntity(Entity entityToUpdate) {
+        if (entityToUpdate instanceof EntityLivingBase) {
+            EntityLivingBase living = (EntityLivingBase) entityToUpdate;
+            living.renderYawOffset = this.rotationYaw;
+            living.prevRenderYawOffset = this.rotationYaw;
+        }
     }
 
     @Override

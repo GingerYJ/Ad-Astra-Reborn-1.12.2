@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.container;
 
+import earth.terrarium.adastra.common.util.AdAstraFluidHelper;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -37,6 +38,17 @@ public class AdAstraFluidTank extends FluidTank {
         if (changeListener != null) {
             changeListener.run();
         }
+    }
+
+    @Override
+    public FluidTank readFromNBT(NBTTagCompound nbt) {
+        setFluid(AdAstraFluidHelper.loadFluidStackFromNBT(nbt));
+        return this;
+    }
+
+    @Override
+    public void setFluid(FluidStack fluid) {
+        super.setFluid(AdAstraFluidHelper.normalizeFluidStack(fluid));
     }
 
     @Override

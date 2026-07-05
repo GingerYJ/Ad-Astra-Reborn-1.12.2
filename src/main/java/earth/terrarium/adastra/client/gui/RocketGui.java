@@ -1,7 +1,7 @@
 package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
-import earth.terrarium.adastra.common.container.RocketContainer;
+import earth.terrarium.adastra.common.menus.vehicles.RocketMenu;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -15,9 +15,9 @@ public class RocketGui extends GuiContainer {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/container/rocket.png");
 
-    private final RocketContainer container;
+    private final RocketMenu container;
 
-    public RocketGui(InventoryPlayer playerInventory, RocketContainer container) {
+    public RocketGui(InventoryPlayer playerInventory, RocketMenu container) {
         super(container);
         this.container = container;
         this.xSize = 177;

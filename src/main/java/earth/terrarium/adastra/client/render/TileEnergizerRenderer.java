@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -23,7 +22,8 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
     private static final float BEAM_WIDTH = 0.0625f;
     private static final float BEAM_HEIGHT = 0.5f;
     private static final int BEAM_SEGMENTS = 8;
-    private static final int SPARK_COUNT = 2;
+    private static final int ARC_COUNT = 2;
+    private static final int ARC_SEGMENTS = 4;
 
     @Override
     public void render(EnergizerTileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
@@ -32,19 +32,14 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
         }
 
         ItemStack stack = te.getStackInSlot(0);
-
-        // Render floating item if present and machine is lit
         if (!stack.isEmpty() && te.isLit()) {
             renderFloatingItem(te, x, y, z, partialTicks, stack);
         }
-
-        // Render energy beams if machine is lit
         if (te.isLit()) {
             renderEnergyBeams(te, x, y, z, partialTicks);
         }
-
         if (te.isLit() && te.shouldRenderChargeSparks()) {
-            spawnChargeSparks(te);
+            renderChargeArcs(te, x, y, z);
         }
     }
 
@@ -78,7 +73,6 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
         long time = te.getWorld().getTotalWorldTime();
         float animationTime = (time + partialTicks) * 0.05f;
 
-        // Render multiple energy beams
         for (int i = 0; i < 4; i++) {
             float angle = (i * 90.0f) + animationTime * 20.0f;
             renderEnergyBeam(angle, animationTime + i * 0.25f);
@@ -125,24 +119,47 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
         GlStateManager.popMatrix();
     }
 
-    private void spawnChargeSparks(EnergizerTileEntity te) {
-        Random random = te.getWorld().rand;
-        for (int i = 0; i < SPARK_COUNT; i++) {
-            double offsetX = (random.nextDouble() - 0.5D) * 0.2D;
-            double offsetY = (random.nextDouble() - 0.5D) * 0.2D;
-            double offsetZ = (random.nextDouble() - 0.5D) * 0.2D;
-            double velocityX = (random.nextDouble() - 0.5D) * 0.1D;
-            double velocityY = (random.nextDouble() - 0.5D) * 0.1D;
-            double velocityZ = (random.nextDouble() - 0.5D) * 0.1D;
+    private void renderChargeArcs(EnergizerTileEntity te, double x, double y, double z) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        long time = te.getWorld().getTotalWorldTime();
+        Random random = new Random((time / 3L) ^ te.getPos().toLong());
 
-            te.getWorld().spawnParticle(
-                EnumParticleTypes.FIREWORKS_SPARK,
-                te.getPos().getX() + 0.5D + offsetX,
-                te.getPos().getY() + 1.8D + offsetY,
-                te.getPos().getZ() + 0.5D + offsetZ,
-                velocityX,
-                velocityY,
-                velocityZ);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x + 0.5, y + 1.55, z + 0.5);
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        GlStateManager.disableLighting();
+        GlStateManager.depthMask(false);
+        GlStateManager.glLineWidth(2.0f);
+
+        for (int arc = 0; arc < ARC_COUNT; arc++) {
+            double startAngle = random.nextDouble() * Math.PI * 2.0D;
+            double endAngle = startAngle + (random.nextDouble() - 0.5D) * 1.8D;
+            double startRadius = 0.34D + random.nextDouble() * 0.08D;
+            double endRadius = 0.08D + random.nextDouble() * 0.12D;
+
+            buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+            for (int segment = 0; segment <= ARC_SEGMENTS; segment++) {
+                double progress = segment / (double) ARC_SEGMENTS;
+                double angle = startAngle + (endAngle - startAngle) * progress;
+                double radius = startRadius + (endRadius - startRadius) * progress;
+                double jitter = segment == 0 || segment == ARC_SEGMENTS ? 0.0D : (random.nextDouble() - 0.5D) * 0.16D;
+                double px = Math.cos(angle) * radius + Math.cos(angle + Math.PI / 2.0D) * jitter;
+                double py = 0.08D + progress * 0.45D + (random.nextDouble() - 0.5D) * 0.06D;
+                double pz = Math.sin(angle) * radius + Math.sin(angle + Math.PI / 2.0D) * jitter;
+                int alpha = segment == 0 || segment == ARC_SEGMENTS ? 110 : 235;
+                buffer.pos(px, py, pz).color(150, 235, 255, alpha).endVertex();
+            }
+            tessellator.draw();
         }
+
+        GlStateManager.glLineWidth(1.0f);
+        GlStateManager.depthMask(true);
+        GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
+        GlStateManager.popMatrix();
     }
 }

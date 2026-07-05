@@ -5,6 +5,7 @@ import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.performance.PerformanceTracker;
 import earth.terrarium.adastra.common.registry.ModSounds;
 import earth.terrarium.adastra.common.tags.ModBlockTags;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -48,27 +49,14 @@ public final class OxygenSystem {
      * Maximum air level for players (vanilla constant).
      * In 1.12.2, this is 300 ticks.
      */
-    private static final int MAX_AIR = 300;
+    public static final int MAX_AIR = 300;
 
-    // Sealed room cache for performance optimization
-    private static final Map<BlockPos, CachedSealedRoom> SEALED_ROOM_CACHE = new ConcurrentHashMap<>();
-    private static final int SEALED_ROOM_CACHE_LIFETIME = 60; // 3 seconds
+    // Sealed room cache for performance optimization.
+    // Keyed by (dimension, pos) to isolate different worlds.
+    // No time-based expiry — invalidated only by block change events,
+    // since room structure never changes unless a block is placed/broken.
+    private static final Map<Integer, Map<BlockPos, Set<BlockPos>>> SEALED_ROOM_CACHE = new ConcurrentHashMap<>();
 
-    private static class CachedSealedRoom {
-        final Set<BlockPos> positions;
-        final long timestamp;
-        final boolean isSealed;
-
-        CachedSealedRoom(Set<BlockPos> positions, long timestamp, boolean isSealed) {
-            this.positions = positions;
-            this.timestamp = timestamp;
-            this.isSealed = isSealed;
-        }
-
-        boolean isExpired(long currentTime) {
-            return currentTime - timestamp > SEALED_ROOM_CACHE_LIFETIME;
-        }
-    }
 
     private OxygenSystem() {
     }
@@ -227,6 +215,23 @@ public final class OxygenSystem {
         return false;
     }
 
+    public static void handleUnderwaterSpaceSuitBreathing(EntityPlayer player) {
+        if (!player.isInsideOfMaterial(Material.WATER) || !OxygenUtils.isWearingSpaceSuit(player)) {
+            return;
+        }
+        if (player.ticksExisted % getOxygenConsumptionInterval() != 0) {
+            return;
+        }
+        int amount = getOxygenConsumptionAmount();
+        if (OxygenUtils.getSpaceSuitOxygen(player) <= amount) {
+            return;
+        }
+        int consumed = OxygenUtils.consumeSpaceSuitOxygen(player, amount);
+        if (consumed >= amount) {
+            player.setAir(Math.min(MAX_AIR, player.getAir() + 40));
+        }
+    }
+
     /**
      * Play oxygen outtake sound when player consumes oxygen from suit.
      * @param player The player consuming oxygen
@@ -318,7 +323,7 @@ public final class OxygenSystem {
     /**
      * Find all blocks in a sealed room starting from the given position using flood fill algorithm.
      * Uses BFS (Breadth-First Search) to explore connected air blocks and check if the space is sealed.
-     * Results are cached for SEALED_ROOM_CACHE_LIFETIME ticks to improve performance.
+     * Results are cached with no timed expiry — invalidated by block change events.
      *
      * Based on 1.20.x FloodFill3D implementation from:
      * earth.terrarium.adastra.common.utils.floodfill.FloodFill3D
@@ -328,123 +333,140 @@ public final class OxygenSystem {
      * @param maxBlocks Maximum number of blocks to check (prevents performance issues and limits room size)
      * @return Set of BlockPos representing the sealed room, or null if the room is not sealed or exceeds maxBlocks
      */
+    /**
+     * Find all blocks in a sealed room starting from the given position using
+     * flood fill (BFS). Results are cached per dimension with no time-based
+     * expiry — caches are invalidated only by block place/break events.
+     *
+     * @param world     the world to search in
+     * @param start     starting position (oxygen distributor output)
+     * @param maxBlocks maximum blocks before assuming the room is unsealed
+     * @return the set of blocks in the sealed room, or {@code null} if unsealed
+     */
     @Nullable
     public static Set<BlockPos> findSealedRoom(World world, BlockPos start, int maxBlocks) {
         if (world == null || start == null || maxBlocks <= 0) {
             return null;
         }
 
-        // Check cache first
-        long currentTime = world.getTotalWorldTime();
-        CachedSealedRoom cached = SEALED_ROOM_CACHE.get(start);
-        if (cached != null && !cached.isExpired(currentTime)) {
-            return cached.isSealed ? cached.positions : null;
+        int dim = world.provider.getDimension();
+        Map<BlockPos, Set<BlockPos>> dimCache = SEALED_ROOM_CACHE.get(dim);
+        if (dimCache != null) {
+            Set<BlockPos> cached = dimCache.get(start);
+            if (cached != null) {
+                return cached.isEmpty() ? null : cached;
+            }
         }
 
-        // Perform flood fill
         Set<BlockPos> result = performFloodFill(world, start, maxBlocks);
-
-        // Cache the result
-        boolean isSealed = result != null;
-        SEALED_ROOM_CACHE.put(start, new CachedSealedRoom(result, currentTime, isSealed));
-
-        // Clean up old cache entries periodically
-        if (world.getTotalWorldTime() % 100 == 0) {
-            cleanupSealedRoomCache(currentTime);
-        }
-
+        SEALED_ROOM_CACHE
+            .computeIfAbsent(dim, k -> new ConcurrentHashMap<>())
+            .put(start, result != null ? result : Collections.emptySet());
         return result;
     }
 
     /**
-     * Perform the actual flood fill without caching.
+     * BFS flood fill. Performance optimizations over a naive BFS:
+     * <ul>
+     *   <li>{@code canBlockSeeSky} is deferred — only called when the block
+     *       is at or above start Y <em>and</em> the block above is non-solid
+     *       (cheap {@code isFullCube + getLightOpacity} pre-check). In a
+     *       sealed underground room this eliminates &gt;99% of sky checks.</li>
+     *   <li>{@code LinkedHashSet.add()} serves as an atomic check-and-insert,
+     *       removing the separate {@code contains()} call per node.</li>
+     * </ul>
      */
     @Nullable
     private static Set<BlockPos> performFloodFill(World world, BlockPos start, int maxBlocks) {
-        // Use LinkedHashSet to maintain insertion order (useful for debugging/rendering)
-        if (isOpenToSky(world, start, start)) {
+        // Quick pre-check: distributor itself sees the sky → not sealed
+        if (start.getY() >= 0 && couldBeSkyExposed(world, start)
+            && world.canBlockSeeSky(start)) {
             return null;
         }
 
-        Set<BlockPos> visitedPositions = new LinkedHashSet<>();
+        Set<BlockPos> visited = new LinkedHashSet<>();
         Queue<BlockPos> queue = new ArrayDeque<>();
-
         queue.add(start);
+        int startY = start.getY();
 
-        // BFS flood fill
-        while (!queue.isEmpty() && visitedPositions.size() < maxBlocks) {
+        while (!queue.isEmpty() && visited.size() < maxBlocks) {
             BlockPos current = queue.poll();
-
-            // Skip if already visited
-            if (visitedPositions.contains(current)) {
-                continue;
+            if (!visited.add(current)) {
+                continue; // already visited
             }
 
-            visitedPositions.add(current);
-
-            // Check all 6 directions (up, down, north, south, east, west)
-            for (EnumFacing direction : EnumFacing.values()) {
-                BlockPos neighbor = current.offset(direction);
-
-                // Skip if already visited
-                if (visitedPositions.contains(neighbor)) {
+            for (EnumFacing dir : EnumFacing.values()) {
+                BlockPos neighbor = current.offset(dir);
+                if (visited.contains(neighbor)) {
                     continue;
                 }
 
-                IBlockState neighborState = world.getBlockState(neighbor);
-
-                // Check if this neighbor allows oxygen to pass through
-                if (isBlockPassable(world, neighbor, neighborState, direction.getOpposite())) {
-                    // If the block is passable (air or non-sealed), check if we're leaking to outside
-                    if (isOpenToSky(world, start, neighbor) || isLeakingToOutside(world, neighbor, neighborState)) {
-                        // Room is not sealed - oxygen would leak out
-                        return null;
-                    }
-
-                    // This is a valid air space within the room
-                    queue.add(neighbor);
-                } else {
-                    // This is a solid/sealing block - it forms the boundary of the room
-                    // We don't add it to the queue, but it's not a leak either
+                IBlockState state = world.getBlockState(neighbor);
+                if (!isBlockPassable(world, neighbor, state, dir.getOpposite())) {
+                    continue; // solid boundary
                 }
+
+                // ---- lazy sky-exposure check ----
+                if (neighbor.getY() >= startY && couldBeSkyExposed(world, neighbor)) {
+                    if (world.canBlockSeeSky(neighbor)) {
+                        return null; // leak to outside
+                    }
+                }
+
+                queue.add(neighbor);
             }
         }
 
-        // Check if we exceeded the maximum block limit
-        if (visitedPositions.size() >= maxBlocks) {
-            // Room is too large or infinite
-            return null;
-        }
-
-        return visitedPositions;
-    }
-
-    private static boolean isOpenToSky(World world, BlockPos start, BlockPos pos) {
-        return pos.getY() >= start.getY() && world.canBlockSeeSky(pos);
+        return visited.size() < maxBlocks ? visited : null;
     }
 
     /**
-     * Clean up expired sealed room cache entries.
+     * Fast pre-filter before calling the expensive {@code canBlockSeeSky}.
+     * Only returns {@code true} when the block directly above is non-full-cube
+     * (air, slab, glass, etc.), meaning sky light <em>could</em> theoretically
+     * reach this position. Uses only cached block-state properties.
      */
-    private static void cleanupSealedRoomCache(long currentTime) {
-        SEALED_ROOM_CACHE.entrySet().removeIf(entry -> entry.getValue().isExpired(currentTime));
+    private static boolean couldBeSkyExposed(World world, BlockPos pos) {
+        IBlockState above = world.getBlockState(pos.up());
+        return !above.isFullCube() && above.getLightOpacity(world, pos.up()) < 15;
     }
 
     /**
-     * Invalidate sealed room cache for a specific position.
-     * Call this when blocks are placed/broken near oxygen distributors.
+     * Invalidate cached sealed rooms within {@code radius} blocks of a
+     * block change. Call from {@code BlockEvent.PlaceEvent} /
+     * {@code BlockEvent.BreakEvent} so that room scans reflect new
+     * walls/doors immediately.
+     */
+    public static void invalidateNearbyCache(World world, BlockPos center, int radius) {
+        if (world == null || center == null) return;
+        int dim = world.provider.getDimension();
+        Map<BlockPos, Set<BlockPos>> dimCache = SEALED_ROOM_CACHE.get(dim);
+        if (dimCache == null || dimCache.isEmpty()) return;
+
+        long r2 = (long) radius * radius;
+        dimCache.keySet().removeIf(cachedPos -> {
+            long dx = cachedPos.getX() - center.getX();
+            long dy = cachedPos.getY() - center.getY();
+            long dz = cachedPos.getZ() - center.getZ();
+            return dx * dx + dy * dy + dz * dz <= r2;
+        });
+    }
+
+    /**
+     * Invalidate a single cache entry (legacy API).
      */
     public static void invalidateSealedRoomCache(BlockPos pos) {
-        SEALED_ROOM_CACHE.remove(pos);
+        for (Map<BlockPos, Set<BlockPos>> dimCache : SEALED_ROOM_CACHE.values()) {
+            dimCache.remove(pos);
+        }
     }
 
     /**
-     * Clear all sealed room caches.
+     * Clear all cached sealed rooms across all dimensions.
      */
     public static void clearSealedRoomCache() {
         SEALED_ROOM_CACHE.clear();
     }
-
     /**
      * Check if a block allows oxygen to pass through it.
      * Based on 1.20.x TEST_FULL_SEAL predicate logic.

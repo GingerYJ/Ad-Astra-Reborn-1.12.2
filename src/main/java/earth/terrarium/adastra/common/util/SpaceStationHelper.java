@@ -59,14 +59,18 @@ public final class SpaceStationHelper {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.unavailable"), true);
             return false;
         }
-        if (hasSpaceStationInOrbit(player, orbitDimensionId)) {
+        SpaceStation existingStation = getOwnedSpaceStationInOrbit(player, orbitDimensionId);
+        if (existingStation != null) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.orbit_exists"), true);
             IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
             if (capability != null) {
                 syncCapability(player, capability);
             }
-            reopenPlanetSelection(player);
-            return false;
+            if (isPlayerInSpaceStationArea(player, orbitDimensionId, existingStation.getPosition())) {
+                reopenPlanetSelection(player);
+                return false;
+            }
+            return PlanetTravelHelper.landPlayerAtSpaceStation(player, orbitDimensionId, existingStation.getPosition());
         }
 
         MinecraftServer server = player.getServer();
@@ -242,17 +246,17 @@ public final class SpaceStationHelper {
         return count + 1;
     }
 
-    private static boolean hasSpaceStationInOrbit(EntityPlayerMP player, int orbitDimensionId) {
+    private static SpaceStation getOwnedSpaceStationInOrbit(EntityPlayerMP player, int orbitDimensionId) {
         IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
         if (capability == null) {
-            return false;
+            return null;
         }
         for (SpaceStation station : capability.getSpaceStations()) {
             if (station.getDimension() == orbitDimensionId && station.getOwner().equals(player.getUniqueID())) {
-                return true;
+                return station;
             }
         }
-        return false;
+        return null;
     }
 
     private static boolean ownsSpaceStation(EntityPlayerMP player, int orbitDimensionId, BlockPos stationPos) {
@@ -285,6 +289,10 @@ public final class SpaceStationHelper {
     }
 
     private static void reopenPlanetSelection(EntityPlayerMP player) {
+        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
+        if (capability != null) {
+            syncCapability(player, capability);
+        }
         NetworkHandler.CHANNEL.sendTo(new PacketOpenPlanetSelection(Math.max(1, getRocketTier(player))), player);
     }
 

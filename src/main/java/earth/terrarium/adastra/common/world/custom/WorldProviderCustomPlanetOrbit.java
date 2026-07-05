@@ -10,8 +10,8 @@ public class WorldProviderCustomPlanetOrbit extends AdAstraOrbitWorldProvider {
     protected PlanetDimensionProperties getProperties() {
         CustomPlanetDefinition definition = getDefinition();
         return definition == null
-            ? CustomPlanetDefinition.fallbackProperties(getDimension())
-            : definition.toDimensionProperties();
+            ? CustomPlanetDefinition.fallbackOrbitProperties(getDimension())
+            : definition.toOrbitDimensionProperties();
     }
 
     @Override
@@ -21,6 +21,6 @@ public class WorldProviderCustomPlanetOrbit extends AdAstraOrbitWorldProvider {
     }
 
     private CustomPlanetDefinition getDefinition() {
-        return CustomPlanetRegistry.getByDimensionId(getDimension());
+        return CustomPlanetRegistry.getByOrbitDimensionId(getDimension());
     }
 }
