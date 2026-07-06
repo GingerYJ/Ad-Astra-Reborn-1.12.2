@@ -1,15 +1,113 @@
 package earth.terrarium.adastra.common.config;
 
+import earth.terrarium.adastra.common.registry.ModDimensions;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketRegistry;
+import earth.terrarium.adastra.common.util.PlanetTierOverrideRegistry;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public final class AdAstraConfig {
 
+    private static final String CATEGORY_PLANET_TIERS = "planet_tiers";
+
     private static Configuration configuration;
+    private static Configuration coreConfiguration;
+    private static Configuration clientConfiguration;
+    private static Configuration machinesConfiguration;
+    private static Configuration dimensionsConfiguration;
+    private static Configuration mobsConfiguration;
+    private static Configuration worldgenConfiguration;
+    private static Configuration debugConfiguration;
+    private static Configuration legacyConfiguration;
+    private static Configuration[] splitConfigurations = new Configuration[0];
+    private static final Map<Integer, Boolean> PLANET_DIMENSION_ENABLED = new HashMap<>();
+    private static final Map<Integer, Float> PLANET_GRAVITY_MULTIPLIERS = new HashMap<>();
+    private static final Map<Integer, Boolean> PLANET_HOSTILE_MOB_OVERRIDES = new HashMap<>();
+    private static final Set<Integer> PLANET_DIMENSIONS = new HashSet<>();
+
+    private static final PlanetTierConfig[] PLANET_TIER_CONFIGS = new PlanetTierConfig[] {
+        new PlanetTierConfig("moon", ModDimensions.MOON_ID, 1, "\u6708\u7403"),
+        new PlanetTierConfig("mars", ModDimensions.MARS_ID, 2, "\u706b\u661f"),
+        new PlanetTierConfig("mercury", ModDimensions.MERCURY_ID, 3, "\u6c34\u661f"),
+        new PlanetTierConfig("venus", ModDimensions.VENUS_ID, 3, "\u91d1\u661f"),
+        new PlanetTierConfig("glacio", ModDimensions.GLACIO_ID, 4, "\u51b0\u5ddd\u661f"),
+        new PlanetTierConfig("ceres", ModDimensions.CERES_ID, 3, "\u8c37\u795e\u661f"),
+        new PlanetTierConfig("pluto", ModDimensions.PLUTO_ID, 4, "\u51a5\u738b\u661f"),
+        new PlanetTierConfig("haumea", ModDimensions.HAUMEA_ID, 4, "\u598a\u795e\u661f"),
+        new PlanetTierConfig("kuiper_belt", ModDimensions.KUIPER_BELT_ID, 5, "\u67ef\u4f0a\u4f2f\u5e26"),
+        new PlanetTierConfig("io", ModDimensions.IO_ID, 4, "\u6728\u536b\u4e00"),
+        new PlanetTierConfig("europa", ModDimensions.EUROPA_ID, 4, "\u6728\u536b\u4e8c"),
+        new PlanetTierConfig("ganymede", ModDimensions.GANYMEDE_ID, 4, "\u6728\u536b\u4e09"),
+        new PlanetTierConfig("callisto", ModDimensions.CALLISTO_ID, 4, "\u6728\u536b\u56db"),
+        new PlanetTierConfig("enceladus", ModDimensions.ENCELADUS_ID, 5, "\u571f\u536b\u4e8c"),
+        new PlanetTierConfig("titan", ModDimensions.TITAN_ID, 5, "\u571f\u536b\u516d"),
+        new PlanetTierConfig("miranda", ModDimensions.MIRANDA_ID, 5, "\u5929\u536b\u4e94"),
+        new PlanetTierConfig("triton", ModDimensions.TRITON_ID, 5, "\u6d77\u536b\u4e00"),
+        new PlanetTierConfig("phobos", ModDimensions.PHOBOS_ID, 3, "\u706b\u536b\u4e00"),
+        new PlanetTierConfig("jupiter_orbit", ModDimensions.JUPITER_ORBIT_ID, 4, "\u6728\u661f\u8f68\u9053"),
+        new PlanetTierConfig("barnarda_c", ModDimensions.BARNARDA_C_ID, 6, "\u5df4\u7eb3\u5fb7C"),
+        new PlanetTierConfig("barnarda_c1", ModDimensions.BARNARDA_C1_ID, 6, "\u5df4\u7eb3\u5fb7C1"),
+        new PlanetTierConfig("tauceti_f", ModDimensions.TAUCETI_F_ID, 6, "\u5929\u4ed3\u4e94F"),
+        new PlanetTierConfig("proxima_b", ModDimensions.PROXIMA_B_ID, 6, "\u6bd4\u90bb\u661fb")
+    };
+
+    private static final PlanetMobConfig[] PLANET_MOB_CONFIGS = new PlanetMobConfig[] {
+        new PlanetMobConfig("enableHostileMobsOnMoon", ModDimensions.MOON_ID, "\u6708\u7403"),
+        new PlanetMobConfig("enableHostileMobsOnMars", ModDimensions.MARS_ID, "\u706b\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnMercury", ModDimensions.MERCURY_ID, "\u6c34\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnVenus", ModDimensions.VENUS_ID, "\u91d1\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnGlacio", ModDimensions.GLACIO_ID, "\u51b0\u5ddd\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnCeres", ModDimensions.CERES_ID, "\u8c37\u795e\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnPluto", ModDimensions.PLUTO_ID, "\u51a5\u738b\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnHaumea", ModDimensions.HAUMEA_ID, "\u598a\u795e\u661f"),
+        new PlanetMobConfig("enableHostileMobsOnKuiperBelt", ModDimensions.KUIPER_BELT_ID, "\u67ef\u4f0a\u4f2f\u5e26"),
+        new PlanetMobConfig("enableHostileMobsOnIo", ModDimensions.IO_ID, "\u6728\u536b\u4e00"),
+        new PlanetMobConfig("enableHostileMobsOnEuropa", ModDimensions.EUROPA_ID, "\u6728\u536b\u4e8c"),
+        new PlanetMobConfig("enableHostileMobsOnGanymede", ModDimensions.GANYMEDE_ID, "\u6728\u536b\u4e09"),
+        new PlanetMobConfig("enableHostileMobsOnCallisto", ModDimensions.CALLISTO_ID, "\u6728\u536b\u56db"),
+        new PlanetMobConfig("enableHostileMobsOnEnceladus", ModDimensions.ENCELADUS_ID, "\u571f\u536b\u4e8c"),
+        new PlanetMobConfig("enableHostileMobsOnTitan", ModDimensions.TITAN_ID, "\u571f\u536b\u516d"),
+        new PlanetMobConfig("enableHostileMobsOnMiranda", ModDimensions.MIRANDA_ID, "\u5929\u536b\u4e94"),
+        new PlanetMobConfig("enableHostileMobsOnTriton", ModDimensions.TRITON_ID, "\u6d77\u536b\u4e00"),
+        new PlanetMobConfig("enableHostileMobsOnPhobos", ModDimensions.PHOBOS_ID, "\u706b\u536b\u4e00"),
+        new PlanetMobConfig("enableHostileMobsOnBarnardaC", ModDimensions.BARNARDA_C_ID, "\u5df4\u7eb3\u5fb7C"),
+        new PlanetMobConfig("enableHostileMobsOnBarnardaC1", ModDimensions.BARNARDA_C1_ID, "\u5df4\u7eb3\u5fb7C1"),
+        new PlanetMobConfig("enableHostileMobsOnTauCetiF", ModDimensions.TAUCETI_F_ID, "\u5929\u4ed3\u4e94F"),
+        new PlanetMobConfig("enableHostileMobsOnProximaB", ModDimensions.PROXIMA_B_ID, "\u6bd4\u90bb\u661fb")
+    };
+
+    private static final PlanetDimensionConfig[] PLANET_DIMENSION_CONFIGS = new PlanetDimensionConfig[] {
+        new PlanetDimensionConfig("enableMoonDimension", "moonGravityMultiplier", ModDimensions.MOON_ID, "\u6708\u7403"),
+        new PlanetDimensionConfig("enableMarsDimension", "marsGravityMultiplier", ModDimensions.MARS_ID, "\u706b\u661f"),
+        new PlanetDimensionConfig("enableMercuryDimension", "mercuryGravityMultiplier", ModDimensions.MERCURY_ID, "\u6c34\u661f"),
+        new PlanetDimensionConfig("enableVenusDimension", "venusGravityMultiplier", ModDimensions.VENUS_ID, "\u91d1\u661f"),
+        new PlanetDimensionConfig("enableGlacioDimension", "glacioGravityMultiplier", ModDimensions.GLACIO_ID, "\u51b0\u5ddd\u661f"),
+        new PlanetDimensionConfig("enableCeresDimension", "ceresGravityMultiplier", ModDimensions.CERES_ID, "\u8c37\u795e\u661f"),
+        new PlanetDimensionConfig("enablePlutoDimension", "plutoGravityMultiplier", ModDimensions.PLUTO_ID, "\u51a5\u738b\u661f"),
+        new PlanetDimensionConfig("enableHaumeaDimension", "haumeaGravityMultiplier", ModDimensions.HAUMEA_ID, "\u598a\u795e\u661f"),
+        new PlanetDimensionConfig("enableKuiperBeltDimension", "kuiperBeltGravityMultiplier", ModDimensions.KUIPER_BELT_ID, "\u67ef\u4f0a\u4f2f\u5e26"),
+        new PlanetDimensionConfig("enableIoDimension", "ioGravityMultiplier", ModDimensions.IO_ID, "\u6728\u536b\u4e00"),
+        new PlanetDimensionConfig("enableEuropaDimension", "europaGravityMultiplier", ModDimensions.EUROPA_ID, "\u6728\u536b\u4e8c"),
+        new PlanetDimensionConfig("enableGanymedeDimension", "ganymedeGravityMultiplier", ModDimensions.GANYMEDE_ID, "\u6728\u536b\u4e09"),
+        new PlanetDimensionConfig("enableCallistoDimension", "callistoGravityMultiplier", ModDimensions.CALLISTO_ID, "\u6728\u536b\u56db"),
+        new PlanetDimensionConfig("enableEnceladusDimension", "enceladusGravityMultiplier", ModDimensions.ENCELADUS_ID, "\u571f\u536b\u4e8c"),
+        new PlanetDimensionConfig("enableTitanDimension", "titanGravityMultiplier", ModDimensions.TITAN_ID, "\u571f\u536b\u516d"),
+        new PlanetDimensionConfig("enableMirandaDimension", "mirandaGravityMultiplier", ModDimensions.MIRANDA_ID, "\u5929\u536b\u4e94"),
+        new PlanetDimensionConfig("enableTritonDimension", "tritonGravityMultiplier", ModDimensions.TRITON_ID, "\u6d77\u536b\u4e00"),
+        new PlanetDimensionConfig("enablePhobosDimension", "phobosGravityMultiplier", ModDimensions.PHOBOS_ID, "\u706b\u536b\u4e00"),
+        new PlanetDimensionConfig("enableBarnardaCDimension", "barnardaCGravityMultiplier", ModDimensions.BARNARDA_C_ID, "\u5df4\u7eb3\u5fb7C"),
+        new PlanetDimensionConfig("enableBarnardaC1Dimension", "barnardaC1GravityMultiplier", ModDimensions.BARNARDA_C1_ID, "\u5df4\u7eb3\u5fb7C1"),
+        new PlanetDimensionConfig("enableTauCetiFDimension", "tauCetiFGravityMultiplier", ModDimensions.TAUCETI_F_ID, "\u5929\u4ed3\u4e94F"),
+        new PlanetDimensionConfig("enableProximaBDimension", "proximaBGravityMultiplier", ModDimensions.PROXIMA_B_ID, "\u6bd4\u90bb\u661fb")
+    };
 
     // General Configuration
     public static boolean debugLogging;
@@ -100,6 +198,8 @@ public final class AdAstraConfig {
     public static boolean enableEndAsPlanet;
     public static int endRocketTier;
     public static boolean blockVanillaEndTravelWhenPlanet;
+    public static boolean useDedicatedDimensionSaveFolder;
+    public static String dedicatedDimensionSaveFolderName;
     public static float moonGravityMultiplier;
     public static float marsGravityMultiplier;
     public static float mercuryGravityMultiplier;
@@ -131,7 +231,34 @@ public final class AdAstraConfig {
     }
 
     public static void init(File file) {
-        configuration = new Configuration(resolveConfigFile(file));
+        File legacyFile = resolveConfigFile(file);
+        File folder = legacyFile.getParentFile();
+        if (folder == null) {
+            folder = new File("config/ad_astra");
+        }
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        legacyConfiguration = legacyFile.exists() ? new Configuration(legacyFile) : null;
+        coreConfiguration = new Configuration(new File(folder, "core.cfg"));
+        clientConfiguration = new Configuration(new File(folder, "client.cfg"));
+        machinesConfiguration = new Configuration(new File(folder, "machines.cfg"));
+        dimensionsConfiguration = new Configuration(new File(folder, "dimensions.cfg"));
+        mobsConfiguration = new Configuration(new File(folder, "mobs.cfg"));
+        worldgenConfiguration = new Configuration(new File(folder, "worldgen.cfg"));
+        debugConfiguration = new Configuration(new File(folder, "debug.cfg"));
+        ConfigurableRocketRegistry.init(new File(folder, "rockets.cfg"));
+        splitConfigurations = new Configuration[] {
+            coreConfiguration,
+            clientConfiguration,
+            machinesConfiguration,
+            dimensionsConfiguration,
+            mobsConfiguration,
+            worldgenConfiguration,
+            debugConfiguration
+        };
+        configuration = coreConfiguration;
         sync();
     }
 
@@ -170,519 +297,534 @@ public final class AdAstraConfig {
         setCategoryComments();
 
         // General Configuration
-        debugLogging = configuration.getBoolean(
+        debugLogging = getBoolean(
             "debugLogging",
             Configuration.CATEGORY_GENERAL,
             false,
-            "启用额外日志，用于排查 1.12.2 移植版中的问题。");
-        disableOxygen = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        disableOxygen = getBoolean(
             "disableOxygen",
             Configuration.CATEGORY_GENERAL,
             false,
-            "禁用缺氧伤害。");
-        disableTemperature = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        disableTemperature = getBoolean(
             "disableTemperature",
             Configuration.CATEGORY_GENERAL,
             false,
-            "禁用温度伤害。");
-        disableGravity = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        disableGravity = getBoolean(
             "disableGravity",
             Configuration.CATEGORY_GENERAL,
             false,
-            "禁用非地球维度的重力修改。");
-        enableAirVortexes = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableAirVortexes = getBoolean(
             "enableAirVortexes",
             Configuration.CATEGORY_GENERAL,
             true,
-            "当氧气分配器覆盖区域超过上限时，是否生成空气涡流实体。");
-        allowFlagImages = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        allowFlagImages = getBoolean(
             "allowFlagImages",
             Configuration.CATEGORY_GENERAL,
             true,
-            "允许旗帜通过 imgur 图片 URL 设置自定义图片。");
-        radioVolume = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        radioVolume = getInt(
             "radioVolume",
             Configuration.CATEGORY_GENERAL,
             50,
             0,
             100,
-            "无线电独立音量百分比。0 为静音，100 为最大。");
-        spaceMuffler = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        spaceMuffler = getBoolean(
             "spaceMuffler",
             "client",
             true,
-            "在太空中压低非氧气区域的环境声音，并调整音乐/唱片声音。");
-        jetSuitEnabled = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        jetSuitEnabled = getBoolean(
             "jetSuitEnabled",
             "client",
             true,
-            "喷气服飞行是否启用。按喷气服飞行按键会切换并保存该值。");
-        showOxygenDistributorArea = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        showOxygenDistributorArea = getBoolean(
             "showOxygenDistributorArea",
             "client",
             false,
-            "是否显示氧气分配器工作范围。");
-        showGravityNormalizerArea = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        showGravityNormalizerArea = getBoolean(
             "showGravityNormalizerArea",
             "client",
             false,
-            "是否显示重力调节器工作范围。");
-        oxygenBarX = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenBarX = getInt(
             "oxygenBarX",
             "client",
             5,
             -10000,
             10000,
-            "HUD 氧气面板 X 坐标。目标端合并 HUD 使用该值作为面板 X 坐标。");
-        oxygenBarY = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenBarY = getInt(
             "oxygenBarY",
             "client",
             25,
             -10000,
             10000,
-            "HUD 氧气面板 Y 坐标。目标端合并 HUD 使用该值作为面板 Y 坐标。");
-        oxygenBarScale = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenBarScale = getFloat(
             "oxygenBarScale",
             "client",
             1.0f,
             0.25f,
             4.0f,
-            "HUD 氧气面板缩放。目标端合并 HUD 使用该值作为整体缩放。");
-        energyBarX = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        energyBarX = getInt(
             "energyBarX",
             "client",
             11,
             -10000,
             10000,
-            "HUD 电量条 X 坐标。当前 1.12.2 合并 HUD 暂保留该配置用于兼容。");
-        energyBarY = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        energyBarY = getInt(
             "energyBarY",
             "client",
             95,
             -10000,
             10000,
-            "HUD 电量条 Y 坐标。当前 1.12.2 合并 HUD 暂保留该配置用于兼容。");
-        energyBarScale = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        energyBarScale = getFloat(
             "energyBarScale",
             "client",
             1.0f,
             0.25f,
             4.0f,
-            "HUD 电量条缩放。当前 1.12.2 合并 HUD 暂保留该配置用于兼容。");
-        oxygenDamageAmount = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenDamageAmount = getFloat(
             "oxygenDamageAmount",
             Configuration.CATEGORY_GENERAL,
             2.0f,
             0.0f,
             20.0f,
-            "玩家缺氧时每次受到的伤害，单位为半颗心。");
-        oxygenDamageInterval = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenDamageInterval = getInt(
             "oxygenDamageInterval",
             Configuration.CATEGORY_GENERAL,
             20,
             1,
             200,
-            "缺氧伤害触发间隔，单位为 tick。20 tick = 1 秒。");
-        oxygenConsumptionInterval = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenConsumptionInterval = getInt(
             "oxygenConsumptionInterval",
             Configuration.CATEGORY_GENERAL,
             12,
             1,
             200,
-            "宇航服消耗氧气的间隔，单位为 tick。12 tick = 0.6 秒。");
-        oxygenConsumptionAmount = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenConsumptionAmount = getInt(
             "oxygenConsumptionAmount",
             Configuration.CATEGORY_GENERAL,
             1,
             1,
             1000,
-            "每次从宇航服中消耗的氧气量，单位为 mB。");
-        enableSpaceEnvironmentEffects = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableSpaceEnvironmentEffects = getBoolean(
             "enableSpaceEnvironmentEffects",
             Configuration.CATEGORY_GENERAL,
             true,
-            "启用太空环境效果，例如无氧或极端温度维度中的水结冰/蒸发、方块衰变。");
-        planetRandomTickSpeed = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        planetRandomTickSpeed = getInt(
             "planetRandomTickSpeed",
             Configuration.CATEGORY_GENERAL,
             4,
             0,
             64,
-            "太空环境效果每 tick 在每个已加载区块中随机处理的方块数量。数值越高，冻结/蒸发越快，但 CPU 占用也越高。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
         // Performance Configuration
-        maxOxygenDistributorRadius = configuration.getInt(
+        maxOxygenDistributorRadius = getInt(
             "maxOxygenDistributorRadius",
             "performance",
             18,
             1,
             100,
-            "氧气分配器最大工作半径，单位为方块。数值越高越可能影响性能。");
-        oxygenScanRadius = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oxygenScanRadius = getInt(
             "oxygenScanRadius",
             "performance",
             16,
             1,
             64,
-            "密封房间漏氧扫描半径，单位为方块。数值越高越可能影响性能。");
-        enableMachineIdleOptimization = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableMachineIdleOptimization = getBoolean(
             "enableMachineIdleOptimization",
             "performance",
             true,
-            "启用机器空闲优化。没有物品、能量或流体可处理的机器会降低 tick 频率。");
-        machineTransferInterval = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        machineTransferInterval = getInt(
             "machineTransferInterval",
             "performance",
             10,
             1,
             20,
-            "机器向相邻方块传输物品、能量或流体的间隔，单位为 tick。数值越高 CPU 占用越低，但传输越慢。");
-        sealedRoomCacheLifetime = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        sealedRoomCacheLifetime = getInt(
             "sealedRoomCacheLifetime",
             "performance",
             60,
             20,
             200,
-            "密封房间计算结果缓存时间，单位为 tick。数值越高性能越好，但对房间变化的响应越慢。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
         // Balance Configuration
-        gravityNormalizerEnergyMultiplier = configuration.getFloat(
+        gravityNormalizerEnergyMultiplier = getFloat(
             "gravityNormalizerEnergyMultiplier",
             "balance",
             1.0f,
             0.1f,
             10.0f,
-            "重力调节器能量消耗倍率。数值越高，耗能越大。");
-        sealedRoomMaxBlocks = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        sealedRoomMaxBlocks = getInt(
             "sealedRoomMaxBlocks",
             "balance",
             5000,
             100,
             50000,
-            "密封房间允许包含的最大方块数，超过后会被视为过大。数值越高越可能影响性能。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
         // Machine Configuration
-        machineProcessingSpeedMultiplier = configuration.getFloat(
+        machineProcessingSpeedMultiplier = getFloat(
             "machineProcessingSpeedMultiplier",
             "machines",
             1.0f,
             0.1f,
             10.0f,
-            "所有机器的处理速度倍率。数值越高处理越快，例如 2.0 为两倍速度，0.5 为半速。");
-        machineEnergyConsumptionMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        machineEnergyConsumptionMultiplier = getFloat(
             "machineEnergyConsumptionMultiplier",
             "machines",
             1.0f,
             0.1f,
             10.0f,
-            "所有机器的能量消耗倍率。数值越高耗能越大，例如 2.0 为两倍耗能。");
-        coalGeneratorEnergyMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        coalGeneratorEnergyMultiplier = getFloat(
             "coalGeneratorEnergyMultiplier",
             "machines",
             1.0f,
             0.1f,
             10.0f,
-            "煤炭发电机发电倍率。数值越高每 tick 产生的能量越多。");
-        solarPanelEnergyMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        solarPanelEnergyMultiplier = getFloat(
             "solarPanelEnergyMultiplier",
             "machines",
             1.0f,
             0.1f,
             10.0f,
-            "太阳能板发电倍率。数值越高产生的能量越多。");
-        compressorBaseTime = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        compressorBaseTime = getInt(
             "compressorBaseTime",
             "machines",
             100,
             10,
             1000,
-            "压缩机配方基础处理时间，单位为 tick。默认 100 tick，即 5 秒，会受到机器速度倍率影响。");
-        cryoFreezerBaseTime = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        cryoFreezerBaseTime = getInt(
             "cryoFreezerBaseTime",
             "machines",
             200,
             10,
             1000,
-            "冷冻机配方基础处理时间，单位为 tick。默认 200 tick，即 10 秒，会受到机器速度倍率影响。");
-        etrionicBlastFurnaceBaseTime = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        etrionicBlastFurnaceBaseTime = getInt(
             "etrionicBlastFurnaceBaseTime",
             "machines",
             200,
             10,
             1000,
-            "高炉配方基础处理时间，单位为 tick。默认 200 tick，即 10 秒，会受到机器速度倍率影响。");
-        fuelRefineryBaseTime = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        fuelRefineryBaseTime = getInt(
             "fuelRefineryBaseTime",
             "machines",
             150,
             10,
             1000,
-            "燃油精炼机配方基础处理时间，单位为 tick。默认 150 tick，即 7.5 秒，会受到机器速度倍率影响。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
-        ironMaxEnergyInOut = configuration.getInt("ironMaxEnergyInOut", "machines", 100, 0, Integer.MAX_VALUE, "Iron tier max FE input/output per tick.");
-        ironEnergyCapacity = configuration.getInt("ironEnergyCapacity", "machines", 10000, 0, Integer.MAX_VALUE, "Iron tier internal FE capacity.");
-        ironFluidCapacity = configuration.getInt("ironFluidCapacity", "machines", 0, 0, Integer.MAX_VALUE, "Iron tier internal fluid capacity in mB.");
-        steelMaxEnergyInOut = configuration.getInt("steelMaxEnergyInOut", "machines", 150, 0, Integer.MAX_VALUE, "Steel tier max FE input/output per tick.");
-        steelEnergyCapacity = configuration.getInt("steelEnergyCapacity", "machines", 20000, 0, Integer.MAX_VALUE, "Steel tier internal FE capacity.");
-        steelFluidCapacity = configuration.getInt("steelFluidCapacity", "machines", 3000, 0, Integer.MAX_VALUE, "Steel tier internal fluid capacity in mB.");
-        deshMaxEnergyInOut = configuration.getInt("deshMaxEnergyInOut", "machines", 250, 0, Integer.MAX_VALUE, "Desh tier max FE input/output per tick.");
-        deshEnergyCapacity = configuration.getInt("deshEnergyCapacity", "machines", 50000, 0, Integer.MAX_VALUE, "Desh tier internal FE capacity.");
-        deshFluidCapacity = configuration.getInt("deshFluidCapacity", "machines", 5000, 0, Integer.MAX_VALUE, "Desh tier internal fluid capacity in mB.");
-        ostrumMaxEnergyInOut = configuration.getInt("ostrumMaxEnergyInOut", "machines", 500, 0, Integer.MAX_VALUE, "Ostrum tier max FE input/output per tick.");
-        ostrumEnergyCapacity = configuration.getInt("ostrumEnergyCapacity", "machines", 100000, 0, Integer.MAX_VALUE, "Ostrum tier internal FE capacity.");
-        ostrumFluidCapacity = configuration.getInt("ostrumFluidCapacity", "machines", 10000, 0, Integer.MAX_VALUE, "Ostrum tier internal fluid capacity in mB.");
-        coalGeneratorEnergyGenerationPerTick = configuration.getInt("coalGeneratorEnergyGenerationPerTick", "machines", 20, 0, Integer.MAX_VALUE, "Coal generator FE generated per tick before multipliers.");
-        etrionicBlastFurnaceBlastingEnergyPerItem = configuration.getInt("etrionicBlastFurnaceBlastingEnergyPerItem", "machines", 10, 0, Integer.MAX_VALUE, "Etrionic blast furnace FE used per blasting tick before multipliers.");
-        waterPumpEnergyPerTick = configuration.getInt("waterPumpEnergyPerTick", "machines", 20, 0, Integer.MAX_VALUE, "Water pump FE used per tick before multipliers.");
-        waterPumpFluidGenerationPerTick = configuration.getInt("waterPumpFluidGenerationPerTick", "machines", 50, 0, Integer.MAX_VALUE, "Water generated by the water pump per tick in mB.");
-        energizerEnergyCapacity = configuration.getInt("energizerEnergyCapacity", "machines", 2000000, 0, Integer.MAX_VALUE, "Energizer internal FE capacity.");
-        maxDistributionBlocks = configuration.getInt("maxDistributionBlocks", "machines", 6000, 1, Integer.MAX_VALUE, "Maximum blocks oxygen distributors and gravity normalizers can distribute to.");
-        distributionRefreshRate = configuration.getInt("distributionRefreshRate", "machines", 100, 1, Integer.MAX_VALUE, "Refresh interval in ticks for distributor and gravity normalizer coverage.");
-        pipeRefreshRate = configuration.getInt("pipeRefreshRate", "machines", 50, 1, Integer.MAX_VALUE, "Pipe refresh interval in ticks for compatibility with the source config.");
+        ironMaxEnergyInOut = getInt("ironMaxEnergyInOut", "machines", 100, 0, Integer.MAX_VALUE, "Iron tier max FE input/output per tick.");
+        ironEnergyCapacity = getInt("ironEnergyCapacity", "machines", 10000, 0, Integer.MAX_VALUE, "Iron tier internal FE capacity.");
+        ironFluidCapacity = getInt("ironFluidCapacity", "machines", 0, 0, Integer.MAX_VALUE, "Iron tier internal fluid capacity in mB.");
+        steelMaxEnergyInOut = getInt("steelMaxEnergyInOut", "machines", 150, 0, Integer.MAX_VALUE, "Steel tier max FE input/output per tick.");
+        steelEnergyCapacity = getInt("steelEnergyCapacity", "machines", 20000, 0, Integer.MAX_VALUE, "Steel tier internal FE capacity.");
+        steelFluidCapacity = getInt("steelFluidCapacity", "machines", 3000, 0, Integer.MAX_VALUE, "Steel tier internal fluid capacity in mB.");
+        deshMaxEnergyInOut = getInt("deshMaxEnergyInOut", "machines", 250, 0, Integer.MAX_VALUE, "Desh tier max FE input/output per tick.");
+        deshEnergyCapacity = getInt("deshEnergyCapacity", "machines", 50000, 0, Integer.MAX_VALUE, "Desh tier internal FE capacity.");
+        deshFluidCapacity = getInt("deshFluidCapacity", "machines", 5000, 0, Integer.MAX_VALUE, "Desh tier internal fluid capacity in mB.");
+        ostrumMaxEnergyInOut = getInt("ostrumMaxEnergyInOut", "machines", 500, 0, Integer.MAX_VALUE, "Ostrum tier max FE input/output per tick.");
+        ostrumEnergyCapacity = getInt("ostrumEnergyCapacity", "machines", 100000, 0, Integer.MAX_VALUE, "Ostrum tier internal FE capacity.");
+        ostrumFluidCapacity = getInt("ostrumFluidCapacity", "machines", 10000, 0, Integer.MAX_VALUE, "Ostrum tier internal fluid capacity in mB.");
+        coalGeneratorEnergyGenerationPerTick = getInt("coalGeneratorEnergyGenerationPerTick", "machines", 20, 0, Integer.MAX_VALUE, "Coal generator FE generated per tick before multipliers.");
+        etrionicBlastFurnaceBlastingEnergyPerItem = getInt("etrionicBlastFurnaceBlastingEnergyPerItem", "machines", 10, 0, Integer.MAX_VALUE, "Etrionic blast furnace FE used per blasting tick before multipliers.");
+        waterPumpEnergyPerTick = getInt("waterPumpEnergyPerTick", "machines", 20, 0, Integer.MAX_VALUE, "Water pump FE used per tick before multipliers.");
+        waterPumpFluidGenerationPerTick = getInt("waterPumpFluidGenerationPerTick", "machines", 50, 0, Integer.MAX_VALUE, "Water generated by the water pump per tick in mB.");
+        energizerEnergyCapacity = getInt("energizerEnergyCapacity", "machines", 2000000, 0, Integer.MAX_VALUE, "Energizer internal FE capacity.");
+        maxDistributionBlocks = getInt("maxDistributionBlocks", "machines", 6000, 1, Integer.MAX_VALUE, "Maximum blocks oxygen distributors and gravity normalizers can distribute to.");
+        distributionRefreshRate = getInt("distributionRefreshRate", "machines", 100, 1, Integer.MAX_VALUE, "Refresh interval in ticks for distributor and gravity normalizer coverage.");
+        pipeRefreshRate = getInt("pipeRefreshRate", "machines", 50, 1, Integer.MAX_VALUE, "Pipe refresh interval in ticks for compatibility with the source config.");
 
         // Environment Configuration
-        temperatureDamageMultiplier = configuration.getFloat(
+        temperatureDamageMultiplier = getFloat(
             "temperatureDamageMultiplier",
             "environment",
             1.0f,
             0.0f,
             10.0f,
-            "极端温度伤害倍率，包括寒冷和灼热。设为 0 可禁用温度伤害。");
-        freezeDamageInterval = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        freezeDamageInterval = getInt(
             "freezeDamageInterval",
             "environment",
             40,
             1,
             200,
-            "寒冷伤害触发间隔，单位为 tick。40 tick = 2 秒，数值越低伤害越频繁。");
-        burnDamageInterval = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        burnDamageInterval = getInt(
             "burnDamageInterval",
             "environment",
             40,
             1,
             200,
-            "灼热伤害触发间隔，单位为 tick。40 tick = 2 秒，数值越低伤害越频繁。");
-        freezeDamageAmount = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        freezeDamageAmount = getFloat(
             "freezeDamageAmount",
             "environment",
             2.0f,
             0.0f,
             20.0f,
-            "寒冷时每次造成的伤害，单位为半颗心，会受到温度伤害倍率影响。");
-        burnDamageAmount = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        burnDamageAmount = getFloat(
             "burnDamageAmount",
             "environment",
             2.0f,
             0.0f,
             20.0f,
-            "灼热时每次造成的伤害，单位为半颗心，会受到温度伤害倍率影响。");
-        gravityMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        gravityMultiplier = getFloat(
             "gravityMultiplier",
             "environment",
             1.0f,
             0.0f,
             5.0f,
-            "全局重力强度倍率。1.0 为正常，0.5 为一半效果，2.0 为双倍效果。");
-        enableFallDamageInLowGravity = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableFallDamageInLowGravity = getBoolean(
             "enableFallDamageInLowGravity",
             "environment",
             true,
-            "低重力维度中是否启用摔落伤害。设为 false 时，玩家在低重力行星上不会受到摔落伤害。");
-        lowGravityFallDamageThreshold = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        lowGravityFallDamageThreshold = getFloat(
             "lowGravityFallDamageThreshold",
             "environment",
             0.5f,
             0.0f,
             1.0f,
-            "低重力判定阈值。重力低于该值的行星会被视为低重力，摔落伤害可能被降低或禁用。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
         // Dimension Configuration
-        launchFromAnywhere = configuration.getBoolean(
+        launchFromAnywhere = getBoolean(
             "launchAnywhere",
             "dimensions",
             false,
-            "允许火箭从任何维度发射，即使该维度未被 Ad Astra 识别为行星或轨道。");
-        enableMoonDimension = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableMoonDimension = getBoolean(
             "enableMoonDimension",
             "dimensions",
             true,
-            "启用月球维度。修改后需要重启游戏。");
-        enableMarsDimension = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableMarsDimension = getBoolean(
             "enableMarsDimension",
             "dimensions",
             true,
-            "启用火星维度。修改后需要重启游戏。");
-        enableMercuryDimension = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableMercuryDimension = getBoolean(
             "enableMercuryDimension",
             "dimensions",
             true,
-            "启用水星维度。修改后需要重启游戏。");
-        enableVenusDimension = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableVenusDimension = getBoolean(
             "enableVenusDimension",
             "dimensions",
             true,
-            "启用金星维度。修改后需要重启游戏。");
-        enableGlacioDimension = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableGlacioDimension = getBoolean(
             "enableGlacioDimension",
             "dimensions",
             true,
-            "启用冰川星维度。修改后需要重启游戏。");
-        enableNetherAsPlanet = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableNetherAsPlanet = getBoolean(
             "enableNetherAsPlanet",
             "dimensions",
             false,
-            "将下界维度（-1）加入火箭行星选择界面。");
-        netherRocketTier = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        netherRocketTier = getInt(
             "netherRocketTier",
             "dimensions",
             1,
             0,
             7,
-            "当下界作为行星启用时，进入下界所需的最低火箭等级。");
-        blockVanillaNetherTravelWhenPlanet = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        blockVanillaNetherTravelWhenPlanet = getBoolean(
             "blockVanillaNetherTravelWhenPlanet",
             "dimensions",
             true,
-            "当下界作为行星启用时，是否阻止非火箭方式进入或离开下界。");
-        enableEndAsPlanet = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableEndAsPlanet = getBoolean(
             "enableEndAsPlanet",
             "dimensions",
             false,
-            "将末地维度（1）加入火箭行星选择界面。");
-        endRocketTier = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        endRocketTier = getInt(
             "endRocketTier",
             "dimensions",
             4,
             0,
             7,
-            "当末地作为行星启用时，进入末地所需的最低火箭等级。");
-        blockVanillaEndTravelWhenPlanet = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        blockVanillaEndTravelWhenPlanet = getBoolean(
             "blockVanillaEndTravelWhenPlanet",
             "dimensions",
             true,
-            "当末地作为行星启用时，是否阻止非火箭方式进入或离开末地。");
-        moonGravityMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        useDedicatedDimensionSaveFolder = getBoolean(
+            "useDedicatedDimensionSaveFolder",
+            "dimensions",
+            true,
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        dedicatedDimensionSaveFolderName = getString(
+            "dedicatedDimensionSaveFolderName",
+            "dimensions",
+            "AdAstraDimensions",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        moonGravityMultiplier = getFloat(
             "moonGravityMultiplier",
             "dimensions",
             1.0f,
             0.0f,
             5.0f,
-            "月球重力倍率。月球基础重力约为地球的 0.166 倍，此项会乘在基础重力上。");
-        marsGravityMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        marsGravityMultiplier = getFloat(
             "marsGravityMultiplier",
             "dimensions",
             1.0f,
             0.0f,
             5.0f,
-            "火星重力倍率。火星基础重力约为地球的 0.38 倍，此项会乘在基础重力上。");
-        mercuryGravityMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        mercuryGravityMultiplier = getFloat(
             "mercuryGravityMultiplier",
             "dimensions",
             1.0f,
             0.0f,
             5.0f,
-            "水星重力倍率。水星基础重力约为地球的 0.38 倍，此项会乘在基础重力上。");
-        venusGravityMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        venusGravityMultiplier = getFloat(
             "venusGravityMultiplier",
             "dimensions",
             1.0f,
             0.0f,
             5.0f,
-            "金星重力倍率。金星基础重力约为地球的 0.9 倍，此项会乘在基础重力上。");
-        glacioGravityMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        glacioGravityMultiplier = getFloat(
             "glacioGravityMultiplier",
             "dimensions",
             1.0f,
             0.0f,
             5.0f,
-            "冰川星重力倍率。冰川星基础重力约为地球的 0.25 倍，此项会乘在基础重力上。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        syncPlanetDimensionSettings();
 
         // Mob Configuration
-        planetMobSpawnRateMultiplier = configuration.getFloat(
+        planetMobSpawnRateMultiplier = getFloat(
             "planetMobSpawnRateMultiplier",
             "mobs",
             1.0f,
             0.0f,
             10.0f,
-            "所有行星的生物生成倍率。0 表示不生成生物，1.0 为正常，2.0 为双倍生成。");
-        enableHostileMobsOnMoon = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableHostileMobsOnMoon = getBoolean(
             "enableHostileMobsOnMoon",
             "mobs",
             true,
-            "是否允许敌对生物在月球生成。");
-        enableHostileMobsOnMars = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableHostileMobsOnMars = getBoolean(
             "enableHostileMobsOnMars",
             "mobs",
             true,
-            "是否允许敌对生物在火星生成。");
-        enableHostileMobsOnMercury = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableHostileMobsOnMercury = getBoolean(
             "enableHostileMobsOnMercury",
             "mobs",
             true,
-            "是否允许敌对生物在水星生成。");
-        enableHostileMobsOnVenus = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableHostileMobsOnVenus = getBoolean(
             "enableHostileMobsOnVenus",
             "mobs",
             true,
-            "是否允许敌对生物在金星生成。");
-        enableHostileMobsOnGlacio = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableHostileMobsOnGlacio = getBoolean(
             "enableHostileMobsOnGlacio",
             "mobs",
             true,
-            "是否允许敌对生物在冰川星生成。");
-        planetEntityCapPerType = configuration.getInt(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        syncPlanetHostileMobOverrides();
+        planetEntityCapPerType = getInt(
             "planetEntityCapPerType",
             "mobs",
             10,
             1,
             1000,
-            "每个 Ad Astra 行星维度中，同一种实体类允许同时加载的最大活体实体数量。");
-        noOxygenEntityWhitelist = configuration.getStringList(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        noOxygenEntityWhitelist = getStringList(
             "noOxygenEntityWhitelist",
             "mobs",
             new String[0],
-            "允许在无氧环境中生存的实体白名单。支持实体注册名（如 minecraft:cow）、命名空间通配符（如 some_mod:*）或完整 Java 类名。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
         // World Generation Configuration
-        enableStructureGeneration = configuration.getBoolean(
+        enableStructureGeneration = getBoolean(
             "enableStructureGeneration",
             "worldgen",
             true,
-            "是否在行星上生成结构。设为 false 后不会生成任何结构。修改后需要重启游戏。");
-        enableLunarVillages = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableLunarVillages = getBoolean(
             "enableLunarVillages",
             "worldgen",
             true,
-            "是否在月球生成月球村庄结构。修改后需要重启游戏。");
-        enableMarsOutposts = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        enableMarsOutposts = getBoolean(
             "enableMarsOutposts",
             "worldgen",
             true,
-            "是否在火星生成火星哨站结构。修改后需要重启游戏。");
-        oreGenerationMultiplier = configuration.getFloat(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        oreGenerationMultiplier = getFloat(
             "oreGenerationMultiplier",
             "worldgen",
-            1.0f,
+            2.0f,
             0.0f,
             10.0f,
-            "所有矿物的生成倍率。0 表示不生成矿物，1.0 为正常，2.0 为双倍生成。修改后需要重启游戏。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+
+        // Planet Tier Configuration
+        syncPlanetTierOverrides(configuration);
 
         // Debug Configuration
-        debugOxygen = configuration.getBoolean(
+        debugOxygen = getBoolean(
             "debugOxygen",
             "debug",
             false,
-            "启用氧气系统调试日志，用于排查氧气相关问题。");
-        debugTemperature = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        debugTemperature = getBoolean(
             "debugTemperature",
             "debug",
             false,
-            "启用温度系统调试日志，用于排查温度相关问题。");
-        debugGravity = configuration.getBoolean(
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        debugGravity = getBoolean(
             "debugGravity",
             "debug",
             false,
-            "启用重力系统调试日志，用于排查重力相关问题。");
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
         // Validation
         if (maxOxygenDistributorRadius < 1) maxOxygenDistributorRadius = 1;
@@ -728,6 +870,7 @@ public final class AdAstraConfig {
         if (netherRocketTier > 7) netherRocketTier = 7;
         if (endRocketTier < 0) endRocketTier = 0;
         if (endRocketTier > 7) endRocketTier = 7;
+        dedicatedDimensionSaveFolderName = sanitizeSaveFolderSegment(dedicatedDimensionSaveFolderName, "AdAstraDimensions");
 
         // Mob validation
         if (planetMobSpawnRateMultiplier < 0.0f) planetMobSpawnRateMultiplier = 0.0f;
@@ -739,50 +882,45 @@ public final class AdAstraConfig {
         if (oreGenerationMultiplier > 10.0f) oreGenerationMultiplier = 10.0f;
 
         // Sync ore generation configuration
-        OreGenConfig.sync(configuration);
+        OreGenConfig.sync(worldgenConfiguration, legacyConfiguration);
+        earth.terrarium.adastra.common.world.AdAstraChunkGenerator.clearCache();
 
-        if (configuration.hasChanged()) {
-            configuration.save();
-        }
+        saveChangedConfigurations();
     }
 
     public static void setRadioVolume(int volume) {
         radioVolume = clampInt(volume, 0, 100);
-        if (configuration != null) {
-            configuration.get(Configuration.CATEGORY_GENERAL, "radioVolume", 50, "无线电独立音量百分比。0 为静音，100 为最大。").set(radioVolume);
-            if (configuration.hasChanged()) {
-                configuration.save();
-            }
+        Configuration target = configForCategory(Configuration.CATEGORY_GENERAL);
+        if (target != null) {
+            target.get(Configuration.CATEGORY_GENERAL, "radioVolume", 50, "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002").set(radioVolume);
+            saveChangedConfigurations();
         }
     }
 
     public static void setJetSuitEnabled(boolean enabled) {
         jetSuitEnabled = enabled;
-        if (configuration != null) {
-            configuration.get("client", "jetSuitEnabled", true, "喷气服飞行是否启用。按喷气服飞行按键会切换并保存该值。").set(jetSuitEnabled);
-            if (configuration.hasChanged()) {
-                configuration.save();
-            }
+        Configuration target = configForCategory("client");
+        if (target != null) {
+            target.get("client", "jetSuitEnabled", true, "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002").set(jetSuitEnabled);
+            saveChangedConfigurations();
         }
     }
 
     public static void setShowOxygenDistributorArea(boolean enabled) {
         showOxygenDistributorArea = enabled;
-        if (configuration != null) {
-            configuration.get("client", "showOxygenDistributorArea", false, "是否显示氧气分配器工作范围。").set(showOxygenDistributorArea);
-            if (configuration.hasChanged()) {
-                configuration.save();
-            }
+        Configuration target = configForCategory("client");
+        if (target != null) {
+            target.get("client", "showOxygenDistributorArea", false, "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002").set(showOxygenDistributorArea);
+            saveChangedConfigurations();
         }
     }
 
     public static void setShowGravityNormalizerArea(boolean enabled) {
         showGravityNormalizerArea = enabled;
-        if (configuration != null) {
-            configuration.get("client", "showGravityNormalizerArea", false, "是否显示重力调节器工作范围。").set(showGravityNormalizerArea);
-            if (configuration.hasChanged()) {
-                configuration.save();
-            }
+        Configuration target = configForCategory("client");
+        if (target != null) {
+            target.get("client", "showGravityNormalizerArea", false, "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002").set(showGravityNormalizerArea);
+            saveChangedConfigurations();
         }
     }
 
@@ -790,27 +928,380 @@ public final class AdAstraConfig {
         return Math.max(min, Math.min(max, value));
     }
 
+    public static String getDimensionSaveFolder(String originalSaveFolder) {
+        String dimensionFolder = sanitizeSaveFolderSegment(originalSaveFolder, "DIM_AD_ASTRA_UNKNOWN");
+        if (!useDedicatedDimensionSaveFolder) {
+            return dimensionFolder;
+        }
+        return sanitizeSaveFolderSegment(dedicatedDimensionSaveFolderName, "AdAstraDimensions") + "/" + dimensionFolder;
+    }
+
+    private static String sanitizeSaveFolderSegment(String value, String fallback) {
+        String source = value == null ? "" : value.trim();
+        if (source.isEmpty()) {
+            return fallback;
+        }
+        StringBuilder builder = new StringBuilder(source.length());
+        for (int i = 0; i < source.length(); i++) {
+            char c = source.charAt(i);
+            if ((c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || (c >= '0' && c <= '9')
+                || c == '_'
+                || c == '-') {
+                builder.append(c);
+            } else {
+                builder.append('_');
+            }
+        }
+        String sanitized = builder.toString();
+        return sanitized.isEmpty() ? fallback : sanitized;
+    }
+
+    private static Configuration configForCategory(String category) {
+        if (Configuration.CATEGORY_GENERAL.equals(category)
+            || "performance".equals(category)
+            || "balance".equals(category)
+            || "environment".equals(category)) {
+            return coreConfiguration;
+        }
+        if ("client".equals(category)) {
+            return clientConfiguration;
+        }
+        if ("machines".equals(category)) {
+            return machinesConfiguration;
+        }
+        if ("dimensions".equals(category) || CATEGORY_PLANET_TIERS.equals(category)) {
+            return dimensionsConfiguration;
+        }
+        if ("mobs".equals(category)) {
+            return mobsConfiguration;
+        }
+        if ("worldgen".equals(category)
+            || "worldgen_custom_blocks".equals(category)
+            || category.startsWith("worldgen_")) {
+            return worldgenConfiguration;
+        }
+        if ("debug".equals(category)) {
+            return debugConfiguration;
+        }
+        return configuration == null ? coreConfiguration : configuration;
+    }
+
+    private static boolean legacyHas(String category, String key) {
+        return legacyConfiguration != null && legacyConfiguration.hasKey(category, key);
+    }
+
+    private static boolean getBoolean(String key, String category, boolean defaultValue, String comment) {
+        Configuration target = configForCategory(category);
+        boolean value = defaultValue;
+        if (target != null && !target.hasKey(category, key) && legacyHas(category, key)) {
+            value = legacyConfiguration.getBoolean(key, category, defaultValue, comment);
+        }
+        return target.getBoolean(key, category, value, comment);
+    }
+
+    private static int getInt(String key, String category, int defaultValue, int minValue, int maxValue, String comment) {
+        Configuration target = configForCategory(category);
+        int value = defaultValue;
+        if (target != null && !target.hasKey(category, key) && legacyHas(category, key)) {
+            value = legacyConfiguration.getInt(key, category, defaultValue, minValue, maxValue, comment);
+        }
+        return target.getInt(key, category, value, minValue, maxValue, comment);
+    }
+
+    private static float getFloat(String key, String category, float defaultValue, float minValue, float maxValue, String comment) {
+        Configuration target = configForCategory(category);
+        float value = defaultValue;
+        if (target != null && !target.hasKey(category, key) && legacyHas(category, key)) {
+            value = legacyConfiguration.getFloat(key, category, defaultValue, minValue, maxValue, comment);
+        }
+        return target.getFloat(key, category, value, minValue, maxValue, comment);
+    }
+
+    private static String getString(String key, String category, String defaultValue, String comment) {
+        Configuration target = configForCategory(category);
+        String value = defaultValue;
+        if (target != null && !target.hasKey(category, key) && legacyHas(category, key)) {
+            value = legacyConfiguration.getString(key, category, defaultValue, comment);
+        }
+        return target.getString(key, category, value, comment);
+    }
+
+    private static String[] getStringList(String key, String category, String[] defaultValue, String comment) {
+        Configuration target = configForCategory(category);
+        String[] value = defaultValue;
+        if (target != null && !target.hasKey(category, key) && legacyHas(category, key)) {
+            value = legacyConfiguration.getStringList(key, category, defaultValue, comment);
+        }
+        return target.getStringList(key, category, value, comment);
+    }
+
+    private static String[] getStringListNoLegacy(String key, String category, String[] defaultValue, String comment) {
+        Configuration target = configForCategory(category);
+        return target.getStringList(key, category, defaultValue, comment);
+    }
+
+    private static void saveChangedConfigurations() {
+        for (Configuration splitConfiguration : splitConfigurations) {
+            if (splitConfiguration != null && splitConfiguration.hasChanged()) {
+                splitConfiguration.save();
+            }
+        }
+    }
+
     private static void setCategoryComments() {
-        configuration.setCategoryComment(Configuration.CATEGORY_GENERAL,
-            "通用配置：控制氧气、温度、重力、太空环境效果等全局规则。");
-        configuration.setCategoryComment("performance",
-            "性能配置：用于控制氧气扫描、机器空闲 tick、密封房间缓存等开销较高的逻辑。");
-        configuration.setCategoryComment("client",
-            "客户端配置：控制只影响本地显示和声音的选项。");
-        configuration.setCategoryComment("balance",
-            "平衡配置：用于调整重力调节器耗能、密封房间大小上限等玩法数值。");
-        configuration.setCategoryComment("machines",
-            "机器配置：调整机器处理速度、耗能、发电倍率与基础处理时间。");
-        configuration.setCategoryComment("environment",
-            "环境配置：控制极端温度、低重力摔落伤害与全局重力倍率。");
-        configuration.setCategoryComment("dimensions",
-            "维度配置：控制行星维度启用状态、下界/末地火箭旅行规则与各行星重力倍率。");
-        configuration.setCategoryComment("mobs",
-            "生物配置：控制行星生物生成倍率、敌对生物生成开关与每类实体数量上限。");
-        configuration.setCategoryComment("worldgen",
-            "世界生成配置：控制行星结构、矿物生成倍率以及各行星矿脉参数。");
-        configuration.setCategoryComment("debug",
-            "调试配置：开启对应系统的额外日志，便于排查问题。");
+        setCategoryComment(Configuration.CATEGORY_GENERAL,
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("performance",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("client",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("balance",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("machines",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("environment",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("dimensions",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment(CATEGORY_PLANET_TIERS,
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("mobs",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("worldgen",
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        setCategoryComment("debug",
+            "\u8c03\u8bd5\u914d\u7f6e\uff1a\u5f00\u542f\u5bf9\u5e94\u7cfb\u7edf\u7684\u989d\u5916\u65e5\u5fd7\uff0c\u4fbf\u4e8e\u6392\u67e5\u95ee\u9898\u3002");
+    }
+
+    private static void setCategoryComment(String category, String comment) {
+        Configuration target = configForCategory(category);
+        if (target != null) {
+            target.setCategoryComment(category, comment);
+        }
+    }
+
+    private static void syncPlanetTierOverrides(Configuration configuration) {
+        for (PlanetTierConfig planet : PLANET_TIER_CONFIGS) {
+            int tier = getInt(
+                planet.key,
+                CATEGORY_PLANET_TIERS,
+                planet.defaultTier,
+                0,
+                64,
+                planet.displayName + "\u9700\u8981\u7684\u6700\u4f4e\u706b\u7bad\u7b49\u7ea7\u3002\u9ed8\u8ba4\uff1a" + planet.defaultTier + "\u30020 \u8868\u793a\u4e0d\u9650\u5236\uff1b\u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+            PlanetTierOverrideRegistry.setPlanetTier(planet.dimensionId, tier);
+        }
+
+        PlanetTierOverrideRegistry.setPlanetTier(PlanetTravelDimensionIds.NETHER, netherRocketTier);
+        PlanetTierOverrideRegistry.setPlanetTier(PlanetTravelDimensionIds.END, endRocketTier);
+
+        String[] overrides = getStringListNoLegacy(
+            "customDimensionTierOverrides",
+            CATEGORY_PLANET_TIERS,
+            new String[0],
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        for (String override : overrides) {
+            applyCustomPlanetTierOverride(override);
+        }
+    }
+
+    private static void applyCustomPlanetTierOverride(String override) {
+        if (override == null) {
+            return;
+        }
+        String trimmed = override.trim();
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+            return;
+        }
+        int separator = trimmed.indexOf('=');
+        if (separator <= 0 || separator >= trimmed.length() - 1) {
+            return;
+        }
+        try {
+            int dimensionId = Integer.parseInt(trimmed.substring(0, separator).trim());
+            int tier = Integer.parseInt(trimmed.substring(separator + 1).trim());
+            PlanetTierOverrideRegistry.setPlanetTier(dimensionId, tier);
+        } catch (NumberFormatException ignored) {
+            // Keep config forgiving: invalid custom rows are ignored instead of blocking startup.
+        }
+    }
+
+    private static void syncPlanetDimensionSettings() {
+        PLANET_DIMENSION_ENABLED.clear();
+        PLANET_GRAVITY_MULTIPLIERS.clear();
+        for (PlanetDimensionConfig planet : PLANET_DIMENSION_CONFIGS) {
+            PLANET_DIMENSIONS.add(planet.dimensionId);
+            boolean enabled = getBoolean(
+                planet.enableKey,
+                "dimensions",
+                true,
+                "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+            float gravity = getFloat(
+                planet.gravityKey,
+                "dimensions",
+                1.0f,
+                0.0f,
+                5.0f,
+                planet.displayName + "\u91cd\u529b\u500d\u7387\u3002\u6b64\u9879\u4f1a\u4e58\u5728\u8be5\u884c\u661f\u57fa\u7840\u91cd\u529b\u4e0a\uff1b1.0 \u8868\u793a\u4f7f\u7528\u9ed8\u8ba4\u57fa\u7840\u91cd\u529b\u3002");
+            PLANET_DIMENSION_ENABLED.put(planet.dimensionId, enabled);
+            PLANET_GRAVITY_MULTIPLIERS.put(planet.dimensionId, gravity);
+        }
+
+        String[] enabledOverrides = getStringListNoLegacy(
+            "customDimensionEnabledOverrides",
+            "dimensions",
+            new String[0],
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        for (String override : enabledOverrides) {
+            applyCustomDimensionEnabledOverride(override);
+        }
+
+        String[] gravityOverrides = getStringListNoLegacy(
+            "customDimensionGravityOverrides",
+            "dimensions",
+            new String[0],
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        for (String override : gravityOverrides) {
+            applyCustomDimensionGravityOverride(override);
+        }
+    }
+
+    private static void applyCustomDimensionEnabledOverride(String override) {
+        if (override == null) {
+            return;
+        }
+        String trimmed = override.trim();
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+            return;
+        }
+        int separator = trimmed.indexOf('=');
+        if (separator <= 0 || separator >= trimmed.length() - 1) {
+            return;
+        }
+        try {
+            int dimensionId = Integer.parseInt(trimmed.substring(0, separator).trim());
+            boolean enabled = Boolean.parseBoolean(trimmed.substring(separator + 1).trim());
+            PLANET_DIMENSIONS.add(dimensionId);
+            PLANET_DIMENSION_ENABLED.put(dimensionId, enabled);
+        } catch (NumberFormatException ignored) {
+            // Keep config forgiving: invalid custom rows are ignored instead of blocking startup.
+        }
+    }
+
+    private static void applyCustomDimensionGravityOverride(String override) {
+        if (override == null) {
+            return;
+        }
+        String trimmed = override.trim();
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+            return;
+        }
+        int separator = trimmed.indexOf('=');
+        if (separator <= 0 || separator >= trimmed.length() - 1) {
+            return;
+        }
+        try {
+            int dimensionId = Integer.parseInt(trimmed.substring(0, separator).trim());
+            float gravity = Float.parseFloat(trimmed.substring(separator + 1).trim());
+            if (gravity < 0.0f) gravity = 0.0f;
+            if (gravity > 5.0f) gravity = 5.0f;
+            PLANET_DIMENSIONS.add(dimensionId);
+            PLANET_GRAVITY_MULTIPLIERS.put(dimensionId, gravity);
+        } catch (NumberFormatException ignored) {
+            // Keep config forgiving: invalid custom rows are ignored instead of blocking startup.
+        }
+    }
+
+    private static void syncPlanetHostileMobOverrides() {
+        PLANET_HOSTILE_MOB_OVERRIDES.clear();
+        PLANET_DIMENSIONS.clear();
+        for (PlanetMobConfig planet : PLANET_MOB_CONFIGS) {
+            PLANET_DIMENSIONS.add(planet.dimensionId);
+            boolean enabled = getBoolean(
+                planet.key,
+                "mobs",
+                true,
+                "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+            PLANET_HOSTILE_MOB_OVERRIDES.put(planet.dimensionId, enabled);
+        }
+
+        String[] overrides = getStringListNoLegacy(
+            "customDimensionHostileMobOverrides",
+            "mobs",
+            new String[0],
+            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
+        for (String override : overrides) {
+            applyCustomHostileMobOverride(override);
+        }
+    }
+
+    private static void applyCustomHostileMobOverride(String override) {
+        if (override == null) {
+            return;
+        }
+        String trimmed = override.trim();
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+            return;
+        }
+        int separator = trimmed.indexOf('=');
+        if (separator <= 0 || separator >= trimmed.length() - 1) {
+            return;
+        }
+        try {
+            int dimensionId = Integer.parseInt(trimmed.substring(0, separator).trim());
+            boolean enabled = Boolean.parseBoolean(trimmed.substring(separator + 1).trim());
+            PLANET_DIMENSIONS.add(dimensionId);
+            PLANET_HOSTILE_MOB_OVERRIDES.put(dimensionId, enabled);
+        } catch (NumberFormatException ignored) {
+            // Keep config forgiving: invalid custom rows are ignored instead of blocking startup.
+        }
+    }
+
+    private static final class PlanetTierConfig {
+        private final String key;
+        private final int dimensionId;
+        private final int defaultTier;
+        private final String displayName;
+
+        private PlanetTierConfig(String key, int dimensionId, int defaultTier, String displayName) {
+            this.key = key;
+            this.dimensionId = dimensionId;
+            this.defaultTier = defaultTier;
+            this.displayName = displayName;
+        }
+    }
+
+    private static final class PlanetMobConfig {
+        private final String key;
+        private final int dimensionId;
+        private final String displayName;
+
+        private PlanetMobConfig(String key, int dimensionId, String displayName) {
+            this.key = key;
+            this.dimensionId = dimensionId;
+            this.displayName = displayName;
+        }
+    }
+
+    private static final class PlanetDimensionConfig {
+        private final String enableKey;
+        private final String gravityKey;
+        private final int dimensionId;
+        private final String displayName;
+
+        private PlanetDimensionConfig(String enableKey, String gravityKey, int dimensionId, String displayName) {
+            this.enableKey = enableKey;
+            this.gravityKey = gravityKey;
+            this.dimensionId = dimensionId;
+            this.displayName = displayName;
+        }
+    }
+
+    private static final class PlanetTravelDimensionIds {
+        private static final int NETHER = -1;
+        private static final int END = 1;
     }
 
     /**
@@ -867,18 +1358,8 @@ public final class AdAstraConfig {
      */
     public static float getGravityMultiplierForDimension(int dimensionId) {
         float baseMultiplier = gravityMultiplier;
-        if (dimensionId == 1201) { // Moon
-            return baseMultiplier * moonGravityMultiplier;
-        } else if (dimensionId == 1202) { // Mars
-            return baseMultiplier * marsGravityMultiplier;
-        } else if (dimensionId == 1203) { // Mercury
-            return baseMultiplier * mercuryGravityMultiplier;
-        } else if (dimensionId == 1204) { // Venus
-            return baseMultiplier * venusGravityMultiplier;
-        } else if (dimensionId == 1205) { // Glacio
-            return baseMultiplier * glacioGravityMultiplier;
-        }
-        return baseMultiplier;
+        Float planetMultiplier = PLANET_GRAVITY_MULTIPLIERS.get(dimensionId);
+        return baseMultiplier * (planetMultiplier == null ? 1.0f : planetMultiplier);
     }
 
     /**
@@ -890,16 +1371,9 @@ public final class AdAstraConfig {
         if (planetMobSpawnRateMultiplier <= 0.0f) {
             return false;
         }
-        if (dimensionId == 1201) { // Moon
-            return enableHostileMobsOnMoon;
-        } else if (dimensionId == 1202) { // Mars
-            return enableHostileMobsOnMars;
-        } else if (dimensionId == 1203) { // Mercury
-            return enableHostileMobsOnMercury;
-        } else if (dimensionId == 1204) { // Venus
-            return enableHostileMobsOnVenus;
-        } else if (dimensionId == 1205) { // Glacio
-            return enableHostileMobsOnGlacio;
+        Boolean configured = PLANET_HOSTILE_MOB_OVERRIDES.get(dimensionId);
+        if (configured != null) {
+            return configured;
         }
         return true;
     }
@@ -910,11 +1384,12 @@ public final class AdAstraConfig {
      * @return True for Moon, Mars, Mercury, Venus or Glacio
      */
     public static boolean isPlanetDimension(int dimensionId) {
-        return dimensionId == 1201
-            || dimensionId == 1202
-            || dimensionId == 1203
-            || dimensionId == 1204
-            || dimensionId == 1205;
+        return PLANET_DIMENSIONS.contains(dimensionId)
+            || dimensionId == ModDimensions.MOON_ID
+            || dimensionId == ModDimensions.MARS_ID
+            || dimensionId == ModDimensions.MERCURY_ID
+            || dimensionId == ModDimensions.VENUS_ID
+            || dimensionId == ModDimensions.GLACIO_ID;
     }
 
     /**
@@ -923,16 +1398,9 @@ public final class AdAstraConfig {
      * @return True if the dimension is enabled
      */
     public static boolean isDimensionEnabled(int dimensionId) {
-        if (dimensionId == 1201) { // Moon
-            return enableMoonDimension;
-        } else if (dimensionId == 1202) { // Mars
-            return enableMarsDimension;
-        } else if (dimensionId == 1203) { // Mercury
-            return enableMercuryDimension;
-        } else if (dimensionId == 1204) { // Venus
-            return enableVenusDimension;
-        } else if (dimensionId == 1205) { // Glacio
-            return enableGlacioDimension;
+        Boolean enabled = PLANET_DIMENSION_ENABLED.get(dimensionId);
+        if (enabled != null) {
+            return enabled;
         }
         return true;
     }

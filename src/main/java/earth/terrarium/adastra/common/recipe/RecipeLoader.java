@@ -113,8 +113,7 @@ public final class RecipeLoader {
         String[] recipePaths = {
             "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice.json",
             "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_ice.json",
-            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json",
-            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_blue_ice.json"
+            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json"
         };
 
         int count = 0;
@@ -183,7 +182,24 @@ public final class RecipeLoader {
             "data/ad_astra/machine_recipes/space_station/mars_orbit_space_station.json",
             "data/ad_astra/machine_recipes/space_station/venus_orbit_space_station.json",
             "data/ad_astra/machine_recipes/space_station/mercury_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/glacio_orbit_space_station.json"
+            "data/ad_astra/machine_recipes/space_station/glacio_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/ceres_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/pluto_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/haumea_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/io_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/europa_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/ganymede_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/callisto_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/enceladus_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/titan_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/miranda_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/triton_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/phobos_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/jupiter_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/barnarda_c_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/barnarda_c1_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/tauceti_f_orbit_space_station.json",
+            "data/ad_astra/machine_recipes/space_station/proxima_b_orbit_space_station.json"
         };
 
         int count = 0;
@@ -234,7 +250,7 @@ public final class RecipeLoader {
                 ingredient.toItemStack(),
                 result,
                 cookingTime,
-                energy / cookingTime
+                Math.max(1, energy)
             );
 
             RecipeRegistry.registerCompressingRecipe(recipe);
@@ -339,7 +355,7 @@ public final class RecipeLoader {
                 result.getFluid(),
                 result.amount,
                 cookingTime,
-                energy / cookingTime
+                Math.max(1, energy)
             );
 
             RecipeRegistry.registerCryoFreezingRecipe(recipe);
@@ -407,7 +423,7 @@ public final class RecipeLoader {
                 inputFluid.amount,
                 ItemStack.EMPTY,
                 cookingTime,
-                energy / cookingTime
+                Math.max(1, energy)
             );
 
             RecipeRegistry.registerOxygenLoadingRecipe(recipe);
@@ -477,7 +493,7 @@ public final class RecipeLoader {
                 resultFluid.getFluid(),
                 resultFluid.amount,
                 cookingTime,
-                energy / cookingTime
+                Math.max(1, energy)
             );
 
             RecipeRegistry.registerRefiningRecipe(recipe);
@@ -744,7 +760,8 @@ public final class RecipeLoader {
             AdAstraReborn.LOGGER.warn("Unknown fluid: {}", fluidId);
             return null;
         }
-        int amount = json.has("amount") ? json.get("amount").getAsInt() : 1000;
+        int amount = json.has("amount") ? json.get("amount").getAsInt()
+            : json.has("millibuckets") ? json.get("millibuckets").getAsInt() : 1000;
         return new FluidStack(fluid, amount);
     }
 
@@ -791,3 +808,4 @@ public final class RecipeLoader {
         }
     }
 }
+

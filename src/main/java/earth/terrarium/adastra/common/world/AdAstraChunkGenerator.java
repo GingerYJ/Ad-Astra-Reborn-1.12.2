@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -266,7 +267,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             return false;
         }
         IBlockState current = world.getBlockState(pos);
-        if (spec.canReplace(current.getBlock())) {
+        if (spec.canReplace(current)) {
             world.setBlockState(pos, spec.oreState, 2);
             return true;
         }
@@ -292,7 +293,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             20,
             MIN_GENERATION_Y,
             terrainConfig.getMaxHeight() - 5,
-            new Block[]{ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE}
+            new Block[]{ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE},
+            null
         );
         generateOre(soulSand, chunkOrigin, random);
     }
@@ -596,11 +598,296 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                     ModBlocks.GLACIO_STONE);
                 break;
 
+
+
+            case "ceres":
+                addConfiguredOre(specs, "ceres", state(ModBlocks.CERES_BLOCKS, 2), OreGenConfig.getOreSettings("ceres", "dolomite"),
+                    state(ModBlocks.CERES_BLOCKS, 0), state(ModBlocks.CERES_BLOCKS, 1));
+                addConfiguredOre(specs, "ceres", state(ModBlocks.CERES_BLOCKS, 3), OreGenConfig.getOreSettings("ceres", "meteoricIron"),
+                    state(ModBlocks.CERES_BLOCKS, 0), state(ModBlocks.CERES_BLOCKS, 1));
+                break;
+
+            case "pluto":
+                addConfiguredOre(specs, "pluto", state(ModBlocks.PLUTO_BLOCKS, 2), OreGenConfig.getOreSettings("pluto", "iron"),
+                    state(ModBlocks.PLUTO_BLOCKS, 0), state(ModBlocks.PLUTO_BLOCKS, 1), state(ModBlocks.PLUTO_BLOCKS, 5));
+                addConfiguredOre(specs, "pluto", state(ModBlocks.PLUTO_BLOCKS, 3), OreGenConfig.getOreSettings("pluto", "sulfur"),
+                    state(ModBlocks.PLUTO_BLOCKS, 0), state(ModBlocks.PLUTO_BLOCKS, 1), state(ModBlocks.PLUTO_BLOCKS, 5));
+                addConfiguredOre(specs, "pluto", state(ModBlocks.PLUTO_BLOCKS, 4), OreGenConfig.getOreSettings("pluto", "uranium"),
+                    state(ModBlocks.PLUTO_BLOCKS, 0), state(ModBlocks.PLUTO_BLOCKS, 1), state(ModBlocks.PLUTO_BLOCKS, 5));
+                break;
+
+            case "haumea":
+                addConfiguredOre(specs, "haumea", state(ModBlocks.HAUMEA_BLOCKS, 2), OreGenConfig.getOreSettings("haumea", "dolomite"),
+                    state(ModBlocks.HAUMEA_BLOCKS, 0), state(ModBlocks.HAUMEA_BLOCKS, 1), state(ModBlocks.HAUMEA_BLOCKS, 3));
+                break;
+
+            case "io":
+                addConfiguredOre(specs, "io", state(ModBlocks.IO_BLOCKS, 8), OreGenConfig.getOreSettings("io", "sulfur"),
+                    state(ModBlocks.IO_BLOCKS, 0), state(ModBlocks.IO_BLOCKS, 1), state(ModBlocks.IO_BLOCKS, 2),
+                    state(ModBlocks.IO_BLOCKS, 5), state(ModBlocks.IO_BLOCKS, 10));
+                addConfiguredOre(specs, "io", state(ModBlocks.IO_BLOCKS, 9), OreGenConfig.getOreSettings("io", "volcanic"),
+                    state(ModBlocks.IO_BLOCKS, 0), state(ModBlocks.IO_BLOCKS, 1), state(ModBlocks.IO_BLOCKS, 2),
+                    state(ModBlocks.IO_BLOCKS, 5), state(ModBlocks.IO_BLOCKS, 10));
+                break;
+
+            case "europa":
+                addConfiguredOre(specs, "europa", state(ModBlocks.EUROPA_BLOCKS, 5), OreGenConfig.getOreSettings("europa", "silicon"),
+                    state(ModBlocks.EUROPA_BLOCKS, 0), state(ModBlocks.EUROPA_BLOCKS, 1), state(ModBlocks.EUROPA_BLOCKS, 2),
+                    state(ModBlocks.EUROPA_BLOCKS, 4));
+                addConfiguredOre(specs, "europa", state(ModBlocks.EUROPA_BLOCKS, 6), OreGenConfig.getOreSettings("europa", "iron"),
+                    state(ModBlocks.EUROPA_BLOCKS, 0), state(ModBlocks.EUROPA_BLOCKS, 1), state(ModBlocks.EUROPA_BLOCKS, 2),
+                    state(ModBlocks.EUROPA_BLOCKS, 4));
+                break;
+
+            case "ganymede":
+                addConfiguredOre(specs, "ganymede", state(ModBlocks.GANYMEDE_BLOCKS, 2), OreGenConfig.getOreSettings("ganymede", "magnesium"),
+                    state(ModBlocks.GANYMEDE_BLOCKS, 0), state(ModBlocks.GANYMEDE_BLOCKS, 1));
+                addConfiguredOre(specs, "ganymede", state(ModBlocks.GANYMEDE_BLOCKS, 3), OreGenConfig.getOreSettings("ganymede", "titanium"),
+                    state(ModBlocks.GANYMEDE_BLOCKS, 0), state(ModBlocks.GANYMEDE_BLOCKS, 1));
+                break;
+
+            case "enceladus":
+                addConfiguredOre(specs, "enceladus", state(ModBlocks.ENCELADUS_BLOCKS, 2), OreGenConfig.getOreSettings("enceladus", "coal"),
+                    state(ModBlocks.ENCELADUS_BLOCKS, 0), state(ModBlocks.ENCELADUS_BLOCKS, 1));
+                break;
+
+            case "titan":
+                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 3), OreGenConfig.getOreSettings("titan", "sapphire"),
+                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
+                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 4), OreGenConfig.getOreSettings("titan", "emerald"),
+                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
+                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 5), OreGenConfig.getOreSettings("titan", "diamond"),
+                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
+                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 6), OreGenConfig.getOreSettings("titan", "coal"),
+                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
+                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 7), OreGenConfig.getOreSettings("titan", "lapis"),
+                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
+                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 8), OreGenConfig.getOreSettings("titan", "redstone"),
+                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
+                break;
+
+            case "miranda":
+                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 3), OreGenConfig.getOreSettings("miranda", "iron"), mirandaReplaceableStates());
+                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 4), OreGenConfig.getOreSettings("miranda", "dolomite"), mirandaReplaceableStates());
+                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 5), OreGenConfig.getOreSettings("miranda", "diamond"), mirandaReplaceableStates());
+                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 6), OreGenConfig.getOreSettings("miranda", "quartz"), mirandaReplaceableStates());
+                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 7), OreGenConfig.getOreSettings("miranda", "cobalt"), mirandaReplaceableStates());
+                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 8), OreGenConfig.getOreSettings("miranda", "nickel"), mirandaReplaceableStates());
+                break;
+
+            case "phobos":
+                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 2), OreGenConfig.getOreSettings("phobos", "iron"),
+                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
+                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 3), OreGenConfig.getOreSettings("phobos", "meteoricIron"),
+                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
+                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 4), OreGenConfig.getOreSettings("phobos", "nickel"),
+                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
+                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 5), OreGenConfig.getOreSettings("phobos", "desh"),
+                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
+                break;
+
+            case "barnarda_c":
+                addConfiguredOre(specs, "barnarda_c", state(ModBlocks.BARNARDA_C_BLOCKS, 11), OreGenConfig.getOreSettings("barnarda_c", "iron"),
+                    state(ModBlocks.BARNARDA_C_BLOCKS, 0), state(ModBlocks.BARNARDA_C_BLOCKS, 1),
+                    state(ModBlocks.BARNARDA_C_BLOCKS, 2), state(ModBlocks.BARNARDA_C_BLOCKS, 3));
+                addConfiguredOre(specs, "barnarda_c", state(ModBlocks.BARNARDA_C_BLOCKS, 12), OreGenConfig.getOreSettings("barnarda_c", "gold"),
+                    state(ModBlocks.BARNARDA_C_BLOCKS, 0), state(ModBlocks.BARNARDA_C_BLOCKS, 1),
+                    state(ModBlocks.BARNARDA_C_BLOCKS, 2), state(ModBlocks.BARNARDA_C_BLOCKS, 3));
+                addConfiguredOre(specs, "barnarda_c", state(ModBlocks.BARNARDA_C_BLOCKS, 13), OreGenConfig.getOreSettings("barnarda_c", "coal"),
+                    state(ModBlocks.BARNARDA_C_BLOCKS, 0), state(ModBlocks.BARNARDA_C_BLOCKS, 1),
+                    state(ModBlocks.BARNARDA_C_BLOCKS, 2), state(ModBlocks.BARNARDA_C_BLOCKS, 3));
+                break;
+
+            case "barnarda_c1":
+                addConfiguredOre(specs, "barnarda_c1", state(ModBlocks.BARNARDA_C1_BLOCKS, 3), OreGenConfig.getOreSettings("barnarda_c1", "iron"),
+                    state(ModBlocks.BARNARDA_C1_BLOCKS, 0), state(ModBlocks.BARNARDA_C1_BLOCKS, 1));
+                break;
+
+            case "tauceti_f":
+                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 5), OreGenConfig.getOreSettings("tauceti_f", "iron"),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
+                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 6), OreGenConfig.getOreSettings("tauceti_f", "coal"),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
+                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 7), OreGenConfig.getOreSettings("tauceti_f", "gold"),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
+                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 8), OreGenConfig.getOreSettings("tauceti_f", "diamond"),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
+                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 9), OreGenConfig.getOreSettings("tauceti_f", "lapis"),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
+                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
+                break;
+
             default:
                 break;
         }
 
+        addPlanetaryExclusiveResourceOre(specs, planetName);
+        addCustomConfiguredBlocks(specs, planetName);
         return specs;
+    }
+
+
+    private void addPlanetaryExclusiveResourceOre(List<PlanetOreSpec> specs, String planetName) {
+        String resource = planetaryExclusiveResource(planetName);
+        if (resource == null) {
+            return;
+        }
+        Block oreBlock = Block.REGISTRY.getObject(new ResourceLocation("ad_astra", planetName + "_" + resource + "_ore"));
+        if (oreBlock == null || oreBlock == Blocks.AIR) {
+            return;
+        }
+        OreGenConfig.OreSettings settings = OreGenConfig.getOreSettings(planetName, resource);
+        addConfiguredOre(specs, planetName, oreBlock.getDefaultState(), settings, defaultCustomReplaceableStates());
+    }
+
+    private static String planetaryExclusiveResource(String planetName) {
+        switch (planetName) {
+            case "mercury": return "hermium";
+            case "glacio": return "cryonite";
+            case "ceres": return "cerium";
+            case "pluto": return "plutonium";
+            case "haumea": return "haumeite";
+            case "kuiper_belt": return "kuiperite";
+            case "io": return "ionite";
+            case "europa": return "europium";
+            case "ganymede": return "ganymedite";
+            case "callisto": return "callistite";
+            case "enceladus": return "enceladite";
+            case "titan": return "titanite";
+            case "miranda": return "mirandium";
+            case "triton": return "tritonium";
+            case "phobos": return "phobium";
+            case "barnarda_c": return "barnardium";
+            case "barnarda_c1": return "c1_barnardium";
+            case "tauceti_f": return "taucetite";
+            case "proxima_b": return "proximite";
+            default: return null;
+        }
+    }
+
+    private void addCustomConfiguredBlocks(List<PlanetOreSpec> specs, String planetName) {
+        for (OreGenConfig.CustomBlockSettings settings : OreGenConfig.getCustomBlockSettings(planetName)) {
+            IBlockState targetState = parseConfiguredBlockState(settings.blockState);
+            if (targetState == null) {
+                if (OreGenConfig.debugWorldgen) {
+                    AdAstraReborn.LOGGER.warn("Ignored custom planet block generator on {}: invalid target block '{}'",
+                        planetName, settings.blockState);
+                }
+                continue;
+            }
+
+            IBlockState[] replaceableStates = parseReplaceableStates(settings.replaceTargets);
+            if (replaceableStates.length == 0) {
+                replaceableStates = defaultCustomReplaceableStates();
+            }
+
+            addConfiguredOre(specs, settings.planetName, targetState,
+                settings.veinSize, settings.countPerChunk, settings.minY, settings.maxY, replaceableStates);
+        }
+    }
+
+    private IBlockState[] parseReplaceableStates(String replaceTargets) {
+        if (replaceTargets == null || replaceTargets.trim().isEmpty() || "default".equalsIgnoreCase(replaceTargets.trim())) {
+            return defaultCustomReplaceableStates();
+        }
+        String[] parts = replaceTargets.split(",");
+        List<IBlockState> states = new ArrayList<>();
+        for (String part : parts) {
+            IBlockState state = parseConfiguredBlockState(part.trim());
+            if (state != null) {
+                states.add(state);
+            }
+        }
+        return states.toArray(new IBlockState[0]);
+    }
+
+    private IBlockState[] defaultCustomReplaceableStates() {
+        List<IBlockState> states = new ArrayList<>();
+        addUniqueState(states, properties.getSurfaceBlock());
+        addUniqueState(states, properties.getFillerBlock());
+        addUniqueState(states, properties.getCaveTopBlock());
+        addUniqueState(states, properties.getCaveFloorBlock());
+        return states.toArray(new IBlockState[0]);
+    }
+
+    private static void addUniqueState(List<IBlockState> states, IBlockState state) {
+        if (state == null) {
+            return;
+        }
+        for (IBlockState existing : states) {
+            if (existing.getBlock() == state.getBlock()
+                && existing.getBlock().getMetaFromState(existing) == state.getBlock().getMetaFromState(state)) {
+                return;
+            }
+        }
+        states.add(state);
+    }
+
+    private static IBlockState parseConfiguredBlockState(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isEmpty() || "default".equalsIgnoreCase(trimmed)) {
+            return null;
+        }
+        int meta = 0;
+        int metaSeparator = trimmed.lastIndexOf('@');
+        if (metaSeparator >= 0) {
+            String metaText = trimmed.substring(metaSeparator + 1).trim();
+            trimmed = trimmed.substring(0, metaSeparator).trim();
+            try {
+                meta = Integer.parseInt(metaText);
+            } catch (NumberFormatException ignored) {
+                meta = 0;
+            }
+        }
+        if (trimmed.indexOf(':') < 0) {
+            trimmed = "minecraft:" + trimmed;
+        }
+        try {
+            Block block = Block.REGISTRY.getObject(new ResourceLocation(trimmed));
+            if (block == null || block == Blocks.AIR) {
+                return null;
+            }
+            return block.getStateFromMeta(meta);
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+    }
+
+    private static IBlockState state(Block block, int meta) {
+        return block.getStateFromMeta(meta);
+    }
+
+    private static IBlockState[] mirandaReplaceableStates() {
+        return new IBlockState[] {
+            state(ModBlocks.MIRANDA_BLOCKS, 0),
+            state(ModBlocks.MIRANDA_BLOCKS, 1),
+            state(ModBlocks.MIRANDA_BLOCKS, 2),
+            state(ModBlocks.MIRANDA_BLOCKS, 9),
+            state(ModBlocks.MIRANDA_BLOCKS, 10),
+            state(ModBlocks.MIRANDA_BLOCKS, 11),
+            state(ModBlocks.MIRANDA_BLOCKS, 12),
+            state(ModBlocks.MIRANDA_BLOCKS, 13),
+            state(ModBlocks.MIRANDA_BLOCKS, 14)
+        };
+    }
+
+    private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, Block oreBlock,
+                                  OreGenConfig.OreSettings settings,
+                                  Block... replaceableBlocks) {
+        addConfiguredOre(specs, planetName, oreBlock, settings.veinSize, settings.countPerChunk, settings.minY, settings.maxY, replaceableBlocks);
+    }
+
+    private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, IBlockState oreState,
+                                  OreGenConfig.OreSettings settings,
+                                  IBlockState... replaceableStates) {
+        addConfiguredOre(specs, planetName, oreState, settings.veinSize, settings.countPerChunk, settings.minY, settings.maxY, replaceableStates);
     }
 
     private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, Block oreBlock,
@@ -609,8 +896,21 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         int maxGenerationY = terrainConfig.getMaxHeight() - 3;
         int minY = Math.max(MIN_GENERATION_Y, sourceMinY);
         int maxY = Math.min(maxGenerationY, sourceMaxY);
-        if (minY <= maxY && countPerChunk > 0) {
-            specs.add(new PlanetOreSpec(planetName, oreBlock.getDefaultState(), veinSize, countPerChunk, minY, maxY, replaceableBlocks));
+        int adjustedCount = OreGenConfig.getModifiedOreCount(countPerChunk);
+        if (minY <= maxY && adjustedCount > 0) {
+            specs.add(new PlanetOreSpec(planetName, oreBlock.getDefaultState(), veinSize, adjustedCount, minY, maxY, replaceableBlocks, null));
+        }
+    }
+
+    private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, IBlockState oreState,
+                                  int veinSize, int countPerChunk, int sourceMinY, int sourceMaxY,
+                                  IBlockState... replaceableStates) {
+        int maxGenerationY = terrainConfig.getMaxHeight() - 3;
+        int minY = Math.max(MIN_GENERATION_Y, sourceMinY);
+        int maxY = Math.min(maxGenerationY, sourceMaxY);
+        int adjustedCount = OreGenConfig.getModifiedOreCount(countPerChunk);
+        if (minY <= maxY && adjustedCount > 0) {
+            specs.add(new PlanetOreSpec(planetName, oreState, veinSize, adjustedCount, minY, maxY, new Block[0], replaceableStates));
         }
     }
 
@@ -623,10 +923,11 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         private final int minY;
         private final int maxY;
         private final Block[] replaceableBlocks;
+        private final IBlockState[] replaceableStates;
         private String oreName; // Cached ore name for logging
 
         private PlanetOreSpec(String planetName, IBlockState oreState, int veinSize, int countPerChunk, int minY, int maxY,
-                              Block[] replaceableBlocks) {
+                              Block[] replaceableBlocks, IBlockState[] replaceableStates) {
             this.planetName = planetName;
             this.oreState = oreState;
             this.veinSize = veinSize;
@@ -634,15 +935,31 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             this.minY = minY;
             this.maxY = maxY;
             this.replaceableBlocks = replaceableBlocks;
+            this.replaceableStates = replaceableStates;
         }
 
-        private boolean canReplace(Block block) {
+        private boolean canReplace(IBlockState state) {
+            if (replaceableStates != null) {
+                for (IBlockState replaceableState : replaceableStates) {
+                    if (isSameState(state, replaceableState)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            Block block = state.getBlock();
             for (Block replaceableBlock : replaceableBlocks) {
                 if (block == replaceableBlock) {
                     return true;
                 }
             }
             return false;
+        }
+
+        private boolean isSameState(IBlockState first, IBlockState second) {
+            return first.getBlock() == second.getBlock()
+                && first.getBlock().getMetaFromState(first) == second.getBlock().getMetaFromState(second);
         }
 
         private String getOreName() {
@@ -653,3 +970,4 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         }
     }
 }
+

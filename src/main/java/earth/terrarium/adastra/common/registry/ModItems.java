@@ -18,6 +18,7 @@ import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraBucketItem;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
+import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.items.JetSuitItem;
@@ -27,6 +28,8 @@ import earth.terrarium.adastra.common.items.SpaceSuitMaterial;
 import earth.terrarium.adastra.common.items.SpaceSuitItem;
 import earth.terrarium.adastra.common.items.Ti69Item;
 import earth.terrarium.adastra.common.items.VehicleItem;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketRegistry;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketSpec;
 import earth.terrarium.adastra.common.items.ZipGunItem;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
@@ -84,6 +87,56 @@ public final class ModItems {
     public static final Item RAW_CALORITE = item("raw_calorite");
     public static final Item PHOTOVOLTAIC_ETRIUM_CELL = item("photovoltaic_etrium_cell");
     public static final Item PHOTOVOLTAIC_VESNIUM_CELL = item("photovoltaic_vesnium_cell");
+    public static final Item RAW_SILICON = item("raw_silicon");
+    public static final Item DOLOMITE_CRYSTAL = item("dolomite_crystal");
+    public static final Item SULFUR_DUST = item("sulfur_dust");
+    public static final Item VOLCANIC_SHARD = item("volcanic_shard");
+    public static final Item SAPPHIRE = item("sapphire");
+    public static final Item MAGNESIUM_INGOT = item("magnesium_ingot");
+    public static final Item ILMENITE_RAW = item("ilmenite_raw");
+    public static final Item COBALT_INGOT = item("cobalt_ingot");
+    public static final Item COPPER_INGOT = item("copper_ingot");
+    public static final Item METEORIC_IRON_FRAGMENTS = item("meteoric_iron_fragments");
+    public static final Item URANIUM_FRAGMENTS = item("uranium_fragments");
+    public static final Item URANIUM_INGOT = item("uranium_ingot");
+    public static final Item RAW_HERMIUM = item("raw_hermium");
+    public static final Item HERMIUM_INGOT = item("hermium_ingot");
+    public static final Item RAW_CRYONITE = item("raw_cryonite");
+    public static final Item CRYONITE_INGOT = item("cryonite_ingot");
+    public static final Item RAW_CERIUM = item("raw_cerium");
+    public static final Item CERIUM_INGOT = item("cerium_ingot");
+    public static final Item RAW_PLUTONIUM = item("raw_plutonium");
+    public static final Item PLUTONIUM_INGOT = item("plutonium_ingot");
+    public static final Item RAW_HAUMEITE = item("raw_haumeite");
+    public static final Item HAUMEITE_INGOT = item("haumeite_ingot");
+    public static final Item RAW_KUIPERITE = item("raw_kuiperite");
+    public static final Item KUIPERITE_INGOT = item("kuiperite_ingot");
+    public static final Item RAW_IONITE = item("raw_ionite");
+    public static final Item IONITE_INGOT = item("ionite_ingot");
+    public static final Item RAW_EUROPIUM = item("raw_europium");
+    public static final Item EUROPIUM_INGOT = item("europium_ingot");
+    public static final Item RAW_GANYMEDITE = item("raw_ganymedite");
+    public static final Item GANYMEDITE_INGOT = item("ganymedite_ingot");
+    public static final Item RAW_CALLISTITE = item("raw_callistite");
+    public static final Item CALLISTITE_INGOT = item("callistite_ingot");
+    public static final Item RAW_ENCELADITE = item("raw_enceladite");
+    public static final Item ENCELADITE_INGOT = item("enceladite_ingot");
+    public static final Item RAW_TITANITE = item("raw_titanite");
+    public static final Item TITANITE_INGOT = item("titanite_ingot");
+    public static final Item RAW_MIRANDIUM = item("raw_mirandium");
+    public static final Item MIRANDIUM_INGOT = item("mirandium_ingot");
+    public static final Item RAW_TRITONIUM = item("raw_tritonium");
+    public static final Item TRITONIUM_INGOT = item("tritonium_ingot");
+    public static final Item RAW_PHOBIUM = item("raw_phobium");
+    public static final Item PHOBIUM_INGOT = item("phobium_ingot");
+    public static final Item RAW_BARNARDIUM = item("raw_barnardium");
+    public static final Item BARNARDIUM_INGOT = item("barnardium_ingot");
+    public static final Item RAW_C1_BARNARDIUM = item("raw_c1_barnardium");
+    public static final Item C1_BARNARDIUM_INGOT = item("c1_barnardium_ingot");
+    public static final Item RAW_TAUCETITE = item("raw_taucetite");
+    public static final Item TAUCETITE_INGOT = item("taucetite_ingot");
+    public static final Item RAW_PROXIMITE = item("raw_proximite");
+    public static final Item PROXIMITE_INGOT = item("proximite_ingot");
     public static final Item OXYGEN_GEAR = item("oxygen_gear");
     public static final Item WHEEL = item("wheel");
     public static final Item ENGINE_FRAME = item("engine_frame");
@@ -100,6 +153,19 @@ public final class ModItems {
     public static final Item ROCKET_FIN = item("rocket_fin");
     public static final Item ICE_SHARD = item("ice_shard");
 
+    public static final Item SPACE_HELMET = armor("space_helmet", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
+    public static final Item SPACE_SUIT = armor("space_suit", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
+    public static final Item SPACE_PANTS = armor("space_pants", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
+    public static final Item SPACE_BOOTS = armor("space_boots", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.FEET);
+    public static final Item NETHERITE_SPACE_HELMET = armor("netherite_space_helmet", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
+    public static final Item NETHERITE_SPACE_SUIT = armor("netherite_space_suit", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
+    public static final Item NETHERITE_SPACE_PANTS = armor("netherite_space_pants", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
+    public static final Item NETHERITE_SPACE_BOOTS = armor("netherite_space_boots", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
+    public static final Item JET_SUIT_HELMET = armor("jet_suit_helmet", SpaceSuitMaterial.JET, EntityEquipmentSlot.HEAD);
+    public static final Item JET_SUIT = armor("jet_suit", SpaceSuitMaterial.JET, EntityEquipmentSlot.CHEST);
+    public static final Item JET_SUIT_PANTS = armor("jet_suit_pants", SpaceSuitMaterial.JET, EntityEquipmentSlot.LEGS);
+    public static final Item JET_SUIT_BOOTS = armor("jet_suit_boots", SpaceSuitMaterial.JET, EntityEquipmentSlot.FEET);
+
     public static final Item OXYGEN_BUCKET = bucket("oxygen_bucket", ModBlocks.OXYGEN, ModFluids.OXYGEN);
     public static final Item HYDROGEN_BUCKET = bucket("hydrogen_bucket", ModBlocks.HYDROGEN, ModFluids.HYDROGEN);
     public static final Item OIL_BUCKET = bucket("oil_bucket", ModBlocks.OIL, ModFluids.OIL);
@@ -112,23 +178,8 @@ public final class ModItems {
     public static final Item ETRIONIC_CAPACITOR = energyItem("etrionic_capacitor", 250_000, 250, 500);
     public static final Item GAS_TANK = gasTank("gas_tank", GasTankItem.GAS_TANK_CAPACITY, GasTankItem.GAS_TANK_DISTRIBUTION_AMOUNT);
     public static final Item LARGE_GAS_TANK = gasTank("large_gas_tank", GasTankItem.LARGE_GAS_TANK_CAPACITY, GasTankItem.LARGE_GAS_TANK_DISTRIBUTION_AMOUNT);
-
-    public static final Item SPACE_HELMET = armor("space_helmet", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
-    public static final Item SPACE_SUIT = armor("space_suit", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
-    public static final Item SPACE_PANTS = armor("space_pants", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.LEGS);
-    public static final Item SPACE_BOOTS = armor("space_boots", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.FEET);
-
-    public static final Item NETHERITE_SPACE_HELMET = armor("netherite_space_helmet", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.HEAD);
-    public static final Item NETHERITE_SPACE_SUIT = armor("netherite_space_suit", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.CHEST);
-    public static final Item NETHERITE_SPACE_PANTS = armor("netherite_space_pants", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.LEGS);
-    public static final Item NETHERITE_SPACE_BOOTS = armor("netherite_space_boots", SpaceSuitMaterial.NETHERITE_SPACE, EntityEquipmentSlot.FEET);
-
-    public static final Item JET_SUIT_HELMET = armor("jet_suit_helmet", SpaceSuitMaterial.JET, EntityEquipmentSlot.HEAD);
-    public static final Item JET_SUIT = armor("jet_suit", SpaceSuitMaterial.JET, EntityEquipmentSlot.CHEST);
-    public static final Item JET_SUIT_PANTS = armor("jet_suit_pants", SpaceSuitMaterial.JET, EntityEquipmentSlot.LEGS);
-    public static final Item JET_SUIT_BOOTS = armor("jet_suit_boots", SpaceSuitMaterial.JET, EntityEquipmentSlot.FEET);
-
     public static final Item SPACE_PAINTING = spacePainting("space_painting");
+
     public static final Item TIER_1_ROCKET = vehicle("tier_1_rocket", Tier1RocketEntity::new);
     public static final Item TIER_2_ROCKET = vehicle("tier_2_rocket", Tier2RocketEntity::new);
     public static final Item TIER_3_ROCKET = vehicle("tier_3_rocket", Tier3RocketEntity::new);
@@ -137,19 +188,21 @@ public final class ModItems {
     public static final Item TIER_6_ROCKET = vehicle("tier_6_rocket", Tier6RocketEntity::new);
     public static final Item TIER_7_ROCKET = vehicle("tier_7_rocket", Tier7RocketEntity::new);
     public static final Item TIER_1_ROVER = vehicle("tier_1_rover", Tier1RoverEntity::new);
+    public static final List<ConfigurableRocketItem> CONFIGURABLE_ROCKETS = configurableRockets();
 
-    public static final Item LUNARIAN_SPAWN_EGG = spawnEgg("lunarian_spawn_egg", LunarianEntity::new, 0xff33ccff, 0xff4e3923);
-    public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = spawnEgg("corrupted_lunarian_spawn_egg", CorruptedLunarianEntity::new, 0xff1e1b19, 0xff0090c1);
-    public static final Item STAR_CRAWLER_SPAWN_EGG = spawnEgg("star_crawler_spawn_egg", StarCrawlerEntity::new, 0xff333333, 0xff00cccc);
-    public static final Item MARTIAN_RAPTOR_SPAWN_EGG = spawnEgg("martian_raptor_spawn_egg", MartianRaptorEntity::new, 0x51a03e, 0xffffcc00);
-    public static final Item PYGRO_SPAWN_EGG = spawnEgg("pygro_spawn_egg", PygroEntity::new, 0xffcc6600, 0xff990000);
-    public static final Item ZOMBIFIED_PYGRO_SPAWN_EGG = spawnEgg("zombified_pygro_spawn_egg", ZombifiedPygroEntity::new, 0x814a25, 0x5d8e47);
+    public static final Item STAR_CRAWLER_SPAWN_EGG = spawnEgg("star_crawler_spawn_egg", StarCrawlerEntity::new, 0xff000000, 0xff444444);
+    public static final Item PYGRO_SPAWN_EGG = spawnEgg("pygro_spawn_egg", PygroEntity::new, 0xffcc6600, 0xfffef978);
+    public static final Item CORRUPTED_LUNARIAN_SPAWN_EGG = spawnEgg("corrupted_lunarian_spawn_egg", CorruptedLunarianEntity::new, 0xff5b73c7, 0xff8244d5);
+    public static final Item LUNARIAN_SPAWN_EGG = spawnEgg("lunarian_spawn_egg", LunarianEntity::new, 0xff5b73c7, 0xff8244d5);
+    public static final Item MARTIAN_RAPTOR_SPAWN_EGG = spawnEgg("martian_raptor_spawn_egg", MartianRaptorEntity::new, 0xffd48f30, 0xffac791c);
+    public static final Item ZOMBIFIED_PYGRO_SPAWN_EGG = spawnEgg("zombified_pygro_spawn_egg", ZombifiedPygroEntity::new, 0xffcc6600, 0xff799c65);
     public static final Item PYGRO_BRUTE_SPAWN_EGG = spawnEgg("pygro_brute_spawn_egg", PygroBruteEntity::new, 0xffcc6600, 0xfffef978);
     public static final Item MOGLER_SPAWN_EGG = spawnEgg("mogler_spawn_egg", MoglerEntity::new, 0xffffcc00, 0xffcc0000);
     public static final Item ZOMBIFIED_MOGLER_SPAWN_EGG = spawnEgg("zombified_mogler_spawn_egg", ZombifiedMoglerEntity::new, 0xbf4e41, 0x79e655);
     public static final Item SULFUR_CREEPER_SPAWN_EGG = spawnEgg("sulfur_creeper_spawn_egg", SulfurCreeperEntity::new, 0xd48f30, 0xac791c);
     public static final Item GLACIAN_RAM_SPAWN_EGG = spawnEgg("glacian_ram_spawn_egg", GlacianRamEntity::new, 0xffe6ff, 0x433d3d);
     public static final Item LUNARIAN_WANDERING_TRADER_SPAWN_EGG = spawnEgg("lunarian_wandering_trader_spawn_egg", LunarianWanderingTraderEntity::new, 0x5b73c7, 0x8244d5);
+    public static final Item NICKEL_INGOT = item("nickel_ingot");
 
     private ModItems() {
     }
@@ -242,6 +295,17 @@ public final class ModItems {
         Item item = new SpacePaintingItem(name);
         INTERNAL_ITEMS.add(item);
         return item;
+    }
+
+    private static List<ConfigurableRocketItem> configurableRockets() {
+        List<ConfigurableRocketItem> rockets = new ArrayList<>();
+        for (ConfigurableRocketSpec spec : ConfigurableRocketRegistry.getRockets()) {
+            ConfigurableRocketItem item = new ConfigurableRocketItem(spec);
+            spec.setItem(item);
+            INTERNAL_ITEMS.add(item);
+            rockets.add(item);
+        }
+        return Collections.unmodifiableList(rockets);
     }
 
     private static Item vehicle(String name, java.util.function.Function<net.minecraft.world.World, ? extends earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity> factory) {

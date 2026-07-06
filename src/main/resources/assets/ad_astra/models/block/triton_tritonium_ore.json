@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "ad_astra:block/triton_tritonium_ore"
+  }
+}

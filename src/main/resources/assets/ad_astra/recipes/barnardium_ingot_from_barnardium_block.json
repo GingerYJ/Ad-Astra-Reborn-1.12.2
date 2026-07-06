@@ -1,0 +1,12 @@
+﻿{
+    "type":  "minecraft:crafting_shapeless",
+    "ingredients":  [
+                        {
+                            "item":  "ad_astra:barnardium_block"
+                        }
+                    ],
+    "result":  {
+                   "item":  "ad_astra:barnardium_ingot",
+                   "count":  9
+               }
+}

@@ -1,0 +1,17 @@
+﻿{
+    "type":  "minecraft:crafting_shaped",
+    "pattern":  [
+                    "###",
+                    "###",
+                    "###"
+                ],
+    "key":  {
+                "#":  {
+                          "type":  "forge:ore_dict",
+                          "ore":  "ingotKuiperite"
+                      }
+            },
+    "result":  {
+                   "item":  "ad_astra:kuiperite_block"
+               }
+}

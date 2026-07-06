@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:meteoric_iron_fragments"
+    }
+  },
+  "result": {
+    "item": "ad_astra:meteoric_iron_block"
+  }
+}

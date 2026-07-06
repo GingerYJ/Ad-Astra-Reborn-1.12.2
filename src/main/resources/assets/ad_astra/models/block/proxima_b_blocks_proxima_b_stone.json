@@ -1,0 +1,6 @@
+﻿{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "ad_astra:blocks/celestial/proxima_b/proxima_b_stone"
+    }
+}

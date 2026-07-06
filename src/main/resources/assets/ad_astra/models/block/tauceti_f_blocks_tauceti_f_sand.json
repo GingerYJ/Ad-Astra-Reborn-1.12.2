@@ -1,0 +1,6 @@
+﻿{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "ad_astra:blocks/celestial/tauceti_f/tauceti_f_sand"
+    }
+}

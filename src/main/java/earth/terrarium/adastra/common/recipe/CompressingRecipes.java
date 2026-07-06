@@ -110,7 +110,34 @@ public final class CompressingRecipes {
         if (json.has("ore")) {
             return new OreIngredient(json.get("ore").getAsString());
         }
+        if (json.has("tag")) {
+            return new OreIngredient(convertTagToOreName(json.get("tag").getAsString()));
+        }
         return null;
+    }
+
+    private static String convertTagToOreName(String tag) {
+        String key = tag.contains(":") ? tag.substring(tag.indexOf(':') + 1) : tag;
+        if (key.equals("coals")) {
+            return "coal";
+        }
+        if (key.endsWith("_blocks")) {
+            return "block" + capitalize(key.substring(0, key.length() - "_blocks".length()));
+        }
+        if (key.endsWith("_ingots")) {
+            return "ingot" + capitalize(key.substring(0, key.length() - "_ingots".length()));
+        }
+        if (key.endsWith("_plates")) {
+            return "plate" + capitalize(key.substring(0, key.length() - "_plates".length()));
+        }
+        return key;
+    }
+
+    private static String capitalize(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        return value.substring(0, 1).toUpperCase() + value.substring(1);
     }
 
     private static ItemStack readResult(JsonObject json) {

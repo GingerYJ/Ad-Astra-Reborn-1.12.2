@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.registry;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.blocks.AdAstraAttachedMachineBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraAxisBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraBlock;
@@ -32,6 +33,26 @@ import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
 import earth.terrarium.adastra.common.items.AdAstraEnergizerItemBlock;
+import earth.terrarium.adastra.common.items.CelestialItemBlock;
+import earth.terrarium.adastra.common.blocks.celestial.CeresBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.PlutoBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.HaumeaBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.IoBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.EuropaBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.GanymedeBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.CallistoBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.EnceladusBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.TitanBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.MirandaBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.TritonBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.PhobosBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.BarnardaCBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.BarnardaC1Blocks;
+import earth.terrarium.adastra.common.blocks.celestial.TauCetiFBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.ProximaBBlocks;
+import earth.terrarium.adastra.common.blocks.celestial.IoGeyserBlock;
+import earth.terrarium.adastra.common.blocks.celestial.EuropaGeyserBlock;
+import earth.terrarium.adastra.common.blocks.celestial.EnceladusCrystalBlock;
 import earth.terrarium.adastra.common.items.AdAstraPipeItemBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
@@ -60,6 +81,7 @@ public final class ModBlocks {
 
     public static final List<Block> BLOCKS = Collections.unmodifiableList(INTERNAL_BLOCKS);
     public static final List<Block> HIDDEN_BLOCKS = Collections.unmodifiableList(DOUBLE_SLABS);
+    private static final java.util.Map<Block, net.minecraft.block.properties.IProperty<?>> CELESTIAL_BLOCKS = new java.util.HashMap<>();
 
     public static final Block LAUNCH_PAD = launchPad("launch_pad", Material.IRON, 5.0f, 12.0f);
     public static final Block STEEL_CABLE = pipe("steel_cable", 0.5f, 12.0f);
@@ -201,6 +223,12 @@ public final class ModBlocks {
     public static final Block CALORITE_PLATING_PRESSURE_PLATE = pressurePlate("calorite_plating_pressure_plate", Material.IRON, AdAstraPressurePlateBlock.Sensitivity.MOBS);
     public static final Block CALORITE_SLIDING_DOOR = slidingDoor("calorite_sliding_door", 7.0f, 22.0f);
 
+    public static final Block COPPER_BLOCK = metal("copper_block", 5.0f, 9.0f);
+    public static final Block MAGNESIUM_BLOCK = metal("magnesium_block", 5.0f, 9.0f);
+    public static final Block COBALT_BLOCK = metal("cobalt_block", 5.0f, 9.0f);
+    public static final Block NICKEL_BLOCK = metal("nickel_block", 5.0f, 9.0f);
+    public static final Block URANIUM_BLOCK = metal("uranium_block", 5.0f, 12.0f);
+    public static final Block METEORIC_IRON_BLOCK = metal("meteoric_iron_block", 5.0f, 12.0f);
     public static final Block BLACK_INDUSTRIAL_LAMP = industrialLamp("black_industrial_lamp", false);
     public static final Block BLUE_INDUSTRIAL_LAMP = industrialLamp("blue_industrial_lamp", false);
     public static final Block BROWN_INDUSTRIAL_LAMP = industrialLamp("brown_industrial_lamp", false);
@@ -340,7 +368,78 @@ public final class ModBlocks {
     public static final Block VENUS_CALORITE_ORE = ore("venus_calorite_ore", ModItems.RAW_CALORITE, 1, 1, 0, 0);
     public static final Block DEEPSLATE_CALORITE_ORE = ore("deepslate_calorite_ore", ModItems.RAW_CALORITE, 1, 1, 0, 0);
 
+// Planet-exclusive resource ores and storage blocks
+    public static final Block MERCURY_HERMIUM_ORE = ore("mercury_hermium_ore", ModItems.RAW_HERMIUM, 1, 2, 0, 2);
+    public static final Block HERMIUM_BLOCK = metal("hermium_block", 5.0f, 9.0f);
+    public static final Block GLACIO_CRYONITE_ORE = ore("glacio_cryonite_ore", ModItems.RAW_CRYONITE, 1, 2, 0, 2);
+    public static final Block CRYONITE_BLOCK = metal("cryonite_block", 5.0f, 9.0f);
+    public static final Block CERES_CERIUM_ORE = ore("ceres_cerium_ore", ModItems.RAW_CERIUM, 1, 2, 0, 2);
+    public static final Block CERIUM_BLOCK = metal("cerium_block", 5.0f, 9.0f);
+    public static final Block PLUTO_PLUTONIUM_ORE = ore("pluto_plutonium_ore", ModItems.RAW_PLUTONIUM, 1, 2, 0, 2);
+    public static final Block PLUTONIUM_BLOCK = metal("plutonium_block", 5.0f, 9.0f);
+    public static final Block HAUMEA_HAUMEITE_ORE = ore("haumea_haumeite_ore", ModItems.RAW_HAUMEITE, 1, 2, 0, 2);
+    public static final Block HAUMEITE_BLOCK = metal("haumeite_block", 5.0f, 9.0f);
+    public static final Block KUIPER_BELT_KUIPERITE_ORE = ore("kuiper_belt_kuiperite_ore", ModItems.RAW_KUIPERITE, 1, 2, 0, 2);
+    public static final Block KUIPERITE_BLOCK = metal("kuiperite_block", 5.0f, 9.0f);
+    public static final Block IO_IONITE_ORE = ore("io_ionite_ore", ModItems.RAW_IONITE, 1, 2, 0, 2);
+    public static final Block IONITE_BLOCK = metal("ionite_block", 5.0f, 9.0f);
+    public static final Block EUROPA_EUROPIUM_ORE = ore("europa_europium_ore", ModItems.RAW_EUROPIUM, 1, 2, 0, 2);
+    public static final Block EUROPIUM_BLOCK = metal("europium_block", 5.0f, 9.0f);
+    public static final Block GANYMEDE_GANYMEDITE_ORE = ore("ganymede_ganymedite_ore", ModItems.RAW_GANYMEDITE, 1, 2, 0, 2);
+    public static final Block GANYMEDITE_BLOCK = metal("ganymedite_block", 5.0f, 9.0f);
+    public static final Block CALLISTO_CALLISTITE_ORE = ore("callisto_callistite_ore", ModItems.RAW_CALLISTITE, 1, 2, 0, 2);
+    public static final Block CALLISTITE_BLOCK = metal("callistite_block", 5.0f, 9.0f);
+    public static final Block ENCELADUS_ENCELADITE_ORE = ore("enceladus_enceladite_ore", ModItems.RAW_ENCELADITE, 1, 2, 0, 2);
+    public static final Block ENCELADITE_BLOCK = metal("enceladite_block", 5.0f, 9.0f);
+    public static final Block TITAN_TITANITE_ORE = ore("titan_titanite_ore", ModItems.RAW_TITANITE, 1, 2, 0, 2);
+    public static final Block TITANITE_BLOCK = metal("titanite_block", 5.0f, 9.0f);
+    public static final Block MIRANDA_MIRANDIUM_ORE = ore("miranda_mirandium_ore", ModItems.RAW_MIRANDIUM, 1, 2, 0, 2);
+    public static final Block MIRANDIUM_BLOCK = metal("mirandium_block", 5.0f, 9.0f);
+    public static final Block TRITON_TRITONIUM_ORE = ore("triton_tritonium_ore", ModItems.RAW_TRITONIUM, 1, 2, 0, 2);
+    public static final Block TRITONIUM_BLOCK = metal("tritonium_block", 5.0f, 9.0f);
+    public static final Block PHOBOS_PHOBIUM_ORE = ore("phobos_phobium_ore", ModItems.RAW_PHOBIUM, 1, 2, 0, 2);
+    public static final Block PHOBIUM_BLOCK = metal("phobium_block", 5.0f, 9.0f);
+    public static final Block BARNARDA_C_BARNARDIUM_ORE = ore("barnarda_c_barnardium_ore", ModItems.RAW_BARNARDIUM, 1, 2, 0, 2);
+    public static final Block BARNARDIUM_BLOCK = metal("barnardium_block", 5.0f, 9.0f);
+    public static final Block BARNARDA_C1_C1_BARNARDIUM_ORE = ore("barnarda_c1_c1_barnardium_ore", ModItems.RAW_C1_BARNARDIUM, 1, 2, 0, 2);
+    public static final Block C1_BARNARDIUM_BLOCK = metal("c1_barnardium_block", 5.0f, 9.0f);
+    public static final Block TAUCETI_F_TAUCETITE_ORE = ore("tauceti_f_taucetite_ore", ModItems.RAW_TAUCETITE, 1, 2, 0, 2);
+    public static final Block TAUCETITE_BLOCK = metal("taucetite_block", 5.0f, 9.0f);
+    public static final Block PROXIMA_B_PROXIMITE_ORE = ore("proxima_b_proximite_ore", ModItems.RAW_PROXIMITE, 1, 2, 0, 2);
+    public static final Block PROXIMITE_BLOCK = metal("proximite_block", 5.0f, 9.0f);
+
     public static final Block GLACIO_STONE = stone("glacio_stone");
+
+    // Celestial blocks - Solar System Dwarf Planets
+    public static final Block CERES_BLOCKS = celestial("ceres_blocks", CeresBlocks.class);
+    public static final Block PLUTO_BLOCKS = celestial("pluto_blocks", PlutoBlocks.class);
+    public static final Block HAUMEA_BLOCKS = celestial("haumea_blocks", HaumeaBlocks.class);
+
+    // Celestial blocks - Jupiter Moons
+    public static final Block IO_BLOCKS = celestial("io_blocks", IoBlocks.class);
+    public static final Block EUROPA_BLOCKS = celestial("europa_blocks", EuropaBlocks.class);
+    public static final Block GANYMEDE_BLOCKS = celestial("ganymede_blocks", GanymedeBlocks.class);
+    public static final Block CALLISTO_BLOCKS = celestial("callisto_blocks", CallistoBlocks.class);
+
+    // Celestial blocks - Saturn Moons
+    public static final Block ENCELADUS_BLOCKS = celestial("enceladus_blocks", EnceladusBlocks.class);
+    public static final Block TITAN_BLOCKS = celestial("titan_blocks", TitanBlocks.class);
+
+    // Celestial blocks - Other Moons
+    public static final Block MIRANDA_BLOCKS = celestial("miranda_blocks", MirandaBlocks.class);
+    public static final Block TRITON_BLOCKS = celestial("triton_blocks", TritonBlocks.class);
+    public static final Block PHOBOS_BLOCKS = celestial("phobos_blocks", PhobosBlocks.class);
+
+    // Celestial blocks - Exoplanet Systems
+    public static final Block BARNARDA_C_BLOCKS = celestial("barnarda_c_blocks", BarnardaCBlocks.class);
+    public static final Block BARNARDA_C1_BLOCKS = celestial("barnarda_c1_blocks", BarnardaC1Blocks.class);
+    public static final Block TAUCETI_F_BLOCKS = celestial("tauceti_f_blocks", TauCetiFBlocks.class);
+    public static final Block PROXIMA_B_BLOCKS = celestial("proxima_b_blocks", ProximaBBlocks.class);
+
+    // Special celestial blocks
+    public static final Block IO_GEYSER = celestial("io_geyser", IoGeyserBlock.class);
+    public static final Block EUROPA_GEYSER = celestial("europa_geyser", EuropaGeyserBlock.class);
+    public static final Block ENCELADUS_CRYSTAL = celestial("enceladus_crystal", EnceladusCrystalBlock.class);
     public static final Block GLACIO_STONE_STAIRS = stairs("glacio_stone_stairs", GLACIO_STONE);
     public static final Block GLACIO_STONE_SLAB = stoneSlab("glacio_stone_slab");
     public static final Block GLACIO_COBBLESTONE = stone("glacio_cobblestone");
@@ -444,12 +543,17 @@ public final class ModBlocks {
             item = new AdAstraPipeItemBlock(block, false, 500, "info.ad_astra.fluid_pipe");
         } else if (block == FLUID_PIPE_DUCT) {
             item = new AdAstraPipeItemBlock(block, false, 250, "info.ad_astra.fluid_duct");
+        } else if (CELESTIAL_BLOCKS.containsKey(block)) {
+            item = new CelestialItemBlock(block, CELESTIAL_BLOCKS.get(block));
         } else {
             item = new ItemBlock(block);
         }
         item.setRegistryName(block.getRegistryName());
         if (block.getRegistryName() != null) {
             item.setTranslationKey(Reference.MOD_ID + "." + block.getRegistryName().getPath());
+        }
+        if (item.getCreativeTab() == null) {
+            item.setCreativeTab(AdAstraCreativeTab.INSTANCE);
         }
         return item;
     }
@@ -666,4 +770,22 @@ public final class ModBlocks {
         }
         throw new IllegalStateException("Missing double slab for " + name);
     }
+
+    private static Block celestial(String name, Class<? extends Block> blockClass) {
+        try {
+            Block block = blockClass.getDeclaredConstructor().newInstance();
+            block.setCreativeTab(AdAstraCreativeTab.INSTANCE);
+            // Find the TYPE property on the block for ItemBlock naming
+            try {
+                java.lang.reflect.Field typeField = blockClass.getField("TYPE");
+                net.minecraft.block.properties.IProperty<?> prop = (net.minecraft.block.properties.IProperty<?>) typeField.get(null);
+                CELESTIAL_BLOCKS.put(block, prop);
+            } catch (Exception ignored) { }
+            return register(name, block);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create celestial block: " + name, e);
+        }
+    }
 }
+
+

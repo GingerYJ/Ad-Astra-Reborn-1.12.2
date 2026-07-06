@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "ad_astra:enceladus_crystal",
+      "x": 180
+    },
+    "facing=up": {
+      "model": "ad_astra:enceladus_crystal"
+    },
+    "facing=north": {
+      "model": "ad_astra:enceladus_crystal"
+    },
+    "facing=south": {
+      "model": "ad_astra:enceladus_crystal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "ad_astra:enceladus_crystal",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "ad_astra:enceladus_crystal",
+      "y": 90
+    },
+    "inventory": {
+      "model": "ad_astra:enceladus_crystal"
+    }
+  }
+}

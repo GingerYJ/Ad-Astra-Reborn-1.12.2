@@ -17,6 +17,7 @@ import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.entities.projectile.IceSpitEntity;
 import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
+import earth.terrarium.adastra.common.entities.vehicles.ConfigurableRocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
@@ -67,6 +68,8 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderRocket<Tier6RocketEntity>(manager, 6, texture("rocket/tier_6_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier7RocketEntity.class,
             manager -> new RenderRocket<Tier7RocketEntity>(manager, 7, texture("rocket/tier_7_rocket"), 0.7f));
+        RenderingRegistry.registerEntityRenderingHandler(ConfigurableRocketEntity.class,
+            manager -> new RenderRocket<ConfigurableRocketEntity>(manager, 7, texture("rocket/tier_7_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(LanderEntity.class,
             manager -> new RenderLander(manager, texture("lander/lander")));
 

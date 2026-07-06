@@ -80,7 +80,7 @@ public class PlanetsMenu extends Container {
             }
         }
         planets.sort(Comparator.comparingInt((PlanetDimensionProperties planet) -> isSamePlanet(planet, currentOrbitPlanet) ? 0 : 1)
-            .thenComparingInt(PlanetDimensionProperties::getTier)
+            .thenComparingInt(PlanetTravelHelper::getRequiredRocketTier)
             .thenComparing(PlanetDimensionProperties::getName));
         return planets;
     }

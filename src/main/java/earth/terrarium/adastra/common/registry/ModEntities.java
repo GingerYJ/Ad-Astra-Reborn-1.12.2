@@ -18,6 +18,7 @@ import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.entities.projectile.IceSpitEntity;
 import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
+import earth.terrarium.adastra.common.entities.vehicles.ConfigurableRocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RoverEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier2RocketEntity;
@@ -54,6 +55,7 @@ public final class ModEntities {
     public static final EntityEntry TIER_5_ROCKET = entity("tier_5_rocket", Tier5RocketEntity.class, 160, 1, true);
     public static final EntityEntry TIER_6_ROCKET = entity("tier_6_rocket", Tier6RocketEntity.class, 160, 1, true);
     public static final EntityEntry TIER_7_ROCKET = entity("tier_7_rocket", Tier7RocketEntity.class, 160, 1, true);
+    public static final EntityEntry CONFIGURABLE_ROCKET = entity("configurable_rocket", ConfigurableRocketEntity.class, 160, 1, true);
     public static final EntityEntry LANDER = entity("lander", LanderEntity.class, 160, 1, true);
     public static final EntityEntry LUNARIAN = entity("lunarian", LunarianEntity.class, 80, 3, true);
     public static final EntityEntry CORRUPTED_LUNARIAN = entity("corrupted_lunarian", CorruptedLunarianEntity.class, 80, 3, true);

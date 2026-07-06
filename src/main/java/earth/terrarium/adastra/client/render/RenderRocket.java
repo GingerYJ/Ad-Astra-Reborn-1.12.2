@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.client.render;
 
 import earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity;
+import earth.terrarium.adastra.common.entities.vehicles.ConfigurableRocketEntity;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
 
     private final ModelBase model;
+    private final java.util.Map<Integer, ModelBase> modelCache = new java.util.HashMap<>();
     private final ResourceLocation texture;
 
     RenderRocket(RenderManager renderManager, int tier, ResourceLocation texture, float shadowSize) {
@@ -32,15 +34,32 @@ class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
         GlStateManager.scale(-1.0f, -1.0f, 1.0f);
         bindEntityTexture(entity);
         GlStateManager.disableCull();
-        model.setRotationAngles(0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f, entity);
-        model.render(entity, 0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f);
+        ModelBase renderModel = modelFor(entity);
+        renderModel.setRotationAngles(0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f, entity);
+        renderModel.render(entity, 0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0625f);
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
+    private ModelBase modelFor(T entity) {
+        if (entity instanceof ConfigurableRocketEntity) {
+            int modelTier = ((ConfigurableRocketEntity) entity).getModelTier();
+            ModelBase cached = modelCache.get(modelTier);
+            if (cached == null) {
+                cached = new ModelRocket(modelTier);
+                modelCache.put(modelTier, cached);
+            }
+            return cached;
+        }
+        return model;
+    }
+
     @Override
     protected ResourceLocation getEntityTexture(T entity) {
+        if (entity instanceof ConfigurableRocketEntity) {
+            return ConfigurableRocketTextureManager.textureFor(((ConfigurableRocketEntity) entity).getRocketSpec());
+        }
         return texture;
     }
 }

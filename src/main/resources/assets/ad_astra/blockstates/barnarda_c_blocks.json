@@ -1,0 +1,18 @@
+{
+    "variants": {
+        "type=barnarda_c_grunt": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_grunt" },
+        "type=barnarda_c_subgrunt": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_subgrunt" },
+        "type=barnarda_c_stone": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_stone" },
+        "type=barnarda_c_dirt": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_dirt" },
+        "type=barnarda_c_grass": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_grass" },
+        "type=barnarda_c_sand": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_sand" },
+        "type=barnarda_c_cobblestone": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_cobblestone" },
+        "type=barnarda_c_stone_bricks": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_stone_bricks" },
+        "type=barnarda_c_wood_planks": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_wood_planks" },
+        "type=barnarda_c_log": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_log" },
+        "type=barnarda_c_leaves": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_leaves" },
+        "type=barnarda_c_iron_ore": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_iron_ore" },
+        "type=barnarda_c_gold_ore": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_gold_ore" },
+        "type=barnarda_c_coal_ore": { "model": "ad_astra:barnarda_c_blocks_barnarda_c_coal_ore" }
+    }
+}

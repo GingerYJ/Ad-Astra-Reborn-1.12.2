@@ -1,0 +1,6 @@
+﻿{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "ad_astra:blocks/celestial/barnarda_c1/barnarda_c1_iron_ore"
+    }
+}

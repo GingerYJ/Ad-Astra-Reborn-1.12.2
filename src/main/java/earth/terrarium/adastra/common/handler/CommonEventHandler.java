@@ -35,6 +35,7 @@ import earth.terrarium.adastra.common.util.radio.RadioHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.item.EntityArmorStand;
@@ -341,6 +342,11 @@ public class CommonEventHandler {
     @SubscribeEvent
     public void onLivingCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
         if (event.getEntityLiving() instanceof EntityLiving
+            && shouldBlockDisabledHostileMobSpawn((EntityLiving) event.getEntityLiving(), event.getWorld())) {
+            event.setResult(Event.Result.DENY);
+            return;
+        }
+        if (event.getEntityLiving() instanceof EntityLiving
             && shouldBlockNoOxygenSpawn((EntityLiving) event.getEntityLiving(), event.getWorld())) {
             event.setResult(Event.Result.DENY);
             return;
@@ -357,6 +363,16 @@ public class CommonEventHandler {
             && exceedsPlanetEntityTypeCap((EntityLiving) event.getEntity(), event.getWorld())) {
             event.setCanceled(true);
         }
+    }
+
+    private boolean shouldBlockDisabledHostileMobSpawn(EntityLiving entity, World world) {
+        if (entity == null || world == null || world.isRemote || world.provider == null) {
+            return false;
+        }
+        if (!entity.isCreatureType(EnumCreatureType.MONSTER, false)) {
+            return false;
+        }
+        return !AdAstraConfig.canHostileMobsSpawn(world.provider.getDimension());
     }
 
     private boolean shouldBlockNoOxygenSpawn(EntityLiving entity, World world) {

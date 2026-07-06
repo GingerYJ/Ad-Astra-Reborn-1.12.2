@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.world;
 
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -95,7 +96,7 @@ public abstract class AdAstraWorldProvider extends WorldProvider {
 
     @Override
     public String getSaveFolder() {
-        return getProperties().getSaveFolder();
+        return AdAstraConfig.getDimensionSaveFolder(getProperties().getSaveFolder());
     }
 
     @Override

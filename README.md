@@ -1,65 +1,154 @@
-# Ad Astra Reborn
+# Ad Astra Reborn 1.0.0
 
-Ad Astra Reborn is a Minecraft 1.12.2 / Cleanroom port of Ad Astra. The goal of the project is to bring the Ad Astra 1.20.x space-exploration content back to the 1.12.2 ecosystem while reusing the original assets for blocks, items, models, GUIs, vehicles and planets wherever possible.
+Ad Astra Reborn is a Minecraft 1.12.2 / Cleanroom-compatible space exploration mod inspired by Ad Astra and expanded for the 1.12.2 ecosystem. Version **1.0.0** focuses on a complete playable space progression: tiered rockets, many planets and orbits, configurable travel requirements, space stations, planetary resources, machine recipes, HEI/JEI displays and CraftTweaker scripting hooks.
 
 [中文说明](README_zh_cn.md)
 
-## Status
+## What This Mod Adds
 
-This repository is an active port and gameplay reconstruction, not a finished release. Rockets, launch pads, machines, space stations, planet travel, environment systems and CraftTweaker hooks are implemented, but many behaviors still need in-game validation on real modpacks.
-
-Author and maintainer: GingerYJ
-
-Credits: original Ad Astra content by Terrarium and Ad Astra contributors.
-
-## Features
+### Space travel and rockets
 
 - Tiered rockets, launch pads, landers and rover gameplay.
-- Planet travel for the Moon, Mars, Mercury, Venus and Glacio, plus optional Nether and End travel through rockets.
-- Orbit and space station gameplay with configurable construction materials.
-- Space environment systems for oxygen, temperature and gravity.
-- Machines and GUIs such as the NASA Workbench, compressor, fuel refinery, oxygen loader, oxygen distributor, gravity normalizer, energizer, cryo freezer, coal generator, solar panel, water pump and etrionic blast furnace.
-- HEI recipe displays for Ad Astra machine recipes.
-- Patchouli guide book integration.
-- CraftTweaker APIs for NASA Workbench recipes, rocket fuel tiers, planet rocket tiers, space station recipes and custom planet definitions.
+- Rocket travel UI rewritten as a dynamic star map with orbit display, animated planets, zoom/drag controls and optional planet names.
+- Rocket destination availability is based on rocket tier and can be changed through configuration.
+- Rockets expose HEI/JEI usage information: pressing the usage key on a rocket shows reachable and unreachable destinations.
+- Custom configurable rockets can be added from config without writing Java code.
 
-## Requirements
+### Built-in planets and orbits
 
-- Minecraft 1.12.2 with Cleanroom Loader / Forge-compatible 1.12.2 runtime.
-- Java toolchain configured by Gradle. The project currently uses Java 25 for the Gradle toolchain and Java 21 source/target compatibility.
-- Patchouli is required at runtime.
-- Had Enough Items is used for recipe integration.
-- CraftTweaker is optional at runtime, but required when using the provided scripts and ZenScript APIs.
+The mod contains the original Ad Astra-style destinations and many integrated additional celestial bodies:
 
-## Build And Run
+- Moon and Moon Orbit
+- Mars and Mars Orbit
+- Mercury and Mercury Orbit
+- Venus and Venus Orbit
+- Glacio and Glacio Orbit
+- Nether Orbit and End Orbit, when enabled
+- Ceres and Ceres Orbit
+- Pluto and Pluto Orbit
+- Haumea and Haumea Orbit
+- Kuiper Belt
+- Jupiter Orbit
+- Io and Io Orbit
+- Europa and Europa Orbit
+- Ganymede and Ganymede Orbit
+- Callisto and Callisto Orbit
+- Enceladus and Enceladus Orbit
+- Titan and Titan Orbit
+- Miranda and Miranda Orbit
+- Triton and Triton Orbit
+- Phobos and Phobos Orbit
+- Barnarda C and Barnarda C Orbit
+- Barnarda C1 and Barnarda C1 Orbit
+- Tau Ceti F and Tau Ceti F Orbit
+- Proxima B and Proxima B Orbit
 
-```powershell
-.\gradlew.bat compileJava
-.\gradlew.bat build
-.\gradlew.bat runClient
-```
+Each destination can have its own dimension ID, gravity, travel tier, world-generation settings, mob rules and orbit/space-station behavior.
 
-The generated mod jar is produced under `build/libs`.
+### Planet resources and world generation
 
-The default development CraftTweaker script is stored at:
+- Planet-specific terrain blocks, stones, regoliths, ice crusts, geysers, crystals and decorative blocks.
+- Dedicated ore and metal resource chains for many planets.
+- Ore blocks drop their matching raw material.
+- Ore and raw material smelting recipes are provided.
+- Ingot-to-metal-block and metal-block-to-ingot recipes are provided.
+- Planet resource acquisition is visible in HEI/JEI, so players can inspect where a resource is found.
+- Ore generation is configurable per planet and separated into clear config categories.
+- Custom block/ore generation rules can be added to specific planets through config.
 
-```text
-run/client/scripts/ad_astra_defaults.zs
-```
+### Machines and progression
+
+Implemented machine and progression systems include:
+
+- NASA Workbench
+- Compressor
+- Fuel Refinery
+- Oxygen Loader
+- Oxygen Distributor
+- Gravity Normalizer
+- Energizer
+- Cryo Freezer
+- Coal Generator
+- Solar Panel
+- Water Pump
+- Etrionic Blast Furnace
+- Space station construction recipes
+- HEI/JEI recipe categories for machine recipes and space exploration information
+
+### Environment systems
+
+- Oxygen handling
+- Temperature handling
+- Gravity scaling per dimension
+- Solar power scaling per dimension
+- Planet mob spawn controls
+- Dedicated dimension save folder support for Ad Astra dimensions
 
 ## Configuration
 
-The generated config file is placed in its own folder:
+Configuration files are generated under:
 
 ```text
-config/ad_astra/ad_astra.cfg
+config/ad_astra/
 ```
 
-Important options include oxygen, temperature, gravity, machine speed and energy multipliers, planet dimension toggles, Nether/End rocket travel, world generation and per-entity spawn caps for planet dimensions.
+The large all-in-one config has been split into smaller files:
 
-## CraftTweaker APIs
+- `core.cfg` - common gameplay toggles and base settings
+- `client.cfg` - client display and UI options
+- `machines.cfg` - machine speed, energy and recipe behavior
+- `dimensions.cfg` - dimension IDs, enable toggles, gravity and planet rocket tiers
+- `mobs.cfg` - per-planet mob spawn configuration
+- `worldgen.cfg` - structures, ore generation, custom planet blocks and per-planet ore settings
+- `debug.cfg` - debug and diagnostic switches
+- `rockets.cfg` - extra configurable rockets
 
-Use these imports in ZenScript:
+Most config entries contain Chinese comments for pack makers and server owners.
+
+## Configurable Rockets
+
+Extra rockets can be added through:
+
+```text
+config/ad_astra/rockets.cfg
+```
+
+Custom rocket textures are stored in:
+
+```text
+config/ad_astra/rocket_png/
+```
+
+On first startup the mod creates a default editable template:
+
+```text
+config/ad_astra/rocket_png/custom_tier_8_rocket.png
+```
+
+Example:
+
+```cfg
+S:customRockets <
+    custom_tier_8_rocket|八阶火箭|8|10000|7|custom_tier_8_rocket.png
+ >
+```
+
+Format:
+
+```text
+id|display name|rocket tier|fuel capacity mB|model tier|texture
+```
+
+- `id` must be unique.
+- `display name` is shown in item names and the rocket UI.
+- `rocket tier` controls travel access and fuel requirements.
+- `fuel capacity` controls rocket tank size.
+- `model tier` reuses the existing tier 1-7 rocket models.
+- `texture` can be an external PNG in `rocket_png` or a normal resource location.
+
+## CraftTweaker / ZenScript Integration
+
+Available imports:
 
 ```zenscript
 import mods.ad_astra.NASAWorkbench;
@@ -69,7 +158,18 @@ import mods.ad_astra.SpaceStation;
 import mods.ad_astra.CustomPlanets;
 ```
 
-### NASA Workbench
+### Rocket fuel
+
+Rocket fuel tiers are scriptable. For example, lava can be made a tier 7 rocket fuel by script:
+
+```zenscript
+RocketFuel.addFuel("lava", 7);
+<minecraft:lava_bucket>.addTooltip("燃料等级：7");
+```
+
+The mod no longer hardcodes lava as a default rocket fuel; pack scripts control it.
+
+### NASA Workbench recipes
 
 ```zenscript
 NASAWorkbench.addRecipe(String id, IItemStack[] inputs, IItemStack output, int width, int height, int time, int energy);
@@ -77,123 +177,27 @@ NASAWorkbench.removeRecipe(String id);
 NASAWorkbench.removeByOutput(IItemStack output);
 ```
 
-Example:
-
-```zenscript
-NASAWorkbench.addRecipe("ad_astra:tier_5_rocket_from_crt",
-    [
-        <ad_astra:rocket_nose_cone>,
-        <ad_astra:etrium_block>,
-        <ad_astra:etrium_block>,
-        <ad_astra:etrium_block>,
-        <ad_astra:etrium_block>,
-        <ad_astra:etrium_block>,
-        <minecraft:beacon>,
-        <ad_astra:rocket_fin>,
-        <ad_astra:calorite_tank>,
-        <ad_astra:calorite_tank>,
-        <ad_astra:rocket_fin>,
-        <ad_astra:rocket_fin>,
-        <ad_astra:calorite_engine>,
-        <ad_astra:rocket_fin>
-    ],
-    <ad_astra:tier_5_rocket>,
-    3,
-    5,
-    200,
-    10);
-```
-
-### Rocket Fuel
-
-```zenscript
-RocketFuel.addFuel(String fluidName, int fuelTier);
-RocketFuel.removeFuel(String fluidName);
-```
-
-Higher-tier fuel can power lower-tier rockets. Lower-tier fuel cannot power higher-tier rockets.
-
-Example:
-
-```zenscript
-RocketFuel.addFuel("lava", 3);
-```
-
-### Planet Rocket Tiers
+### Planet rocket tiers
 
 ```zenscript
 PlanetTiers.setPlanetTier(int dimensionId, int tier);
 PlanetTiers.removePlanetTier(int dimensionId);
 ```
 
-Example:
-
-```zenscript
-PlanetTiers.setPlanetTier(1201, 1); // Moon
-```
-
-### Space Stations
+### Space station recipes
 
 ```zenscript
 SpaceStation.setRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.setRecipe(String orbit, IIngredient[] ingredients);
 SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients);
 SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.addRecipe(String orbit, IIngredient[] ingredients);
 SpaceStation.removeRecipe(String orbit);
 SpaceStation.removeRecipeById(String id);
 ```
 
-Example:
+### Custom planets
 
 ```zenscript
-SpaceStation.setRecipe("nether_orbit",
-    [
-        <minecraft:obsidian>,
-        <minecraft:glowstone>,
-        <minecraft:quartz_block>,
-        <minecraft:iron_block>
-    ],
-    [64, 32, 32, 16]);
-```
-
-### Custom Planets
-
-```zenscript
-CustomPlanets.create(String id, int dimensionId);
-CustomPlanets.getRegisteredCount();
-CustomPlanets.hasPlanet(String id);
-```
-
-The builder returned by `CustomPlanets.create` supports:
-
-```zenscript
-.name(String name)
-.displayName(String displayName)
-.saveFolder(String saveFolder)
-.biome(String biomeId)
-.surface(IBlock block)
-.stone(IBlock block)
-.icon(IItemStack stack)
-.iconBlock(IBlock block)
-.skyLight(boolean hasSkyLight)
-.canRespawn(boolean canRespawn)
-.environment(boolean oxygen, int temperature, double gravity, int solarPower)
-.tier(int tier)
-.dayLength(int dayLength)
-.colors(double fogRed, double fogGreen, double fogBlue, double skyRed, double skyGreen, double skyBlue)
-.addOre(IBlock oreBlock, IBlock replaceBlock, int veinSize, int countPerChunk, int minY, int maxY)
-.addFluidLake(ILiquidStack fluidStack, int countPerChunk, int minY, int maxY)
-.addFluidBlock(IBlock fluidBlock, int countPerChunk, int minY, int maxY)
-.enableDimensionRegistration(boolean enabled)
-.register()
-```
-
-Template:
-
-```zenscript
-CustomPlanets.create("example:basalt_moon", 1301)
+CustomPlanets.create(String id, int dimensionId)
     .displayName("Basalt Moon")
     .tier(2)
     .biome("minecraft:desert")
@@ -206,4 +210,36 @@ CustomPlanets.create("example:basalt_moon", 1301)
     .register();
 ```
 
-See `docs/custom_planets_crt_template.zs` for a larger example.
+Development scripts can be placed in:
+
+```text
+run/client/scripts/
+```
+
+## Requirements
+
+- Minecraft 1.12.2
+- Cleanroom Loader / Forge-compatible 1.12.2 runtime
+- Patchouli is required
+- HEI/JEI is recommended for recipes and information displays
+- CraftTweaker is optional, but required for scripts and custom planet/fuel APIs
+
+## Build And Run
+
+```powershell
+.\gradlew.bat compileJava processResources
+.\gradlew.bat build
+.\gradlew.bat runClient
+```
+
+Generated jars are placed under:
+
+```text
+build/libs
+```
+
+## Credits
+
+Maintainer: GingerYJ
+
+Original Ad Astra content and assets are credited to Terrarium and Ad Astra contributors. This project adapts and expands the experience for Minecraft 1.12.2.

@@ -1,0 +1,17 @@
+﻿{
+    "type":  "minecraft:crafting_shaped",
+    "pattern":  [
+                    "###",
+                    "###",
+                    "###"
+                ],
+    "key":  {
+                "#":  {
+                          "type":  "forge:ore_dict",
+                          "ore":  "ingotC1Barnardium"
+                      }
+            },
+    "result":  {
+                   "item":  "ad_astra:c1_barnardium_block"
+               }
+}

@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "type=proxima_b_grunt": { "model": "ad_astra:proxima_b_blocks_proxima_b_grunt" },
+        "type=proxima_b_subgrunt": { "model": "ad_astra:proxima_b_blocks_proxima_b_subgrunt" },
+        "type=proxima_b_stone": { "model": "ad_astra:proxima_b_blocks_proxima_b_stone" },
+        "type=proxima_b_grass": { "model": "ad_astra:proxima_b_blocks_proxima_b_grass" },
+        "type=proxima_b_dirt": { "model": "ad_astra:proxima_b_blocks_proxima_b_dirt" },
+        "type=proxima_b_log": { "model": "ad_astra:proxima_b_blocks_proxima_b_log" },
+        "type=proxima_b_leaves": { "model": "ad_astra:proxima_b_blocks_proxima_b_leaves" },
+        "type=proxima_b_cobblestone": { "model": "ad_astra:proxima_b_blocks_proxima_b_cobblestone" }
+    }
+}

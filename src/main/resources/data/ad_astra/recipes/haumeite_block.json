@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:haumeite_ingot"
+    }
+  },
+  "result": {
+    "item": "ad_astra:haumeite_block"
+  }
+}

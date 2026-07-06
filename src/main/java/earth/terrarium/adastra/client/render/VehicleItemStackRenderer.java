@@ -2,6 +2,8 @@ package earth.terrarium.adastra.client.render;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketSpec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
@@ -25,6 +27,7 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
     private final ModelBase tier6Rocket = new ModelRocket(6);
     private final ModelBase tier7Rocket = new ModelRocket(7);
     private final ModelBase rover = new ModelRover();
+    private final java.util.Map<Integer, ModelBase> configurableRocketModels = new java.util.HashMap<>();
 
     private VehicleItemStackRenderer() {
     }
@@ -46,9 +49,21 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
             renderRocket(tier6Rocket, texture("rocket/tier_6_rocket"), 0.08f, -0.05f);
         } else if (item == ModItems.TIER_7_ROCKET) {
             renderRocket(tier7Rocket, texture("rocket/tier_7_rocket"), 0.08f, -0.05f);
+        } else if (item instanceof ConfigurableRocketItem) {
+            ConfigurableRocketSpec spec = ((ConfigurableRocketItem) item).getSpec();
+            renderRocket(configurableModel(spec.getModelTier()), ConfigurableRocketTextureManager.textureFor(spec), spec.getModelTier() >= 4 ? 0.08f : 0.11f, -0.05f);
         } else if (item == ModItems.TIER_1_ROVER) {
             renderRover();
         }
+    }
+
+    private ModelBase configurableModel(int modelTier) {
+        ModelBase model = configurableRocketModels.get(modelTier);
+        if (model == null) {
+            model = new ModelRocket(modelTier);
+            configurableRocketModels.put(modelTier, model);
+        }
+        return model;
     }
 
     private void renderRocket(ModelBase model, ResourceLocation texture, float scale, float yOffset) {

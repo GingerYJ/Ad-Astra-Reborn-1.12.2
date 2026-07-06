@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "type=pluto_grunt": { "model": "ad_astra:pluto_blocks_pluto_grunt" },
+        "type=pluto_subgrunt": { "model": "ad_astra:pluto_blocks_pluto_subgrunt" },
+        "type=pluto_iron_ore": { "model": "ad_astra:pluto_blocks_pluto_iron_ore" },
+        "type=pluto_sulfur_ore": { "model": "ad_astra:pluto_blocks_pluto_sulfur_ore" },
+        "type=pluto_uranium_ore": { "model": "ad_astra:pluto_blocks_pluto_uranium_ore" },
+        "type=pluto_frozen_crust": { "model": "ad_astra:pluto_blocks_pluto_frozen_crust" }
+    }
+}

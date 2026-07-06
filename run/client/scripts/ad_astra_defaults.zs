@@ -5,11 +5,11 @@ import mods.ad_astra.RocketFuel;
 import mods.ad_astra.SpaceStation;
 
 // 燃料等级：高等级燃料可以驱动低等级火箭，低等级燃料不能驱动高等级火箭。
-RocketFuel.addFuel("lava", 7);
+RocketFuel.addFuel("lava", 10);
 
 <ad_astra:fuel_bucket>.addTooltip("燃料等级：1");
 <ad_astra:cryo_fuel_bucket>.addTooltip("燃料等级：2");
-<minecraft:lava_bucket>.addTooltip("燃料等级：7");
+<minecraft:lava_bucket>.addTooltip("燃料等级：10");
 
 // 下界轨道空间站建造材料。需要在配置中启用“将下界加入行星”后，选择界面才会出现下界空间站入口。
 SpaceStation.setRecipe("nether_orbit",

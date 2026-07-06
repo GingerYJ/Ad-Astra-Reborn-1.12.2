@@ -9,6 +9,7 @@ import earth.terrarium.adastra.client.particle.ParticleOxygenBubble;
 import earth.terrarium.adastra.client.particle.ParticleOxygenVent;
 import earth.terrarium.adastra.client.render.AdAstraEntityRenderers;
 import earth.terrarium.adastra.client.render.TileEnergizerRenderer;
+import earth.terrarium.adastra.client.render.TileEnceladusCrystalRenderer;
 import earth.terrarium.adastra.client.render.TileFlagRenderer;
 import earth.terrarium.adastra.client.render.TileGlobeRenderer;
 import earth.terrarium.adastra.client.render.TileGravityNormalizerRenderer;
@@ -19,6 +20,7 @@ import earth.terrarium.adastra.client.render.VehicleItemStackRenderer;
 import earth.terrarium.adastra.common.tile.FlagTileEntity;
 import earth.terrarium.adastra.common.tile.GlobeTileEntity;
 import earth.terrarium.adastra.common.tile.EnergizerTileEntity;
+import earth.terrarium.adastra.common.tile.TileEntityEnceladusCrystal;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.tile.SlidingDoorTileEntity;
@@ -32,6 +34,8 @@ import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
+import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
+import earth.terrarium.adastra.common.items.CelestialItemBlock;
 import earth.terrarium.adastra.common.items.VehicleItem;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
@@ -49,6 +53,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -65,6 +70,7 @@ public final class ClientRegistry {
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(OxygenDistributorTileEntity.class, new TileOxygenDistributorRenderer());
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(GravityNormalizerTileEntity.class, new TileGravityNormalizerRenderer());
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(WaterPumpTileEntity.class, new TileWaterPumpRenderer());
+        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnceladusCrystal.class, new TileEnceladusCrystalRenderer());
     }
 
     public static void registerModels() {
@@ -130,17 +136,26 @@ public final class ClientRegistry {
         if (item instanceof VehicleItem) {
             item.setTileEntityItemStackRenderer(VehicleItemStackRenderer.INSTANCE);
         }
-        // For 1.12.2, just use the item's registry name as the model location
-        // The model loader will automatically look for models/item/{name}.json
+        ResourceLocation modelLocation = item.getRegistryName();
+        if (item instanceof ConfigurableRocketItem) {
+            int modelTier = ((ConfigurableRocketItem) item).getSpec().getModelTier();
+            modelLocation = new ResourceLocation(Reference.MOD_ID, "tier_" + modelTier + "_rocket");
+        }
+        // For 1.12.2, use the item registry name as the model location, except configurable rockets
+        // which intentionally reuse an existing builtin/entity rocket item model.
         ModelLoader.setCustomModelResourceLocation(
             item,
             0,
-            new ModelResourceLocation(item.getRegistryName(), "inventory"));
+            new ModelResourceLocation(modelLocation, "inventory"));
     }
 
     private static void registerBlockItemModel(Block block) {
         Item item = getRegisteredBlockItem(block);
         if (item == null || item == Items.AIR || item.getRegistryName() == null) {
+            return;
+        }
+        if (item instanceof CelestialItemBlock) {
+            registerCelestialBlockItemModels((CelestialItemBlock) item);
             return;
         }
         if (block instanceof AdAstraGlobeBlock) {
@@ -170,6 +185,24 @@ public final class ClientRegistry {
             return;
         }
         registerItemModel(item);
+    }
+
+    private static void registerCelestialBlockItemModels(CelestialItemBlock item) {
+        java.util.List<ModelResourceLocation> variants = new java.util.ArrayList<>();
+        for (int meta = 0; meta < item.getVariantCount(); meta++) {
+            String modelName = item.getVariantModelName(meta);
+            if (modelName == null) {
+                continue;
+            }
+            ModelResourceLocation model = new ModelResourceLocation(Reference.MOD_ID + ":" + modelName, "inventory");
+            ModelLoader.setCustomModelResourceLocation(item, meta, model);
+            variants.add(model);
+        }
+        if (!variants.isEmpty()) {
+            net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
+                item,
+                variants.toArray(new ModelResourceLocation[0]));
+        }
     }
 
     private static void registerSlidingDoorRenderVariants(Item item, Block block) {
@@ -311,3 +344,5 @@ public final class ClientRegistry {
         }
     }
 }
+
+

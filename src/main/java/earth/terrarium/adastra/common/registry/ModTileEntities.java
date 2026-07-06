@@ -20,6 +20,10 @@ import earth.terrarium.adastra.common.tile.RadioTileEntity;
 import earth.terrarium.adastra.common.tile.SlidingDoorTileEntity;
 import earth.terrarium.adastra.common.tile.SolarPanelTileEntity;
 import earth.terrarium.adastra.common.tile.WaterPumpTileEntity;
+import earth.terrarium.adastra.common.tile.TileEntityIoGeyser;
+import earth.terrarium.adastra.common.tile.TileEntityEuropaGeyser;
+import earth.terrarium.adastra.common.tile.TileEntityTritonGeyser;
+import earth.terrarium.adastra.common.tile.TileEntityEnceladusCrystal;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -37,6 +41,10 @@ public final class ModTileEntities {
         register("oxygen_loader", OxygenLoaderTileEntity.class);
         register("fuel_refinery", FuelRefineryTileEntity.class);
         register("water_pump", WaterPumpTileEntity.class);
+        register("io_geyser", TileEntityIoGeyser.class);
+        register("europa_geyser", TileEntityEuropaGeyser.class);
+        register("triton_geyser", TileEntityTritonGeyser.class);
+        register("enceladus_crystal", TileEntityEnceladusCrystal.class);
         register("solar_panel", SolarPanelTileEntity.class);
         register("oxygen_distributor", OxygenDistributorTileEntity.class);
         register("gravity_normalizer", GravityNormalizerTileEntity.class);
@@ -79,3 +87,4 @@ public final class ModTileEntities {
         GameRegistry.registerTileEntity(tileEntityClass, new ResourceLocation(Reference.MOD_ID, name));
     }
 }
+

@@ -1,0 +1,14 @@
+{
+    "variants": {
+        "type=tauceti_f_grunt": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_grunt" },
+        "type=tauceti_f_subgrunt": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_subgrunt" },
+        "type=tauceti_f_stone": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_stone" },
+        "type=tauceti_f_sand": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_sand" },
+        "type=tauceti_f_cobblestone": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_cobblestone" },
+        "type=tauceti_f_iron_ore": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_iron_ore" },
+        "type=tauceti_f_coal_ore": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_coal_ore" },
+        "type=tauceti_f_gold_ore": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_gold_ore" },
+        "type=tauceti_f_diamond_ore": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_diamond_ore" },
+        "type=tauceti_f_lapis_ore": { "model": "ad_astra:tauceti_f_blocks_tauceti_f_lapis_ore" }
+    }
+}

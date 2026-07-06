@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.client.gui;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.entities.vehicles.ConfigurableRocketEntity;
 import earth.terrarium.adastra.common.menus.vehicles.RocketMenu;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -45,7 +46,9 @@ public class RocketGui extends GuiContainer {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        String title = I18n.format("entity.ad_astra.tier_" + container.getRocket().getRocketTier() + "_rocket");
+        String title = container.getRocket() instanceof ConfigurableRocketEntity
+            ? ((ConfigurableRocketEntity) container.getRocket()).getRocketSpec().getDisplayName()
+            : I18n.format("entity.ad_astra.tier_" + container.getRocket().getRocketTier() + "_rocket");
         this.fontRenderer.drawString(title, -3, 6, 0x2a262b);
         this.fontRenderer.drawString(I18n.format("container.inventory"), -3, this.ySize - 94, 0x2a262b);
 

@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "type=haumea_grunt": { "model": "ad_astra:haumea_blocks_haumea_grunt" },
+        "type=haumea_subgrunt": { "model": "ad_astra:haumea_blocks_haumea_subgrunt" },
+        "type=haumea_dolomite_ore": { "model": "ad_astra:haumea_blocks_haumea_dolomite_ore" },
+        "type=haumea_frozen_crust": { "model": "ad_astra:haumea_blocks_haumea_frozen_crust" }
+    }
+}

@@ -1,0 +1,12 @@
+﻿{
+    "type":  "minecraft:crafting_shapeless",
+    "ingredients":  [
+                        {
+                            "item":  "ad_astra:ionite_block"
+                        }
+                    ],
+    "result":  {
+                   "item":  "ad_astra:ionite_ingot",
+                   "count":  9
+               }
+}

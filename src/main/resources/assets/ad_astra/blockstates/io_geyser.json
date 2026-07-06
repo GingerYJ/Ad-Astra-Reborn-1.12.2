@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "ad_astra:io_geyser"
+    },
+    "active=true": {
+      "model": "ad_astra:io_geyser_active"
+    },
+    "inventory": {
+      "model": "ad_astra:io_geyser"
+    }
+  }
+}

@@ -10,6 +10,8 @@ import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModGuiIds;
+import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
 import earth.terrarium.adastra.integration.jei.category.*;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IJeiHelpers;
@@ -45,6 +47,7 @@ public class AdAstraJEIPlugin implements IModPlugin {
     public static final String FUEL_REFINERY_CATEGORY = Reference.MOD_ID + ":fuel_refinery";
     public static final String OXYGEN_LOADER_CATEGORY = Reference.MOD_ID + ":oxygen_loader";
     public static final String NASA_WORKBENCH_CATEGORY = Reference.MOD_ID + ":nasa_workbench";
+    public static final String ROCKET_DESTINATIONS_CATEGORY = Reference.MOD_ID + ":rocket_destinations";
 
     @Override
     public void registerIngredients(IModIngredientRegistration registration) {
@@ -66,13 +69,15 @@ public class AdAstraJEIPlugin implements IModPlugin {
             new CryoFreezerRecipeCategory(guiHelper),
             new FuelRefineryRecipeCategory(guiHelper),
             new OxygenLoaderRecipeCategory(guiHelper),
-            new NASAWorkbenchRecipeCategory(guiHelper)
+            new NASAWorkbenchRecipeCategory(guiHelper),
+            new RocketDestinationRecipeCategory(guiHelper)
         );
     }
 
     @Override
     public void register(IModRegistry registry) {
         hideForgeBucketVariants(registry);
+        PlanetResourceJeiInfo.register(registry);
 
         // Register recipe handlers
         registry.handleRecipes(earth.terrarium.adastra.common.recipe.CompressingRecipe.class,
@@ -87,6 +92,8 @@ public class AdAstraJEIPlugin implements IModPlugin {
             recipe -> new OxygenLoaderRecipeWrapper(recipe), OXYGEN_LOADER_CATEGORY);
         registry.handleRecipes(earth.terrarium.adastra.common.recipe.NASAWorkbenchRecipe.class,
             recipe -> new NASAWorkbenchRecipeWrapper(recipe), NASA_WORKBENCH_CATEGORY);
+        registry.handleRecipes(RocketDestinationRecipe.class,
+            RocketDestinationRecipeWrapper::new, ROCKET_DESTINATIONS_CATEGORY);
 
         // Add recipes to JEI
         registry.addRecipes(RecipeRegistry.getAllCompressingRecipes(), COMPRESSOR_CATEGORY);
@@ -95,6 +102,7 @@ public class AdAstraJEIPlugin implements IModPlugin {
         registry.addRecipes(RecipeRegistry.getAllRefiningRecipes(), FUEL_REFINERY_CATEGORY);
         registry.addRecipes(RecipeRegistry.getAllOxygenLoadingRecipes(), OXYGEN_LOADER_CATEGORY);
         registry.addRecipes(RecipeRegistry.getAllNASAWorkbenchRecipes(), NASA_WORKBENCH_CATEGORY);
+        registry.addRecipes(createRocketDestinationRecipes(), ROCKET_DESTINATIONS_CATEGORY);
 
         // Add recipe catalysts (machines that perform these recipes)
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.COMPRESSOR), COMPRESSOR_CATEGORY);
@@ -103,6 +111,9 @@ public class AdAstraJEIPlugin implements IModPlugin {
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.FUEL_REFINERY), FUEL_REFINERY_CATEGORY);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.OXYGEN_LOADER), OXYGEN_LOADER_CATEGORY);
         registry.addRecipeCatalyst(new ItemStack(ModBlocks.NASA_WORKBENCH), NASA_WORKBENCH_CATEGORY);
+        for (RocketItemEntry rocket : rocketItems()) {
+            registry.addRecipeCatalyst(new ItemStack(rocket.item), ROCKET_DESTINATIONS_CATEGORY);
+        }
 
         // Add recipe transfer handlers for GUI interaction.
         registry.getRecipeTransferRegistry().addRecipeTransferHandler(
@@ -139,6 +150,52 @@ public class AdAstraJEIPlugin implements IModPlugin {
         ItemStack stack = FluidUtil.getFilledBucket(new FluidStack(fluid, Fluid.BUCKET_VOLUME));
         if (!stack.isEmpty()) {
             registry.getJeiHelpers().getIngredientBlacklist().addIngredientToBlacklist(stack);
+        }
+    }
+
+    private List<RocketDestinationRecipe> createRocketDestinationRecipes() {
+        final int destinationsPerPage = 16;
+        List<RocketDestinationRecipe.Destination> destinations = RocketDestinationRecipe.collectDestinations();
+        int totalPages = Math.max(1, (destinations.size() + destinationsPerPage - 1) / destinationsPerPage);
+        List<RocketDestinationRecipe> recipes = new ArrayList<>();
+        for (RocketItemEntry rocket : rocketItems()) {
+            for (int page = 0; page < totalPages; page++) {
+                int from = page * destinationsPerPage;
+                int to = Math.min(destinations.size(), from + destinationsPerPage);
+                recipes.add(new RocketDestinationRecipe(
+                    new ItemStack(rocket.item),
+                    rocket.tier,
+                    page,
+                    totalPages,
+                    from >= to ? Collections.emptyList() : destinations.subList(from, to)));
+            }
+        }
+        return recipes;
+    }
+
+    private List<RocketItemEntry> rocketItems() {
+        List<RocketItemEntry> rockets = new ArrayList<>();
+        rockets.add(new RocketItemEntry(ModItems.TIER_1_ROCKET, 1));
+        rockets.add(new RocketItemEntry(ModItems.TIER_2_ROCKET, 2));
+        rockets.add(new RocketItemEntry(ModItems.TIER_3_ROCKET, 3));
+        rockets.add(new RocketItemEntry(ModItems.TIER_4_ROCKET, 4));
+        rockets.add(new RocketItemEntry(ModItems.TIER_5_ROCKET, 5));
+        rockets.add(new RocketItemEntry(ModItems.TIER_6_ROCKET, 6));
+        rockets.add(new RocketItemEntry(ModItems.TIER_7_ROCKET, 7));
+        for (ConfigurableRocketItem rocket : ModItems.CONFIGURABLE_ROCKETS) {
+            rockets.add(new RocketItemEntry(rocket, rocket.getSpec().getTier()));
+        }
+        return rockets;
+    }
+
+    private static class RocketItemEntry {
+
+        private final net.minecraft.item.Item item;
+        private final int tier;
+
+        private RocketItemEntry(net.minecraft.item.Item item, int tier) {
+            this.item = item;
+            this.tier = tier;
         }
     }
 

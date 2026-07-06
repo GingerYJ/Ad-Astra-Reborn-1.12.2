@@ -32,7 +32,6 @@ public final class RocketFuelHelper {
         registerDefaultFuel("fuel", 1);
         registerDefaultFuel("cryo_fuel", 2);
         registerDefaultFuel("oil", 1);
-        registerDefaultFuel("lava", 1);
     }
 
     private RocketFuelHelper() {

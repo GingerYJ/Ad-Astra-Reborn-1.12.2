@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "ad_astra:block/barnarda_c1_c1_barnardium_ore"
+  }
+}

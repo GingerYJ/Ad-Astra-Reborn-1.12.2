@@ -1,0 +1,13 @@
+﻿{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "blockCobalt"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:cobalt_ingot",
+    "count": 9
+  }
+}

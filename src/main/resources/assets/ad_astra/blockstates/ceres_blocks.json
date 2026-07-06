@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "type=ceres_grunt": { "model": "ad_astra:ceres_blocks_ceres_grunt" },
+        "type=ceres_subgrunt": { "model": "ad_astra:ceres_blocks_ceres_subgrunt" },
+        "type=ceres_dolomite_ore": { "model": "ad_astra:ceres_blocks_ceres_dolomite_ore" },
+        "type=ceres_meteoriciron_ore": { "model": "ad_astra:ceres_blocks_ceres_meteoriciron_ore" },
+        "type=ceres_dungeon_top": { "model": "ad_astra:ceres_blocks_ceres_dungeon_top" },
+        "type=ceres_dungeon_floor": { "model": "ad_astra:ceres_blocks_ceres_dungeon_floor" }
+    }
+}
