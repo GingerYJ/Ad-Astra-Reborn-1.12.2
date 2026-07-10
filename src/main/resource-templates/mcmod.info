@@ -14,7 +14,7 @@
     "logoFile": "{{ mod_logo_path }}",
     "screenshots": [],
     "dependencies": [
-      "required-after:patchouli"
+      "after:patchouli"
     ]
   }
 ]

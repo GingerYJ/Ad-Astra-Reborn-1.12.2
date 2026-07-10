@@ -30,9 +30,12 @@ Ad Astra Reborn is a space exploration mod for Minecraft 1.12.2 and Cleanroom. I
 
 - Minecraft `1.12.2`
 - Cleanroom Loader `0.5.12-alpha` 或兼容的 1.12.2 运行环境
-- Patchouli，必需
 - Had Enough Items / JEI，推荐
 - CraftTweaker `4.1.20`，可选；使用 ZenScript 接口时需要
+
+可选兼容：
+
+- 安装 Patchouli（帕秋莉手册）后会自动加载 Astrodux 游戏内指南书；未安装时不会出现手册，也不影响模组运行。
 
 ### 配置文件
 
@@ -206,9 +209,12 @@ build/libs/
 
 - Minecraft `1.12.2`
 - Cleanroom Loader `0.5.12-alpha`, or a compatible 1.12.2 runtime
-- Patchouli, required
 - Had Enough Items / JEI, recommended
 - CraftTweaker `4.1.20`, optional and required only for ZenScript integration
+
+Optional integration:
+
+- Installing Patchouli automatically enables the in-game Astrodux guidebook. Without Patchouli, the guidebook is omitted and the rest of the mod remains available.
 
 ### Configuration
 
