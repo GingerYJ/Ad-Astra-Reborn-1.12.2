@@ -2,6 +2,7 @@ package earth.terrarium.adastra.common.util;
 
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.systems.GravitySystem;
+import earth.terrarium.adastra.common.systems.OxygenSystemExtended;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -32,6 +33,9 @@ public final class EnvironmentUtils {
     public static boolean hasOxygen(World world, BlockPos pos, int scanRadius) {
         if (world == null || pos == null) {
             return true;
+        }
+        if (!world.isRemote) {
+            return OxygenSystemExtended.hasOxygenAtPos(world, pos);
         }
         if (worldProviderHasOxygen(world)) {
             return true;

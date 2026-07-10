@@ -41,13 +41,7 @@ public final class OxygenUtils {
         if (world.isRemote) {
             return EnvironmentUtils.hasOxygen(world, pos, EnvironmentUtils.DEFAULT_ENVIRONMENT_SCAN_RADIUS);
         }
-
-        boolean hasPositionOxygen = OxygenSystemExtended.hasOxygenAtPos(world, pos);
-        if (hasPositionOxygen) {
-            return true;
-        }
-
-        return EnvironmentUtils.hasOxygen(world, pos, EnvironmentUtils.DEFAULT_ENVIRONMENT_SCAN_RADIUS);
+        return OxygenSystemExtended.hasOxygenAtPos(world, pos);
     }
 
     /**

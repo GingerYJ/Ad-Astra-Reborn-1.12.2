@@ -23,8 +23,10 @@ import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Random;
 
@@ -40,7 +42,62 @@ import java.util.Random;
  */
 public final class JigsawStructureGenerator {
 
+    private static final int MAX_CACHED_LAYOUTS = 128;
     private final Map<String, ParsedTemplate> cache = new HashMap<String, ParsedTemplate>();
+    private final Map<LayoutKey, List<PlacedPiece>> layoutCache =
+        new LinkedHashMap<LayoutKey, List<PlacedPiece>>(MAX_CACHED_LAYOUTS, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<LayoutKey, List<PlacedPiece>> eldest) {
+                return size() > MAX_CACHED_LAYOUTS;
+            }
+        };
+
+    private static final class LayoutKey {
+        final long seed;
+        final int dimension;
+        final int chunkX;
+        final int chunkZ;
+        final String startPool;
+        final int maxPieces;
+        final int startYOffset;
+        final int maxChunkReach;
+
+        LayoutKey(long seed, int dimension, ChunkPos chunkPos, String startPool,
+                  int maxPieces, int startYOffset, int maxChunkReach) {
+            this.seed = seed;
+            this.dimension = dimension;
+            this.chunkX = chunkPos.x;
+            this.chunkZ = chunkPos.z;
+            this.startPool = startPool;
+            this.maxPieces = maxPieces;
+            this.startYOffset = startYOffset;
+            this.maxChunkReach = maxChunkReach;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof LayoutKey)) {
+                return false;
+            }
+            LayoutKey other = (LayoutKey) obj;
+            return seed == other.seed
+                && dimension == other.dimension
+                && chunkX == other.chunkX
+                && chunkZ == other.chunkZ
+                && maxPieces == other.maxPieces
+                && startYOffset == other.startYOffset
+                && maxChunkReach == other.maxChunkReach
+                && startPool.equals(other.startPool);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(seed, dimension, chunkX, chunkZ, startPool, maxPieces, startYOffset, maxChunkReach);
+        }
+    }
 
     /** A structure template plus the jigsaw connectors extracted from its raw NBT. */
     private static final class ParsedTemplate {
@@ -83,27 +140,54 @@ public final class JigsawStructureGenerator {
         }
     }
 
-    public void generate(WorldServer world, ChunkPos chunkPos, String startPool, int maxPieces,
-                         int startYOffset, Random random) {
+    public void generateChunkSlice(WorldServer world, ChunkPos structureChunk, ChunkPos targetChunk,
+                                   String startPool, int maxPieces, int startYOffset,
+                                   int maxChunkReach, Random random) {
+        LayoutKey key = new LayoutKey(
+            world.getSeed(), world.provider.getDimension(), structureChunk,
+            startPool, maxPieces, startYOffset, maxChunkReach);
+        List<PlacedPiece> layout = layoutCache.get(key);
+        if (layout == null) {
+            layout = assembleLayout(
+                world, structureChunk, startPool, maxPieces, startYOffset, maxChunkReach, random);
+            layoutCache.put(key, layout);
+        }
+
+        StructureBoundingBox chunkBox = new StructureBoundingBox(
+            targetChunk.x * 16, 1, targetChunk.z * 16,
+            targetChunk.x * 16 + 15, world.getHeight(), targetChunk.z * 16 + 15);
+        for (PlacedPiece piece : layout) {
+            if (boundingBoxOf(piece).intersectsWith(chunkBox)) {
+                placeTemplateSlice(world, piece, targetChunk, chunkBox);
+            }
+        }
+    }
+
+    private List<PlacedPiece> assembleLayout(WorldServer world, ChunkPos chunkPos, String startPool,
+                                             int maxPieces, int startYOffset,
+                                             int maxChunkReach, Random random) {
         ParsedTemplate startTemplate = pickTemplate(world, startPool, random);
         if (startTemplate == null) {
-            return;
+            return java.util.Collections.emptyList();
         }
 
         int centerX = chunkPos.x * 16 + 8;
         int centerZ = chunkPos.z * 16 + 8;
-        BlockPos surface = world.getHeight(new BlockPos(centerX, 0, centerZ));
-        int baseY = MathHelper.clamp(surface.getY() + startYOffset, 5, world.getHeight() - 48);
+        int baseY = MathHelper.clamp(
+            AdAstraChunkGenerator.SURFACE_Y + 1 + startYOffset,
+            5,
+            world.getHeight() - 48);
         BlockPos startOrigin = new BlockPos(
             centerX - startTemplate.size.getX() / 2, baseY, centerZ - startTemplate.size.getZ() / 2);
 
         List<StructureBoundingBox> occupied = new ArrayList<StructureBoundingBox>();
         Queue<PlacedPiece> frontier = new ArrayDeque<PlacedPiece>();
+        List<PlacedPiece> layout = new ArrayList<PlacedPiece>();
 
         PlacedPiece startPiece = new PlacedPiece(startTemplate, startOrigin, Rotation.NONE, 0);
-        placeTemplate(world, startPiece, random);
         occupied.add(boundingBoxOf(startPiece));
         frontier.add(startPiece);
+        layout.add(startPiece);
 
         int placed = 1;
         while (!frontier.isEmpty() && placed < maxPieces) {
@@ -113,14 +197,24 @@ public final class JigsawStructureGenerator {
                     break;
                 }
                 PlacedPiece next = tryConnect(world, piece, jigsaw, occupied, random);
-                if (next != null) {
-                    placeTemplate(world, next, random);
+                if (next != null && isWithinStructureReach(next, chunkPos, maxChunkReach)) {
                     occupied.add(boundingBoxOf(next));
                     frontier.add(next);
+                    layout.add(next);
                     placed++;
                 }
             }
         }
+        return layout;
+    }
+
+    private boolean isWithinStructureReach(PlacedPiece piece, ChunkPos startChunk, int maxChunkReach) {
+        StructureBoundingBox box = boundingBoxOf(piece);
+        int minX = (startChunk.x - maxChunkReach) * 16;
+        int maxX = (startChunk.x + maxChunkReach + 1) * 16 - 1;
+        int minZ = (startChunk.z - maxChunkReach) * 16;
+        int maxZ = (startChunk.z + maxChunkReach + 1) * 16 - 1;
+        return box.minX >= minX && box.maxX <= maxX && box.minZ >= minZ && box.maxZ <= maxZ;
     }
 
     // placeholder-connect
@@ -217,13 +311,16 @@ public final class JigsawStructureGenerator {
 
     // placeholder-place
 
-    private void placeTemplate(WorldServer world, PlacedPiece piece, Random random) {
+    private void placeTemplateSlice(WorldServer world, PlacedPiece piece, ChunkPos targetChunk,
+                                    StructureBoundingBox chunkBox) {
         PlacementSettings settings = new PlacementSettings()
             .setMirror(Mirror.NONE)
             .setRotation(piece.rotation)
             .setIgnoreEntities(false)
             .setIgnoreStructureBlock(true)
-            .setReplacedBlock(Blocks.STRUCTURE_VOID);
+            .setReplacedBlock(Blocks.STRUCTURE_VOID)
+            .setChunk(targetChunk)
+            .setBoundingBox(chunkBox);
         piece.parsed.template.addBlocksToWorld(world, piece.origin, settings, 2);
     }
 

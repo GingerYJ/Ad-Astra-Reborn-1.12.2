@@ -67,6 +67,11 @@ public class CoalGeneratorTileEntity extends AdAstraMachineTileEntity {
         pushEnergyToSides();
     }
 
+    @Override
+    protected boolean hasOngoingWork() {
+        return burnTime > 0;
+    }
+
     private boolean consumeFuel() {
         ItemStack fuel = items.getStackInSlot(FUEL_SLOT);
         if (fuel.isEmpty() || fuel.getItem() instanceof ItemBucket) {

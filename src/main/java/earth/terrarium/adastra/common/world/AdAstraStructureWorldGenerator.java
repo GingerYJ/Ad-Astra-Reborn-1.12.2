@@ -91,6 +91,9 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private static final int LUNAR_TOWER_SPACING = 34;
     private static final int LUNAR_TOWER_SEPARATION = 13;
     private static final int LUNAR_TOWER_SALT = 1460175004;
+    private static final int MOON_DUNGEON_CHUNK_REACH = 24;
+    private static final int LUNARIAN_VILLAGE_CHUNK_REACH = 12;
+    private static final int LUNAR_TOWER_CHUNK_REACH = 2;
     private static final ITemplateProcessor SKIP_AIR_PROCESSOR = new ITemplateProcessor() {
         @Override
         public Template.BlockInfo processBlock(World world, BlockPos pos, Template.BlockInfo blockInfo) {
@@ -216,6 +219,15 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private void generateMoonDungeon(WorldServer world, int chunkX, int chunkZ) {
         int regionX = floorDiv(chunkX, MOON_DUNGEON_SPACING);
         int regionZ = floorDiv(chunkZ, MOON_DUNGEON_SPACING);
+        int regionReach = 1;
+        for (int offsetX = -regionReach; offsetX <= regionReach; offsetX++) {
+            for (int offsetZ = -regionReach; offsetZ <= regionReach; offsetZ++) {
+                generateMoonDungeonSlice(world, chunkX, chunkZ, regionX + offsetX, regionZ + offsetZ);
+            }
+        }
+    }
+
+    private void generateMoonDungeonSlice(WorldServer world, int chunkX, int chunkZ, int regionX, int regionZ) {
         Random random = new Random(world.getSeed()
             + (long) regionX * 341873128712L
             + (long) regionZ * 132897987541L
@@ -224,17 +236,26 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         int range = MOON_DUNGEON_SPACING - MOON_DUNGEON_SEPARATION;
         int candidateX = regionX * MOON_DUNGEON_SPACING + random.nextInt(range);
         int candidateZ = regionZ * MOON_DUNGEON_SPACING + random.nextInt(range);
-        if (candidateX != chunkX || candidateZ != chunkZ) {
+        if (!isWithinChunkReach(chunkX, chunkZ, candidateX, candidateZ, MOON_DUNGEON_CHUNK_REACH)) {
             return;
         }
-
-        jigsawGenerator.generate(world, new ChunkPos(chunkX, chunkZ),
-            MOON_DUNGEON_START_POOL, MOON_DUNGEON_MAX_PIECES, MOON_DUNGEON_Y_OFFSET, random);
+        jigsawGenerator.generateChunkSlice(
+            world, new ChunkPos(candidateX, candidateZ), new ChunkPos(chunkX, chunkZ),
+            MOON_DUNGEON_START_POOL, MOON_DUNGEON_MAX_PIECES, MOON_DUNGEON_Y_OFFSET,
+            MOON_DUNGEON_CHUNK_REACH, random);
     }
 
     private void generateLunarianVillage(WorldServer world, int chunkX, int chunkZ) {
         int regionX = floorDiv(chunkX, LUNARIAN_VILLAGE_SPACING);
         int regionZ = floorDiv(chunkZ, LUNARIAN_VILLAGE_SPACING);
+        for (int offsetX = -1; offsetX <= 1; offsetX++) {
+            for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+                generateLunarianVillageSlice(world, chunkX, chunkZ, regionX + offsetX, regionZ + offsetZ);
+            }
+        }
+    }
+
+    private void generateLunarianVillageSlice(WorldServer world, int chunkX, int chunkZ, int regionX, int regionZ) {
         Random random = new Random(world.getSeed()
             + (long) regionX * 341873128712L
             + (long) regionZ * 132897987541L
@@ -243,17 +264,26 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         int range = LUNARIAN_VILLAGE_SPACING - LUNARIAN_VILLAGE_SEPARATION;
         int candidateX = regionX * LUNARIAN_VILLAGE_SPACING + random.nextInt(range);
         int candidateZ = regionZ * LUNARIAN_VILLAGE_SPACING + random.nextInt(range);
-        if (candidateX != chunkX || candidateZ != chunkZ) {
+        if (!isWithinChunkReach(chunkX, chunkZ, candidateX, candidateZ, LUNARIAN_VILLAGE_CHUNK_REACH)) {
             return;
         }
-
-        jigsawGenerator.generate(world, new ChunkPos(chunkX, chunkZ),
-            LUNARIAN_VILLAGE_START_POOL, LUNARIAN_VILLAGE_MAX_PIECES, LUNARIAN_VILLAGE_Y_OFFSET, random);
+        jigsawGenerator.generateChunkSlice(
+            world, new ChunkPos(candidateX, candidateZ), new ChunkPos(chunkX, chunkZ),
+            LUNARIAN_VILLAGE_START_POOL, LUNARIAN_VILLAGE_MAX_PIECES, LUNARIAN_VILLAGE_Y_OFFSET,
+            LUNARIAN_VILLAGE_CHUNK_REACH, random);
     }
 
     private void generateLunarTower(WorldServer world, int chunkX, int chunkZ) {
         int regionX = floorDiv(chunkX, LUNAR_TOWER_SPACING);
         int regionZ = floorDiv(chunkZ, LUNAR_TOWER_SPACING);
+        for (int offsetX = -1; offsetX <= 1; offsetX++) {
+            for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+                generateLunarTowerSlice(world, chunkX, chunkZ, regionX + offsetX, regionZ + offsetZ);
+            }
+        }
+    }
+
+    private void generateLunarTowerSlice(WorldServer world, int chunkX, int chunkZ, int regionX, int regionZ) {
         Random random = new Random(world.getSeed()
             + (long) regionX * 341873128712L
             + (long) regionZ * 132897987541L
@@ -262,12 +292,13 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         int range = LUNAR_TOWER_SPACING - LUNAR_TOWER_SEPARATION;
         int candidateX = regionX * LUNAR_TOWER_SPACING + random.nextInt(range);
         int candidateZ = regionZ * LUNAR_TOWER_SPACING + random.nextInt(range);
-        if (candidateX != chunkX || candidateZ != chunkZ) {
+        if (!isWithinChunkReach(chunkX, chunkZ, candidateX, candidateZ, LUNAR_TOWER_CHUNK_REACH)) {
             return;
         }
-
-        jigsawGenerator.generate(world, new ChunkPos(chunkX, chunkZ),
-            LUNAR_TOWER_START_POOL, LUNAR_TOWER_MAX_PIECES, LUNAR_TOWER_Y_OFFSET, random);
+        jigsawGenerator.generateChunkSlice(
+            world, new ChunkPos(candidateX, candidateZ), new ChunkPos(chunkX, chunkZ),
+            LUNAR_TOWER_START_POOL, LUNAR_TOWER_MAX_PIECES, LUNAR_TOWER_Y_OFFSET,
+            LUNAR_TOWER_CHUNK_REACH, random);
     }
 
     private void generateSurfaceStructure(WorldServer world, int chunkX, int chunkZ, ResourceLocation location, int salt) {
@@ -404,6 +435,10 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             result--;
         }
         return result;
+    }
+
+    private boolean isWithinChunkReach(int chunkX, int chunkZ, int candidateX, int candidateZ, int reach) {
+        return Math.abs(chunkX - candidateX) <= reach && Math.abs(chunkZ - candidateZ) <= reach;
     }
 
     private boolean isOilWellBiome(World world, BlockPos center) {

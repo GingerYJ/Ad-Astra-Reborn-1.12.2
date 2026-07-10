@@ -1,6 +1,8 @@
 package earth.terrarium.adastra.common.blocks;
 
 import earth.terrarium.adastra.common.registry.ModTileEntities;
+import earth.terrarium.adastra.common.tile.AdAstraMachineTileEntity;
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -108,6 +110,14 @@ public class AdAstraMachineBlock extends AdAstraBlock implements ITileEntityProv
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         return AdAstraMachineGuiHelper.openMachineGui(world, pos, player, hand);
+    }
+
+    @Override
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
+        TileEntity tile = world.getTileEntity(pos);
+        if (tile instanceof AdAstraMachineTileEntity) {
+            ((AdAstraMachineTileEntity) tile).invalidateNeighborCache();
+        }
     }
 
     @Override

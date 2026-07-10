@@ -13,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.block.state.IBlockState;
@@ -55,11 +56,12 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     protected int idleTicks = 0;
     protected int tickCounter = 0;
     protected static final int IDLE_THRESHOLD = 60; // 3 seconds of no activity
-    protected static final int TRANSFER_INTERVAL = 10; // Transfer every 10 ticks instead of every tick
     protected boolean wasActive = false;
+    private boolean tickingMachine;
 
     // Cache for adjacent tile entities to reduce world lookups
     protected final TileEntity[] cachedNeighbors = new TileEntity[EnumFacing.values().length];
+    protected final boolean[] neighborCached = new boolean[EnumFacing.values().length];
     protected int neighborCacheAge = 0;
     protected static final int NEIGHBOR_CACHE_LIFETIME = 20; // Re-check neighbors every second
 
@@ -82,7 +84,25 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
                 return AdAstraMachineTileEntity.this.isItemValidForSlot(slot, stack);
             }
         };
-        this.energy = energyCapacity > 0 ? new AdAstraEnergyStorage(energyCapacity, maxReceive, maxExtract) : null;
+        this.energy = energyCapacity > 0 ? new AdAstraEnergyStorage(energyCapacity, maxReceive, maxExtract) {
+            @Override
+            public int receiveEnergy(int amount, boolean simulate) {
+                int received = super.receiveEnergy(amount, simulate);
+                if (!simulate && received > 0) {
+                    markDirty();
+                }
+                return received;
+            }
+
+            @Override
+            public int extractEnergy(int amount, boolean simulate) {
+                int extracted = super.extractEnergy(amount, simulate);
+                if (!simulate && extracted > 0) {
+                    markDirty();
+                }
+                return extracted;
+            }
+        } : null;
         this.fluidTank = fluidCapacity > 0 ? new AdAstraFluidTank(fluidCapacity) {
             @Override
             protected void onContentsChanged() {
@@ -125,37 +145,41 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
             PerformanceTracker.startSystemTiming("machines");
 
             tickCounter++;
-
-            // Check if machine can function
-            if (!canFunction()) {
-                idleTicks++;
+            if (neighborCacheAge < NEIGHBOR_CACHE_LIFETIME) {
+                neighborCacheAge++;
+            }
+            if (isIdleOptimizationEnabled() && idleTicks >= IDLE_THRESHOLD && tickCounter % 20 != 0) {
                 PerformanceTracker.endSystemTiming("machines");
                 return;
             }
 
-            // Skip most operations if idle for too long
-            if (isIdleOptimizationEnabled() && idleTicks >= IDLE_THRESHOLD) {
-                // Only check every 20 ticks when idle
-                if (tickCounter % 20 == 0) {
-                    checkIfStillIdle();
+            wasActive = false;
+            boolean canRun = false;
+            tickingMachine = true;
+            try {
+                canRun = canFunction();
+                if (!canRun) {
+                    return;
+                }
+
+                pullEnergyFromBatterySlot();
+
+                int transferInterval = Math.max(1, AdAstraConfig.machineTransferInterval);
+                if (tickCounter % transferInterval == 0) {
+                    pullFromSides();
+                    pushToSides();
+                }
+
+                tickMachine();
+            } finally {
+                tickingMachine = false;
+                if (wasActive || canRun && hasOngoingWork()) {
+                    idleTicks = 0;
+                } else {
+                    idleTicks++;
                 }
                 PerformanceTracker.endSystemTiming("machines");
-                return;
             }
-
-            // Pull energy from battery every tick (needed for machines)
-            pullEnergyFromBatterySlot();
-
-            // Batch transfers - only run every TRANSFER_INTERVAL ticks
-            if (tickCounter % TRANSFER_INTERVAL == 0) {
-                pullFromSides();
-                pushToSides();
-            }
-
-            // Run machine logic
-            tickMachine();
-
-            PerformanceTracker.endSystemTiming("machines");
         }
     }
 
@@ -164,30 +188,11 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
      * Override this in subclasses for custom idle detection.
      */
     protected boolean isIdleOptimizationEnabled() {
-        return true; // Enable by default
+        return AdAstraConfig.enableMachineIdleOptimization;
     }
 
-    /**
-     * Check if machine is still idle. If it has items/energy/fluids, reset idle counter.
-     */
-    protected void checkIfStillIdle() {
-        // Check if machine has energy
-        if (energy != null && energy.getEnergyStored() > 0) {
-            idleTicks = 0;
-            return;
-        }
-
-        // Check if machine has items
-        if (!isEmpty()) {
-            idleTicks = 0;
-            return;
-        }
-
-        // Check if machine has fluid
-        if (fluidTank != null && fluidTank.getFluidAmount() > 0) {
-            idleTicks = 0;
-            return;
-        }
+    protected boolean hasOngoingWork() {
+        return false;
     }
 
     /**
@@ -199,12 +204,13 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
         wasActive = true;
     }
 
-    /**
-     * Mark machine as potentially idle.
-     * Call this when machine does no work this tick.
-     */
-    protected void markPotentiallyIdle() {
-        idleTicks++;
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        idleTicks = 0;
+        if (tickingMachine) {
+            wasActive = true;
+        }
     }
 
     protected void tickMachine() {
@@ -357,17 +363,24 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
      */
     protected TileEntity getCachedNeighbor(EnumFacing facing) {
         if (neighborCacheAge >= NEIGHBOR_CACHE_LIFETIME) {
-            // Invalidate cache
             for (int i = 0; i < cachedNeighbors.length; i++) {
                 cachedNeighbors[i] = null;
+                neighborCached[i] = false;
             }
             neighborCacheAge = 0;
         }
 
         int index = facing.getIndex();
-        if (cachedNeighbors[index] == null || cachedNeighbors[index].isInvalid()) {
-            cachedNeighbors[index] = world.getTileEntity(pos.offset(facing));
-            neighborCacheAge++;
+        BlockPos neighborPos = pos.offset(facing);
+        if (!world.isBlockLoaded(neighborPos)) {
+            cachedNeighbors[index] = null;
+            neighborCached[index] = false;
+            return null;
+        }
+        TileEntity cached = cachedNeighbors[index];
+        if (!neighborCached[index] || cached != null && cached.isInvalid()) {
+            cachedNeighbors[index] = world.getTileEntity(neighborPos);
+            neighborCached[index] = true;
         }
 
         return cachedNeighbors[index];
@@ -379,8 +392,10 @@ public class AdAstraMachineTileEntity extends AdAstraTileEntity implements ISide
     public void invalidateNeighborCache() {
         for (int i = 0; i < cachedNeighbors.length; i++) {
             cachedNeighbors[i] = null;
+            neighborCached[i] = false;
         }
-        neighborCacheAge = NEIGHBOR_CACHE_LIFETIME; // Force refresh on next access
+        neighborCacheAge = 0;
+        idleTicks = 0;
     }
 
     protected void pullFromSides() {

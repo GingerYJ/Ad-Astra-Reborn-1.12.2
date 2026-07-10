@@ -41,6 +41,11 @@ public class DetectorTileEntity extends AdAstraMachineTileEntity {
     }
 
     @Override
+    protected boolean isIdleOptimizationEnabled() {
+        return false;
+    }
+
+    @Override
     protected void tickMachine() {
         if (world == null || pos == null) {
             return;

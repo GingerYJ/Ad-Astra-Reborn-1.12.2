@@ -92,6 +92,7 @@ public class CommonEventHandler {
     private static final Map<UUID, Integer> DISMOUNT_HOLD_TICKS = new HashMap<>();
     private static final Map<UUID, PendingDismountPosition> PENDING_DISMOUNT_POSITIONS = new HashMap<>();
     private static final Set<Integer> SPACE_SLEEPING_DIMENSIONS = new HashSet<>();
+    private static final Map<UUID, PlanetData> LAST_SYNCED_PLANET_DATA = new HashMap<>();
 
     @SubscribeEvent
     public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
@@ -239,7 +240,12 @@ public class CommonEventHandler {
         boolean oxygen = OxygenApi.API.hasOxygen(player);
         short temperature = TemperatureApi.API.getTemperature(player);
         float gravity = GravityApi.API.getGravity(player);
-        NetworkHandler.CHANNEL.sendTo(new PacketSyncLocalPlanetData(new PlanetData(oxygen, temperature, gravity)), (EntityPlayerMP) player);
+        PlanetData data = new PlanetData(oxygen, temperature, gravity);
+        UUID playerId = player.getUniqueID();
+        if (!data.equals(LAST_SYNCED_PLANET_DATA.get(playerId))) {
+            LAST_SYNCED_PLANET_DATA.put(playerId, data);
+            NetworkHandler.CHANNEL.sendTo(new PacketSyncLocalPlanetData(data), (EntityPlayerMP) player);
+        }
     }
 
     @SubscribeEvent
@@ -256,6 +262,7 @@ public class CommonEventHandler {
         KeybindManager.clear(event.player);
         clearDismountHold(event.player, false);
         PENDING_DISMOUNT_POSITIONS.remove(event.player.getUniqueID());
+        LAST_SYNCED_PLANET_DATA.remove(event.player.getUniqueID());
         SpaceStationLandingProtection.clear(event.player);
     }
 

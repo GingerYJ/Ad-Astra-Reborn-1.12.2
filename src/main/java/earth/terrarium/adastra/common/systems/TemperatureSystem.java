@@ -94,10 +94,10 @@ public class TemperatureSystem {
 
         // Check for custom temperature data first
         PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
+        Short temperature = storage.getTemperatureOverride(pos);
 
-        if (data != null) {
-            return data.temperature();
+        if (temperature != null) {
+            return temperature;
         }
 
         return getEnvironmentTemperature(world, pos);
@@ -254,17 +254,9 @@ public class TemperatureSystem {
         }
 
         PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
-
-        if (data == null) {
-            boolean oxygen = OxygenSystemExtended.hasOxygenAtPos(world, pos);
-            float gravity = GravitySystem.getGravityAtPos(world, pos);
-            data = new PlanetData(oxygen, temperature, gravity);
-        } else {
-            data.setTemperature(temperature);
+        if (setTemperatureWithoutMarking(world, storage, pos, temperature)) {
+            storage.markChanged();
         }
-
-        storage.setData(pos, data);
     }
 
     public static void setTemperature(World world, Collection<BlockPos> positions, short temperature) {
@@ -272,16 +264,45 @@ public class TemperatureSystem {
             return;
         }
 
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        boolean changed = false;
         for (BlockPos pos : positions) {
-            setTemperature(world, pos, temperature);
+            changed |= setTemperatureWithoutMarking(world, storage, pos, temperature);
+        }
+        if (changed) {
+            storage.markChanged();
         }
     }
 
+    private static boolean setTemperatureWithoutMarking(World world, PlanetDataStorage storage,
+                                                         BlockPos pos, short temperature) {
+        Short previous = storage.getTemperatureOverride(pos);
+        return previous == null || previous != temperature
+            ? storage.setTemperatureOverrideWithoutMarking(pos, temperature)
+            : false;
+    }
+
     public static void removeTemperature(World world, BlockPos pos) {
-        setTemperature(world, pos, getTemperatureInDimension(world));
+        if (world.isRemote || !(world instanceof WorldServer)) {
+            return;
+        }
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        if (storage.clearTemperatureOverrideWithoutMarking(pos)) {
+            storage.markChanged();
+        }
     }
 
     public static void removeTemperature(World world, Collection<BlockPos> positions) {
-        setTemperature(world, positions, getTemperatureInDimension(world));
+        if (world.isRemote || !(world instanceof WorldServer)) {
+            return;
+        }
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        boolean changed = false;
+        for (BlockPos pos : positions) {
+            changed |= storage.clearTemperatureOverrideWithoutMarking(pos);
+        }
+        if (changed) {
+            storage.markChanged();
+        }
     }
 }

@@ -72,6 +72,10 @@ public class AdAstraPipeBlock extends Block implements ITileEntityProvider {
 
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
+        TileEntity tile = world.getTileEntity(pos);
+        if (tile instanceof AdAstraPipeTileEntity) {
+            ((AdAstraPipeTileEntity) tile).invalidateNeighborCache();
+        }
         world.markBlockRangeForRenderUpdate(pos, pos);
     }
 

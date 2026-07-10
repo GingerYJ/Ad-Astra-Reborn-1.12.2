@@ -1,15 +1,8 @@
 package earth.terrarium.adastra.common.systems;
 
 import earth.terrarium.adastra.api.events.AdAstraEvents;
-import earth.terrarium.adastra.api.systems.PlanetData;
-import earth.terrarium.adastra.common.registry.ModBlocks;
-import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
-import earth.terrarium.adastra.common.util.MachineStateUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -20,37 +13,13 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Core gravity system managing gravity multipliers at block positions.
  * Handles dimension-based gravity, per-position overrides, and Gravity Normalizer detection.
- * Includes caching for performance optimization.
+ * Position overrides are indexed by packed block position for constant-time lookups.
  */
 public class GravitySystem {
-
-    private static final int NORMALIZER_SCAN_RADIUS = 16;
-    private static final int CACHE_CLEANUP_INTERVAL = 200;  // 10 seconds
-    private static final int CACHE_EXPIRY_TIME = 20;        // Keep HUD and movement gravity responsive without scanning every tick.
-
-    // Cache for entity gravity calculations (Entity UUID -> CachedGravity)
-    private static final Map<Integer, CachedGravity> ENTITY_GRAVITY_CACHE = new ConcurrentHashMap<>();
-    private static int ticksSinceCleanup = 0;
-
-    private static class CachedGravity {
-        final float gravity;
-        final long timestamp;
-
-        CachedGravity(float gravity, long timestamp) {
-            this.gravity = gravity;
-            this.timestamp = timestamp;
-        }
-
-        boolean isExpired(long currentTime) {
-            return currentTime - timestamp > CACHE_EXPIRY_TIME;
-        }
-    }
 
     public static float getGravityInDimension(World world) {
         if (world == null || world.provider == null) {
@@ -79,24 +48,16 @@ public class GravitySystem {
 
         // Check per-position overrides
         PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
-
-        if (data != null) {
-            return data.gravity();
-        }
-
-        // Compatibility fallback for normalizers that have not refreshed their covered positions yet.
-        Float normalizerGravity = getGravityFromNormalizer(world, pos);
-        if (normalizerGravity != null) {
-            return normalizerGravity;
+        Float gravity = storage.getGravityOverride(pos);
+        if (gravity != null) {
+            return gravity;
         }
 
         return getGravityInDimension(world);
     }
 
     /**
-     * Gets the effective gravity for an entity, checking Gravity Normalizers.
-     * Uses caching to reduce performance impact of frequent calls.
+     * Gets the effective gravity for an entity, checking indexed position overrides.
      *
      * @param entity The entity to check
      * @return The gravity multiplier (1.0 = Earth gravity)
@@ -106,36 +67,8 @@ public class GravitySystem {
             return 1.0f;
         }
 
-        // Clean up cache periodically
-        cleanupCacheIfNeeded(entity.world);
-
-        // Check cache first
-        int entityId = entity.getEntityId();
-        long currentTime = entity.world.getTotalWorldTime();
-        CachedGravity cached = ENTITY_GRAVITY_CACHE.get(entityId);
-
-        if (cached != null && !cached.isExpired(currentTime)) {
-            return cached.gravity;
-        }
-
-        // Calculate gravity and cache it
         float gravity = getGravityAtPos(entity.world, entity.getPosition());
-        gravity = AdAstraEvents.EntityGravityEvent.fire(entity, gravity);
-        ENTITY_GRAVITY_CACHE.put(entityId, new CachedGravity(gravity, currentTime));
-
-        return gravity;
-    }
-
-    /**
-     * Cleans up expired cache entries periodically to prevent memory leaks.
-     */
-    private static void cleanupCacheIfNeeded(World world) {
-        ticksSinceCleanup++;
-        if (ticksSinceCleanup >= CACHE_CLEANUP_INTERVAL) {
-            long currentTime = world.getTotalWorldTime();
-            ENTITY_GRAVITY_CACHE.entrySet().removeIf(entry -> entry.getValue().isExpired(currentTime));
-            ticksSinceCleanup = 0;
-        }
+        return AdAstraEvents.EntityGravityEvent.fire(entity, gravity);
     }
 
     /**
@@ -143,9 +76,7 @@ public class GravitySystem {
      * Call this when an entity teleports or when you know gravity has changed.
      */
     public static void invalidateEntityCache(Entity entity) {
-        if (entity != null) {
-            ENTITY_GRAVITY_CACHE.remove(entity.getEntityId());
-        }
+        // Retained for API compatibility; position lookups are already O(1).
     }
 
     /**
@@ -153,44 +84,11 @@ public class GravitySystem {
      * Call this when Gravity Normalizers are placed/removed or on dimension change.
      */
     public static void clearCache() {
-        ENTITY_GRAVITY_CACHE.clear();
-        ticksSinceCleanup = 0;
+        // Retained for existing machine calls; there is no entity cache.
     }
 
-    /**
-     * Checks if the position is covered by an active Gravity Normalizer.
-     * Returns the target gravity of the normalizer, or null if not covered.
-     */
-    private static Float getGravityFromNormalizer(World world, BlockPos target) {
-        if (world == null || target == null) {
-            return null;
-        }
-
-        BlockPos min = target.add(-NORMALIZER_SCAN_RADIUS, -NORMALIZER_SCAN_RADIUS, -NORMALIZER_SCAN_RADIUS);
-        BlockPos max = target.add(NORMALIZER_SCAN_RADIUS, NORMALIZER_SCAN_RADIUS, NORMALIZER_SCAN_RADIUS);
-
-        for (BlockPos mutablePos : BlockPos.getAllInBoxMutable(min, max)) {
-            if (!world.isBlockLoaded(mutablePos)) {
-                continue;
-            }
-
-            IBlockState state = world.getBlockState(mutablePos);
-            Block block = state.getBlock();
-
-            if (block != ModBlocks.GRAVITY_NORMALIZER || !isMachineLit(state)) {
-                continue;
-            }
-
-            TileEntity tile = world.getTileEntity(mutablePos);
-            if (tile instanceof GravityNormalizerTileEntity) {
-                GravityNormalizerTileEntity normalizer = (GravityNormalizerTileEntity) tile;
-                if (normalizer.isNormalizingGravity(target)) {
-                    return normalizer.getTargetGravity();
-                }
-            }
-        }
-
-        return null;
+    public static void clearCache(World world) {
+        // Retained for event-handler compatibility; there is no entity cache.
     }
 
     /**
@@ -200,11 +98,7 @@ public class GravitySystem {
         if (entity == null || entity.world == null || entity.world.isRemote) {
             return false;
         }
-        return getGravityFromNormalizer(entity.world, entity.getPosition()) != null;
-    }
-
-    private static boolean isMachineLit(IBlockState state) {
-        return MachineStateUtils.isLit(state);
+        return isInNormalizerRange(entity.world, entity.getPosition());
     }
 
     public static void setGravity(World world, BlockPos pos, float gravity) {
@@ -213,17 +107,9 @@ public class GravitySystem {
         }
 
         PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
-
-        if (data == null) {
-            boolean oxygen = OxygenSystemExtended.hasOxygenAtPos(world, pos);
-            short temperature = TemperatureSystem.getTemperatureAtPos(world, pos);
-            data = new PlanetData(oxygen, temperature, gravity);
-        } else {
-            data.setGravity(gravity);
+        if (setGravityWithoutMarking(world, storage, pos, gravity)) {
+            storage.markChanged();
         }
-
-        storage.setData(pos, data);
     }
 
     public static void setGravity(World world, Collection<BlockPos> positions, float gravity) {
@@ -231,17 +117,46 @@ public class GravitySystem {
             return;
         }
 
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        boolean changed = false;
         for (BlockPos pos : positions) {
-            setGravity(world, pos, gravity);
+            changed |= setGravityWithoutMarking(world, storage, pos, gravity);
+        }
+        if (changed) {
+            storage.markChanged();
         }
     }
 
+    private static boolean setGravityWithoutMarking(World world, PlanetDataStorage storage,
+                                                     BlockPos pos, float gravity) {
+        Float previous = storage.getGravityOverride(pos);
+        return previous == null || Float.compare(previous, gravity) != 0
+            ? storage.setGravityOverrideWithoutMarking(pos, gravity)
+            : false;
+    }
+
     public static void removeGravity(World world, BlockPos pos) {
-        setGravity(world, pos, getGravityInDimension(world));
+        if (world.isRemote || !(world instanceof WorldServer)) {
+            return;
+        }
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        if (storage.clearGravityOverrideWithoutMarking(pos)) {
+            storage.markChanged();
+        }
     }
 
     public static void removeGravity(World world, Collection<BlockPos> positions) {
-        setGravity(world, positions, getGravityInDimension(world));
+        if (world.isRemote || !(world instanceof WorldServer)) {
+            return;
+        }
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        boolean changed = false;
+        for (BlockPos pos : positions) {
+            changed |= storage.clearGravityOverrideWithoutMarking(pos);
+        }
+        if (changed) {
+            storage.markChanged();
+        }
     }
 
     /**
@@ -261,7 +176,10 @@ public class GravitySystem {
      * Overload that accepts World and BlockPos directly.
      */
     public static boolean isInNormalizerRange(World world, BlockPos pos) {
-        return getGravityFromNormalizer(world, pos) != null;
+        if (world == null || pos == null || world.isRemote || !(world instanceof WorldServer)) {
+            return false;
+        }
+        return PlanetDataStorage.get(world).hasGravityOverride(pos);
     }
 
     /**

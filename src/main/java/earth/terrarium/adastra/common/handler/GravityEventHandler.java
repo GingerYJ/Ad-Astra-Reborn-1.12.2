@@ -103,9 +103,8 @@ public class GravityEventHandler {
             return;
         }
 
-        Entity[] entities = world.loadedEntityList.toArray(new Entity[0]);
-        for (Entity entity : entities) {
-            applyNonLivingEntityGravity(entity);
+        for (int i = 0; i < world.loadedEntityList.size(); i++) {
+            applyNonLivingEntityGravity(world.loadedEntityList.get(i));
         }
     }
 

@@ -560,7 +560,7 @@ public final class AdAstraConfig {
         energizerEnergyCapacity = getInt("energizerEnergyCapacity", "machines", 2000000, 0, Integer.MAX_VALUE, "Energizer internal FE capacity.");
         maxDistributionBlocks = getInt("maxDistributionBlocks", "machines", 6000, 1, Integer.MAX_VALUE, "Maximum blocks oxygen distributors and gravity normalizers can distribute to.");
         distributionRefreshRate = getInt("distributionRefreshRate", "machines", 100, 1, Integer.MAX_VALUE, "Refresh interval in ticks for distributor and gravity normalizer coverage.");
-        pipeRefreshRate = getInt("pipeRefreshRate", "machines", 50, 1, Integer.MAX_VALUE, "Pipe refresh interval in ticks for compatibility with the source config.");
+        pipeRefreshRate = getInt("pipeRefreshRate", "machines", 50, 1, Integer.MAX_VALUE, "How often idle pipes probe their neighbors for new transfer opportunities, in ticks.");
 
         // Environment Configuration
         temperatureDamageMultiplier = getFloat(

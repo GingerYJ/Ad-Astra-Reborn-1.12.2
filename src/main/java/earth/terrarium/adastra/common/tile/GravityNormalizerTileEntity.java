@@ -12,7 +12,6 @@ import java.util.Set;
 public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
 
     private static final int MAX_DISTRIBUTION_BLOCKS = AdAstraConfig.maxDistributionBlocks;
-    private static final int DISTRIBUTION_REFRESH_RATE = AdAstraConfig.distributionRefreshRate;
     private static final int TARGET_GRAVITY_SCALE = 1000;
     private static final int MAX_WORKING_RADIUS = calculateMaxRadius(MAX_DISTRIBUTION_BLOCKS);
     private static final int DEFAULT_WORKING_RADIUS = MAX_WORKING_RADIUS;
@@ -29,6 +28,7 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
     private float animation;
     private float lastAnimation;
     private final Set<BlockPos> lastDistributedBlocks = new HashSet<>();
+    private boolean coverageDirty = true;
 
     public GravityNormalizerTileEntity() {
         super("gravity_normalizer", 1, DESH_ENERGY, DESH_IO, 0, 0);
@@ -76,7 +76,9 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         energyPerTick = requiredEnergy;
         setLit(true);
         playWorkSound();
-        markDirty();
+        if (tickCounter % 20 == 0) {
+            markDirty();
+        }
     }
 
     private void playWorkSound() {
@@ -87,13 +89,13 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
     }
 
     private void refreshDistributionEstimateIfNeeded() {
-        if (ticksUntilRefresh > 0) {
-            ticksUntilRefresh--;
+        if (!coverageDirty) {
             return;
         }
         updateGravityPositionsSpherical();
         plannedBlocksCount = lastDistributedBlocks.size();
-        ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+        ticksUntilRefresh = Math.max(1, AdAstraConfig.distributionRefreshRate);
+        coverageDirty = false;
     }
 
     private void updateGravityPositionsSpherical() {
@@ -133,23 +135,32 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
 
         Set<BlockPos> toRemove = new HashSet<>(lastDistributedBlocks);
         toRemove.removeAll(newPositions);
+        boolean changed = !toRemove.isEmpty();
         if (!toRemove.isEmpty()) {
             GravitySystem.removeGravity(world, toRemove);
         }
 
         Set<BlockPos> toAdd = new HashSet<>(newPositions);
         toAdd.removeAll(lastDistributedBlocks);
+        changed |= !toAdd.isEmpty();
         if (!toAdd.isEmpty()) {
             GravitySystem.setGravity(world, toAdd, targetGravity);
         }
 
         lastDistributedBlocks.clear();
         lastDistributedBlocks.addAll(newPositions);
-        GravitySystem.clearCache();
+        if (changed) {
+            GravitySystem.clearCache();
+        }
     }
 
     private boolean canMaintainDistribution(int requiredEnergy) {
         return plannedBlocksCount > 0 && energy.internalExtractEnergy(requiredEnergy, true) >= requiredEnergy;
+    }
+
+    @Override
+    protected boolean hasOngoingWork() {
+        return normalizingGravity;
     }
 
     private void stopNormalizing() {
@@ -171,6 +182,7 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
             GravitySystem.removeGravity(world, lastDistributedBlocks);
             lastDistributedBlocks.clear();
         }
+        coverageDirty = true;
     }
 
     private int calculateEnergyPerTick(int blocksCount) {
@@ -206,6 +218,7 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         if (workingRadius != clamped) {
             workingRadius = clamped;
             ticksUntilRefresh = 0;
+            coverageDirty = true;
             markDirty();
         }
     }
@@ -282,7 +295,8 @@ public class GravityNormalizerTileEntity extends AdAstraMachineTileEntity {
         plannedBlocksCount = compound.hasKey("PlannedBlocksCount") ? clamp(compound.getInteger("PlannedBlocksCount"), 0, MAX_DISTRIBUTION_BLOCKS) : countBlocksInRadius(workingRadius);
         distributedBlocksCount = compound.hasKey("DistributedBlocksCount") ? clamp(compound.getInteger("DistributedBlocksCount"), 0, MAX_DISTRIBUTION_BLOCKS) : 0;
         energyPerTick = Math.max(0, compound.getInteger("EnergyPerTick"));
-        ticksUntilRefresh = Math.max(0, compound.getInteger("DistributionRefreshTicks"));
+        ticksUntilRefresh = 0;
+        coverageDirty = true;
         targetGravity = compound.hasKey("TargetGravity") ? compound.getFloat("TargetGravity") : 1.0f;
     }
 

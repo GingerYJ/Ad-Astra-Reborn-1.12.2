@@ -11,6 +11,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -48,6 +49,9 @@ public final class ExternalDimensionConfig {
     }
 
     public static void sync() {
+        for (Integer dimensionId : ENTRIES.keySet()) {
+            PlanetTierOverrideRegistry.removePlanetTier(dimensionId);
+        }
         ENTRIES.clear();
         if (configuration == null) {
             return;
@@ -97,15 +101,26 @@ public final class ExternalDimensionConfig {
     }
 
     public static List<ExternalDimensionEntry> getEntries() {
-        return Collections.unmodifiableList(new ArrayList<>(ENTRIES.values()));
+        return Collections.unmodifiableList(getRegisteredEntries());
     }
 
     public static List<PlanetDimensionProperties> getPlanetProperties() {
         List<PlanetDimensionProperties> properties = new ArrayList<>();
-        for (ExternalDimensionEntry entry : ENTRIES.values()) {
+        for (ExternalDimensionEntry entry : getRegisteredEntries()) {
             properties.add(entry.toDimensionProperties());
         }
         return properties;
+    }
+
+    private static List<ExternalDimensionEntry> getRegisteredEntries() {
+        List<ExternalDimensionEntry> registeredEntries = new ArrayList<>();
+        int order = 0;
+        for (ExternalDimensionEntry entry : ENTRIES.values()) {
+            if (isDimensionRegistered(entry.getDimensionId())) {
+                registeredEntries.add(entry.withOrder(order++));
+            }
+        }
+        return registeredEntries;
     }
 
     private static ExternalDimensionEntry parse(String row, int order) {
@@ -168,6 +183,17 @@ public final class ExternalDimensionConfig {
         AdAstraReborn.LOGGER.warn("Ignored invalid external dimension config row '{}': {}", row, reason);
     }
 
+    private static boolean isDimensionRegistered(int dimensionId) {
+        if (DimensionManager.isDimensionRegistered(dimensionId)) {
+            return true;
+        }
+        AdAstraReborn.LOGGER.warn(
+            "Ignored external dimension config entry for dimension {} because it is not registered. "
+                + "The referenced mod may be missing; the configuration row has been kept for later reuse.",
+            dimensionId);
+        return false;
+    }
+
     public static final class ExternalDimensionEntry {
         private final int dimensionId;
         private final ResourceLocation displayId;
@@ -215,6 +241,11 @@ public final class ExternalDimensionConfig {
 
         public int getOrder() {
             return order;
+        }
+
+        private ExternalDimensionEntry withOrder(int order) {
+            return new ExternalDimensionEntry(dimensionId, displayId, tier, temperature, gravity,
+                skyLightMultiplier, hasSkyLight, canRespawn, oxygen, fogColor, skyColor, order, displayName);
         }
 
         public String getDisplayName() {

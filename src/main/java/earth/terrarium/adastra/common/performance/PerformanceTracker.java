@@ -1,13 +1,11 @@
 package earth.terrarium.adastra.common.performance;
 
 import earth.terrarium.adastra.AdAstraReborn;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tracks performance metrics for Ad Astra systems.
@@ -21,8 +19,8 @@ public class PerformanceTracker {
     private static long lastTickTime = 0;
 
     // Per-system timing (system name -> total nanoseconds)
-    private static final Map<String, Long> SYSTEM_TIMES = new ConcurrentHashMap<>();
-    private static final Map<String, Long> SYSTEM_START_TIMES = new ConcurrentHashMap<>();
+    private static final Map<String, Long> SYSTEM_TIMES = new HashMap<>();
+    private static final Map<String, Long> SYSTEM_START_TIMES = new HashMap<>();
 
     // Machine tracking
     private static int activeMachineCount = 0;
@@ -52,7 +50,9 @@ public class PerformanceTracker {
 
         // Check for low TPS and warn
         double tps = getCurrentTPS();
-        if (tps < TPS_WARNING_THRESHOLD && currentTime - lastWarningTime > WARNING_COOLDOWN * 1_000_000L) {
+        if (getValidSampleCount() == TPS_SAMPLE_SIZE
+            && tps < TPS_WARNING_THRESHOLD
+            && currentTime - lastWarningTime > WARNING_COOLDOWN * 1_000_000L) {
             AdAstraReborn.LOGGER.warn("Ad Astra: Low TPS detected! Current TPS: {}", String.format("%.2f", tps));
             lastWarningTime = currentTime;
         }
@@ -108,6 +108,9 @@ public class PerformanceTracker {
      * @param systemName Name of the system (e.g., "machines", "environment")
      */
     public static void startSystemTiming(String systemName) {
+        if (!AdAstraConfig.debugLogging) {
+            return;
+        }
         SYSTEM_START_TIMES.put(systemName, System.nanoTime());
     }
 
@@ -116,6 +119,9 @@ public class PerformanceTracker {
      * @param systemName Name of the system
      */
     public static void endSystemTiming(String systemName) {
+        if (!AdAstraConfig.debugLogging) {
+            return;
+        }
         Long startTime = SYSTEM_START_TIMES.get(systemName);
         if (startTime != null) {
             long duration = System.nanoTime() - startTime;
@@ -170,7 +176,7 @@ public class PerformanceTracker {
     public static String getPerformanceReport() {
         StringBuilder sb = new StringBuilder();
         sb.append("=== Ad Astra Performance Report ===\n");
-        sb.append(String.format("TPS: %.2f (%.2fms avg tick)\n", getCurrentTPS(), getAverageTickTime() / 1000.0));
+        sb.append(String.format("TPS: %.2f (%dms avg tick)\n", getCurrentTPS(), getAverageTickTime()));
         sb.append(String.format("Machines: %d active / %d total\n", activeMachineCount, totalMachineCount));
         sb.append("\nPer-System Timing:\n");
 
@@ -180,6 +186,16 @@ public class PerformanceTracker {
         }
 
         return sb.toString();
+    }
+
+    private static int getValidSampleCount() {
+        int validSamples = 0;
+        for (long time : TICK_TIMES) {
+            if (time > 0) {
+                validSamples++;
+            }
+        }
+        return validSamples;
     }
 
     /**

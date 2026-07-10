@@ -2,11 +2,15 @@ package earth.terrarium.adastra.common.tile;
 
 import earth.terrarium.adastra.common.blocks.AdAstraPipeConnection;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
 public class AdAstraPipeTileEntity extends AdAstraTileEntity {
 
     private final AdAstraPipeConnection[] connections = new AdAstraPipeConnection[EnumFacing.values().length];
+    private final TileEntity[] cachedNeighbors = new TileEntity[EnumFacing.values().length];
+    private final boolean[] neighborCached = new boolean[EnumFacing.values().length];
 
     public AdAstraPipeTileEntity() {
         for (EnumFacing facing : EnumFacing.values()) {
@@ -37,6 +41,31 @@ public class AdAstraPipeTileEntity extends AdAstraTileEntity {
     protected boolean canPush(EnumFacing facing) {
         AdAstraPipeConnection connection = getConnection(facing);
         return connection == AdAstraPipeConnection.NORMAL || connection == AdAstraPipeConnection.INSERT;
+    }
+
+    protected TileEntity getCachedNeighbor(EnumFacing facing) {
+        int index = facing.getIndex();
+        BlockPos neighborPos = pos.offset(facing);
+        TileEntity cached = cachedNeighbors[index];
+        if (!world.isBlockLoaded(neighborPos)) {
+            cachedNeighbors[index] = null;
+            neighborCached[index] = false;
+            return null;
+        }
+        if (!neighborCached[index] || cached != null && cached.isInvalid()) {
+            cached = world.getTileEntity(neighborPos);
+            cachedNeighbors[index] = cached;
+            neighborCached[index] = true;
+        }
+        return cached;
+    }
+
+    public void invalidateNeighborCache() {
+        for (EnumFacing facing : EnumFacing.values()) {
+            int index = facing.getIndex();
+            cachedNeighbors[index] = null;
+            neighborCached[index] = false;
+        }
     }
 
     @Override

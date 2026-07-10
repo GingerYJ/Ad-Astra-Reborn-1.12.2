@@ -58,13 +58,11 @@ public class OxygenSystemExtended {
         }
 
         PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
-
-        if (data == null) {
+        Boolean oxygen = storage.getOxygenOverride(pos);
+        if (oxygen == null) {
             return hasOxygenInDimension(world);
         }
-
-        return data.oxygen();
+        return oxygen;
     }
 
     public static void setOxygen(World world, BlockPos pos, boolean oxygen) {
@@ -73,17 +71,9 @@ public class OxygenSystemExtended {
         }
 
         PlanetDataStorage storage = PlanetDataStorage.get(world);
-        PlanetData data = storage.getData(pos);
-
-        if (data == null) {
-            short temperature = TemperatureSystem.getTemperatureAtPos(world, pos);
-            float gravity = GravitySystem.getGravityAtPos(world, pos);
-            data = new PlanetData(oxygen, temperature, gravity);
-        } else {
-            data.setOxygen(oxygen);
+        if (setOxygenWithoutMarking(world, storage, pos, oxygen)) {
+            storage.markChanged();
         }
-
-        storage.setData(pos, data);
     }
 
     public static void setOxygen(World world, Collection<BlockPos> positions, boolean oxygen) {
@@ -91,16 +81,48 @@ public class OxygenSystemExtended {
             return;
         }
 
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        boolean changed = false;
         for (BlockPos pos : positions) {
-            setOxygen(world, pos, oxygen);
+            changed |= setOxygenWithoutMarking(world, storage, pos, oxygen);
+        }
+        if (changed) {
+            storage.markChanged();
         }
     }
 
+    private static boolean setOxygenWithoutMarking(World world, PlanetDataStorage storage,
+                                                    BlockPos pos, boolean oxygen) {
+        Boolean previous = storage.getOxygenOverride(pos);
+        if (oxygen == hasOxygenInDimension(world)) {
+            return storage.clearOxygenOverrideWithoutMarking(pos);
+        }
+        return previous == null || previous != oxygen
+            ? storage.setOxygenOverrideWithoutMarking(pos, oxygen)
+            : false;
+    }
+
     public static void removeOxygen(World world, BlockPos pos) {
-        setOxygen(world, pos, hasOxygenInDimension(world));
+        if (world.isRemote || !(world instanceof WorldServer)) {
+            return;
+        }
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        if (storage.clearOxygenOverrideWithoutMarking(pos)) {
+            storage.markChanged();
+        }
     }
 
     public static void removeOxygen(World world, Collection<BlockPos> positions) {
-        setOxygen(world, positions, hasOxygenInDimension(world));
+        if (world.isRemote || !(world instanceof WorldServer)) {
+            return;
+        }
+        PlanetDataStorage storage = PlanetDataStorage.get(world);
+        boolean changed = false;
+        for (BlockPos pos : positions) {
+            changed |= storage.clearOxygenOverrideWithoutMarking(pos);
+        }
+        if (changed) {
+            storage.markChanged();
+        }
     }
 }

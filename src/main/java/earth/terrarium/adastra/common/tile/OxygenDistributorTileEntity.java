@@ -35,7 +35,6 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
     private static final int INPUT_CONTAINER_SLOT = 1;
     private static final int EMPTY_CONTAINER_SLOT = 2;
     private static final int MAX_DISTRIBUTION_BLOCKS = AdAstraConfig.maxDistributionBlocks;
-    private static final int DISTRIBUTION_REFRESH_RATE = AdAstraConfig.distributionRefreshRate;
     private static final int WATER_INPUT_PER_OPERATION = 25;
     private static final int WATER_OXYGEN_OUTPUT_PER_OPERATION = 4;
     private static final int OXYGEN_DRAIN_INTERVAL = 20;
@@ -116,7 +115,9 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         setLit(true);
         playWorkSound();
         maybeSpawnAirVortex();
-        markDirty();
+        if (tickCounter % 20 == 0) {
+            markDirty();
+        }
     }
 
     private void playWorkSound() {
@@ -198,13 +199,13 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
                 // Update oxygen positions via OxygenSystemExtended
                 updateOxygenPositions(sealedRoom);
 
-                ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+                ticksUntilRefresh = getDistributionRefreshRate();
                 return;
             }
 
             plannedBlocksCount = 0;
             clearOxygenBlocks();
-            ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+            ticksUntilRefresh = getDistributionRefreshRate();
             return;
         }
 
@@ -216,7 +217,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
             updateOxygenPositionsSpherical();
         }
 
-        ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+        ticksUntilRefresh = getDistributionRefreshRate();
     }
 
     private BlockPos getDistributionStartPos() {
@@ -245,6 +246,9 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
      */
     private void updateOxygenPositions(Set<BlockPos> newPositions) {
         if (world == null || world.isRemote) {
+            return;
+        }
+        if (lastDistributedBlocks.equals(newPositions)) {
             return;
         }
 
@@ -315,6 +319,15 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
             return false;
         }
         return !checkOxygen || canConsumeOxygen(requiredOxygen);
+    }
+
+    @Override
+    protected boolean hasOngoingWork() {
+        return providingOxygen || shutDownTicks > 0;
+    }
+
+    private static int getDistributionRefreshRate() {
+        return Math.max(1, AdAstraConfig.distributionRefreshRate);
     }
 
     private boolean canConsumeOxygen(int oxygenAmount) {
@@ -506,7 +519,7 @@ public class OxygenDistributorTileEntity extends AdAstraMachineTileEntity {
         if (workingRadius != clamped) {
             workingRadius = clamped;
             plannedBlocksCount = Math.min(countBlocksInRadius(workingRadius), MAX_DISTRIBUTION_BLOCKS);
-            ticksUntilRefresh = DISTRIBUTION_REFRESH_RATE;
+            ticksUntilRefresh = getDistributionRefreshRate();
             markDirty();
         }
     }
