@@ -3,6 +3,7 @@ package earth.terrarium.adastra.client.gui;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.client.events.AdAstraClientEvents;
 import earth.terrarium.adastra.common.capability.SpaceStation;
+import earth.terrarium.adastra.common.config.ExternalDimensionConfig;
 import earth.terrarium.adastra.common.menus.PlanetsMenu;
 import earth.terrarium.adastra.common.menus.base.PlanetsMenuProvider;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
@@ -631,19 +632,19 @@ public class PlanetSelectionGui extends GuiScreen {
         List<OrbitRing> rings = new ArrayList<>();
         List<Integer> primaryOrbitIndexes = new ArrayList<>();
         for (PlanetRenderNode node : nodes) {
-            LayoutSpec spec = getRenderLayoutSpec(node.key);
+            LayoutSpec spec = getRenderLayoutSpec(node.planet, node.key);
             if (spec == null || spec.parent != null) {
                 continue;
             }
-            int orbitIndex = Math.max(0, Math.min(ORBIT_RADII.length - 1, spec.orbit));
+            int orbitIndex = Math.max(0, spec.orbit);
             if (!primaryOrbitIndexes.contains(orbitIndex)) {
                 primaryOrbitIndexes.add(orbitIndex);
-                double radius = Math.max(8.0D, ORBIT_RADII[orbitIndex] * scale);
+                double radius = Math.max(8.0D, getOrbitRadius(orbitIndex) * scale);
                 rings.add(new OrbitRing(centerX, centerY, radius, (orbitIndex & 1) == 0 ? 0xCCF5FAFF : 0x99F5FAFF));
             }
         }
         for (PlanetRenderNode node : nodes) {
-            LayoutSpec spec = getLayoutSpec(node.key);
+            LayoutSpec spec = getLayoutSpec(node.planet, node.key);
             if (spec != null && spec.parent != null) {
                 PlanetRenderNode parent = findNode(nodes, spec.parent);
                 if (parent != null) {
@@ -658,7 +659,7 @@ public class PlanetSelectionGui extends GuiScreen {
         List<PlanetRenderNode> nodes = new ArrayList<>();
         for (PlanetDimensionProperties planet : planets) {
             String key = getPlanetKey(planet);
-            LayoutSpec spec = getLayoutSpec(key);
+            LayoutSpec spec = getLayoutSpec(planet, key);
             if (spec != null && spec.parent != null) {
                 continue;
             }
@@ -667,7 +668,7 @@ public class PlanetSelectionGui extends GuiScreen {
 
         for (PlanetDimensionProperties planet : planets) {
             String key = getPlanetKey(planet);
-            LayoutSpec spec = getLayoutSpec(key);
+            LayoutSpec spec = getLayoutSpec(planet, key);
             if (spec == null || spec.parent == null) {
                 continue;
             }
@@ -689,9 +690,9 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private PlanetRenderNode createPrimaryNode(PlanetDimensionProperties planet, String key, double centerX, double centerY, float scale, boolean selectable) {
-        LayoutSpec spec = getRenderLayoutSpec(key);
-        int orbitIndex = Math.max(0, Math.min(ORBIT_RADII.length - 1, spec.orbit));
-        double orbitRadius = Math.max(18.0D, ORBIT_RADII[orbitIndex] * scale);
+        LayoutSpec spec = getRenderLayoutSpec(planet, key);
+        int orbitIndex = Math.max(0, spec.orbit);
+        double orbitRadius = Math.max(18.0D, getOrbitRadius(orbitIndex) * scale);
         double angle = Math.toRadians(spec.angle + orbitTimeDegrees(key, false, orbitIndex));
         double x = centerX + Math.cos(angle) * orbitRadius;
         double y = centerY + Math.sin(angle) * orbitRadius;
@@ -734,7 +735,7 @@ public class PlanetSelectionGui extends GuiScreen {
         }
         for (PlanetDimensionProperties planet : planets) {
             String planetKey = getPlanetKey(planet);
-            LayoutSpec spec = getLayoutSpec(planetKey);
+            LayoutSpec spec = getLayoutSpec(planet, planetKey);
             if (spec != null && key.equals(spec.parent) && menu.canReach(planet)) {
                 return planet;
             }
@@ -767,9 +768,25 @@ public class PlanetSelectionGui extends GuiScreen {
         if (planet == null || planet.getName() == null) {
             return "unknown";
         }
+        if (ExternalDimensionConfig.isExternalDimension(planet.getDimensionId())) {
+            return "external_" + planet.getDimensionId();
+        }
         String name = planet.getName().toLowerCase(Locale.ROOT);
         int colon = name.indexOf(':');
         return colon >= 0 ? name.substring(colon + 1) : name;
+    }
+
+    private LayoutSpec getLayoutSpec(PlanetDimensionProperties planet, String key) {
+        if (planet != null) {
+            ExternalDimensionConfig.ExternalDimensionEntry external =
+                ExternalDimensionConfig.getEntry(planet.getDimensionId());
+            if (external != null) {
+                int orbit = getExternalOrbitStart() + external.getOrder();
+                double angle = normalizeDegrees(35.0D + external.getOrder() * 137.508D);
+                return new LayoutSpec(orbit, angle);
+            }
+        }
+        return getLayoutSpec(key);
     }
 
     private LayoutSpec getLayoutSpec(String key) {
@@ -804,6 +821,11 @@ public class PlanetSelectionGui extends GuiScreen {
         return null;
     }
 
+    private LayoutSpec getRenderLayoutSpec(PlanetDimensionProperties planet, String key) {
+        LayoutSpec spec = getLayoutSpec(planet, key);
+        return spec == null ? getFallbackLayout(key) : spec;
+    }
+
     private LayoutSpec getRenderLayoutSpec(String key) {
         LayoutSpec spec = getLayoutSpec(key);
         return spec == null ? getFallbackLayout(key) : spec;
@@ -811,11 +833,39 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private LayoutSpec getFallbackLayout(String key) {
         int hash = key.hashCode() & 0x7FFFFFFF;
-        int outerStart = Math.min(ORBIT_RADII.length - 1, getSpecialOuterOrbit("the_end") + 1);
+        int outerStart = getSpecialOuterOrbit("the_end") + 1;
         int orbit = outerStart + getUnknownOuterIndex(key);
-        orbit = Math.min(ORBIT_RADII.length - 1, orbit);
         double angle = (hash % 360);
         return new LayoutSpec(orbit, angle);
+    }
+
+    private int getExternalOrbitStart() {
+        int outermostOrbit = -1;
+        for (PlanetDimensionProperties planet : planets) {
+            if (ExternalDimensionConfig.isExternalDimension(planet.getDimensionId())) {
+                continue;
+            }
+            String key = getPlanetKey(planet);
+            LayoutSpec spec = getRenderLayoutSpec(key);
+            if (spec.parent == null) {
+                outermostOrbit = Math.max(outermostOrbit, spec.orbit);
+            }
+        }
+        return outermostOrbit + 1;
+    }
+
+    private int getOrbitRadius(int orbitIndex) {
+        if (orbitIndex < ORBIT_RADII.length) {
+            return ORBIT_RADII[Math.max(0, orbitIndex)];
+        }
+        int lastIndex = ORBIT_RADII.length - 1;
+        int spacing = ORBIT_RADII[lastIndex] - ORBIT_RADII[lastIndex - 1];
+        return ORBIT_RADII[lastIndex] + (orbitIndex - lastIndex) * spacing;
+    }
+
+    private double normalizeDegrees(double angle) {
+        double normalized = angle % 360.0D;
+        return normalized < 0.0D ? normalized + 360.0D : normalized;
     }
 
     private int getSpecialOuterOrbit(String key) {
@@ -827,16 +877,19 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private boolean isNetherKey(String key) {
-        return "nether".equals(key) || "the_nether".equals(key) || "nether_orbit".equals(key) || "the_nether_orbit".equals(key);
+        return "nether".equals(key) || "the_nether".equals(key);
     }
 
     private boolean isEndKey(String key) {
-        return "the_end".equals(key) || "end".equals(key) || "the_end_orbit".equals(key) || "end_orbit".equals(key);
+        return "the_end".equals(key) || "end".equals(key);
     }
 
     private int getUnknownOuterIndex(String key) {
         List<String> unknownKeys = new ArrayList<>();
         for (PlanetDimensionProperties planet : planets) {
+            if (ExternalDimensionConfig.isExternalDimension(planet.getDimensionId())) {
+                continue;
+            }
             String candidate = getPlanetKey(planet);
             if (candidate.equals(key) || isOuterFallbackKey(candidate)) {
                 if (!unknownKeys.contains(candidate)) {
@@ -1172,6 +1225,11 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private String getPlanetLabel(PlanetDimensionProperties planet) {
+        ExternalDimensionConfig.ExternalDimensionEntry external =
+            ExternalDimensionConfig.getEntry(planet.getDimensionId());
+        if (external != null && external.getDisplayName() != null) {
+            return external.getDisplayName();
+        }
         if (planet.getDimensionId() == 0) {
             return I18n.format("planet.minecraft.overworld");
         }
@@ -1181,10 +1239,21 @@ public class PlanetSelectionGui extends GuiScreen {
         if (planet.getDimensionId() == PlanetTravelHelper.END_DIMENSION_ID) {
             return I18n.format("planet.minecraft.the_end");
         }
-        // Try standard translation key
-        String key = "planet.ad_astra." + planet.getName().toLowerCase(Locale.ROOT);
-        String translated = I18n.format(key);
-        if (!translated.equals(key)) {
+        String name = planet.getName().toLowerCase(Locale.ROOT);
+        int colonIndex = name.indexOf(':');
+        String namespacedKey = colonIndex >= 0
+            ? "planet." + name.substring(0, colonIndex) + "." + name.substring(colonIndex + 1)
+            : null;
+        if (namespacedKey != null) {
+            String translated = I18n.format(namespacedKey);
+            if (!translated.equals(namespacedKey)) {
+                return translated;
+            }
+        }
+
+        String adAstraKey = "planet.ad_astra." + name;
+        String translated = I18n.format(adAstraKey);
+        if (!translated.equals(adAstraKey)) {
             return translated;
         }
         // Try to get displayName from CustomPlanetRegistry

@@ -26,8 +26,6 @@ public final class ModDimensions {
     public static final int MERCURY_ORBIT_ID = 1213;
     public static final int VENUS_ORBIT_ID = 1214;
     public static final int GLACIO_ORBIT_ID = 1215;
-    public static final int NETHER_ORBIT_ID = 1216;
-    public static final int END_ORBIT_ID = 1217;
 
     // ===== New solar system dwarf planets =====
     public static final int CERES_ID = 1220;
@@ -233,8 +231,6 @@ public final class ModDimensions {
     public static final PlanetDimensionProperties MERCURY_ORBIT_PROPERTIES = orbit("mercury_orbit", MERCURY_ORBIT_ID, "DIM_AD_ASTRA_MERCURY_ORBIT", 3, MERCURY_PROPERTIES.getFogColor(), MERCURY_PROPERTIES.getSkyColor());
     public static final PlanetDimensionProperties VENUS_ORBIT_PROPERTIES = orbit("venus_orbit", VENUS_ORBIT_ID, "DIM_AD_ASTRA_VENUS_ORBIT", 3, VENUS_PROPERTIES.getFogColor(), VENUS_PROPERTIES.getSkyColor());
     public static final PlanetDimensionProperties GLACIO_ORBIT_PROPERTIES = orbit("glacio_orbit", GLACIO_ORBIT_ID, "DIM_AD_ASTRA_GLACIO_ORBIT", 4, GLACIO_PROPERTIES.getFogColor(), GLACIO_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties NETHER_ORBIT_PROPERTIES = orbit("nether_orbit", NETHER_ORBIT_ID, "DIM_AD_ASTRA_NETHER_ORBIT", 3, new Vec3d(0.35D,0.02D,0.01D), new Vec3d(0.16D,0.01D,0.01D));
-    public static final PlanetDimensionProperties END_ORBIT_PROPERTIES = orbit("the_end_orbit", END_ORBIT_ID, "DIM_AD_ASTRA_THE_END_ORBIT", 4, new Vec3d(0.05D,0.03D,0.09D), new Vec3d(0.02D,0.02D,0.04D));
 
     // ===== New Orbit Properties =====
     public static final PlanetDimensionProperties CERES_ORBIT_PROPERTIES = orbit("ceres_orbit", CERES_ORBIT_ID, "DIM_AD_ASTRA_CERES_ORBIT", 3, CERES_PROPERTIES.getFogColor(), CERES_PROPERTIES.getSkyColor());
@@ -257,7 +253,7 @@ public final class ModDimensions {
 
     // ===== DimensionType instances =====
     public static DimensionType MOON, MARS, MERCURY, VENUS, GLACIO;
-    public static DimensionType EARTH_ORBIT, MOON_ORBIT, MARS_ORBIT, MERCURY_ORBIT, VENUS_ORBIT, GLACIO_ORBIT, NETHER_ORBIT, END_ORBIT;
+    public static DimensionType EARTH_ORBIT, MOON_ORBIT, MARS_ORBIT, MERCURY_ORBIT, VENUS_ORBIT, GLACIO_ORBIT;
     public static DimensionType CERES, CERES_ORBIT, PLUTO, PLUTO_ORBIT, HAUMEA, HAUMEA_ORBIT, KUIPER_BELT;
     public static DimensionType IO, IO_ORBIT, EUROPA, EUROPA_ORBIT, GANYMEDE, GANYMEDE_ORBIT, CALLISTO, CALLISTO_ORBIT;
     public static DimensionType ENCELADUS, ENCELADUS_ORBIT, TITAN, TITAN_ORBIT;
@@ -283,8 +279,6 @@ public final class ModDimensions {
         MERCURY_ORBIT = reg("mercury_orbit", MERCURY_ORBIT_PROPERTIES, WorldProviderMercuryOrbit.class);
         VENUS_ORBIT = reg("venus_orbit", VENUS_ORBIT_PROPERTIES, WorldProviderVenusOrbit.class);
         GLACIO_ORBIT = reg("glacio_orbit", GLACIO_ORBIT_PROPERTIES, WorldProviderGlacioOrbit.class);
-        NETHER_ORBIT = reg("nether_orbit", NETHER_ORBIT_PROPERTIES, WorldProviderNetherOrbit.class);
-        END_ORBIT = reg("the_end_orbit", END_ORBIT_PROPERTIES, WorldProviderEndOrbit.class);
 
         CERES = reg("ceres", CERES_PROPERTIES, WorldProviderCeres.class);
         PLUTO = reg("pluto", PLUTO_PROPERTIES, WorldProviderPluto.class);

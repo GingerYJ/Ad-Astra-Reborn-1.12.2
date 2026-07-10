@@ -192,12 +192,6 @@ public final class AdAstraConfig {
     public static boolean enableMercuryDimension;
     public static boolean enableVenusDimension;
     public static boolean enableGlacioDimension;
-    public static boolean enableNetherAsPlanet;
-    public static int netherRocketTier;
-    public static boolean blockVanillaNetherTravelWhenPlanet;
-    public static boolean enableEndAsPlanet;
-    public static int endRocketTier;
-    public static boolean blockVanillaEndTravelWhenPlanet;
     public static boolean useDedicatedDimensionSaveFolder;
     public static String dedicatedDimensionSaveFolderName;
     public static float moonGravityMultiplier;
@@ -248,6 +242,7 @@ public final class AdAstraConfig {
         mobsConfiguration = new Configuration(new File(folder, "mobs.cfg"));
         worldgenConfiguration = new Configuration(new File(folder, "worldgen.cfg"));
         debugConfiguration = new Configuration(new File(folder, "debug.cfg"));
+        ExternalDimensionConfig.init(new File(folder, "external_dimensions.cfg"));
         ConfigurableRocketRegistry.init(new File(folder, "rockets.cfg"));
         splitConfigurations = new Configuration[] {
             coreConfiguration,
@@ -654,40 +649,6 @@ public final class AdAstraConfig {
             "dimensions",
             true,
             "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
-        enableNetherAsPlanet = getBoolean(
-            "enableNetherAsPlanet",
-            "dimensions",
-            false,
-            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
-        netherRocketTier = getInt(
-            "netherRocketTier",
-            "dimensions",
-            1,
-            0,
-            7,
-            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
-        blockVanillaNetherTravelWhenPlanet = getBoolean(
-            "blockVanillaNetherTravelWhenPlanet",
-            "dimensions",
-            true,
-            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
-        enableEndAsPlanet = getBoolean(
-            "enableEndAsPlanet",
-            "dimensions",
-            false,
-            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
-        endRocketTier = getInt(
-            "endRocketTier",
-            "dimensions",
-            4,
-            0,
-            7,
-            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
-        blockVanillaEndTravelWhenPlanet = getBoolean(
-            "blockVanillaEndTravelWhenPlanet",
-            "dimensions",
-            true,
-            "\u914d\u7f6e\u9879\u3002\u4fee\u6539\u540e\u53ef\u80fd\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
         useDedicatedDimensionSaveFolder = getBoolean(
             "useDedicatedDimensionSaveFolder",
             "dimensions",
@@ -808,6 +769,7 @@ public final class AdAstraConfig {
 
         // Planet Tier Configuration
         syncPlanetTierOverrides(configuration);
+        ExternalDimensionConfig.sync();
 
         // Debug Configuration
         debugOxygen = getBoolean(
@@ -866,10 +828,6 @@ public final class AdAstraConfig {
         if (mercuryGravityMultiplier < 0.0f) mercuryGravityMultiplier = 0.0f;
         if (venusGravityMultiplier < 0.0f) venusGravityMultiplier = 0.0f;
         if (glacioGravityMultiplier < 0.0f) glacioGravityMultiplier = 0.0f;
-        if (netherRocketTier < 0) netherRocketTier = 0;
-        if (netherRocketTier > 7) netherRocketTier = 7;
-        if (endRocketTier < 0) endRocketTier = 0;
-        if (endRocketTier > 7) endRocketTier = 7;
         dedicatedDimensionSaveFolderName = sanitizeSaveFolderSegment(dedicatedDimensionSaveFolderName, "AdAstraDimensions");
 
         // Mob validation
@@ -1093,10 +1051,6 @@ public final class AdAstraConfig {
                 planet.displayName + "\u9700\u8981\u7684\u6700\u4f4e\u706b\u7bad\u7b49\u7ea7\u3002\u9ed8\u8ba4\uff1a" + planet.defaultTier + "\u30020 \u8868\u793a\u4e0d\u9650\u5236\uff1b\u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
             PlanetTierOverrideRegistry.setPlanetTier(planet.dimensionId, tier);
         }
-
-        PlanetTierOverrideRegistry.setPlanetTier(PlanetTravelDimensionIds.NETHER, netherRocketTier);
-        PlanetTierOverrideRegistry.setPlanetTier(PlanetTravelDimensionIds.END, endRocketTier);
-
         String[] overrides = getStringListNoLegacy(
             "customDimensionTierOverrides",
             CATEGORY_PLANET_TIERS,
@@ -1299,11 +1253,6 @@ public final class AdAstraConfig {
         }
     }
 
-    private static final class PlanetTravelDimensionIds {
-        private static final int NETHER = -1;
-        private static final int END = 1;
-    }
-
     /**
      * Helper Methods for Config Integration
      */
@@ -1403,24 +1352,6 @@ public final class AdAstraConfig {
             return enabled;
         }
         return true;
-    }
-
-    public static boolean isNetherPlanetEnabled() {
-        return enableNetherAsPlanet;
-    }
-
-    public static boolean isEndPlanetEnabled() {
-        return enableEndAsPlanet;
-    }
-
-    public static boolean shouldBlockVanillaTravelForDimension(int dimensionId) {
-        if (dimensionId == -1) {
-            return enableNetherAsPlanet && blockVanillaNetherTravelWhenPlanet;
-        }
-        if (dimensionId == 1) {
-            return enableEndAsPlanet && blockVanillaEndTravelWhenPlanet;
-        }
-        return false;
     }
 
     /**

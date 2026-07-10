@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.util;
 
 import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.config.ExternalDimensionConfig;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
 import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
@@ -92,12 +93,7 @@ public final class PlanetTravelHelper {
         for (PlanetDimensionProperties planet : PLANETS) {
             planets.add(planet);
         }
-        if (AdAstraConfig.isNetherPlanetEnabled()) {
-            planets.add(createNetherProperties());
-        }
-        if (AdAstraConfig.isEndPlanetEnabled()) {
-            planets.add(createEndProperties());
-        }
+        planets.addAll(ExternalDimensionConfig.getPlanetProperties());
         planets.addAll(CustomPlanetRegistry.getPlanetProperties());
         return planets.toArray(new PlanetDimensionProperties[planets.size()]);
     }
@@ -106,16 +102,14 @@ public final class PlanetTravelHelper {
         if (dimensionId == EARTH_PROPERTIES.getDimensionId()) {
             return EARTH_PROPERTIES;
         }
-        if (dimensionId == NETHER_DIMENSION_ID) {
-            return AdAstraConfig.isNetherPlanetEnabled() ? createNetherProperties() : null;
-        }
-        if (dimensionId == END_DIMENSION_ID) {
-            return AdAstraConfig.isEndPlanetEnabled() ? createEndProperties() : null;
-        }
         for (PlanetDimensionProperties planet : PLANETS) {
             if (planet.getDimensionId() == dimensionId) {
                 return planet;
             }
+        }
+        ExternalDimensionConfig.ExternalDimensionEntry external = ExternalDimensionConfig.getEntry(dimensionId);
+        if (external != null) {
+            return external.toDimensionProperties();
         }
         PlanetDimensionProperties custom = CustomPlanetRegistry.getPlanetProperties(dimensionId);
         return custom;
@@ -337,57 +331,14 @@ public final class PlanetTravelHelper {
         if (planetDimensionId == ModDimensions.PROXIMA_B_ID) {
             return ModDimensions.PROXIMA_B_ORBIT_ID;
         }
-        if (planetDimensionId == NETHER_DIMENSION_ID && AdAstraConfig.isNetherPlanetEnabled()) {
-            return ModDimensions.NETHER_ORBIT_ID;
-        }
-        if (planetDimensionId == END_DIMENSION_ID && AdAstraConfig.isEndPlanetEnabled()) {
-            return ModDimensions.END_ORBIT_ID;
+        if (ExternalDimensionConfig.isExternalDimension(planetDimensionId)) {
+            return Integer.MIN_VALUE;
         }
         CustomPlanetDefinition custom = CustomPlanetRegistry.getByDimensionId(planetDimensionId);
         if (custom != null) {
             return custom.getOrbitDimensionId();
         }
         return Integer.MIN_VALUE;
-    }
-
-    private static PlanetDimensionProperties createNetherProperties() {
-        return new PlanetDimensionProperties(
-            "nether",
-            NETHER_DIMENSION_ID,
-            "DIM-1",
-            Biomes.HELL,
-            Blocks.NETHERRACK.getDefaultState(),
-            Blocks.NETHERRACK.getDefaultState(),
-            false,
-            false,
-            true,
-            (short) 80,
-            1.0F,
-            0,
-            AdAstraConfig.netherRocketTier,
-            24000,
-            new Vec3d(0.45D, 0.03D, 0.01D),
-            new Vec3d(0.20D, 0.02D, 0.01D));
-    }
-
-    private static PlanetDimensionProperties createEndProperties() {
-        return new PlanetDimensionProperties(
-            "the_end",
-            END_DIMENSION_ID,
-            "DIM1",
-            Biomes.SKY,
-            Blocks.END_STONE.getDefaultState(),
-            Blocks.END_STONE.getDefaultState(),
-            false,
-            false,
-            true,
-            (short) 0,
-            1.0F,
-            0,
-            AdAstraConfig.endRocketTier,
-            24000,
-            new Vec3d(0.03D, 0.02D, 0.05D),
-            new Vec3d(0.01D, 0.01D, 0.02D));
     }
 
     private static void beginRocketTravel(EntityPlayerMP player, int targetDimensionId) {
@@ -467,12 +418,6 @@ public final class PlanetTravelHelper {
         }
         if (orbitDimensionId == ModDimensions.PROXIMA_B_ORBIT_ID) {
             return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "proxima_b_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.NETHER_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "nether_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.END_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "the_end_orbit");
         }
         for (CustomPlanetDefinition custom : CustomPlanetRegistry.getDefinitions()) {
             if (custom.getOrbitDimensionId() == orbitDimensionId) {
@@ -555,8 +500,7 @@ public final class PlanetTravelHelper {
         if (center.getY() < 2) {
             center = new BlockPos(center.getX(), 2, center.getZ());
         }
-        PlanetDimensionProperties properties = getPlanetByDimensionId(world.provider.getDimension());
-        IBlockState supportState = properties == null ? Blocks.STONE.getDefaultState() : properties.getFillerBlock();
+        IBlockState supportState = getLandingSupportState(world, center);
 
         for (int dx = -2; dx <= 2; dx++) {
             for (int dz = -2; dz <= 2; dz++) {
@@ -581,6 +525,20 @@ public final class PlanetTravelHelper {
         world.setBlockToAir(feetPos);
         world.setBlockToAir(feetPos.up());
         world.setBlockToAir(feetPos.up(2));
+    }
+
+    private static IBlockState getLandingSupportState(WorldServer world, BlockPos center) {
+        if (ExternalDimensionConfig.isExternalDimension(world.provider.getDimension())) {
+            BlockPos below = center.down();
+            if (below.getY() >= 0) {
+                IBlockState state = world.getBlockState(below);
+                if (!state.getBlock().isAir(state, world, below) && state.getMaterial().blocksMovement()) {
+                    return state;
+                }
+            }
+        }
+        PlanetDimensionProperties properties = getPlanetByDimensionId(world.provider.getDimension());
+        return properties == null ? Blocks.STONE.getDefaultState() : properties.getFillerBlock();
     }
 
     private static BlockPos getLaunchPadPartPos(BlockPos center, LaunchPadBlock.Part part) {

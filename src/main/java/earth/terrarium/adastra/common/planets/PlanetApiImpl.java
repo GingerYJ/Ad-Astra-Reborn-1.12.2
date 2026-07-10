@@ -3,6 +3,7 @@ package earth.terrarium.adastra.common.planets;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.planets.Planet;
 import earth.terrarium.adastra.api.planets.PlanetApi;
+import earth.terrarium.adastra.common.config.ExternalDimensionConfig;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
@@ -91,8 +92,6 @@ public class PlanetApiImpl implements PlanetApi {
         registerOrbit(ModDimensions.MERCURY_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.VENUS_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.GLACIO_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.NETHER_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.END_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.CERES_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.PLUTO_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.HAUMEA_ORBIT_PROPERTIES);
@@ -113,6 +112,9 @@ public class PlanetApiImpl implements PlanetApi {
 
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
             registerCustomPlanet(definition);
+        }
+        for (ExternalDimensionConfig.ExternalDimensionEntry entry : ExternalDimensionConfig.getEntries()) {
+            registerExternalDimension(entry.toDimensionProperties());
         }
     }
 
@@ -152,5 +154,14 @@ public class PlanetApiImpl implements PlanetApi {
             .orbitDimensionId(null).tier(orbit.getTier())
             .additionalLaunchDimensions(new ArrayList<>()).build();
         PLANETS.put(orbitPlanet.getDimensionId(), orbitPlanet);
+    }
+
+    private static void registerExternalDimension(PlanetDimensionProperties properties) {
+        Planet planet = Planet.builder(properties.getDimensionId())
+            .oxygen(properties.hasOxygen()).temperature(properties.getTemperature())
+            .gravity(properties.getGravity()).solarPower(properties.getSolarPower())
+            .solarSystem(SOLAR_SYSTEM).orbitDimensionId(Integer.MIN_VALUE).tier(properties.getTier())
+            .additionalLaunchDimensions(Collections.emptyList()).build();
+        PLANETS.put(planet.getDimensionId(), planet);
     }
 }

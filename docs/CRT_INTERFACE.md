@@ -1,248 +1,218 @@
-# Ad Astra Reborn - CraftTweaker 接口文档
+# Ad Astra Reborn CraftTweaker / ZenScript 教程
+
+本文档对应 Minecraft 1.12.2、CraftTweaker 4.1.20 和 Ad Astra Reborn 1.0.0。
 
 ## 目录
 
-1. [自定义行星 (Custom Planets)](#自定义行星)
-2. [NASA工作台配方 (NASA Workbench Recipes)](#nasa工作台配方)
-3. [火箭燃料 (Rocket Fuel)](#火箭燃料)
-4. [行星等级配置 (Planet Tier Config)](#行星等级配置)
-5. [空间站配方 (Space Station Recipes)](#空间站配方)
+- [准备脚本](#准备脚本)
+- [两种维度接入方式](#两种维度接入方式)
+- [自定义行星](#自定义行星)
+- [NASA 工作台配方](#nasa-工作台配方)
+- [火箭燃料](#火箭燃料)
+- [行星火箭等级](#行星火箭等级)
+- [空间站配方](#空间站配方)
+- [排错](#排错)
+- [API 快速参考](#api-快速参考)
 
----
+## 准备脚本
+
+开发环境脚本目录：
+
+```text
+run/client/scripts/
+```
+
+普通整合包实例脚本目录：
+
+```text
+scripts/
+```
+
+创建一个 `.zs` 文件，并在开头写：
+
+```zenscript
+#loader crafttweaker
+
+import mods.ad_astra.CustomPlanets;
+import mods.ad_astra.NASAWorkbench;
+import mods.ad_astra.RocketFuel;
+import mods.ad_astra.PlanetTiers;
+import mods.ad_astra.SpaceStation;
+```
+
+脚本修改后建议完整重启客户端或服务器。自定义维度注册不应依赖热重载。
+
+## 两种维度接入方式
+
+请先判断你要处理的是哪一种维度：
+
+### 1. 其他 Mod 已经创建的维度
+
+例如 Galacticraft 月球、火星或某个矿物世界 Mod 的维度。这些维度已经拥有自己的 WorldProvider 和地形生成。
+
+不要使用 `CustomPlanets.create()` 重复注册它们。请编辑：
+
+```text
+config/ad_astra/external_dimensions.cfg
+```
+
+格式与示例见项目 [README](../README.md#接入其他-mod-的维度)。
+
+### 2. 由 Ad Astra Reborn 创建的新行星
+
+如果你需要一个全新的行星、地形和轨道维度，可以使用：
+
+```zenscript
+CustomPlanets.create(...)
+```
+
+默认情况下，构建器只登记行星数据。只有调用：
+
+```zenscript
+.enableDimensionRegistration(true)
+```
+
+才会请求 Ad Astra Reborn 注册行星维度和轨道维度。
 
 ## 自定义行星
 
-通过 CraftTweaker 脚本，你可以创建全新的可探索行星，每个行星都有独立的地形、矿物、环境和维度。
-
-### 接口类
+### 最小可运行示例
 
 ```zenscript
-mods.ad_astra.CustomPlanets
+#loader crafttweaker
+
+import mods.ad_astra.CustomPlanets;
+
+CustomPlanets.create("example:basalt_moon", 1401)
+    .name("basalt_moon")
+    .displayName("玄武岩卫星")
+    .tier(2)
+    .biome("minecraft:desert")
+    .surface(<block:minecraft:stone>)
+    .stone(<block:minecraft:stone>)
+    .icon(<minecraft:obsidian>)
+    .skyLight(true)
+    .canRespawn(false)
+    .environment(false, -40, 0.42, 18)
+    .dayLength(24000)
+    .colors(0.02, 0.02, 0.03, 0.18, 0.20, 0.28)
+    .addOre(
+        <block:minecraft:iron_ore>,
+        <block:minecraft:stone>,
+        6,
+        8,
+        4,
+        48
+    )
+    .enableDimensionRegistration(true)
+    .register();
 ```
 
-### 方法
-
-#### `create(String id, int dimensionId)`
-
-创建一个新的自定义行星定义。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `id` | String | 行星唯一标识符。格式为 `"命名空间:路径"`，如 `"ad_astra:mineral_world"`。如果省略命名空间，默认使用 `"ad_astra"`。此ID用于内部注册、翻译键和存档文件夹名称。 |
-| `dimensionId` | int | 行星维度ID。必须是正整数，且不能为0（0是主世界）。每个自定义行星需要唯一的维度ID，建议从1301开始分配，避免与原版和其他Mod冲突。 |
-
-**返回值：** `CustomPlanetBuilder` - 用于链式配置行星的构建器对象。
-
----
-
-#### `hasPlanet(String id)`
-
-检查指定ID的自定义行星是否已注册。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `id` | String | 要检查的行星ID。 |
-
-**返回值：** `boolean` - 如果行星已注册返回 `true`，否则返回 `false`。
-
----
-
-#### `getRegisteredCount()`
-
-获取已注册的自定义行星数量。
-
-**返回值：** `int` - 已注册的自定义行星总数。
-
----
-
-### CustomPlanetBuilder 配置方法
-
-调用 `create()` 后返回的构建器对象，支持链式调用以下方法：
-
-#### `.name(String planetName)`
-
-设置行星的内部名称。此名称用于存档文件夹命名和内部标识。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `planetName` | String | 行星的内部名称。只能包含小写字母、数字和下划线。如 `"mineral_world"`。如果未设置，默认使用ID的路径部分。 |
-
----
-
-#### `.displayName(String displayName)`
-
-设置行星的显示名称，用于UI界面（如火箭选择界面）。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `displayName` | String | 玩家在UI中看到的行星名称。如 `"Mineral World"`。支持通过语言文件进行本地化翻译。 |
-
----
-
-#### `.saveFolder(String saveFolder)`
-
-设置维度存档文件夹名称。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `saveFolder` | String | 世界存档中该维度的文件夹名称。如 `"DIM_MINERAL_WORLD"`。如果未设置，自动生成格式为 `DIM_AD_ASTRA_CUSTOM_命名空间_路径` 的名称。 |
-
----
-
-#### `.biome(String biomeId)`
-
-设置行星的地形生成生物群系。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `biomeId` | String | 生物群系ID。格式为 `"命名空间:路径"`，如 `"minecraft:desert"`（沙漠）、`"minecraft:plains"`（平原）、`"minecraft:ice_flats"`（冰原）。决定地表植被、草块颜色、降水等环境特征。 |
-
----
-
-#### `.surface(IBlock block)` / `.surface(IItemStack stack)`
-
-设置行星地表最顶层的方块。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `block` | IBlock | 地表方块。如 `<block:minecraft:grass>`（草方块）、`<block:minecraft:sand>`（沙子）、`<block:minecraft:stone>`（石头）。这是玩家站在行星表面时脚下的方块。 |
-| `stack` | IItemStack | 同上，通过物品堆形式传入。 |
-
----
-
-#### `.stone(IBlock block)` / `.stone(IItemStack stack)`
-
-设置行星地下的主要岩石方块。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `block` | IBlock | 地下岩石方块。如 `<block:minecraft:stone>`（石头）、`<block:minecraft:netherrack>`（地狱岩）。此方块构成地表以下的大部分地形。 |
-| `stack` | IItemStack | 同上，通过物品堆形式传入。 |
-
----
-
-#### `.icon(IItemStack stack)`
-
-设置行星在火箭选择UI中显示的图标。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `stack` | IItemStack | 图标物品。如 `<minecraft:diamond_block>`（钻石块）、`<minecraft:obsidian>`（黑曜石）。建议使用有代表性的方块物品。 |
-
----
-
-#### `.iconBlock(IBlock block)`
-
-通过方块形式设置行星图标。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `block` | IBlock | 图标方块。如 `<block:minecraft:diamond_block>`。 |
-
----
-
-#### `.skyLight(boolean hasSkyLight)`
-
-设置行星是否有天空光照。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `hasSkyLight` | boolean | `true` 表示有天空光照（类似主世界），`false` 表示无天空光照（类似下界）。影响怪物生成、作物生长等。 |
-
----
-
-#### `.canRespawn(boolean canRespawn)`
-
-设置玩家是否可以在该行星重生。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `canRespawn` | boolean | `true` 允许玩家在此行星设置重生点并死亡后在此重生，`false` 则死亡后返回主世界重生。 |
-
----
-
-#### `.environment(boolean oxygen, int temperature, double gravity, int solarPower)`
-
-设置行星的环境参数。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `oxygen` | boolean | 行星是否有氧气。`false` 表示需要氧气装备，否则玩家会受到缺氧伤害。 |
-| `temperature` | int | 温度值（摄氏度）。如 `-270` 表示极寒（需要温度调节），`80` 表示极热（需要冷却），`15` 表示适宜。影响玩家是否需要温度防护装备。 |
-| `gravity` | double | 重力倍数。如 `1.0` 等于主世界重力，`0.5` 表示一半重力（跳得更高，下落更慢），`1.5` 表示更强重力。 |
-| `solarPower` | int | 太阳能发电效率。如 `16` 表示标准效率，数值越高太阳能板发电量越大。 |
-
----
-
-#### `.tier(int tier)`
-
-设置到达该行星所需的最低火箭等级。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `tier` | int | 火箭等级要求。如 `1` 表示1级火箭即可到达，`3` 需要3级或更高级火箭。玩家驾驶低于此等级的火箭时无法选择该行星作为目的地。 |
-
----
-
-#### `.dayLength(int dayLength)`
-
-设置行星的一天长度（以游戏刻为单位）。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `dayLength` | int | 一天的游戏刻数。主世界为 `24000`（20分钟）。如 `12000` 表示10分钟一天，`48000` 表示40分钟一天。 |
-
----
-
-#### `.colors(double fogRed, double fogGreen, double fogBlue, double skyRed, double skyGreen, double skyBlue)`
-
-设置行星的雾气和天空颜色。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `fogRed` | double | 雾气颜色红色分量，范围 `0.0` ~ `1.0`。 |
-| `fogGreen` | double | 雾气颜色绿色分量，范围 `0.0` ~ `1.0`。 |
-| `fogBlue` | double | 雾气颜色蓝色分量，范围 `0.0` ~ `1.0`。 |
-| `skyRed` | double | 天空颜色红色分量，范围 `0.0` ~ `1.0`。 |
-| `skyGreen` | double | 天空颜色绿色分量，范围 `0.0` ~ `1.0`。 |
-| `skyBlue` | double | 天空颜色蓝色分量，范围 `0.0` ~ `1.0`。 |
-
----
-
-#### `.addOre(IBlock oreBlock, IBlock replaceBlock, int veinSize, int countPerChunk, int minY, int maxY)` / `.addOre(IItemStack oreStack, IItemStack replaceStack, int veinSize, int countPerChunk, int minY, int maxY)`
-
-添加矿物生成到行星。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `oreBlock` / `oreStack` | IBlock / IItemStack | 要生成的矿物方块。如 `<block:minecraft:iron_ore>`（铁矿石）、`<block:minecraft:diamond_ore>`（钻石矿石）。 |
-| `replaceBlock` / `replaceStack` | IBlock / IItemStack | 被替换的方块。通常是行星的石头方块，如 `<block:minecraft:stone>`。 |
-| `veinSize` | int | 单个矿脉的最大方块数。如 `8` 表示每个矿脉最多8个方块。数值越大矿脉越密集。 |
-| `countPerChunk` | int | 每个区块尝试生成矿脉的次数。如 `20` 表示每个区块尝试生成20次。数值越高矿物越丰富。 |
-| `minY` | int | 矿脉生成的最低Y坐标。范围 `0` ~ `255`。 |
-| `maxY` | int | 矿脉生成的最高Y坐标。范围 `0` ~ `255`，必须大于等于 `minY`。 |
-
----
-
-#### `.enableDimensionRegistration(boolean enabled)`
-
-设置是否在CraftTweaker阶段注册维度（已弃用，保留兼容性）。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `enabled` | boolean | 当前版本此设置不影响实际行为，维度在游戏初始化时自动注册。建议始终设置为 `true` 或省略。 |
-
----
-
-#### `.register()`
-
-完成配置并注册行星。必须在构建器链的最后调用。
-
-**注意：** 调用此方法后，行星定义被存储并在游戏初始化时注册。此方法无返回值，会结束构建器链。
-
----
-
-### 完整示例
+这个示例会使用：
+
+- 行星维度 ID：`1401`
+- 轨道维度 ID：`1402`
+- 行星存档目录：自动生成
+- 行星资源 ID：`example:basalt_moon`
+- 轨道资源 ID：`example:basalt_moon_orbit`
+
+轨道维度 ID 当前固定为行星维度 ID `+ 1`，脚本 API 没有单独设置轨道 ID 的方法。因此必须同时保证两个 ID 都未被原版或其他 Mod 占用。
+
+### 创建与查询
+
+```zenscript
+CustomPlanets.create(String id, int dimensionId);
+CustomPlanets.hasPlanet(String id);
+CustomPlanets.getRegisteredCount();
+```
+
+说明：
+
+- `id` 建议使用 `modid:path` 格式。
+- 省略命名空间时使用 `ad_astra`。
+- `dimensionId` 不能为 `0`。
+- 同一脚本加载周期内，行星 ID 和维度 ID 应保持唯一。
+
+示例：
+
+```zenscript
+if (!CustomPlanets.hasPlanet("example:basalt_moon")) {
+    print("Basalt Moon has not been registered yet.");
+}
+```
+
+### 构建器方法
+
+| 方法 | 说明 |
+| --- | --- |
+| `.name(String)` | 内部行星名称；会被整理为小写字母、数字和下划线 |
+| `.displayName(String)` | 星图中显示的名称 |
+| `.saveFolder(String)` | 自定义存档文件夹名称 |
+| `.biome(String)` | 生物群系资源 ID |
+| `.surface(IBlock/IItemStack)` | 地表方块 |
+| `.stone(IBlock/IItemStack)` | 主要地下方块，也是默认填充方块 |
+| `.icon(IItemStack)` | 星图图标物品 |
+| `.iconBlock(IBlock)` | 使用方块设置星图图标 |
+| `.skyLight(boolean)` | 是否有天空光 |
+| `.canRespawn(boolean)` | 是否允许在该维度重生 |
+| `.environment(boolean, int, double, int)` | 氧气、温度、重力、太阳能倍率 |
+| `.tier(int)` | 最低火箭等级，必须大于 0 |
+| `.dayLength(int)` | 一天的游戏刻数，必须大于 0 |
+| `.colors(double...)` | 雾 RGB 和天空 RGB，每项通常使用 `0.0` 至 `1.0` |
+| `.addOre(...)` | 添加矿物生成 |
+| `.enableDimensionRegistration(boolean)` | 是否注册新的行星和轨道维度 |
+| `.register()` | 完成并提交定义，必须最后调用 |
+
+### 环境参数
+
+```zenscript
+.environment(boolean oxygen, int temperature, double gravity, int solarPower)
+```
+
+| 参数 | 示例 | 说明 |
+| --- | --- | --- |
+| `oxygen` | `false` | `false` 时需要氧气保护 |
+| `temperature` | `-40` | Ad Astra 温度系统使用的摄氏温度 |
+| `gravity` | `0.42` | `1.0` 为主世界重力 |
+| `solarPower` | `18` | 太阳能与环境使用的倍率值 |
+
+### 矿物生成
+
+```zenscript
+.addOre(
+    IBlock ore,
+    IBlock replace,
+    int veinSize,
+    int countPerChunk,
+    int minY,
+    int maxY
+)
+```
+
+也可以用 `IItemStack` 方块物品作为前两个参数。
+
+重要规则：
+
+- `veinSize` 必须大于 0。
+- `countPerChunk` 不能小于 0。
+- `minY` 和 `maxY` 必须在 `0` 至 `255`。
+- `minY` 不能大于 `maxY`。
+- `replace` 必须与实际地下方块匹配，否则矿物没有可替换的方块。
+
+例如 `.stone(<block:minecraft:stone>)` 时：
+
+```zenscript
+.addOre(
+    <block:minecraft:diamond_ore>,
+    <block:minecraft:stone>,
+    4,
+    3,
+    4,
+    24
+)
+```
+
+### 完整自定义行星与空间站示例
 
 ```zenscript
 #loader crafttweaker
@@ -250,450 +220,365 @@ mods.ad_astra.CustomPlanets
 import mods.ad_astra.CustomPlanets;
 import mods.ad_astra.SpaceStation;
 
-// ========== 自定义行星：矿物世界 ==========
-// 一个充满各种矿物资源的行星，地表为铁块，地下为铁矿石
-
-var ironBlock = <minecraft:iron_block>;
-var ironOre = <minecraft:iron_ore>;
-var goldOre = <minecraft:gold_ore>;
-var diamondOre = <minecraft:diamond_ore>;
-var redstoneOre = <minecraft:redstone_ore>;
-var coalOre = <minecraft:coal_ore>;
-var lapisOre = <minecraft:lapis_ore>;
-var emeraldOre = <minecraft:emerald_ore>;
-var goldBlock = <minecraft:gold_block>;
-var diamondBlock = <minecraft:diamond_block>;
-var stone = <minecraft:stone>;
-
-CustomPlanets.create("ad_astra:mineral_world", 1301)
-    // 内部名称，用于存档和标识
+CustomPlanets.create("example:mineral_world", 1401)
     .name("mineral_world")
-    // 在火箭选择UI中显示的名称
-    .displayName("Mineral World")
-    // 需要3级火箭才能到达
+    .displayName("矿物世界")
+    .saveFolder("DIM_MINERAL_WORLD")
     .tier(3)
-    // 使用沙漠生物群系（干燥、无降水）
     .biome("minecraft:desert")
-    // 地表是铁块
-    .surface(ironBlock)
-    // 地下是铁矿石
-    .stone(ironOre)
-    // 在UI中显示钻石块图标
+    .surface(<block:minecraft:iron_block>)
+    .stone(<block:minecraft:stone>)
     .icon(<minecraft:diamond_block>)
-    // 无氧气、温度80°C（极热）、重力1.5倍、太阳能32
+    .skyLight(true)
+    .canRespawn(false)
     .environment(false, 80, 1.5, 32)
-    // 雾气为棕黄色，天空为橙黄色（沙漠行星氛围）
+    .dayLength(36000)
     .colors(0.55, 0.35, 0.15, 0.75, 0.55, 0.25)
-    // 添加各种矿物生成
-    .addOre(ironOre, stone, 12, 25, 0, 128)      // 铁矿石，丰富
-    .addOre(goldOre, stone, 6, 12, 0, 64)        // 金矿石
-    .addOre(diamondOre, stone, 4, 8, 0, 32)       // 钻石矿石
-    .addOre(redstoneOre, stone, 8, 15, 0, 48)     // 红石矿石
-    .addOre(coalOre, stone, 10, 20, 32, 128)      // 煤炭矿石
-    .addOre(lapisOre, stone, 5, 10, 0, 48)        // 青金石矿石
-    .addOre(emeraldOre, stone, 3, 4, 0, 32)        // 绿宝石矿石
-    .addOre(ironBlock, stone, 4, 2, 0, 24)         // 铁块（稀有）
-    .addOre(goldBlock, stone, 2, 1, 0, 16)         // 金块（极稀有）
-    .addOre(diamondBlock, stone, 1, 1, 0, 12)      // 钻石块（极稀有）
-    // 注册行星
+    .addOre(<block:minecraft:iron_ore>, <block:minecraft:stone>, 12, 24, 0, 128)
+    .addOre(<block:minecraft:gold_ore>, <block:minecraft:stone>, 6, 10, 0, 64)
+    .addOre(<block:minecraft:diamond_ore>, <block:minecraft:stone>, 4, 5, 0, 32)
+    .enableDimensionRegistration(true)
     .register();
 
-// ========== 为该行星添加空间站配方 ==========
-// 玩家可以在该行星轨道上建造空间站
-
-SpaceStation.setRecipe("mineral_world_orbit",
+SpaceStation.setRecipe(
+    "example:mineral_world_orbit",
     [
-        <minecraft:iron_block>,      // 需要64个铁块
-        <minecraft:gold_block>,      // 需要32个金块
-        <minecraft:diamond_block>,     // 需要16个钻石块
-        <minecraft:obsidian>,          // 需要64个黑曜石
-        <minecraft:glowstone>          // 需要32个萤石
+        <ore:blockIron>,
+        <ore:blockGold>,
+        <minecraft:diamond_block>,
+        <minecraft:obsidian>
     ],
-    [64, 32, 16, 64, 32]);
-
-print("Ad Astra: Mineral World custom planet and space station loaded.");
+    [64, 32, 16, 64]
+);
 ```
 
----
+## NASA 工作台配方
 
-## NASA工作台配方
+### 添加配方
 
-通过 CraftTweaker 添加或修改 NASA 工作台的合成配方。NASA 工作台用于制作火箭和太空装备。
+```zenscript
+NASAWorkbench.addRecipe(
+    String id,
+    IItemStack[] inputs,
+    IItemStack output,
+    int width,
+    int height,
+    int time,
+    int energy
+);
+```
 
-**NASA 工作台槽位布局：**
-- 共 **14个输入槽位**（索引 0-13），排列为不规则形状
-- 1个输出槽位（索引 14）
-- 配方通过 width 和 height 定义在输入区域中的形状
-- 当输入物品数超过 9 个时，使用精确槽位匹配（每个槽位必须对应正确物品）
-- 当输入物品数不超过 9 个时，使用3x3网格匹配（支持在区域内平移和镜像）
+示例：
 
-### 接口类
-
-`zenscript
-mods.ad_astra.NASAWorkbench
-`
-
-### 方法
-
-#### addRecipe(String id, IItemStack[] inputs, IItemStack output, int width, int height, int time, int energy)
-
-添加一个新的 NASA 工作台配方。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| id | String | 配方唯一名称。用于标识和后续删除。建议使用 modid:recipe_name 格式。 |
-| inputs | IItemStack[] | 输入物品数组。按行优先顺序排列，长度为 width * height。空位使用 null 表示。 |
-| output | IItemStack | 合成产物。如 <ad_astra:rocket_t1>（1级火箭）。 |
-| width | int | 配方在输入区域中的宽度（1-3）。 |
-| height | int | 配方在输入区域中的高度（1-3）。 |
-| time | int | 合成所需时间（刻）。**当前版本未实现，建议填 0。** |
-| energy | int | 每刻消耗的能量。**当前版本未实现，建议填 0。** |
-
-**示例1 - 标准3x3配方（9个输入）：**
-`zenscript
+```zenscript
 import mods.ad_astra.NASAWorkbench;
 
-// 添加一个3x3配方（width=3, height=3）
-NASAWorkbench.addRecipe(ad_astra:rocket_t1_custom,
-    [
-        <minecraft:iron_block>, <minecraft:iron_block>, <minecraft:iron_block>,
-        <minecraft:iron_block>, null,                    <minecraft:iron_block>,
-        <minecraft:iron_block>, <minecraft:iron_block>, <minecraft:iron_block>
-    ],
-    <ad_astra:rocket_t1>,
-    3, 3, 200, 10
-);
-`
-
-**示例2 - 复杂配方（14个输入，精确槽位）：**
-`zenscript
-// 添加一个14输入的火箭配方
-// 注意：当 inputs 数组长度超过9时，使用精确槽位匹配
-NASAWorkbench.addRecipe(ad_astra:rocket_t5_custom,
-    [
-        <minecraft:diamond_block>, <minecraft:beacon>,      <minecraft:diamond_block>,
-        <minecraft:iron_block>,    <ad_astra:rocket_t4>,    <minecraft:iron_block>,
-        <minecraft:obsidian>,      <minecraft:obsidian>,    <minecraft:obsidian>,
-        <minecraft:glowstone>,     <minecraft:redstone_block>, <minecraft:glowstone>,
-        <minecraft:iron_block>,    <minecraft:iron_block>
-    ],
-    <ad_astra:rocket_t5>,
-    3, 3, 400, 20
-);
-`
-
-**示例3 - 小型配方（2x2）：**
-`zenscript
-// 添加一个2x2配方
-NASAWorkbench.addRecipe(ad_astra:small_part,
+NASAWorkbench.addRecipe(
+    "example:compressed_rocket_part",
     [
         <minecraft:iron_ingot>, <minecraft:iron_ingot>,
         <minecraft:iron_ingot>, <minecraft:iron_ingot>
     ],
     <ad_astra:iron_plate>,
-    2, 2, 100, 5
+    2,
+    2,
+    100,
+    5
 );
-`
+```
 
----
+说明：
 
-#### removeRecipe(String id)
+- `id` 不能为空；再次添加相同 ID 会替换该配方。
+- `inputs` 不能为空；空槽可写 `null`。
+- `output` 不能为空。
+- `width`、`height`、`time` 最低会按 `1` 处理。
+- `energy` 最低会按 `0` 处理。
 
-删除指定的 NASA 工作台配方。
+14 槽火箭配方示例：
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| id | String | 要删除的配方ID。 |
+```zenscript
+NASAWorkbench.addRecipe(
+    "example:tier_5_rocket",
+    [
+        <ad_astra:rocket_nose_cone>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <ad_astra:etrium_block>,
+        <minecraft:beacon>,
+        <ad_astra:rocket_fin>,
+        <ad_astra:calorite_tank>,
+        <ad_astra:calorite_tank>,
+        <ad_astra:rocket_fin>,
+        <ad_astra:rocket_fin>,
+        <ad_astra:calorite_engine>,
+        <ad_astra:rocket_fin>
+    ],
+    <ad_astra:tier_5_rocket>,
+    3,
+    5,
+    200,
+    10
+);
+```
 
-**示例：**
-`zenscript
-NASAWorkbench.removeRecipe(ad_astra:rocket_t1);
-`
+### 删除配方
 
----
+按 ID 删除：
 
-#### removeByOutput(IItemStack output)
+```zenscript
+NASAWorkbench.removeRecipe("example:compressed_rocket_part");
+```
 
-删除所有产出指定物品的 NASA 工作台配方。
+按输出物品删除所有匹配配方：
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| output | IItemStack | 要移除的产出物品。 |
-
-**示例：**
-`zenscript
-NASAWorkbench.removeByOutput(<ad_astra:rocket_t1>);
-`
+```zenscript
+NASAWorkbench.removeByOutput(<ad_astra:tier_1_rocket>);
+```
 
 ## 火箭燃料
 
-通过 CraftTweaker 为火箭添加或修改燃料类型。不同等级的火箭需要不同等级的燃料。
+接口接收的是 Forge 流体注册名称字符串，不是 `ILiquidStack`。
 
-### 接口类
+### 添加燃料
 
 ```zenscript
-mods.ad_astra.RocketFuel
+RocketFuel.addFuel(String fluidName, int fuelTier);
 ```
 
-### 方法
+示例：
 
-#### `addFuel(ILiquidStack fuel, int tier)`
-
-添加一种火箭燃料。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `fuel` | ILiquidStack | 燃料液体。如 `<liquid:fuel>`、`<liquid:oil>`、`<liquid:lava>`。 |
-| `tier` | int | 燃料等级。`1` 为最低级，`7` 为最高级。高等级燃料可以驱动低等级火箭，但低等级燃料不能驱动高等级火箭。 |
-
-**示例：**
 ```zenscript
 import mods.ad_astra.RocketFuel;
 
-// 将熔岩添加为3级燃料
-RocketFuel.addFuel(<liquid:lava> * 1000, 3);
-
-// 将原油添加为1级燃料
-RocketFuel.addFuel(<liquid:oil> * 1000, 1);
+RocketFuel.addFuel("lava", 7);
+RocketFuel.addFuel("fuel", 1);
+RocketFuel.addFuel("cryo_fuel", 2);
 ```
 
----
+要求：
 
-#### `removeFuel(ILiquidStack fuel)`
+- 流体名称必须已经在 Forge 流体注册表中存在。
+- `fuelTier` 必须大于 0。
+- 高等级燃料可以用于较低等级火箭；低等级燃料不能驱动更高等级火箭。
 
-移除一种燃料。
+可使用 CraftTweaker 的 `/ct liquids` 等命令查看当前实例中的流体名称。
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `fuel` | ILiquidStack | 要移除的燃料液体。 |
-
----
-
-#### `getFuelTier(ILiquidStack fuel)`
-
-获取指定液体的燃料等级。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `fuel` | ILiquidStack | 要查询的液体。 |
-
-**返回值：** `int` - 燃料等级，如果不是燃料则返回 `-1`。
-
----
-
-## 行星等级配置
-
-通过 CraftTweaker 修改到达特定行星所需的火箭等级。可以覆盖默认配置。
-
-### 接口类
+### 删除燃料
 
 ```zenscript
-mods.ad_astra.PlanetTiers
+RocketFuel.removeFuel("lava");
 ```
 
-### 方法
+## 行星火箭等级
 
-#### `setTier(String planetId, int tier)`
+此接口按数字维度 ID 设置，不按行星名称设置。
 
-设置到达指定行星所需的火箭等级。
+### 设置覆盖
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `planetId` | String | 行星ID。可以是原版行星 `"moon"`、`"mars"`、`"mercury"`、`"venus"`、`"glacio"`，或自定义行星 `"ad_astra:mineral_world"`。 |
-| `tier` | int | 所需的最低火箭等级。 |
+```zenscript
+PlanetTiers.setPlanetTier(int dimensionId, int tier);
+```
 
-**示例：**
+示例：
+
 ```zenscript
 import mods.ad_astra.PlanetTiers;
 
-// 将月球改为需要2级火箭（原为1级）
-PlanetTiers.setTier("moon", 2);
+// 维度 -28 需要至少 2 阶火箭。
+PlanetTiers.setPlanetTier(-28, 2);
 
-// 将下界设为需要4级火箭
-PlanetTiers.setTier("nether", 4);
-
-// 自定义行星等级
-PlanetTiers.setTier("ad_astra:mineral_world", 3);
+// 0 表示不限制火箭等级。
+PlanetTiers.setPlanetTier(130, 0);
 ```
 
----
+### 删除覆盖
 
-#### `getTier(String planetId)`
+```zenscript
+PlanetTiers.removePlanetTier(-28);
+```
 
-获取指定行星当前的等级要求。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `planetId` | String | 行星ID。 |
-
-**返回值：** `int` - 所需的火箭等级。
-
----
-
-#### `resetTier(String planetId)`
-
-重置指定行星的等级要求为默认值。
-
----
+对于 `external_dimensions.cfg` 中的外部维度，配置文件本身已经包含最低火箭等级。通常直接修改配置更清晰；CRT 覆盖适合整合包脚本统一调整。
 
 ## 空间站配方
 
-通过 CraftTweaker 为行星轨道添加空间站建造配方。玩家可以在轨道上建造空间站作为中转基地。
+空间站接口接受 `IIngredient[]`，因此既支持物品，也支持矿物词典。
 
-### 接口类
+### 设置或替换
+
+以下三个方法效果相同，都会设置或替换目标轨道的配方：
 
 ```zenscript
-mods.ad_astra.SpaceStation
+SpaceStation.setRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
 ```
 
-### 方法
+示例：
 
-#### `setRecipe(String orbitId, IItemStack[] items, int[] counts)`
-
-设置建造空间站所需的材料。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `orbitId` | String | 轨道ID。格式为 `"行星名称_orbit"`。对于原版行星使用 `"moon_orbit"`、`"mars_orbit"` 等。对于自定义行星，使用 `"mineral_world_orbit"`（即行星名称 + `"_orbit"`）。 |
-| `items` | IItemStack[] | 需要的物品数组。最多5种物品。 |
-| `counts` | int[] | 对应物品的数量数组。长度必须与 `items` 相同。 |
-
-**示例：**
 ```zenscript
 import mods.ad_astra.SpaceStation;
 
-// 为月球轨道设置空间站配方
-SpaceStation.setRecipe("moon_orbit",
+SpaceStation.setRecipe(
+    "ad_astra:moon_orbit",
     [
-        <minecraft:iron_block>,
+        <ore:blockIron>,
         <minecraft:glass>,
         <minecraft:glowstone>
     ],
-    [32, 64, 16]);
-
-// 为下界轨道设置空间站配方
-SpaceStation.setRecipe("nether_orbit",
-    [
-        <minecraft:obsidian>,
-        <minecraft:iron_block>,
-        <minecraft:glowstone>,
-        <minecraft:quartz_block>
-    ],
-    [64, 32, 16, 32]);
-
-// 为自定义行星轨道设置空间站配方
-SpaceStation.setRecipe("mineral_world_orbit",
-    [
-        <minecraft:iron_block>,
-        <minecraft:gold_block>,
-        <minecraft:diamond_block>,
-        <minecraft:obsidian>,
-        <minecraft:glowstone>
-    ],
-    [64, 32, 16, 64, 32]);
+    [32, 64, 16]
+);
 ```
 
----
-
-#### `removeRecipe(String orbitId)`
-
-移除指定轨道的空间站配方。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `orbitId` | String | 轨道ID。 |
-
----
-
-#### `hasRecipe(String orbitId)`
-
-检查指定轨道是否有空间站配方。
-
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `orbitId` | String | 轨道ID。 |
-
-**返回值：** `boolean` - 如果有配方返回 `true`。
-
----
-
-## 完整综合示例
+也可以直接使用物品堆数量，由接口读取每个 ingredient 的数量：
 
 ```zenscript
-#loader crafttweaker
-
-import mods.ad_astra.CustomPlanets;
-import mods.ad_astra.NASAWorkbench;
-import mods.ad_astra.RocketFuel;
-import mods.ad_astra.PlanetTiers;
-import mods.ad_astra.SpaceStation;
-
-// ========== 1. 创建自定义行星 ==========
-CustomPlanets.create("ad_astra:crystal_world", 1302)
-    .name("crystal_world")
-    .displayName("Crystal World")
-    .tier(4)
-    .biome("minecraft:ice_flats")
-    .surface(<block:minecraft:diamond_block>)
-    .stone(<block:minecraft:stone>)
-    .icon(<minecraft:diamond>)
-    .environment(false, -100, 0.8, 24)
-    .colors(0.1, 0.3, 0.5, 0.2, 0.4, 0.8)
-    .addOre(<block:minecraft:diamond_ore>, <block:minecraft:stone>, 8, 30, 0, 64)
-    .addOre(<block:minecraft:emerald_ore>, <block:minecraft:stone>, 6, 15, 0, 48)
-    .register();
-
-// ========== 2. 添加NASA工作台配方 ==========
-NASAWorkbench.addRecipe("ad_astra:rocket_t5_custom",
-    <ad_astra:rocket_t5>,
+SpaceStation.setRecipe(
+    "ad_astra:moon_orbit",
     [
-        [<minecraft:diamond_block>, <minecraft:beacon>, <minecraft:diamond_block>],
-        [<minecraft:iron_block>, <ad_astra:rocket_t4>, <minecraft:iron_block>],
-        [<minecraft:obsidian>, <minecraft:obsidian>, <minecraft:obsidian>]
+        <ore:blockIron> * 32,
+        <minecraft:glass> * 64,
+        <minecraft:glowstone> * 16
     ]
 );
-
-// ========== 3. 添加火箭燃料 ==========
-RocketFuel.addFuel(<liquid:lava> * 1000, 3);
-
-// ========== 4. 修改行星等级要求 ==========
-PlanetTiers.setTier("nether", 4);
-PlanetTiers.setTier("end", 5);
-
-// ========== 5. 添加空间站配方 ==========
-SpaceStation.setRecipe("crystal_world_orbit",
-    [
-        <minecraft:diamond_block>,
-        <minecraft:iron_block>,
-        <minecraft:glowstone>
-    ],
-    [32, 64, 16]);
-
-print("Ad Astra custom content loaded successfully!");
 ```
 
----
+规则：
 
-## 注意事项
+- `orbit` 为空时无效。
+- 不写命名空间时默认使用 `ad_astra`。
+- 材料数组不能为空。
+- 使用 `counts` 时，两个数组长度必须一致。
+- 每个数量必须大于 0。
+- 外部维度没有独立轨道维度，因此不能为 `external_dimensions.cfg` 条目创建空间站配方。
 
-1. **维度ID冲突**：确保自定义行星的维度ID不与其他Mod或原版维度冲突。建议使用1300以上的ID。
+### 删除配方
 
-2. **行星名称**：`name()` 方法设置的名称用于内部存档文件夹命名，只能包含小写字母、数字和下划线。
+按轨道删除：
 
-3. **轨道ID**：空间站配方的 `orbitId` 必须是行星名称 + `"_orbit"`。对于自定义行星 `"ad_astra:mineral_world"`，其轨道ID为 `"mineral_world_orbit"`（不含命名空间前缀）。
+```zenscript
+SpaceStation.removeRecipe("ad_astra:moon_orbit");
+```
 
-4. **燃料等级**：高等级燃料可以驱动低等级火箭，但低等级燃料不能驱动高等级火箭。例如，3级燃料可以给1、2、3级火箭使用，但1级燃料不能给2级火箭使用。
+按配方 ID 删除：
 
-5. **矿物生成**：`addOre()` 的 `replaceBlock` 参数决定了矿物替换哪种方块。确保设置为行星的 `stone()` 方块，否则矿物不会生成。
+```zenscript
+SpaceStation.removeRecipeById("ad_astra:moon_orbit_space_station");
+```
 
-6. **温度值**：温度值影响玩家是否需要温度调节装备。建议范围：
-   - `-270` ~ `-100`：极寒，需要加热
-   - `-50` ~ `50`：适宜，无需温度装备
-   - `60` ~ `150`：极热，需要冷却
+## 排错
 
-7. **脚本加载顺序**：`#loader crafttweaker` 确保脚本在正确的加载阶段执行。所有 Ad Astra 的 CRT 接口都需要此加载器。
+### 脚本没有加载
 
----
+检查：
 
-*文档版本：1.0*
-*适配 Ad Astra Reborn 1.12.2*
+- 是否安装 CraftTweaker 4.1.20。
+- 文件扩展名是否为 `.zs`。
+- 文件是否放在实例的 `scripts/`，开发环境是否放在 `run/client/scripts/`。
+- 是否写了 `#loader crafttweaker`。
+- `crafttweaker.log` 和 `latest.log` 中是否有 ZenScript 错误。
+
+### 自定义行星出现在星图但无法进入
+
+检查：
+
+- 是否调用 `.enableDimensionRegistration(true)`。
+- 行星 ID 和行星维度 ID 是否冲突。
+- `dimensionId + 1` 的轨道维度 ID 是否冲突。
+- 脚本是否在维度注册阶段之前正常加载。
+
+### 游戏提示维度 ID 已注册
+
+换一组连续的空闲 ID。例如行星使用 `1401` 时，必须同时确保 `1402` 空闲。
+
+不要用 `CustomPlanets.create()` 接管其他 Mod 已注册的维度；这类目标应写入 `external_dimensions.cfg`。
+
+### 矿物不生成
+
+检查 `.addOre()` 的替换方块是否与 `.stone()` 一致，并使用新生成区块测试。已经生成的区块不会自动重新生成矿物。
+
+### 燃料脚本无效
+
+`RocketFuel.addFuel()` 需要流体注册名称字符串：
+
+```zenscript
+RocketFuel.addFuel("lava", 7);
+```
+
+不要传：
+
+```zenscript
+RocketFuel.addFuel(<liquid:lava> * 1000, 7);
+```
+
+### 行星等级脚本无效
+
+使用数字维度 ID：
+
+```zenscript
+PlanetTiers.setPlanetTier(-28, 2);
+```
+
+不要传行星名称：
+
+```zenscript
+PlanetTiers.setPlanetTier("moon", 2);
+```
+
+## API 快速参考
+
+```zenscript
+// Custom planets
+CustomPlanets.create(String id, int dimensionId);
+CustomPlanets.getRegisteredCount();
+CustomPlanets.hasPlanet(String id);
+
+// Custom planet builder
+.name(String name)
+.displayName(String displayName)
+.saveFolder(String saveFolder)
+.biome(String biomeId)
+.surface(IBlock block)
+.surface(IItemStack stack)
+.stone(IBlock block)
+.stone(IItemStack stack)
+.icon(IItemStack stack)
+.iconBlock(IBlock block)
+.skyLight(boolean hasSkyLight)
+.canRespawn(boolean canRespawn)
+.environment(boolean oxygen, int temperature, double gravity, int solarPower)
+.tier(int tier)
+.dayLength(int dayLength)
+.colors(double fogR, double fogG, double fogB, double skyR, double skyG, double skyB)
+.addOre(IBlock ore, IBlock replace, int veinSize, int countPerChunk, int minY, int maxY)
+.addOre(IItemStack ore, IItemStack replace, int veinSize, int countPerChunk, int minY, int maxY)
+.enableDimensionRegistration(boolean enabled)
+.register()
+
+// NASA Workbench
+NASAWorkbench.addRecipe(String id, IItemStack[] inputs, IItemStack output, int width, int height, int time, int energy);
+NASAWorkbench.removeRecipe(String id);
+NASAWorkbench.removeByOutput(IItemStack output);
+
+// Rocket fuel
+RocketFuel.addFuel(String fluidName, int fuelTier);
+RocketFuel.removeFuel(String fluidName);
+
+// Planet tier overrides
+PlanetTiers.setPlanetTier(int dimensionId, int tier);
+PlanetTiers.removePlanetTier(int dimensionId);
+
+// Space stations
+SpaceStation.setRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.setRecipe(String orbit, IIngredient[] ingredients);
+SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients);
+SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.addRecipe(String orbit, IIngredient[] ingredients);
+SpaceStation.removeRecipe(String orbit);
+SpaceStation.removeRecipeById(String id);
+```
+
+> 当前 Java 接口中没有公开 `addFluidLake` ZenScript 方法。脚本中请不要调用该方法。

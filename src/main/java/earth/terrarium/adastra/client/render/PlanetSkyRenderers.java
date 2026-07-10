@@ -28,7 +28,6 @@ public class PlanetSkyRenderers {
     private static final ResourceLocation DEIMOS_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/deimos.png");
     private static final ResourceLocation SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/sun.png");
     private static final ResourceLocation BLUE_SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/blue_sun.png");
-    private static final ResourceLocation RED_SUN_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/red_sun.png");
     private static final ResourceLocation VENUS_CLOUDS_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/environment/venus_clouds.png");
 
     public static void registerSkyRenderers(World world) {
@@ -56,10 +55,6 @@ public class PlanetSkyRenderers {
             world.provider.setSkyRenderer(createVenusOrbitSkyRenderer());
         } else if (dimension == ModDimensions.GLACIO_ORBIT_ID) {
             world.provider.setSkyRenderer(createGlacioOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.NETHER_ORBIT_ID) {
-            world.provider.setSkyRenderer(createNetherOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.END_ORBIT_ID) {
-            world.provider.setSkyRenderer(createEndOrbitSkyRenderer());
         } else {
             CustomPlanetDefinition planet = CustomPlanetRegistry.getByDimensionId(dimension);
             if (planet != null) {
@@ -165,22 +160,6 @@ public class PlanetSkyRenderers {
                 55, 0, 12,
                 false, true)
             .addCelestialBody(BLUE_SUN_TEXTURE, 12.0f,
-                0, 0, 0,
-                -20, 0, 230,
-                true, true);
-    }
-
-    private static PlanetSkyRenderer createNetherOrbitSkyRenderer() {
-        return new PlanetSkyRenderer(false, 0.05f, 0.0f, 0.0f)
-            .addCelestialBody(RED_SUN_TEXTURE, 18.0f,
-                0, 0, 0,
-                -15, 0, 225,
-                true, true);
-    }
-
-    private static PlanetSkyRenderer createEndOrbitSkyRenderer() {
-        return new PlanetSkyRenderer(false, 0.015f, 0.0f, 0.04f)
-            .addCelestialBody(BLUE_SUN_TEXTURE, 14.0f,
                 0, 0, 0,
                 -20, 0, 230,
                 true, true);

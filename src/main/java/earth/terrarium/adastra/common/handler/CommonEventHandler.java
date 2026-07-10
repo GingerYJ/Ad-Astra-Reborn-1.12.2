@@ -62,7 +62,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -164,25 +163,6 @@ public class CommonEventHandler {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
-        if (!(event.getEntity() instanceof EntityPlayer)) {
-            return;
-        }
-
-        EntityPlayer player = (EntityPlayer) event.getEntity();
-        if (player.world == null || player.world.isRemote) {
-            return;
-        }
-
-        int targetDimension = event.getDimension();
-        int currentDimension = player.dimension;
-        if (shouldBlockVanillaPlanetTravel(player, currentDimension, targetDimension)) {
-            event.setCanceled(true);
-            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.planets.vanilla_travel_blocked"), true);
-        }
-    }
-
     private boolean shouldAdvanceAllWorldsAfterSpaceSleep(WorldServer world) {
         return world.provider.getDimension() != 0
             && PlanetApi.API.isExtraterrestrial(world)
@@ -260,14 +240,6 @@ public class CommonEventHandler {
         short temperature = TemperatureApi.API.getTemperature(player);
         float gravity = GravityApi.API.getGravity(player);
         NetworkHandler.CHANNEL.sendTo(new PacketSyncLocalPlanetData(new PlanetData(oxygen, temperature, gravity)), (EntityPlayerMP) player);
-    }
-
-    private boolean shouldBlockVanillaPlanetTravel(EntityPlayer player, int currentDimension, int targetDimension) {
-        if (PlanetTravelHelper.isRocketTravelInProgress(player, targetDimension)) {
-            return false;
-        }
-        return AdAstraConfig.shouldBlockVanillaTravelForDimension(targetDimension)
-            || AdAstraConfig.shouldBlockVanillaTravelForDimension(currentDimension);
     }
 
     @SubscribeEvent
