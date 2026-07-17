@@ -1,0 +1,63 @@
+{
+  "display": {
+    "icon": {
+      "item": "ad_astra:moon_globe"
+    },
+    "title": {
+      "translate": "advancements.ad_astra.all_moons.title"
+    },
+    "description": {
+      "translate": "advancements.ad_astra.all_moons.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "ad_astra:moon": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:moon"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_b": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_b"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ad_astra:moon"
+    ],
+    [
+      "ad_astra:extendra_b"
+    ]
+  ],
+  "rewards": {
+    "experience": 2500
+  },
+  "parent": "ad_astra:b"
+}
