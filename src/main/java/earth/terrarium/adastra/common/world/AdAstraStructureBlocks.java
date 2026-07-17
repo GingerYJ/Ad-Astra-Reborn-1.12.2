@@ -40,6 +40,9 @@ public final class AdAstraStructureBlocks {
     }
 
     public static String remapBlockName(String name) {
+        if (name != null && name.startsWith("ad_extendra:")) {
+            return Reference.MOD_ID + ":" + name.substring("ad_extendra:".length());
+        }
         if ("minecraft:soul_soil".equals(name)) {
             return "minecraft:soul_sand";
         }

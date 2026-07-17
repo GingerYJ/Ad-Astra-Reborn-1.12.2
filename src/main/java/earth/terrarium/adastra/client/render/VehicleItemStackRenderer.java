@@ -51,17 +51,23 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
             renderRocket(tier7Rocket, texture("rocket/tier_7_rocket"), 0.08f, -0.05f);
         } else if (item instanceof ConfigurableRocketItem) {
             ConfigurableRocketSpec spec = ((ConfigurableRocketItem) item).getSpec();
-            renderRocket(configurableModel(spec.getModelTier()), ConfigurableRocketTextureManager.textureFor(spec), spec.getModelTier() >= 4 ? 0.08f : 0.11f, -0.05f);
+            renderRocket(configurableModel(spec), ConfigurableRocketTextureManager.textureFor(spec), spec.getModelTier() >= 4 ? 0.08f : 0.11f, -0.05f);
         } else if (item == ModItems.TIER_1_ROVER) {
             renderRover();
         }
     }
 
-    private ModelBase configurableModel(int modelTier) {
-        ModelBase model = configurableRocketModels.get(modelTier);
+    private ModelBase configurableModel(ConfigurableRocketSpec spec) {
+        int modelTier = spec.getModelTier();
+        int cacheKey = spec.usesExtendraModel()
+            ? 100 + modelTier
+            : modelTier;
+        ModelBase model = configurableRocketModels.get(cacheKey);
         if (model == null) {
-            model = new ModelRocket(modelTier);
-            configurableRocketModels.put(modelTier, model);
+            model = spec.usesExtendraModel()
+                ? new ModelExtendraRocket(modelTier)
+                : new ModelRocket(modelTier);
+            configurableRocketModels.put(cacheKey, model);
         }
         return model;
     }

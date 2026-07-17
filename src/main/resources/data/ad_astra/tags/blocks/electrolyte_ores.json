@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:sedna_electrolyte_ore",
+    {
+      "id": "#c:electrolyte_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/electrolyte",
+      "required": false
+    }
+  ]
+}

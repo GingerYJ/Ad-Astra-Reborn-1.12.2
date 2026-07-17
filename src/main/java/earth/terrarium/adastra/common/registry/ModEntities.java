@@ -17,6 +17,8 @@ import earth.terrarium.adastra.common.entities.mob.SulfurCreeperEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.entities.projectile.IceSpitEntity;
+import earth.terrarium.adastra.common.entities.projectile.ExtendraIceChargeEntity;
+import earth.terrarium.adastra.common.entities.mob.ExtendraFreezeEntity;
 import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
 import earth.terrarium.adastra.common.entities.vehicles.ConfigurableRocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
@@ -70,6 +72,8 @@ public final class ModEntities {
     public static final EntityEntry SULFUR_CREEPER = entity("sulfur_creeper", SulfurCreeperEntity.class, 128, 3, true);
     public static final EntityEntry GLACIAN_RAM = entity("glacian_ram", GlacianRamEntity.class, 160, 3, true);
     public static final EntityEntry ICE_SPIT = entity("ice_spit", IceSpitEntity.class, 64, 10, true);
+    public static final EntityEntry EXTENDRA_ICE_CHARGE = entity("ice_charge", ExtendraIceChargeEntity.class, 64, 10, true);
+    public static final EntityEntry EXTENDRA_FREEZE = entity("freeze", ExtendraFreezeEntity.class, 80, 3, true);
     public static final EntityEntry SPACE_PAINTING = entity("space_painting", SpacePaintingEntity.class, 160, Integer.MAX_VALUE, false);
 
     private static int nextId;

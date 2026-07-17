@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:raw_neptunium",
+    {
+      "id": "#c:raw_neptunium_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:raw_materials/neptunium",
+      "required": false
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/template_wall_side_tall",
+  "parent": "ad_astra:block/wall_side_tall",
   "textures": {
     "wall": "ad_astra:block/mercury_stone_bricks"
   }

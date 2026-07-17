@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "## ",
+    "#T|",
+    "## "
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateJuperium"
+    },
+    "T": {
+      "item": "ad_astra:calorite_tank"
+    },
+    "|": {
+      "item": "ad_astra:steel_rod"
+    }
+  },
+  "result": {
+    "item": "ad_astra:juperium_tank"
+  }
+}

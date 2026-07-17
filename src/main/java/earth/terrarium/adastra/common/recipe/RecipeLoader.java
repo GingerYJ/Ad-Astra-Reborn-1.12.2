@@ -81,7 +81,23 @@ public final class RecipeLoader {
             "data/ad_astra/machine_recipes/compressing/ostrum_plate_from_compressing_ostrum_blocks.json",
             "data/ad_astra/machine_recipes/compressing/ostrum_plate_from_compressing_ostrum_ingots.json",
             "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_blocks.json",
-            "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_ingots.json"
+            "data/ad_astra/machine_recipes/compressing/steel_plate_from_compressing_steel_ingots.json",
+            "data/ad_extendra/recipes/compressing/aurorite_plate_from_compressing_aurorite_blocks.json",
+            "data/ad_extendra/recipes/compressing/aurorite_plate_from_compressing_aurorite_ingots.json",
+            "data/ad_extendra/recipes/compressing/electrolyte_plate_from_compressing_electrolyte_blocks.json",
+            "data/ad_extendra/recipes/compressing/electrolyte_plate_from_compressing_electrolyte_ingots.json",
+            "data/ad_extendra/recipes/compressing/juperium_plate_from_compressing_juperium_blocks.json",
+            "data/ad_extendra/recipes/compressing/juperium_plate_from_compressing_juperium_ingots.json",
+            "data/ad_extendra/recipes/compressing/neptunium_plate_from_compressing_neptunium_blocks.json",
+            "data/ad_extendra/recipes/compressing/neptunium_plate_from_compressing_neptunium_ingots.json",
+            "data/ad_extendra/recipes/compressing/plutonium_plate_from_compressing_plutonium_blocks.json",
+            "data/ad_extendra/recipes/compressing/plutonium_plate_from_compressing_plutonium_ingots.json",
+            "data/ad_extendra/recipes/compressing/radium_plate_from_compressing_radium_blocks.json",
+            "data/ad_extendra/recipes/compressing/radium_plate_from_compressing_radium_ingots.json",
+            "data/ad_extendra/recipes/compressing/saturlyte_plate_from_compressing_saturlyte_blocks.json",
+            "data/ad_extendra/recipes/compressing/saturlyte_plate_from_compressing_saturlyte_ingots.json",
+            "data/ad_extendra/recipes/compressing/uranium_plate_from_compressing_uranium_blocks.json",
+            "data/ad_extendra/recipes/compressing/uranium_plate_from_compressing_uranium_ingots.json"
         };
 
         int count = 0;
@@ -113,7 +129,13 @@ public final class RecipeLoader {
         String[] recipePaths = {
             "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice.json",
             "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_ice.json",
-            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json"
+            "data/ad_astra/machine_recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_shard.json",
+            "data/ad_extendra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_blue_slushy_ice.json",
+            "data/ad_extendra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_freeze_shard.json",
+            "data/ad_extendra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_ice_charge.json",
+            "data/ad_extendra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_icicle.json",
+            "data/ad_extendra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_packed_slushy_ice.json",
+            "data/ad_extendra/recipes/cryo_freezing/cryo_fuel_from_cryo_freezing_slushy_ice.json"
         };
 
         int count = 0;
@@ -162,7 +184,15 @@ public final class RecipeLoader {
             "data/ad_astra/machine_recipes/nasa_workbench/tier_1_rocket_from_nasa_workbench.json",
             "data/ad_astra/machine_recipes/nasa_workbench/tier_2_rocket_from_nasa_workbench.json",
             "data/ad_astra/machine_recipes/nasa_workbench/tier_3_rocket_from_nasa_workbench.json",
-            "data/ad_astra/machine_recipes/nasa_workbench/tier_4_rocket_from_nasa_workbench.json"
+            "data/ad_astra/machine_recipes/nasa_workbench/tier_4_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_8_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_9_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_10_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_11_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_12_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_13_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_14_rocket_from_nasa_workbench.json",
+            "data/ad_extendra/recipes/nasa_workbench/tier_15_rocket_from_nasa_workbench.json"
         };
 
         int count = 0;
@@ -183,23 +213,20 @@ public final class RecipeLoader {
             "data/ad_astra/machine_recipes/space_station/venus_orbit_space_station.json",
             "data/ad_astra/machine_recipes/space_station/mercury_orbit_space_station.json",
             "data/ad_astra/machine_recipes/space_station/glacio_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/ceres_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/pluto_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/haumea_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/io_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/europa_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/ganymede_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/callisto_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/enceladus_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/titan_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/miranda_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/triton_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/phobos_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/jupiter_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/barnarda_c_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/barnarda_c1_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/tauceti_f_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/proxima_b_orbit_space_station.json"
+            "data/ad_extendra/recipes/space_station/b_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/ceres_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/eris_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/gonggong_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/haumea_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/jupiter_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/makemake_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/neptune_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/orcus_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/pluto_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/quaoar_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/saturn_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/sedna_orbit_space_station.json",
+            "data/ad_extendra/recipes/space_station/uranus_orbit_space_station.json"
         };
 
         int count = 0;
@@ -576,7 +603,7 @@ public final class RecipeLoader {
 
             // Parse dimension
             String dimensionString = json.get("dimension").getAsString();
-            ResourceLocation dimension = new ResourceLocation(dimensionString);
+            ResourceLocation dimension = remapOrbitId(dimensionString);
 
             // Parse structure
             String structure = json.get("structure").getAsString();
@@ -597,7 +624,7 @@ public final class RecipeLoader {
                     String oreName = convertTagToOreName(tag);
                     requirements.add(new SpaceStationRecipe.IngredientRequirement(oreName, count));
                 } else if (ingredientJson.has("item")) {
-                    String itemId = ingredientJson.get("item").getAsString();
+                    String itemId = remapItemId(ingredientJson.get("item").getAsString());
                     Item item = Item.REGISTRY.getObject(new ResourceLocation(itemId));
                     if (item != null) {
                         ItemStack stack = new ItemStack(item, 1);
@@ -645,7 +672,7 @@ public final class RecipeLoader {
      */
     private static IngredientInfo parseIngredient(JsonObject json) {
         if (json.has("item")) {
-            String itemId = json.get("item").getAsString();
+            String itemId = remapItemId(json.get("item").getAsString());
             Item item = Item.REGISTRY.getObject(new ResourceLocation(itemId));
             if (item == null) {
                 AdAstraReborn.LOGGER.warn("Unknown item: {}", itemId);
@@ -719,11 +746,46 @@ public final class RecipeLoader {
     }
 
     /**
+     * Ad Extendra keeps its own namespace in the source data, while the
+     * 1.12.2 port registers the imported content in the main mod namespace.
+     */
+    private static String remapItemId(String rawId) {
+        if (rawId == null || rawId.trim().isEmpty()) {
+            return rawId;
+        }
+
+        ResourceLocation source = new ResourceLocation(rawId.trim());
+        if (!"ad_extendra".equals(source.getNamespace())) {
+            return source.toString();
+        }
+
+        String path = source.getPath();
+        if (path.matches("tier_[5-9]_rocket|tier_1[0-2]_rocket")) {
+            int sourceTier = Integer.parseInt(path.substring(5, path.indexOf("_rocket")));
+            path = "tier_" + (sourceTier + 3) + "_rocket";
+        }
+        return new ResourceLocation(Reference.MOD_ID, path).toString();
+    }
+
+    private static ResourceLocation remapOrbitId(String rawId) {
+        ResourceLocation source = new ResourceLocation(rawId.trim());
+        if (!"ad_extendra".equals(source.getNamespace())) {
+            return source;
+        }
+
+        String path = source.getPath();
+        if (path.endsWith("_orbit")) {
+            path = "extendra_" + path;
+        }
+        return new ResourceLocation(Reference.MOD_ID, path);
+    }
+
+    /**
      * Parses an ItemStack from JSON.
      */
     private static ItemStack parseItemStack(JsonObject json) {
-        String itemId = json.has("item") ? json.get("item").getAsString()
-            : json.has("id") ? json.get("id").getAsString() : null;
+        String itemId = json.has("item") ? remapItemId(json.get("item").getAsString())
+            : json.has("id") ? remapItemId(json.get("id").getAsString()) : null;
 
         if (itemId == null) {
             return ItemStack.EMPTY;

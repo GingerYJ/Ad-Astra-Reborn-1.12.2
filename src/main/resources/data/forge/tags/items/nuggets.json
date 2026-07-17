@@ -3,6 +3,14 @@
     "#forge:nuggets/steel",
     "#forge:nuggets/desh",
     "#forge:nuggets/ostrum",
-    "#forge:nuggets/calorite"
+    "#forge:nuggets/calorite",
+    "#forge:nuggets/juperium",
+    "#forge:nuggets/saturlyte",
+    "#forge:nuggets/uranium",
+    "#forge:nuggets/neptunium",
+    "#forge:nuggets/radium",
+    "#forge:nuggets/plutonium",
+    "#forge:nuggets/electrolyte",
+    "#forge:nuggets/aurorite"
   ]
 }

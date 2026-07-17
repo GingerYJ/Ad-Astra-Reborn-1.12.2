@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_side",
+  "textures": {
+    "wall": "ad_astra:block/makemake_stone_bricks"
+  }
+}

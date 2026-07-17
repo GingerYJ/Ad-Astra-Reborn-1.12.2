@@ -44,11 +44,16 @@ class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
 
     private ModelBase modelFor(T entity) {
         if (entity instanceof ConfigurableRocketEntity) {
-            int modelTier = ((ConfigurableRocketEntity) entity).getModelTier();
-            ModelBase cached = modelCache.get(modelTier);
+            ConfigurableRocketEntity rocket = (ConfigurableRocketEntity) entity;
+            int modelTier = rocket.getModelTier();
+            boolean extendra = rocket.getRocketSpec().usesExtendraModel();
+            int cacheKey = extendra ? 100 + modelTier : modelTier;
+            ModelBase cached = modelCache.get(cacheKey);
             if (cached == null) {
-                cached = new ModelRocket(modelTier);
-                modelCache.put(modelTier, cached);
+                cached = extendra
+                    ? new ModelExtendraRocket(modelTier)
+                    : new ModelRocket(modelTier);
+                modelCache.put(cacheKey, cached);
             }
             return cached;
         }

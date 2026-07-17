@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:aurorite_nugget",
+    {
+      "id": "#c:aurorite_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/aurorite",
+      "required": false
+    }
+  ]
+}

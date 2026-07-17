@@ -22,7 +22,9 @@ public class ConfigurableRocketEntity extends RocketEntity {
     }
 
     public ConfigurableRocketEntity(World world, ConfigurableRocketSpec spec) {
-        super(world, spec.getTier(), spec.getFuelCapacity(), stack -> RocketFuelHelper.canFuelRocket(stack, spec.getTier()));
+        super(world, spec.getTier(), spec.getFuelCapacity(), stack -> spec.acceptsAnyFuel()
+            ? RocketFuelHelper.isRocketFuel(stack)
+            : RocketFuelHelper.canFuelRocket(stack, spec.getTier()));
         this.rocketId = spec.getId();
         try {
             dataManager.set(DATA_ROCKET_ID, this.rocketId);

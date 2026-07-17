@@ -3,6 +3,17 @@
     "ad_astra:moon_iron_ore",
     "ad_astra:mars_iron_ore",
     "ad_astra:mercury_iron_ore",
-    "ad_astra:glacio_iron_ore"
+    "ad_astra:glacio_iron_ore",
+    "ad_astra:ceres_iron_ore",
+    "ad_astra:uranus_iron_ore",
+    "ad_astra:neptune_iron_ore",
+    "ad_astra:orcus_iron_ore",
+    "ad_astra:haumea_iron_ore",
+    "ad_astra:quaoar_iron_ore",
+    "ad_astra:makemake_iron_ore",
+    "ad_astra:gonggong_iron_ore",
+    "ad_astra:eris_iron_ore",
+    "ad_astra:sedna_iron_ore",
+    "ad_astra:b_iron_ore"
   ]
 }

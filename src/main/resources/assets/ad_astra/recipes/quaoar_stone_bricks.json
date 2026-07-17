@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:quaoar_stone"
+    }
+  },
+  "result": {
+    "item": "ad_astra:quaoar_stone_bricks",
+    "count": 4
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:raw_uranium",
+    {
+      "id": "#c:raw_uranium_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:raw_materials/uranium",
+      "required": false
+    }
+  ]
+}

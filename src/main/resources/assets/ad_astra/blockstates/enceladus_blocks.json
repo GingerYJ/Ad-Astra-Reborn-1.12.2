@@ -1,7 +1,0 @@
-{
-    "variants": {
-        "type=enceladus_snow": { "model": "ad_astra:enceladus_blocks_enceladus_snow" },
-        "type=enceladus_grunt": { "model": "ad_astra:enceladus_blocks_enceladus_grunt" },
-        "type=enceladus_coal_ore": { "model": "ad_astra:enceladus_blocks_enceladus_coal_ore" }
-    }
-}

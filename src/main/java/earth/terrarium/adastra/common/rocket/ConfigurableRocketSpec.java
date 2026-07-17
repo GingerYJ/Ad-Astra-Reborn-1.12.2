@@ -24,22 +24,39 @@ public final class ConfigurableRocketSpec {
     private final int tier;
     private final int fuelCapacity;
     private final int modelTier;
+    private final boolean acceptsAnyFuel;
+    private final boolean usesExtendraModel;
     private final ResourceLocation texture;
     private final File externalTextureFile;
     private final String textureDisplayName;
     private ConfigurableRocketItem item;
 
     public ConfigurableRocketSpec(String id, String displayName, int tier, int fuelCapacity, int modelTier, ResourceLocation texture) {
-        this(id, displayName, tier, fuelCapacity, modelTier, texture, null, texture.toString());
+        this(id, displayName, tier, fuelCapacity, modelTier, texture, null, texture.toString(), false, false);
     }
 
     public ConfigurableRocketSpec(String id, String displayName, int tier, int fuelCapacity, int modelTier,
                                   ResourceLocation texture, @Nullable File externalTextureFile, String textureDisplayName) {
+        this(id, displayName, tier, fuelCapacity, modelTier, texture, externalTextureFile, textureDisplayName, false, false);
+    }
+
+    public ConfigurableRocketSpec(String id, String displayName, int tier, int fuelCapacity, int modelTier,
+                                  ResourceLocation texture, @Nullable File externalTextureFile, String textureDisplayName,
+                                  boolean acceptsAnyFuel) {
+        this(id, displayName, tier, fuelCapacity, modelTier, texture, externalTextureFile, textureDisplayName,
+            acceptsAnyFuel, false);
+    }
+
+    public ConfigurableRocketSpec(String id, String displayName, int tier, int fuelCapacity, int modelTier,
+                                  ResourceLocation texture, @Nullable File externalTextureFile, String textureDisplayName,
+                                  boolean acceptsAnyFuel, boolean usesExtendraModel) {
         this.id = id;
         this.displayName = displayName;
         this.tier = tier;
         this.fuelCapacity = fuelCapacity;
         this.modelTier = modelTier;
+        this.acceptsAnyFuel = acceptsAnyFuel;
+        this.usesExtendraModel = usesExtendraModel;
         this.texture = texture;
         this.externalTextureFile = externalTextureFile;
         this.textureDisplayName = textureDisplayName;
@@ -67,6 +84,14 @@ public final class ConfigurableRocketSpec {
 
     public int getModelTier() {
         return modelTier;
+    }
+
+    public boolean acceptsAnyFuel() {
+        return acceptsAnyFuel;
+    }
+
+    public boolean usesExtendraModel() {
+        return usesExtendraModel;
     }
 
     public ResourceLocation getTexture() {

@@ -21,9 +21,6 @@ import java.util.Map;
 public class PlanetApiImpl implements PlanetApi {
 
     private static final ResourceLocation SOLAR_SYSTEM = new ResourceLocation(Reference.MOD_ID, "solar_system");
-    private static final ResourceLocation BARNARDS_SYSTEM = new ResourceLocation(Reference.MOD_ID, "barnards_system");
-    private static final ResourceLocation TAUCETI_SYSTEM = new ResourceLocation(Reference.MOD_ID, "tauceti_system");
-    private static final ResourceLocation PROXIMA_SYSTEM = new ResourceLocation(Reference.MOD_ID, "proxima_system");
     private static final Map<Integer, Planet> PLANETS = new HashMap<>();
     private static volatile boolean defaultsRegistered = false;
 
@@ -58,57 +55,13 @@ public class PlanetApiImpl implements PlanetApi {
         registerPlanet(ModDimensions.VENUS_PROPERTIES, ModDimensions.VENUS_ORBIT_ID, 3);
         registerPlanet(ModDimensions.GLACIO_PROPERTIES, ModDimensions.GLACIO_ORBIT_ID, 4);
 
-        // New Solar System dwarf planets
-        registerPlanet(ModDimensions.CERES_PROPERTIES, ModDimensions.CERES_ORBIT_ID, 3);
-        registerPlanet(ModDimensions.PLUTO_PROPERTIES, ModDimensions.PLUTO_ORBIT_ID, 4);
-        registerPlanet(ModDimensions.HAUMEA_PROPERTIES, ModDimensions.HAUMEA_ORBIT_ID, 4);
-        registerPlanet(ModDimensions.KUIPER_BELT_PROPERTIES, ModDimensions.KUIPER_BELT_PROPERTIES.getDimensionId(), 5);
-
-        // Jupiter moons
-        registerPlanet(ModDimensions.IO_PROPERTIES, ModDimensions.IO_ORBIT_ID, 4);
-        registerPlanet(ModDimensions.EUROPA_PROPERTIES, ModDimensions.EUROPA_ORBIT_ID, 4);
-        registerPlanet(ModDimensions.GANYMEDE_PROPERTIES, ModDimensions.GANYMEDE_ORBIT_ID, 4);
-        registerPlanet(ModDimensions.CALLISTO_PROPERTIES, ModDimensions.CALLISTO_ORBIT_ID, 4);
-
-        // Saturn moons
-        registerPlanet(ModDimensions.ENCELADUS_PROPERTIES, ModDimensions.ENCELADUS_ORBIT_ID, 5);
-        registerPlanet(ModDimensions.TITAN_PROPERTIES, ModDimensions.TITAN_ORBIT_ID, 5);
-
-        // Other moons
-        registerPlanet(ModDimensions.MIRANDA_PROPERTIES, ModDimensions.MIRANDA_ORBIT_ID, 5);
-        registerPlanet(ModDimensions.TRITON_PROPERTIES, ModDimensions.TRITON_ORBIT_ID, 5);
-        registerPlanet(ModDimensions.PHOBOS_PROPERTIES, ModDimensions.PHOBOS_ORBIT_ID, 3);
-
-        // Exoplanets
-        registerPlanet(ModDimensions.BARNARDA_C_PROPERTIES, ModDimensions.BARNARDA_C_ORBIT_ID, 6);
-        registerPlanet(ModDimensions.BARNARDA_C1_PROPERTIES, ModDimensions.BARNARDA_C1_ORBIT_ID, 6);
-        registerPlanet(ModDimensions.TAUCETI_F_PROPERTIES, ModDimensions.TAUCETI_F_ORBIT_ID, 6);
-        registerPlanet(ModDimensions.PROXIMA_B_PROPERTIES, ModDimensions.PROXIMA_B_ORBIT_ID, 6);
-
-        // All orbits
+        // Built-in planet orbits
         registerOrbit(ModDimensions.EARTH_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.MOON_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.MARS_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.MERCURY_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.VENUS_ORBIT_PROPERTIES);
         registerOrbit(ModDimensions.GLACIO_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.CERES_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.PLUTO_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.HAUMEA_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.IO_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.EUROPA_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.GANYMEDE_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.CALLISTO_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.ENCELADUS_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.TITAN_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.MIRANDA_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.TRITON_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.PHOBOS_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.JUPITER_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.BARNARDA_C_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.BARNARDA_C1_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.TAUCETI_F_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.PROXIMA_B_ORBIT_PROPERTIES);
 
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
             registerCustomPlanet(definition);

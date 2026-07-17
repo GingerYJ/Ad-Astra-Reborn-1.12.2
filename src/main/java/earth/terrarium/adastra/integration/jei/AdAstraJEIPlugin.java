@@ -11,6 +11,7 @@ import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModGuiIds;
 import earth.terrarium.adastra.common.registry.ModItems;
+import earth.terrarium.adastra.common.registry.ExtendraItems;
 import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
 import earth.terrarium.adastra.integration.jei.category.*;
 import mezz.jei.api.IGuiHelper;
@@ -25,6 +26,7 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.plugins.vanilla.ingredients.fluid.FluidStackListFactory;
 import mezz.jei.plugins.vanilla.ingredients.fluid.FluidStackRenderer;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -175,17 +177,39 @@ public class AdAstraJEIPlugin implements IModPlugin {
 
     private List<RocketItemEntry> rocketItems() {
         List<RocketItemEntry> rockets = new ArrayList<>();
-        rockets.add(new RocketItemEntry(ModItems.TIER_1_ROCKET, 1));
-        rockets.add(new RocketItemEntry(ModItems.TIER_2_ROCKET, 2));
-        rockets.add(new RocketItemEntry(ModItems.TIER_3_ROCKET, 3));
-        rockets.add(new RocketItemEntry(ModItems.TIER_4_ROCKET, 4));
-        rockets.add(new RocketItemEntry(ModItems.TIER_5_ROCKET, 5));
-        rockets.add(new RocketItemEntry(ModItems.TIER_6_ROCKET, 6));
-        rockets.add(new RocketItemEntry(ModItems.TIER_7_ROCKET, 7));
+        addRocket(rockets, ModItems.TIER_1_ROCKET, 1);
+        addRocket(rockets, ModItems.TIER_2_ROCKET, 2);
+        addRocket(rockets, ModItems.TIER_3_ROCKET, 3);
+        addRocket(rockets, ModItems.TIER_4_ROCKET, 4);
+        addRocket(rockets, ModItems.TIER_5_ROCKET, 5);
+        addRocket(rockets, ModItems.TIER_6_ROCKET, 6);
+        addRocket(rockets, ModItems.TIER_7_ROCKET, 7);
         for (ConfigurableRocketItem rocket : ModItems.CONFIGURABLE_ROCKETS) {
-            rockets.add(new RocketItemEntry(rocket, rocket.getSpec().getTier()));
+            addRocket(rockets, rocket, rocket.getSpec().getTier());
         }
+        for (Item item : ExtendraItems.ITEMS) {
+            if (item instanceof ConfigurableRocketItem) {
+                ConfigurableRocketItem rocket = (ConfigurableRocketItem) item;
+                addRocket(rockets, rocket, rocket.getSpec().getTier());
+            }
+        }
+        rockets.sort(java.util.Comparator.<RocketItemEntry>comparingInt(entry -> entry.tier)
+            .thenComparing(entry -> entry.item.getRegistryName() == null
+                ? ""
+                : entry.item.getRegistryName().toString()));
         return rockets;
+    }
+
+    private void addRocket(List<RocketItemEntry> rockets, Item item, int tier) {
+        if (item == null) {
+            return;
+        }
+        for (RocketItemEntry existing : rockets) {
+            if (existing.item == item) {
+                return;
+            }
+        }
+        rockets.add(new RocketItemEntry(item, tier));
     }
 
     private static class RocketItemEntry {

@@ -4,6 +4,20 @@
     "ad_astra:mars_cobblestone",
     "ad_astra:venus_cobblestone",
     "ad_astra:mercury_cobblestone",
-    "ad_astra:glacio_cobblestone"
+    "ad_astra:glacio_cobblestone",
+    "ad_astra:ceres_cobblestone",
+    "ad_astra:jupiter_cobblestone",
+    "ad_astra:saturn_cobblestone",
+    "ad_astra:uranus_cobblestone",
+    "ad_astra:neptune_cobblestone",
+    "ad_astra:orcus_cobblestone",
+    "ad_astra:pluto_cobblestone",
+    "ad_astra:haumea_cobblestone",
+    "ad_astra:quaoar_cobblestone",
+    "ad_astra:makemake_cobblestone",
+    "ad_astra:gonggong_cobblestone",
+    "ad_astra:eris_cobblestone",
+    "ad_astra:sedna_cobblestone",
+    "ad_astra:b_cobblestone"
   ]
 }

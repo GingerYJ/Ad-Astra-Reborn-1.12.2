@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ad_astra:aurorite_ingot"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:aurorite_nugget",
+    "count": 9
+  }
+}

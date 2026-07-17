@@ -39,24 +39,6 @@ public final class AdAstraConfig {
         new PlanetTierConfig("mercury", ModDimensions.MERCURY_ID, 3, "\u6c34\u661f"),
         new PlanetTierConfig("venus", ModDimensions.VENUS_ID, 3, "\u91d1\u661f"),
         new PlanetTierConfig("glacio", ModDimensions.GLACIO_ID, 4, "\u51b0\u5ddd\u661f"),
-        new PlanetTierConfig("ceres", ModDimensions.CERES_ID, 3, "\u8c37\u795e\u661f"),
-        new PlanetTierConfig("pluto", ModDimensions.PLUTO_ID, 4, "\u51a5\u738b\u661f"),
-        new PlanetTierConfig("haumea", ModDimensions.HAUMEA_ID, 4, "\u598a\u795e\u661f"),
-        new PlanetTierConfig("kuiper_belt", ModDimensions.KUIPER_BELT_ID, 5, "\u67ef\u4f0a\u4f2f\u5e26"),
-        new PlanetTierConfig("io", ModDimensions.IO_ID, 4, "\u6728\u536b\u4e00"),
-        new PlanetTierConfig("europa", ModDimensions.EUROPA_ID, 4, "\u6728\u536b\u4e8c"),
-        new PlanetTierConfig("ganymede", ModDimensions.GANYMEDE_ID, 4, "\u6728\u536b\u4e09"),
-        new PlanetTierConfig("callisto", ModDimensions.CALLISTO_ID, 4, "\u6728\u536b\u56db"),
-        new PlanetTierConfig("enceladus", ModDimensions.ENCELADUS_ID, 5, "\u571f\u536b\u4e8c"),
-        new PlanetTierConfig("titan", ModDimensions.TITAN_ID, 5, "\u571f\u536b\u516d"),
-        new PlanetTierConfig("miranda", ModDimensions.MIRANDA_ID, 5, "\u5929\u536b\u4e94"),
-        new PlanetTierConfig("triton", ModDimensions.TRITON_ID, 5, "\u6d77\u536b\u4e00"),
-        new PlanetTierConfig("phobos", ModDimensions.PHOBOS_ID, 3, "\u706b\u536b\u4e00"),
-        new PlanetTierConfig("jupiter_orbit", ModDimensions.JUPITER_ORBIT_ID, 4, "\u6728\u661f\u8f68\u9053"),
-        new PlanetTierConfig("barnarda_c", ModDimensions.BARNARDA_C_ID, 6, "\u5df4\u7eb3\u5fb7C"),
-        new PlanetTierConfig("barnarda_c1", ModDimensions.BARNARDA_C1_ID, 6, "\u5df4\u7eb3\u5fb7C1"),
-        new PlanetTierConfig("tauceti_f", ModDimensions.TAUCETI_F_ID, 6, "\u5929\u4ed3\u4e94F"),
-        new PlanetTierConfig("proxima_b", ModDimensions.PROXIMA_B_ID, 6, "\u6bd4\u90bb\u661fb")
     };
 
     private static final PlanetMobConfig[] PLANET_MOB_CONFIGS = new PlanetMobConfig[] {
@@ -65,23 +47,6 @@ public final class AdAstraConfig {
         new PlanetMobConfig("enableHostileMobsOnMercury", ModDimensions.MERCURY_ID, "\u6c34\u661f"),
         new PlanetMobConfig("enableHostileMobsOnVenus", ModDimensions.VENUS_ID, "\u91d1\u661f"),
         new PlanetMobConfig("enableHostileMobsOnGlacio", ModDimensions.GLACIO_ID, "\u51b0\u5ddd\u661f"),
-        new PlanetMobConfig("enableHostileMobsOnCeres", ModDimensions.CERES_ID, "\u8c37\u795e\u661f"),
-        new PlanetMobConfig("enableHostileMobsOnPluto", ModDimensions.PLUTO_ID, "\u51a5\u738b\u661f"),
-        new PlanetMobConfig("enableHostileMobsOnHaumea", ModDimensions.HAUMEA_ID, "\u598a\u795e\u661f"),
-        new PlanetMobConfig("enableHostileMobsOnKuiperBelt", ModDimensions.KUIPER_BELT_ID, "\u67ef\u4f0a\u4f2f\u5e26"),
-        new PlanetMobConfig("enableHostileMobsOnIo", ModDimensions.IO_ID, "\u6728\u536b\u4e00"),
-        new PlanetMobConfig("enableHostileMobsOnEuropa", ModDimensions.EUROPA_ID, "\u6728\u536b\u4e8c"),
-        new PlanetMobConfig("enableHostileMobsOnGanymede", ModDimensions.GANYMEDE_ID, "\u6728\u536b\u4e09"),
-        new PlanetMobConfig("enableHostileMobsOnCallisto", ModDimensions.CALLISTO_ID, "\u6728\u536b\u56db"),
-        new PlanetMobConfig("enableHostileMobsOnEnceladus", ModDimensions.ENCELADUS_ID, "\u571f\u536b\u4e8c"),
-        new PlanetMobConfig("enableHostileMobsOnTitan", ModDimensions.TITAN_ID, "\u571f\u536b\u516d"),
-        new PlanetMobConfig("enableHostileMobsOnMiranda", ModDimensions.MIRANDA_ID, "\u5929\u536b\u4e94"),
-        new PlanetMobConfig("enableHostileMobsOnTriton", ModDimensions.TRITON_ID, "\u6d77\u536b\u4e00"),
-        new PlanetMobConfig("enableHostileMobsOnPhobos", ModDimensions.PHOBOS_ID, "\u706b\u536b\u4e00"),
-        new PlanetMobConfig("enableHostileMobsOnBarnardaC", ModDimensions.BARNARDA_C_ID, "\u5df4\u7eb3\u5fb7C"),
-        new PlanetMobConfig("enableHostileMobsOnBarnardaC1", ModDimensions.BARNARDA_C1_ID, "\u5df4\u7eb3\u5fb7C1"),
-        new PlanetMobConfig("enableHostileMobsOnTauCetiF", ModDimensions.TAUCETI_F_ID, "\u5929\u4ed3\u4e94F"),
-        new PlanetMobConfig("enableHostileMobsOnProximaB", ModDimensions.PROXIMA_B_ID, "\u6bd4\u90bb\u661fb")
     };
 
     private static final PlanetDimensionConfig[] PLANET_DIMENSION_CONFIGS = new PlanetDimensionConfig[] {
@@ -90,23 +55,6 @@ public final class AdAstraConfig {
         new PlanetDimensionConfig("enableMercuryDimension", "mercuryGravityMultiplier", ModDimensions.MERCURY_ID, "\u6c34\u661f"),
         new PlanetDimensionConfig("enableVenusDimension", "venusGravityMultiplier", ModDimensions.VENUS_ID, "\u91d1\u661f"),
         new PlanetDimensionConfig("enableGlacioDimension", "glacioGravityMultiplier", ModDimensions.GLACIO_ID, "\u51b0\u5ddd\u661f"),
-        new PlanetDimensionConfig("enableCeresDimension", "ceresGravityMultiplier", ModDimensions.CERES_ID, "\u8c37\u795e\u661f"),
-        new PlanetDimensionConfig("enablePlutoDimension", "plutoGravityMultiplier", ModDimensions.PLUTO_ID, "\u51a5\u738b\u661f"),
-        new PlanetDimensionConfig("enableHaumeaDimension", "haumeaGravityMultiplier", ModDimensions.HAUMEA_ID, "\u598a\u795e\u661f"),
-        new PlanetDimensionConfig("enableKuiperBeltDimension", "kuiperBeltGravityMultiplier", ModDimensions.KUIPER_BELT_ID, "\u67ef\u4f0a\u4f2f\u5e26"),
-        new PlanetDimensionConfig("enableIoDimension", "ioGravityMultiplier", ModDimensions.IO_ID, "\u6728\u536b\u4e00"),
-        new PlanetDimensionConfig("enableEuropaDimension", "europaGravityMultiplier", ModDimensions.EUROPA_ID, "\u6728\u536b\u4e8c"),
-        new PlanetDimensionConfig("enableGanymedeDimension", "ganymedeGravityMultiplier", ModDimensions.GANYMEDE_ID, "\u6728\u536b\u4e09"),
-        new PlanetDimensionConfig("enableCallistoDimension", "callistoGravityMultiplier", ModDimensions.CALLISTO_ID, "\u6728\u536b\u56db"),
-        new PlanetDimensionConfig("enableEnceladusDimension", "enceladusGravityMultiplier", ModDimensions.ENCELADUS_ID, "\u571f\u536b\u4e8c"),
-        new PlanetDimensionConfig("enableTitanDimension", "titanGravityMultiplier", ModDimensions.TITAN_ID, "\u571f\u536b\u516d"),
-        new PlanetDimensionConfig("enableMirandaDimension", "mirandaGravityMultiplier", ModDimensions.MIRANDA_ID, "\u5929\u536b\u4e94"),
-        new PlanetDimensionConfig("enableTritonDimension", "tritonGravityMultiplier", ModDimensions.TRITON_ID, "\u6d77\u536b\u4e00"),
-        new PlanetDimensionConfig("enablePhobosDimension", "phobosGravityMultiplier", ModDimensions.PHOBOS_ID, "\u706b\u536b\u4e00"),
-        new PlanetDimensionConfig("enableBarnardaCDimension", "barnardaCGravityMultiplier", ModDimensions.BARNARDA_C_ID, "\u5df4\u7eb3\u5fb7C"),
-        new PlanetDimensionConfig("enableBarnardaC1Dimension", "barnardaC1GravityMultiplier", ModDimensions.BARNARDA_C1_ID, "\u5df4\u7eb3\u5fb7C1"),
-        new PlanetDimensionConfig("enableTauCetiFDimension", "tauCetiFGravityMultiplier", ModDimensions.TAUCETI_F_ID, "\u5929\u4ed3\u4e94F"),
-        new PlanetDimensionConfig("enableProximaBDimension", "proximaBGravityMultiplier", ModDimensions.PROXIMA_B_ID, "\u6bd4\u90bb\u661fb")
     };
 
     // General Configuration

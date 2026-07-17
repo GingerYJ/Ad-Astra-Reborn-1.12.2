@@ -85,58 +85,10 @@ public final class ModItems {
     public static final Item RAW_DESH = item("raw_desh");
     public static final Item RAW_OSTRUM = item("raw_ostrum");
     public static final Item RAW_CALORITE = item("raw_calorite");
+    // Minecraft 1.12.2 has no vanilla copper item; this backs the core Glacio copper ore.
+    public static final Item COPPER_INGOT = item("copper_ingot");
     public static final Item PHOTOVOLTAIC_ETRIUM_CELL = item("photovoltaic_etrium_cell");
     public static final Item PHOTOVOLTAIC_VESNIUM_CELL = item("photovoltaic_vesnium_cell");
-    public static final Item RAW_SILICON = item("raw_silicon");
-    public static final Item DOLOMITE_CRYSTAL = item("dolomite_crystal");
-    public static final Item SULFUR_DUST = item("sulfur_dust");
-    public static final Item VOLCANIC_SHARD = item("volcanic_shard");
-    public static final Item SAPPHIRE = item("sapphire");
-    public static final Item MAGNESIUM_INGOT = item("magnesium_ingot");
-    public static final Item ILMENITE_RAW = item("ilmenite_raw");
-    public static final Item COBALT_INGOT = item("cobalt_ingot");
-    public static final Item COPPER_INGOT = item("copper_ingot");
-    public static final Item METEORIC_IRON_FRAGMENTS = item("meteoric_iron_fragments");
-    public static final Item URANIUM_FRAGMENTS = item("uranium_fragments");
-    public static final Item URANIUM_INGOT = item("uranium_ingot");
-    public static final Item RAW_HERMIUM = item("raw_hermium");
-    public static final Item HERMIUM_INGOT = item("hermium_ingot");
-    public static final Item RAW_CRYONITE = item("raw_cryonite");
-    public static final Item CRYONITE_INGOT = item("cryonite_ingot");
-    public static final Item RAW_CERIUM = item("raw_cerium");
-    public static final Item CERIUM_INGOT = item("cerium_ingot");
-    public static final Item RAW_PLUTONIUM = item("raw_plutonium");
-    public static final Item PLUTONIUM_INGOT = item("plutonium_ingot");
-    public static final Item RAW_HAUMEITE = item("raw_haumeite");
-    public static final Item HAUMEITE_INGOT = item("haumeite_ingot");
-    public static final Item RAW_KUIPERITE = item("raw_kuiperite");
-    public static final Item KUIPERITE_INGOT = item("kuiperite_ingot");
-    public static final Item RAW_IONITE = item("raw_ionite");
-    public static final Item IONITE_INGOT = item("ionite_ingot");
-    public static final Item RAW_EUROPIUM = item("raw_europium");
-    public static final Item EUROPIUM_INGOT = item("europium_ingot");
-    public static final Item RAW_GANYMEDITE = item("raw_ganymedite");
-    public static final Item GANYMEDITE_INGOT = item("ganymedite_ingot");
-    public static final Item RAW_CALLISTITE = item("raw_callistite");
-    public static final Item CALLISTITE_INGOT = item("callistite_ingot");
-    public static final Item RAW_ENCELADITE = item("raw_enceladite");
-    public static final Item ENCELADITE_INGOT = item("enceladite_ingot");
-    public static final Item RAW_TITANITE = item("raw_titanite");
-    public static final Item TITANITE_INGOT = item("titanite_ingot");
-    public static final Item RAW_MIRANDIUM = item("raw_mirandium");
-    public static final Item MIRANDIUM_INGOT = item("mirandium_ingot");
-    public static final Item RAW_TRITONIUM = item("raw_tritonium");
-    public static final Item TRITONIUM_INGOT = item("tritonium_ingot");
-    public static final Item RAW_PHOBIUM = item("raw_phobium");
-    public static final Item PHOBIUM_INGOT = item("phobium_ingot");
-    public static final Item RAW_BARNARDIUM = item("raw_barnardium");
-    public static final Item BARNARDIUM_INGOT = item("barnardium_ingot");
-    public static final Item RAW_C1_BARNARDIUM = item("raw_c1_barnardium");
-    public static final Item C1_BARNARDIUM_INGOT = item("c1_barnardium_ingot");
-    public static final Item RAW_TAUCETITE = item("raw_taucetite");
-    public static final Item TAUCETITE_INGOT = item("taucetite_ingot");
-    public static final Item RAW_PROXIMITE = item("raw_proximite");
-    public static final Item PROXIMITE_INGOT = item("proximite_ingot");
     public static final Item OXYGEN_GEAR = item("oxygen_gear");
     public static final Item WHEEL = item("wheel");
     public static final Item ENGINE_FRAME = item("engine_frame");
@@ -202,8 +154,6 @@ public final class ModItems {
     public static final Item SULFUR_CREEPER_SPAWN_EGG = spawnEgg("sulfur_creeper_spawn_egg", SulfurCreeperEntity::new, 0xd48f30, 0xac791c);
     public static final Item GLACIAN_RAM_SPAWN_EGG = spawnEgg("glacian_ram_spawn_egg", GlacianRamEntity::new, 0xffe6ff, 0x433d3d);
     public static final Item LUNARIAN_WANDERING_TRADER_SPAWN_EGG = spawnEgg("lunarian_wandering_trader_spawn_egg", LunarianWanderingTraderEntity::new, 0x5b73c7, 0x8244d5);
-    public static final Item NICKEL_INGOT = item("nickel_ingot");
-
     private ModItems() {
     }
 
@@ -216,7 +166,9 @@ public final class ModItems {
             }
             all.add(ModBlocks.createItemBlock(block));
         }
+        all.addAll(ExtendraBlocks.createItemBlocks());
         all.addAll(INTERNAL_ITEMS);
+        all.addAll(ExtendraItems.ITEMS);
         event.getRegistry().registerAll(all.toArray(new Item[0]));
     }
 

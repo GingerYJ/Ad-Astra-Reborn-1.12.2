@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:haumea_cobblestone"
+    }
+  },
+  "result": {
+    "item": "ad_astra:haumea_cobblestone_slab",
+    "count": 6
+  }
+}

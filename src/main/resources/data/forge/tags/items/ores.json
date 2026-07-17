@@ -9,6 +9,14 @@
     "#forge:ores/ostrum",
     "#forge:ores/ostrum",
     "#forge:ores/calorite",
-    "#forge:ores/calorite"
+    "#forge:ores/calorite",
+    "#forge:ores/juperium",
+    "#forge:ores/saturlyte",
+    "#forge:ores/uranium",
+    "#forge:ores/neptunium",
+    "#forge:ores/radium",
+    "#forge:ores/plutonium",
+    "#forge:ores/electrolyte",
+    "#forge:ores/aurorite"
   ]
 }

@@ -26,42 +26,6 @@
       "texture": "ad_astra:textures/environment/blue_sun.png"
     },
     {
-      "back_light_color": -4943731,
-      "back_light_scale": 6.0,
-      "blend": true,
-      "global_rotation": [
-        20.0,
-        20.0,
-        180.0
-      ],
-      "local_rotation": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "movement_type": "TIME_OF_DAY_REVERSED",
-      "scale": 2.0,
-      "texture": "ad_astra:textures/environment/phobos.png"
-    },
-    {
-      "back_light_color": -1714771,
-      "back_light_scale": 4.5,
-      "blend": true,
-      "global_rotation": [
-        0.0,
-        0.0,
-        180.0
-      ],
-      "local_rotation": [
-        0.0,
-        20.0,
-        0.0
-      ],
-      "movement_type": "TIME_OF_DAY",
-      "scale": 1.5,
-      "texture": "ad_astra:textures/environment/deimos.png"
-    },
-    {
       "back_light_color": -12813094,
       "back_light_scale": 1.2,
       "blend": true,

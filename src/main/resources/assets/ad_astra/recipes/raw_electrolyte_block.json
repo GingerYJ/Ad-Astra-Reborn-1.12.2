@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:raw_electrolyte"
+    }
+  },
+  "result": {
+    "item": "ad_astra:raw_electrolyte_block"
+  }
+}

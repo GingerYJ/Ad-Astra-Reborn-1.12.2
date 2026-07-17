@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:neptunium_nugget",
+    {
+      "id": "#c:neptunium_nuggets",
+      "required": false
+    },
+    {
+      "id": "#forge:nuggets/neptunium",
+      "required": false
+    }
+  ]
+}

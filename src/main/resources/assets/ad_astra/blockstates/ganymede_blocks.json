@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "type=ganymede_grunt": { "model": "ad_astra:ganymede_blocks_ganymede_grunt" },
-        "type=ganymede_stone": { "model": "ad_astra:ganymede_blocks_ganymede_stone" },
-        "type=ganymede_magnesium_ore": { "model": "ad_astra:ganymede_blocks_ganymede_magnesium_ore" },
-        "type=ganymede_titanium_ore": { "model": "ad_astra:ganymede_blocks_ganymede_titanium_ore" }
-    }
-}

@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "type=barnarda_c1_grunt": { "model": "ad_astra:barnarda_c1_blocks_barnarda_c1_grunt" },
-        "type=barnarda_c1_stone": { "model": "ad_astra:barnarda_c1_blocks_barnarda_c1_stone" },
-        "type=barnarda_c1_cobblestone": { "model": "ad_astra:barnarda_c1_blocks_barnarda_c1_cobblestone" },
-        "type=barnarda_c1_iron_ore": { "model": "ad_astra:barnarda_c1_blocks_barnarda_c1_iron_ore" }
-    }
-}

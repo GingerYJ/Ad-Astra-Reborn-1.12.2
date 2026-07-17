@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#E#",
+    " F "
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateRadium"
+    },
+    "E": {
+      "item": "ad_astra:neptunium_engine"
+    },
+    "F": {
+      "item": "ad_astra:fan"
+    }
+  },
+  "result": {
+    "item": "ad_astra:radium_engine"
+  }
+}

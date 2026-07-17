@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:radium_ingot",
+    {
+      "id": "#c:radium_ingots",
+      "required": false
+    },
+    {
+      "id": "#forge:ingots/radium",
+      "required": false
+    }
+  ]
+}

@@ -1,9 +1,0 @@
-{
-    "variants": {
-        "type=triton_grunt": { "model": "ad_astra:triton_blocks_triton_grunt" },
-        "type=triton_subgrunt": { "model": "ad_astra:triton_blocks_triton_subgrunt" },
-        "type=triton_stone": { "model": "ad_astra:triton_blocks_triton_stone" },
-        "type=triton_geyser": { "model": "ad_astra:triton_blocks_triton_geyser" },
-        "type=triton_geyser_2": { "model": "ad_astra:triton_blocks_triton_geyser_2" }
-    }
-}

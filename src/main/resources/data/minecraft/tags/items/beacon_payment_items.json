@@ -4,6 +4,14 @@
     "ad_astra:etrium_ingot",
     "ad_astra:desh_ingot",
     "ad_astra:ostrum_ingot",
-    "ad_astra:calorite_ingot"
+    "ad_astra:calorite_ingot",
+    "ad_astra:juperium_ingot",
+    "ad_astra:saturlyte_ingot",
+    "ad_astra:uranium_ingot",
+    "ad_astra:neptunium_ingot",
+    "ad_astra:radium_ingot",
+    "ad_astra:plutonium_ingot",
+    "ad_astra:electrolyte_ingot",
+    "ad_astra:aurorite_ingot"
   ]
 }

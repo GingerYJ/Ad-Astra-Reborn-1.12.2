@@ -598,176 +598,14 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                     ModBlocks.GLACIO_STONE);
                 break;
 
-
-
-            case "ceres":
-                addConfiguredOre(specs, "ceres", state(ModBlocks.CERES_BLOCKS, 2), OreGenConfig.getOreSettings("ceres", "dolomite"),
-                    state(ModBlocks.CERES_BLOCKS, 0), state(ModBlocks.CERES_BLOCKS, 1));
-                addConfiguredOre(specs, "ceres", state(ModBlocks.CERES_BLOCKS, 3), OreGenConfig.getOreSettings("ceres", "meteoricIron"),
-                    state(ModBlocks.CERES_BLOCKS, 0), state(ModBlocks.CERES_BLOCKS, 1));
-                break;
-
-            case "pluto":
-                addConfiguredOre(specs, "pluto", state(ModBlocks.PLUTO_BLOCKS, 2), OreGenConfig.getOreSettings("pluto", "iron"),
-                    state(ModBlocks.PLUTO_BLOCKS, 0), state(ModBlocks.PLUTO_BLOCKS, 1), state(ModBlocks.PLUTO_BLOCKS, 5));
-                addConfiguredOre(specs, "pluto", state(ModBlocks.PLUTO_BLOCKS, 3), OreGenConfig.getOreSettings("pluto", "sulfur"),
-                    state(ModBlocks.PLUTO_BLOCKS, 0), state(ModBlocks.PLUTO_BLOCKS, 1), state(ModBlocks.PLUTO_BLOCKS, 5));
-                addConfiguredOre(specs, "pluto", state(ModBlocks.PLUTO_BLOCKS, 4), OreGenConfig.getOreSettings("pluto", "uranium"),
-                    state(ModBlocks.PLUTO_BLOCKS, 0), state(ModBlocks.PLUTO_BLOCKS, 1), state(ModBlocks.PLUTO_BLOCKS, 5));
-                break;
-
-            case "haumea":
-                addConfiguredOre(specs, "haumea", state(ModBlocks.HAUMEA_BLOCKS, 2), OreGenConfig.getOreSettings("haumea", "dolomite"),
-                    state(ModBlocks.HAUMEA_BLOCKS, 0), state(ModBlocks.HAUMEA_BLOCKS, 1), state(ModBlocks.HAUMEA_BLOCKS, 3));
-                break;
-
-            case "io":
-                addConfiguredOre(specs, "io", state(ModBlocks.IO_BLOCKS, 8), OreGenConfig.getOreSettings("io", "sulfur"),
-                    state(ModBlocks.IO_BLOCKS, 0), state(ModBlocks.IO_BLOCKS, 1), state(ModBlocks.IO_BLOCKS, 2),
-                    state(ModBlocks.IO_BLOCKS, 5), state(ModBlocks.IO_BLOCKS, 10));
-                addConfiguredOre(specs, "io", state(ModBlocks.IO_BLOCKS, 9), OreGenConfig.getOreSettings("io", "volcanic"),
-                    state(ModBlocks.IO_BLOCKS, 0), state(ModBlocks.IO_BLOCKS, 1), state(ModBlocks.IO_BLOCKS, 2),
-                    state(ModBlocks.IO_BLOCKS, 5), state(ModBlocks.IO_BLOCKS, 10));
-                break;
-
-            case "europa":
-                addConfiguredOre(specs, "europa", state(ModBlocks.EUROPA_BLOCKS, 5), OreGenConfig.getOreSettings("europa", "silicon"),
-                    state(ModBlocks.EUROPA_BLOCKS, 0), state(ModBlocks.EUROPA_BLOCKS, 1), state(ModBlocks.EUROPA_BLOCKS, 2),
-                    state(ModBlocks.EUROPA_BLOCKS, 4));
-                addConfiguredOre(specs, "europa", state(ModBlocks.EUROPA_BLOCKS, 6), OreGenConfig.getOreSettings("europa", "iron"),
-                    state(ModBlocks.EUROPA_BLOCKS, 0), state(ModBlocks.EUROPA_BLOCKS, 1), state(ModBlocks.EUROPA_BLOCKS, 2),
-                    state(ModBlocks.EUROPA_BLOCKS, 4));
-                break;
-
-            case "ganymede":
-                addConfiguredOre(specs, "ganymede", state(ModBlocks.GANYMEDE_BLOCKS, 2), OreGenConfig.getOreSettings("ganymede", "magnesium"),
-                    state(ModBlocks.GANYMEDE_BLOCKS, 0), state(ModBlocks.GANYMEDE_BLOCKS, 1));
-                addConfiguredOre(specs, "ganymede", state(ModBlocks.GANYMEDE_BLOCKS, 3), OreGenConfig.getOreSettings("ganymede", "titanium"),
-                    state(ModBlocks.GANYMEDE_BLOCKS, 0), state(ModBlocks.GANYMEDE_BLOCKS, 1));
-                break;
-
-            case "enceladus":
-                addConfiguredOre(specs, "enceladus", state(ModBlocks.ENCELADUS_BLOCKS, 2), OreGenConfig.getOreSettings("enceladus", "coal"),
-                    state(ModBlocks.ENCELADUS_BLOCKS, 0), state(ModBlocks.ENCELADUS_BLOCKS, 1));
-                break;
-
-            case "titan":
-                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 3), OreGenConfig.getOreSettings("titan", "sapphire"),
-                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
-                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 4), OreGenConfig.getOreSettings("titan", "emerald"),
-                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
-                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 5), OreGenConfig.getOreSettings("titan", "diamond"),
-                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
-                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 6), OreGenConfig.getOreSettings("titan", "coal"),
-                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
-                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 7), OreGenConfig.getOreSettings("titan", "lapis"),
-                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
-                addConfiguredOre(specs, "titan", state(ModBlocks.TITAN_BLOCKS, 8), OreGenConfig.getOreSettings("titan", "redstone"),
-                    state(ModBlocks.TITAN_BLOCKS, 0), state(ModBlocks.TITAN_BLOCKS, 1), state(ModBlocks.TITAN_BLOCKS, 2));
-                break;
-
-            case "miranda":
-                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 3), OreGenConfig.getOreSettings("miranda", "iron"), mirandaReplaceableStates());
-                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 4), OreGenConfig.getOreSettings("miranda", "dolomite"), mirandaReplaceableStates());
-                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 5), OreGenConfig.getOreSettings("miranda", "diamond"), mirandaReplaceableStates());
-                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 6), OreGenConfig.getOreSettings("miranda", "quartz"), mirandaReplaceableStates());
-                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 7), OreGenConfig.getOreSettings("miranda", "cobalt"), mirandaReplaceableStates());
-                addConfiguredOre(specs, "miranda", state(ModBlocks.MIRANDA_BLOCKS, 8), OreGenConfig.getOreSettings("miranda", "nickel"), mirandaReplaceableStates());
-                break;
-
-            case "phobos":
-                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 2), OreGenConfig.getOreSettings("phobos", "iron"),
-                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
-                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 3), OreGenConfig.getOreSettings("phobos", "meteoricIron"),
-                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
-                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 4), OreGenConfig.getOreSettings("phobos", "nickel"),
-                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
-                addConfiguredOre(specs, "phobos", state(ModBlocks.PHOBOS_BLOCKS, 5), OreGenConfig.getOreSettings("phobos", "desh"),
-                    state(ModBlocks.PHOBOS_BLOCKS, 0), state(ModBlocks.PHOBOS_BLOCKS, 1));
-                break;
-
-            case "barnarda_c":
-                addConfiguredOre(specs, "barnarda_c", state(ModBlocks.BARNARDA_C_BLOCKS, 11), OreGenConfig.getOreSettings("barnarda_c", "iron"),
-                    state(ModBlocks.BARNARDA_C_BLOCKS, 0), state(ModBlocks.BARNARDA_C_BLOCKS, 1),
-                    state(ModBlocks.BARNARDA_C_BLOCKS, 2), state(ModBlocks.BARNARDA_C_BLOCKS, 3));
-                addConfiguredOre(specs, "barnarda_c", state(ModBlocks.BARNARDA_C_BLOCKS, 12), OreGenConfig.getOreSettings("barnarda_c", "gold"),
-                    state(ModBlocks.BARNARDA_C_BLOCKS, 0), state(ModBlocks.BARNARDA_C_BLOCKS, 1),
-                    state(ModBlocks.BARNARDA_C_BLOCKS, 2), state(ModBlocks.BARNARDA_C_BLOCKS, 3));
-                addConfiguredOre(specs, "barnarda_c", state(ModBlocks.BARNARDA_C_BLOCKS, 13), OreGenConfig.getOreSettings("barnarda_c", "coal"),
-                    state(ModBlocks.BARNARDA_C_BLOCKS, 0), state(ModBlocks.BARNARDA_C_BLOCKS, 1),
-                    state(ModBlocks.BARNARDA_C_BLOCKS, 2), state(ModBlocks.BARNARDA_C_BLOCKS, 3));
-                break;
-
-            case "barnarda_c1":
-                addConfiguredOre(specs, "barnarda_c1", state(ModBlocks.BARNARDA_C1_BLOCKS, 3), OreGenConfig.getOreSettings("barnarda_c1", "iron"),
-                    state(ModBlocks.BARNARDA_C1_BLOCKS, 0), state(ModBlocks.BARNARDA_C1_BLOCKS, 1));
-                break;
-
-            case "tauceti_f":
-                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 5), OreGenConfig.getOreSettings("tauceti_f", "iron"),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
-                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 6), OreGenConfig.getOreSettings("tauceti_f", "coal"),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
-                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 7), OreGenConfig.getOreSettings("tauceti_f", "gold"),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
-                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 8), OreGenConfig.getOreSettings("tauceti_f", "diamond"),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
-                addConfiguredOre(specs, "tauceti_f", state(ModBlocks.TAUCETI_F_BLOCKS, 9), OreGenConfig.getOreSettings("tauceti_f", "lapis"),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 0), state(ModBlocks.TAUCETI_F_BLOCKS, 1),
-                    state(ModBlocks.TAUCETI_F_BLOCKS, 2), state(ModBlocks.TAUCETI_F_BLOCKS, 3));
-                break;
-
             default:
                 break;
         }
 
-        addPlanetaryExclusiveResourceOre(specs, planetName);
         addCustomConfiguredBlocks(specs, planetName);
         return specs;
     }
 
-
-    private void addPlanetaryExclusiveResourceOre(List<PlanetOreSpec> specs, String planetName) {
-        String resource = planetaryExclusiveResource(planetName);
-        if (resource == null) {
-            return;
-        }
-        Block oreBlock = Block.REGISTRY.getObject(new ResourceLocation("ad_astra", planetName + "_" + resource + "_ore"));
-        if (oreBlock == null || oreBlock == Blocks.AIR) {
-            return;
-        }
-        OreGenConfig.OreSettings settings = OreGenConfig.getOreSettings(planetName, resource);
-        addConfiguredOre(specs, planetName, oreBlock.getDefaultState(), settings, defaultCustomReplaceableStates());
-    }
-
-    private static String planetaryExclusiveResource(String planetName) {
-        switch (planetName) {
-            case "mercury": return "hermium";
-            case "glacio": return "cryonite";
-            case "ceres": return "cerium";
-            case "pluto": return "plutonium";
-            case "haumea": return "haumeite";
-            case "kuiper_belt": return "kuiperite";
-            case "io": return "ionite";
-            case "europa": return "europium";
-            case "ganymede": return "ganymedite";
-            case "callisto": return "callistite";
-            case "enceladus": return "enceladite";
-            case "titan": return "titanite";
-            case "miranda": return "mirandium";
-            case "triton": return "tritonium";
-            case "phobos": return "phobium";
-            case "barnarda_c": return "barnardium";
-            case "barnarda_c1": return "c1_barnardium";
-            case "tauceti_f": return "taucetite";
-            case "proxima_b": return "proximite";
-            default: return null;
-        }
-    }
 
     private void addCustomConfiguredBlocks(List<PlanetOreSpec> specs, String planetName) {
         for (OreGenConfig.CustomBlockSettings settings : OreGenConfig.getCustomBlockSettings(planetName)) {
@@ -862,20 +700,6 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
     private static IBlockState state(Block block, int meta) {
         return block.getStateFromMeta(meta);
-    }
-
-    private static IBlockState[] mirandaReplaceableStates() {
-        return new IBlockState[] {
-            state(ModBlocks.MIRANDA_BLOCKS, 0),
-            state(ModBlocks.MIRANDA_BLOCKS, 1),
-            state(ModBlocks.MIRANDA_BLOCKS, 2),
-            state(ModBlocks.MIRANDA_BLOCKS, 9),
-            state(ModBlocks.MIRANDA_BLOCKS, 10),
-            state(ModBlocks.MIRANDA_BLOCKS, 11),
-            state(ModBlocks.MIRANDA_BLOCKS, 12),
-            state(ModBlocks.MIRANDA_BLOCKS, 13),
-            state(ModBlocks.MIRANDA_BLOCKS, 14)
-        };
     }
 
     private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, Block oreBlock,

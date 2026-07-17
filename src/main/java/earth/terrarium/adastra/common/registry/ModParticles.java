@@ -11,6 +11,7 @@ public final class ModParticles {
     public static int OXYGEN_BUBBLE;
     public static int OXYGEN_VENT;
     public static int CRYO_FREEZE;
+    public static int WIND;
 
     public static void register() {
         ACID_RAIN = 0;
@@ -19,5 +20,6 @@ public final class ModParticles {
         OXYGEN_BUBBLE = 3;
         OXYGEN_VENT = 4;
         CRYO_FREEZE = 5;
+        WIND = 6;
     }
 }

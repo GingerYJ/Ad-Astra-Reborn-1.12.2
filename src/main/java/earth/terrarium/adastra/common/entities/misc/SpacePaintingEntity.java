@@ -84,7 +84,17 @@ public class SpacePaintingEntity extends EntityHanging {
         SATURN("saturn", 64, 48),
         THE_MILKY_WAY("the_milky_way", 64, 48),
         ALPHA_CENTAURI("alpha_centauri", 64, 64),
-        SUN("sun", 80, 80);
+        SUN("sun", 80, 80),
+        CERES("ceres", 16, 16),
+        ORCUS("orcus", 16, 16),
+        HAUMEA("haumea", 16, 16),
+        QUAOAR("quaoar", 16, 16),
+        MAKEMAKE("makemake", 16, 16),
+        GONGGONG("gonggong", 16, 16),
+        ERIS("eris", 16, 16),
+        SEDNA("sedna", 16, 16),
+        B("b", 32, 32),
+        VICINUS("vicinus", 32, 32);
 
         private final String id;
         private final int width;

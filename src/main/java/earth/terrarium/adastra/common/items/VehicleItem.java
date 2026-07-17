@@ -5,6 +5,7 @@ import earth.terrarium.adastra.common.AdAstraCreativeTab;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
 import earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity;
 import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -13,20 +14,48 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Function;
 
 public class VehicleItem extends Item {
 
     private final Function<World, ? extends AdAstraVehicleEntity> factory;
+    private final int rocketTier;
 
     public VehicleItem(String name, Function<World, ? extends AdAstraVehicleEntity> factory) {
         this.factory = factory;
+        this.rocketTier = rocketTierOf(name);
         setRegistryName(Reference.MOD_ID, name);
         setTranslationKey(Reference.MOD_ID + "." + name);
         setCreativeTab(AdAstraCreativeTab.INSTANCE);
         setMaxStackSize(1);
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+        addRocketTierTooltip(tooltip, rocketTier);
+    }
+
+    protected final void addRocketTierTooltip(List<String> tooltip, int tier) {
+        if (tier > 0) {
+            tooltip.add(I18n.translateToLocalFormatted("tooltip.ad_astra.configurable_rocket.tier", tier));
+        }
+    }
+
+    private static int rocketTierOf(String name) {
+        if (!name.startsWith("tier_") || !name.endsWith("_rocket")) {
+            return 0;
+        }
+
+        try {
+            return Integer.parseInt(name.substring("tier_".length(), name.length() - "_rocket".length()));
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
     }
 
     @Override

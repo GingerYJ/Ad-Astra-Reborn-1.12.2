@@ -1,0 +1,386 @@
+{
+  "display": {
+    "icon": {
+      "item": "ad_astra:earth_globe"
+    },
+    "title": {
+      "translate": "advancements.ad_astra.all_planets.title"
+    },
+    "description": {
+      "translate": "advancements.ad_astra.all_planets.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "ad_astra:moon": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:moon"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:mars": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:mars"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:mercury": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:mercury"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:venus": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:venus"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_ceres": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_ceres"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_jupiter": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_jupiter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_saturn": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_saturn"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_uranus": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_uranus"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_neptune": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_neptune"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_orcus": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_orcus"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_haumea": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_haumea"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_quaoar": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_quaoar"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_makemake": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_makemake"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_pluto": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_pluto"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_gonggong": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_gonggong"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_eris": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_eris"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_sedna": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_sedna"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:glacio": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:glacio"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ad_astra:extendra_b": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "dimension": "ad_astra:extendra_b"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ad_astra:moon"
+    ],
+    [
+      "ad_astra:mars"
+    ],
+    [
+      "ad_astra:mercury"
+    ],
+    [
+      "ad_astra:venus"
+    ],
+    [
+      "ad_astra:extendra_ceres"
+    ],
+    [
+      "ad_astra:extendra_jupiter"
+    ],
+    [
+      "ad_astra:extendra_saturn"
+    ],
+    [
+      "ad_astra:extendra_uranus"
+    ],
+    [
+      "ad_astra:extendra_neptune"
+    ],
+    [
+      "ad_astra:extendra_orcus"
+    ],
+    [
+      "ad_astra:extendra_haumea"
+    ],
+    [
+      "ad_astra:extendra_quaoar"
+    ],
+    [
+      "ad_astra:extendra_makemake"
+    ],
+    [
+      "ad_astra:extendra_pluto"
+    ],
+    [
+      "ad_astra:extendra_gonggong"
+    ],
+    [
+      "ad_astra:extendra_eris"
+    ],
+    [
+      "ad_astra:extendra_sedna"
+    ],
+    [
+      "ad_astra:glacio"
+    ],
+    [
+      "ad_astra:extendra_b"
+    ]
+  ],
+  "rewards": {
+    "experience": 2500
+  },
+  "parent": "ad_astra:b"
+}

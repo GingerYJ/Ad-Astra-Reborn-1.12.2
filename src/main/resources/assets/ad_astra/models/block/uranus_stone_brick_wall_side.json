@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_side",
+  "textures": {
+    "wall": "ad_astra:block/uranus_stone_bricks"
+  }
+}

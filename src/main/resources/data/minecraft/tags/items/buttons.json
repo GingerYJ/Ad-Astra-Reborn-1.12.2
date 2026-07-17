@@ -5,6 +5,15 @@
     "ad_astra:desh_plating_button",
     "ad_astra:ostrum_plating_button",
     "ad_astra:calorite_plating_button",
-    "ad_astra:glacian_button"
+    "ad_astra:glacian_button",
+    "ad_astra:juperium_plating_button",
+    "ad_astra:saturlyte_plating_button",
+    "ad_astra:uranium_plating_button",
+    "ad_astra:neptunium_plating_button",
+    "ad_astra:radium_plating_button",
+    "ad_astra:plutonium_plating_button",
+    "ad_astra:electrolyte_plating_button",
+    "ad_astra:centaurian_oak_button",
+    "ad_astra:aurorite_plating_button"
   ]
 }

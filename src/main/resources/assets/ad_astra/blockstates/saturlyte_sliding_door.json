@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "normal": {
+      "model": "ad_astra:door/saturlyte_sliding_door"
+    },
+    "facing=north,locked=false,open=false,part=bottom,powered=false": {
+      "model": "ad_astra:sliding_door_empty"
+    }
+  }
+}

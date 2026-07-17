@@ -1,6 +1,11 @@
 {
   "values": [
     "ad_astra:mars_diamond_ore",
-    "ad_astra:venus_diamond_ore"
+    "ad_astra:venus_diamond_ore",
+    "ad_astra:jupiter_diamond_ore",
+    "ad_astra:saturn_diamond_ore",
+    "ad_astra:uranus_diamond_ore",
+    "ad_astra:pluto_diamond_ore",
+    "ad_astra:b_diamond_ore"
   ]
 }

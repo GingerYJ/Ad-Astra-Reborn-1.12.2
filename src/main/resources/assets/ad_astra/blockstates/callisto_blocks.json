@@ -1,6 +1,0 @@
-{
-    "variants": {
-        "type=callisto_grunt": { "model": "ad_astra:callisto_blocks_callisto_grunt" },
-        "type=callisto_stone": { "model": "ad_astra:callisto_blocks_callisto_stone" }
-    }
-}

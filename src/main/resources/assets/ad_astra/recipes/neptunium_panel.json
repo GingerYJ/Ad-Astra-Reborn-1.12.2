@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#X#",
+    "XXX",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateNeptunium"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotNeptunium"
+    }
+  },
+  "result": {
+    "item": "ad_astra:neptunium_panel",
+    "count": 64
+  }
+}

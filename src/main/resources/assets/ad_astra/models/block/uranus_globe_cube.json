@@ -1,0 +1,7 @@
+{
+  "parent": "ad_astra:block/sideways_ringed_globe_cube",
+  "textures": {
+    "particle": "ad_astra:block/globe/uranus_globe",
+    "texture": "ad_astra:block/globe/uranus_globe"
+  }
+}

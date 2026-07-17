@@ -1,6 +1,11 @@
 package earth.terrarium.adastra.common.world.custom;
 
 import earth.terrarium.adastra.common.world.AdAstraChunkGenerator;
+import earth.terrarium.adastra.common.blocks.ExtendraIcicleBlock;
+import earth.terrarium.adastra.common.registry.ModBlocks;
+import earth.terrarium.adastra.common.registry.ExtendraBlocks;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -37,6 +42,15 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
 
         for (CustomPlanetDefinition.FluidLakeDefinition lake : definition.getFluidLakes()) {
             generateCustomFluidLake(lake, chunkOrigin, random);
+        }
+
+        if ("b".equals(definition.getPlanetName())) {
+            generateCentaurianOakSaplings(chunkOrigin, random);
+        }
+
+        if ("uranus".equals(definition.getPlanetName())) {
+            generateCustomIcicles(chunkOrigin, random);
+            generateCustomIcicleGeode(chunkOrigin, random);
         }
     }
 
@@ -138,6 +152,107 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private void generateCentaurianOakSaplings(BlockPos chunkOrigin, Random random) {
+        Block sapling = ExtendraBlocks.get("centaurian_oak_sapling");
+        if (sapling == null) {
+            return;
+        }
+
+        int count = random.nextInt(10) == 0 ? 5 : 3;
+        for (int attempt = 0; attempt < count; attempt++) {
+            int x = chunkOrigin.getX() + random.nextInt(16);
+            int z = chunkOrigin.getZ() + random.nextInt(16);
+            BlockPos position = world.getHeight(new BlockPos(x, 0, z));
+            if (world.isAirBlock(position) && sapling.canPlaceBlockAt(world, position)) {
+                world.setBlockState(position, sapling.getDefaultState(), 2);
+            }
+        }
+    }
+
+    private void generateCustomIcicles(BlockPos chunkOrigin, Random random) {
+        if (!(ExtendraBlocks.ICICLE instanceof ExtendraIcicleBlock)) {
+            return;
+        }
+        ExtendraIcicleBlock icicle = (ExtendraIcicleBlock) ExtendraBlocks.ICICLE;
+        for (int attempt = 0; attempt < 8; attempt++) {
+            int x = chunkOrigin.getX() + random.nextInt(16);
+            int z = chunkOrigin.getZ() + random.nextInt(16);
+            BlockPos surface = world.getHeight(new BlockPos(x, 0, z));
+            BlockPos base = surface.down();
+            if (world.getBlockState(base).getBlock() != ExtendraBlocks.getPlanetStone("uranus")) {
+                continue;
+            }
+
+            int height = 1 + random.nextInt(5);
+            ExtendraIcicleBlock.grow(world, icicle, base.up(), net.minecraft.util.EnumFacing.UP, height, false);
+
+            // The source feature spreads the base stone and grows nearby points.
+            for (net.minecraft.util.EnumFacing horizontal : net.minecraft.util.EnumFacing.HORIZONTALS) {
+                if (random.nextFloat() > 0.8F) {
+                    continue;
+                }
+                BlockPos nearbyBase = base.offset(horizontal);
+                if (world.getBlockState(nearbyBase).getBlock() == ExtendraBlocks.getPlanetStone("uranus")) {
+                    ExtendraIcicleBlock.grow(world, icicle, nearbyBase.up(), net.minecraft.util.EnumFacing.UP,
+                        1 + random.nextInt(3), false);
+                }
+            }
+        }
+    }
+
+    /** A small 1.12.2 equivalent of Extendra's rare packed-ice icicle geode feature. */
+    private void generateCustomIcicleGeode(BlockPos chunkOrigin, Random random) {
+        if (random.nextInt(24) != 0) {
+            return;
+        }
+
+        BlockPos center = new BlockPos(
+            chunkOrigin.getX() + random.nextInt(16),
+            6 + random.nextInt(25),
+            chunkOrigin.getZ() + random.nextInt(16));
+        Block stone = ExtendraBlocks.getPlanetStone("uranus");
+        Block outer = ModBlocks.PERMAFROST;
+        if (stone == null || outer == null) {
+            return;
+        }
+
+        int outerRadius = 4 + random.nextInt(3);
+        boolean alternateInner = random.nextFloat() < 0.083F;
+        for (int dx = -outerRadius; dx <= outerRadius; dx++) {
+            for (int dy = -outerRadius; dy <= outerRadius; dy++) {
+                for (int dz = -outerRadius; dz <= outerRadius; dz++) {
+                    double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    if (distance > 4.2D || distance > outerRadius + 0.5D) {
+                        continue;
+                    }
+
+                    BlockPos pos = center.add(dx, dy, dz);
+                    if (!world.isBlockLoaded(pos)) {
+                        continue;
+                    }
+                    IBlockState current = world.getBlockState(pos);
+                    if (current.getBlock() != stone && current.getBlock() != outer) {
+                        continue;
+                    }
+
+                    IBlockState replacement;
+                    if (distance <= 1.7D) {
+                        replacement = Blocks.AIR.getDefaultState();
+                    } else if (distance <= 2.2D) {
+                        replacement = alternateInner
+                            ? ExtendraBlocks.BLUE_SLUSHY_ICE.getDefaultState()
+                            : Blocks.PACKED_ICE.getDefaultState();
+                    } else if (distance <= 3.2D) {
+                        replacement = stone.getDefaultState();
+                    } else {
+                        replacement = outer.getDefaultState();
+                    }
+                    world.setBlockState(pos, replacement, 2);
                 }
             }
         }

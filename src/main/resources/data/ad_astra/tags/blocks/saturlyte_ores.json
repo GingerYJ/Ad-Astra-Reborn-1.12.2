@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:saturn_saturlyte_ore",
+    {
+      "id": "#c:saturlyte_ores",
+      "required": false
+    },
+    {
+      "id": "#forge:ores/saturlyte",
+      "required": false
+    }
+  ]
+}

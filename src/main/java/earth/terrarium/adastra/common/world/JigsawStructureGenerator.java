@@ -1,6 +1,5 @@
 package earth.terrarium.adastra.common.world;
 
-import earth.terrarium.adastra.Reference;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -43,7 +42,7 @@ import java.util.Random;
 public final class JigsawStructureGenerator {
 
     private static final int MAX_CACHED_LAYOUTS = 128;
-    private final Map<String, ParsedTemplate> cache = new HashMap<String, ParsedTemplate>();
+    private final Map<ResourceLocation, ParsedTemplate> cache = new HashMap<ResourceLocation, ParsedTemplate>();
     private final Map<LayoutKey, List<PlacedPiece>> layoutCache =
         new LinkedHashMap<LayoutKey, List<PlacedPiece>>(MAX_CACHED_LAYOUTS, 0.75f, true) {
             @Override
@@ -356,13 +355,13 @@ public final class JigsawStructureGenerator {
         return element == null ? null : getTemplate(world, element.location);
     }
 
-    private ParsedTemplate getTemplate(WorldServer world, String location) {
+    private ParsedTemplate getTemplate(WorldServer world, ResourceLocation location) {
         ParsedTemplate cached = cache.get(location);
         if (cached != null) {
             return cached;
         }
 
-        String path = "/data/" + Reference.MOD_ID + "/structures/" + location + ".nbt";
+        String path = "/data/" + location.getNamespace() + "/structures/" + location.getPath() + ".nbt";
         try (InputStream stream = JigsawStructureGenerator.class.getResourceAsStream(path)) {
             if (stream == null) {
                 cache.put(location, null);
@@ -423,8 +422,7 @@ public final class JigsawStructureGenerator {
             if (pool.isEmpty()) {
                 continue;
             }
-            String poolName = pool.contains(":") ? pool.substring(pool.indexOf(':') + 1) : pool;
-            jigsaws.add(new Jigsaw(pos, facing, poolName));
+            jigsaws.add(new Jigsaw(pos, facing, pool));
         }
         return jigsaws;
     }

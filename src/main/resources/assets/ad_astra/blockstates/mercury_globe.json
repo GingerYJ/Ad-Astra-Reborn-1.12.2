@@ -1,16 +1,19 @@
 {
   "variants": {
+    "normal": {
+      "model": "ad_astra:mercury_globe"
+    },
     "powered=false,waterlogged=false": {
-      "model": "ad_astra:globe_empty"
+      "model": "ad_astra:mercury_globe"
     },
     "powered=false,waterlogged=true": {
-      "model": "ad_astra:globe_empty"
+      "model": "ad_astra:mercury_globe"
     },
     "powered=true,waterlogged=false": {
-      "model": "ad_astra:globe_empty"
+      "model": "ad_astra:mercury_globe"
     },
     "powered=true,waterlogged=true": {
-      "model": "ad_astra:globe_empty"
+      "model": "ad_astra:mercury_globe"
     }
   }
 }

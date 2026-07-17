@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#X#",
+    "XXX",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateRadium"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotRadium"
+    }
+  },
+  "result": {
+    "item": "ad_astra:radium_panel",
+    "count": 64
+  }
+}

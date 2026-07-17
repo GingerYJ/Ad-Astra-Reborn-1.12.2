@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "ad_astra:sedna_globe"
+    },
+    "title": {
+      "translate": "advancements.ad_astra.sedna.title"
+    },
+    "description": {
+      "translate": "advancements.ad_astra.sedna.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "sedna": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "ad_astra:extendra_sedna"
+      }
+    }
+  },
+  "rewards": {
+    "experience": 750
+  },
+  "parent": "ad_astra:tier_13_rocket"
+}

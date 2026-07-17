@@ -13,6 +13,16 @@
     "ad_astra:saturn",
     "ad_astra:the_milky_way",
     "ad_astra:alpha_centauri",
-    "ad_astra:sun"
+    "ad_astra:sun",
+    "ad_astra:ceres",
+    "ad_astra:orcus",
+    "ad_astra:haumea",
+    "ad_astra:quaoar",
+    "ad_astra:makemake",
+    "ad_astra:gonggong",
+    "ad_astra:eris",
+    "ad_astra:sedna",
+    "ad_astra:b",
+    "ad_astra:vicinus"
   ]
 }

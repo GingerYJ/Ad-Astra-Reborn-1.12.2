@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "ad_astra:orcus_globe"
+    },
+    "title": {
+      "translate": "advancements.ad_astra.orcus.title"
+    },
+    "description": {
+      "translate": "advancements.ad_astra.orcus.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "orcus": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "ad_astra:extendra_orcus"
+      }
+    }
+  },
+  "rewards": {
+    "experience": 400
+  },
+  "parent": "ad_astra:tier_11_rocket"
+}

@@ -35,6 +35,9 @@
     {
       "id": "#forge:ores/ice_shard",
       "required": false
-    }
+    },
+    "ad_astra:uranus_ice_shard_ore",
+    "ad_astra:neptune_ice_shard_ore",
+    "ad_astra:pluto_ice_shard_ore"
   ]
 }

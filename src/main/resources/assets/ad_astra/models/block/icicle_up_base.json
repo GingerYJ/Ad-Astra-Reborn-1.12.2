@@ -1,0 +1,6 @@
+{
+  "parent": "ad_astra:block/icicle",
+  "textures": {
+    "cross": "ad_astra:block/icicle_up_base"
+  }
+}

@@ -1,4 +1,4 @@
-﻿{
+{
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "###",
@@ -7,8 +7,7 @@
   ],
   "key": {
     "#": {
-      "type": "forge:ore_dict",
-      "ore": "ingotUranium"
+      "item": "ad_astra:uranium_ingot"
     }
   },
   "result": {

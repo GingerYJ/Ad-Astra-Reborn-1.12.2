@@ -1,0 +1,18 @@
+{
+  "name": "Седна",
+  "icon": "ad_astra:textures/environment/sedna.png",
+  "sortnum": 0,
+  "category": "ad_astra:the_dwarf_planets_2",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "title": "Электролит",
+      "item": "ad_astra:electrolyte_ingot",
+      "text": "Как только вы соберете достаточно Плутония для создания ракеты 10-го уровня, вы сможете отправиться в Седну. Следующий материал, который вам нужно будет найти, — Электролит."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Электролит используется для создания ракеты 11 уровня, способной отправиться в новую солнечную систему."
+    }
+  ]
+}

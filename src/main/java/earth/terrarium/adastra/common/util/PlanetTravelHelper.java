@@ -64,25 +64,7 @@ public final class PlanetTravelHelper {
         ModDimensions.MARS_PROPERTIES,
         ModDimensions.MERCURY_PROPERTIES,
         ModDimensions.VENUS_PROPERTIES,
-        ModDimensions.GLACIO_PROPERTIES,
-        ModDimensions.CERES_PROPERTIES,
-        ModDimensions.PLUTO_PROPERTIES,
-        ModDimensions.HAUMEA_PROPERTIES,
-        ModDimensions.KUIPER_BELT_PROPERTIES,
-        ModDimensions.IO_PROPERTIES,
-        ModDimensions.EUROPA_PROPERTIES,
-        ModDimensions.GANYMEDE_PROPERTIES,
-        ModDimensions.CALLISTO_PROPERTIES,
-        ModDimensions.ENCELADUS_PROPERTIES,
-        ModDimensions.TITAN_PROPERTIES,
-        ModDimensions.MIRANDA_PROPERTIES,
-        ModDimensions.TRITON_PROPERTIES,
-        ModDimensions.PHOBOS_PROPERTIES,
-        ModDimensions.JUPITER_ORBIT_PROPERTIES,
-        ModDimensions.BARNARDA_C_PROPERTIES,
-        ModDimensions.BARNARDA_C1_PROPERTIES,
-        ModDimensions.TAUCETI_F_PROPERTIES,
-        ModDimensions.PROXIMA_B_PROPERTIES
+        ModDimensions.GLACIO_PROPERTIES
     };
 
     private PlanetTravelHelper() {
@@ -280,57 +262,6 @@ public final class PlanetTravelHelper {
         if (planetDimensionId == ModDimensions.GLACIO_ID) {
             return ModDimensions.GLACIO_ORBIT_ID;
         }
-        if (planetDimensionId == ModDimensions.CERES_ID) {
-            return ModDimensions.CERES_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.PLUTO_ID) {
-            return ModDimensions.PLUTO_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.HAUMEA_ID) {
-            return ModDimensions.HAUMEA_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.IO_ID) {
-            return ModDimensions.IO_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.EUROPA_ID) {
-            return ModDimensions.EUROPA_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.GANYMEDE_ID) {
-            return ModDimensions.GANYMEDE_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.CALLISTO_ID) {
-            return ModDimensions.CALLISTO_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.ENCELADUS_ID) {
-            return ModDimensions.ENCELADUS_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.TITAN_ID) {
-            return ModDimensions.TITAN_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.MIRANDA_ID) {
-            return ModDimensions.MIRANDA_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.TRITON_ID) {
-            return ModDimensions.TRITON_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.PHOBOS_ID) {
-            return ModDimensions.PHOBOS_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.JUPITER_ORBIT_ID) {
-            return ModDimensions.JUPITER_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.BARNARDA_C_ID) {
-            return ModDimensions.BARNARDA_C_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.BARNARDA_C1_ID) {
-            return ModDimensions.BARNARDA_C1_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.TAUCETI_F_ID) {
-            return ModDimensions.TAUCETI_F_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.PROXIMA_B_ID) {
-            return ModDimensions.PROXIMA_B_ORBIT_ID;
-        }
         if (ExternalDimensionConfig.isExternalDimension(planetDimensionId)) {
             return Integer.MIN_VALUE;
         }
@@ -367,57 +298,6 @@ public final class PlanetTravelHelper {
         }
         if (orbitDimensionId == ModDimensions.GLACIO_ORBIT_ID) {
             return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "glacio_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.CERES_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "ceres_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.PLUTO_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "pluto_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.HAUMEA_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "haumea_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.IO_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "io_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.EUROPA_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "europa_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.GANYMEDE_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "ganymede_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.CALLISTO_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "callisto_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.ENCELADUS_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "enceladus_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.TITAN_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "titan_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.MIRANDA_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "miranda_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.TRITON_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "triton_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.PHOBOS_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "phobos_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.JUPITER_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "jupiter_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.BARNARDA_C_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "barnarda_c_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.BARNARDA_C1_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "barnarda_c1_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.TAUCETI_F_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "tauceti_f_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.PROXIMA_B_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "proxima_b_orbit");
         }
         for (CustomPlanetDefinition custom : CustomPlanetRegistry.getDefinitions()) {
             if (custom.getOrbitDimensionId() == orbitDimensionId) {

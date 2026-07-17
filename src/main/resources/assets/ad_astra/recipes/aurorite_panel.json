@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#X#",
+    "XXX",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateAurorite"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotAurorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:aurorite_panel",
+    "count": 64
+  }
+}

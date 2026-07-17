@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import earth.terrarium.adastra.Reference;
+import net.minecraft.util.ResourceLocation;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,10 +30,10 @@ import java.util.Random;
 public final class JigsawPools {
 
     public static final class Element {
-        public final String location; // structure nbt path relative to structures/
+        public final ResourceLocation location; // structure nbt id relative to structures/
         public final int weight;
 
-        Element(String location, int weight) {
+        Element(ResourceLocation location, int weight) {
             this.location = location;
             this.weight = weight;
         }
@@ -90,7 +91,8 @@ public final class JigsawPools {
     }
 
     private static Pool load(String poolName) {
-        String path = "/data/" + Reference.MOD_ID + "/worldgen/template_pool/" + poolName + ".json";
+        ResourceLocation poolId = parseId(poolName, Reference.MOD_ID);
+        String path = "/data/" + poolId.getNamespace() + "/worldgen/template_pool/" + poolId.getPath() + ".json";
         try (InputStream stream = JigsawPools.class.getResourceAsStream(path)) {
             if (stream == null) {
                 return null;
@@ -100,7 +102,7 @@ public final class JigsawPools {
 
             String fallback = null;
             if (root.has("fallback")) {
-                fallback = stripNamespace(root.get("fallback").getAsString());
+                fallback = root.get("fallback").getAsString();
                 if (fallback.isEmpty() || "empty".equals(fallback)) {
                     fallback = null; // minecraft:empty terminates the chain
                 }
@@ -116,7 +118,7 @@ public final class JigsawPools {
                     if (element == null || !element.has("location")) {
                         continue;
                     }
-                    String location = stripNamespace(element.get("location").getAsString());
+                    ResourceLocation location = parseId(element.get("location").getAsString(), poolId.getNamespace());
                     pool.elements.add(new Element(location, weight));
                 }
             }
@@ -126,9 +128,14 @@ public final class JigsawPools {
         }
     }
 
-    private static String stripNamespace(String id) {
+    private static ResourceLocation parseId(String id, String defaultNamespace) {
+        if (id == null || id.isEmpty()) {
+            return new ResourceLocation(defaultNamespace, "empty");
+        }
         int colon = id.indexOf(':');
-        return colon >= 0 ? id.substring(colon + 1) : id;
+        return colon >= 0
+            ? new ResourceLocation(id.substring(0, colon), id.substring(colon + 1))
+            : new ResourceLocation(defaultNamespace, id);
     }
 
     private JigsawPools() {

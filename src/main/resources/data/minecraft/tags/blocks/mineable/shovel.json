@@ -2,6 +2,11 @@
   "values": [
     "ad_astra:moon_sand",
     "ad_astra:mars_sand",
-    "ad_astra:venus_sand"
+    "ad_astra:venus_sand",
+    "ad_astra:ceres_sand",
+    "ad_astra:jupiter_sand",
+    "ad_astra:saturn_sand",
+    "ad_astra:pluto_sand",
+    "ad_astra:b_sand"
   ]
 }

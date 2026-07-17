@@ -1,6 +1,0 @@
-﻿{
-    "parent": "block/cube_all",
-    "textures": {
-        "all": "ad_astra:blocks/celestial/enceladus/enceladus_coal_ore"
-    }
-}

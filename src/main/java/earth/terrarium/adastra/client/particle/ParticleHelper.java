@@ -116,4 +116,11 @@ public final class ParticleHelper {
                 ModParticles.CRYO_FREEZE, x, y, z, velocityX, velocityY, velocityZ);
         }
     }
+
+    public static void spawnWind(World world, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+        if (world.isRemote) {
+            Minecraft.getMinecraft().effectRenderer.spawnEffectParticle(
+                ModParticles.WIND, x, y, z, velocityX, velocityY, velocityZ);
+        }
+    }
 }

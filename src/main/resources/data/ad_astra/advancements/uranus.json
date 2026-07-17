@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "ad_astra:uranus_globe"
+    },
+    "title": {
+      "translate": "advancements.ad_astra.uranus.title"
+    },
+    "description": {
+      "translate": "advancements.ad_astra.uranus.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "uranus": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "ad_astra:extendra_uranus"
+      }
+    }
+  },
+  "rewards": {
+    "experience": 250
+  },
+  "parent": "ad_astra:tier_9_rocket"
+}

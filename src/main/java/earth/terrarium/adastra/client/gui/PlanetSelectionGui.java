@@ -723,16 +723,6 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private PlanetDimensionProperties getAnchorClickTarget(String key) {
-        if ("saturn".equals(key)) {
-            PlanetDimensionProperties titan = findPlanetByKey("titan");
-            if (titan != null && menu.canReach(titan)) {
-                return titan;
-            }
-            PlanetDimensionProperties enceladus = findPlanetByKey("enceladus");
-            if (enceladus != null && menu.canReach(enceladus)) {
-                return enceladus;
-            }
-        }
         for (PlanetDimensionProperties planet : planets) {
             String planetKey = getPlanetKey(planet);
             LayoutSpec spec = getLayoutSpec(planet, planetKey);
@@ -795,26 +785,7 @@ public class PlanetSelectionGui extends GuiScreen {
         if ("earth".equals(key)) return new LayoutSpec(2, 18.0D);
         if ("moon".equals(key)) return new LayoutSpec("earth", 52, -26.0D);
         if ("mars".equals(key)) return new LayoutSpec(3, -34.0D);
-        if ("phobos".equals(key)) return new LayoutSpec("mars", 48, 150.0D);
-        if ("ceres".equals(key)) return new LayoutSpec(4, 82.0D);
         if ("glacio".equals(key)) return new LayoutSpec(5, 105.0D);
-        if ("jupiter_orbit".equals(key)) return new LayoutSpec(9, 4.0D);
-        if ("io".equals(key)) return new LayoutSpec("jupiter_orbit", 58, -108.0D);
-        if ("europa".equals(key)) return new LayoutSpec("jupiter_orbit", 84, -62.0D);
-        if ("ganymede".equals(key)) return new LayoutSpec("jupiter_orbit", 110, -18.0D);
-        if ("callisto".equals(key)) return new LayoutSpec("jupiter_orbit", 136, 24.0D);
-        if ("saturn".equals(key)) return new LayoutSpec(12, 34.0D);
-        if ("titan".equals(key)) return new LayoutSpec("saturn", 68, 44.0D);
-        if ("enceladus".equals(key)) return new LayoutSpec("saturn", 45, 92.0D);
-        if ("miranda".equals(key)) return new LayoutSpec(14, 108.0D);
-        if ("triton".equals(key)) return new LayoutSpec(15, 118.0D);
-        if ("pluto".equals(key)) return new LayoutSpec(16, 70.0D);
-        if ("haumea".equals(key)) return new LayoutSpec(17, 82.0D);
-        if ("kuiper_belt".equals(key)) return new LayoutSpec(18, 94.0D);
-        if ("barnarda_c".equals(key)) return new LayoutSpec(19, -4.0D);
-        if ("barnarda_c1".equals(key)) return new LayoutSpec(20, 8.0D);
-        if ("proxima_b".equals(key)) return new LayoutSpec(21, 62.0D);
-        if ("tauceti_f".equals(key)) return new LayoutSpec(22, 150.0D);
         if ("mineral_world".equals(key)) return new LayoutSpec(getSpecialOuterOrbit(key), 50.0D);
         if (isNetherKey(key)) return new LayoutSpec(getSpecialOuterOrbit(key), -96.0D);
         if (isEndKey(key)) return new LayoutSpec(getSpecialOuterOrbit(key), -52.0D);
@@ -908,8 +879,6 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private String getAnchorLabel(String key) {
         if ("earth".equals(key)) return I18n.format("planet.minecraft.overworld");
-        if ("saturn".equals(key)) return I18n.format("planet.ad_astra.saturn");
-        if ("jupiter_orbit".equals(key)) return I18n.format("planet.ad_astra.jupiter_orbit");
         PlanetDimensionProperties planet = findPlanetByKey(key);
         return planet == null ? formatPlanetName(key) : getPlanetLabel(planet);
     }
@@ -917,8 +886,8 @@ public class PlanetSelectionGui extends GuiScreen {
     private int getPlanetRenderRadius(String key, float scale, boolean primary) {
         int base = primary ? 16 : 12;
         if ("sun".equals(key)) base = 25;
-        if ("earth".equals(key) || "mars".equals(key) || "venus".equals(key) || "saturn".equals(key) || "jupiter_orbit".equals(key)) base = 18;
-        if ("moon".equals(key) || "enceladus".equals(key)) base = 11;
+        if ("earth".equals(key) || "mars".equals(key) || "venus".equals(key)) base = 18;
+        if ("moon".equals(key)) base = 11;
         return Math.max(primary ? 3 : 2, Math.round(base * Math.max(0.20F, scale)));
     }
 
@@ -942,9 +911,6 @@ public class PlanetSelectionGui extends GuiScreen {
             drawCircleOutline(node.x, node.y, radius + 10, 0x887FB7FF, 64);
         }
 
-        if ("saturn".equals(node.key)) {
-            drawEllipseOutline(node.x, node.y, radius + 13, Math.max(4, radius / 2), -18.0D, 0xDDEEE0B0, 72);
-        }
 
         drawFilledCircle(node.x, node.y, radius + 3, 0x66050A1E, 40);
         drawFilledCircle(node.x, node.y, radius, color, 44);
@@ -971,7 +937,7 @@ public class PlanetSelectionGui extends GuiScreen {
         } else if ("earth".equals(key)) {
             drawFilledCircle(x - radius / 4, y - radius / 5, Math.max(2, radius / 4), 0xAA4FD06B, 16);
             drawFilledCircle(x + radius / 4, y + radius / 5, Math.max(2, radius / 5), 0x994FD06B, 16);
-        } else if ("mineral_world".equals(key) || key.startsWith("barnarda") || "proxima_b".equals(key) || "tauceti_f".equals(key)) {
+        } else if ("mineral_world".equals(key)) {
             drawLine(x, y - radius + 3, x + radius / 2, y, 0xAAFFFFFF);
             drawLine(x + radius / 2, y, x, y + radius - 3, 0x88FFFFFF);
             drawLine(x, y + radius - 3, x - radius / 2, y, 0x66FFFFFF);
@@ -983,12 +949,11 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private boolean isGasPlanet(String key) {
-        return "venus".equals(key) || "jupiter_orbit".equals(key) || "saturn".equals(key) || "titan".equals(key);
+        return "venus".equals(key);
     }
 
     private boolean isIcePlanet(String key) {
-        return "glacio".equals(key) || "europa".equals(key) || "enceladus".equals(key) || "triton".equals(key)
-            || "pluto".equals(key) || "haumea".equals(key);
+        return "glacio".equals(key);
     }
 
     private int getPlanetColor(String key, PlanetDimensionProperties planet) {
@@ -997,27 +962,8 @@ public class PlanetSelectionGui extends GuiScreen {
         if ("earth".equals(key)) return 0xFF2F86DF;
         if ("moon".equals(key)) return 0xFFCFD6DE;
         if ("mars".equals(key)) return 0xFFB94D2E;
-        if ("phobos".equals(key)) return 0xFF8D6847;
-        if ("ceres".equals(key)) return 0xFF8E98A4;
         if ("glacio".equals(key)) return 0xFFB7D9FF;
         if ("mineral_world".equals(key)) return 0xFF22B66F;
-        if ("jupiter_orbit".equals(key)) return 0xFFD7AA6B;
-        if ("io".equals(key)) return 0xFFE0BC2F;
-        if ("europa".equals(key)) return 0xFFBCE7FF;
-        if ("ganymede".equals(key)) return 0xFFA98963;
-        if ("callisto".equals(key)) return 0xFF725F4D;
-        if ("saturn".equals(key)) return 0xFFD9C58A;
-        if ("titan".equals(key)) return 0xFFD89932;
-        if ("enceladus".equals(key)) return 0xFFE5F3FF;
-        if ("miranda".equals(key)) return 0xFFB9BDC6;
-        if ("triton".equals(key)) return 0xFF3AA7D5;
-        if ("pluto".equals(key)) return 0xFFC9B2A4;
-        if ("haumea".equals(key)) return 0xFFD8D0B4;
-        if ("kuiper_belt".equals(key)) return 0xFF607FC5;
-        if ("barnarda_c".equals(key)) return 0xFF165FA9;
-        if ("barnarda_c1".equals(key)) return 0xFF6D3CC8;
-        if ("proxima_b".equals(key)) return 0xFFC48020;
-        if ("tauceti_f".equals(key)) return 0xFFA34D2C;
         if (isNetherKey(key)) return 0xFFC12B22;
         if (isEndKey(key)) return 0xFFBBA3E8;
         if (planet != null && planet.getSkyColor() != null) {

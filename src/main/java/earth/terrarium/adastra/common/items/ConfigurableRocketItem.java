@@ -25,12 +25,16 @@ public class ConfigurableRocketItem extends VehicleItem {
 
     @Override
     public String getItemStackDisplayName(ItemStack stack) {
+        String translationKey = getTranslationKey(stack) + ".name";
+        String localized = I18n.translateToLocal(translationKey);
+        if (!translationKey.equals(localized)) {
+            return localized;
+        }
         return spec.getDisplayName();
     }
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-        tooltip.add(I18n.translateToLocalFormatted("tooltip.ad_astra.configurable_rocket.tier", spec.getTier()));
-        tooltip.add(I18n.translateToLocalFormatted("tooltip.ad_astra.configurable_rocket.texture", spec.getTextureDisplayName()));
+        addRocketTierTooltip(tooltip, spec.getTier());
     }
 }

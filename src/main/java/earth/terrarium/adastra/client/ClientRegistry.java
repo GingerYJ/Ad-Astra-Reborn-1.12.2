@@ -7,9 +7,9 @@ import earth.terrarium.adastra.client.particle.ParticleLargeFlame;
 import earth.terrarium.adastra.client.particle.ParticleLargeSmoke;
 import earth.terrarium.adastra.client.particle.ParticleOxygenBubble;
 import earth.terrarium.adastra.client.particle.ParticleOxygenVent;
+import earth.terrarium.adastra.client.particle.ParticleWind;
 import earth.terrarium.adastra.client.render.AdAstraEntityRenderers;
 import earth.terrarium.adastra.client.render.TileEnergizerRenderer;
-import earth.terrarium.adastra.client.render.TileEnceladusCrystalRenderer;
 import earth.terrarium.adastra.client.render.TileFlagRenderer;
 import earth.terrarium.adastra.client.render.TileGlobeRenderer;
 import earth.terrarium.adastra.client.render.TileGravityNormalizerRenderer;
@@ -20,7 +20,6 @@ import earth.terrarium.adastra.client.render.VehicleItemStackRenderer;
 import earth.terrarium.adastra.common.tile.FlagTileEntity;
 import earth.terrarium.adastra.common.tile.GlobeTileEntity;
 import earth.terrarium.adastra.common.tile.EnergizerTileEntity;
-import earth.terrarium.adastra.common.tile.TileEntityEnceladusCrystal;
 import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.tile.SlidingDoorTileEntity;
@@ -29,23 +28,28 @@ import earth.terrarium.adastra.common.blocks.AdAstraDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFenceGateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraButtonBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraPressurePlateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
+import earth.terrarium.adastra.common.blocks.ExtendraIcicleBlock;
+import earth.terrarium.adastra.common.blocks.ExtendraSaplingBlock;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
-import earth.terrarium.adastra.common.items.CelestialItemBlock;
 import earth.terrarium.adastra.common.items.VehicleItem;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModItems;
 import earth.terrarium.adastra.common.registry.ModParticles;
+import earth.terrarium.adastra.common.registry.ExtendraBlocks;
+import earth.terrarium.adastra.common.registry.ExtendraItems;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketSpec;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockTrapDoor;
-import net.minecraft.block.BlockWall;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.ItemColors;
@@ -70,7 +74,6 @@ public final class ClientRegistry {
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(OxygenDistributorTileEntity.class, new TileOxygenDistributorRenderer());
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(GravityNormalizerTileEntity.class, new TileGravityNormalizerRenderer());
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(WaterPumpTileEntity.class, new TileWaterPumpRenderer());
-        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEnceladusCrystal.class, new TileEnceladusCrystalRenderer());
     }
 
     public static void registerModels() {
@@ -89,6 +92,7 @@ public final class ClientRegistry {
         for (Item item : ModItems.ITEMS) {
             registerItemModel(item);
         }
+        registerExtendraModels();
         registerGravityNormalizerModels();
         registerOxygenDistributorTopModel();
     }
@@ -101,6 +105,7 @@ public final class ClientRegistry {
         minecraft.effectRenderer.registerParticle(ModParticles.OXYGEN_BUBBLE, new ParticleOxygenBubble.Factory());
         minecraft.effectRenderer.registerParticle(ModParticles.OXYGEN_VENT, new ParticleOxygenVent.Factory());
         minecraft.effectRenderer.registerParticle(ModParticles.CRYO_FREEZE, new ParticleCryoFreeze.Factory());
+        minecraft.effectRenderer.registerParticle(ModParticles.WIND, new ParticleWind.Factory());
     }
 
     public static void registerItemColors(ItemColors itemColors) {
@@ -109,10 +114,62 @@ public final class ClientRegistry {
             ModItems.ITEMS.stream()
                 .filter(item -> item instanceof AdAstraSpawnEggItem)
                 .toArray(Item[]::new));
+        itemColors.registerItemColorHandler(
+            (stack, tintIndex) -> ((AdAstraSpawnEggItem) stack.getItem()).getColor(tintIndex),
+            ExtendraItems.ITEMS.stream()
+                .filter(item -> item instanceof AdAstraSpawnEggItem)
+                .toArray(Item[]::new));
+    }
+
+    private static void registerExtendraModels() {
+        for (Block block : ExtendraBlocks.BLOCKS) {
+            if (block.getRegistryName() == null) {
+                continue;
+            }
+            if (block instanceof AdAstraGlobeBlock) {
+                ModelLoader.setCustomStateMapper(block, new AdAstraGlobeStateMapper());
+            } else if (block instanceof AdAstraWallBlock) {
+                // Wall blockstates are multipart and must retain their
+                // directional connection properties.
+            } else if (block instanceof AdAstraSlidingDoorBlock) {
+                ModelLoader.setCustomStateMapper(block, new AdAstraSlidingDoorStateMapper());
+            } else if (block instanceof ExtendraIcicleBlock) {
+                // Icicles have their own thickness and direction blockstate variants.
+            } else if (!(block instanceof AdAstraButtonBlock) && !(block instanceof AdAstraPressurePlateBlock)) {
+                ModelLoader.setCustomStateMapper(block, new ExtendraStateMapper());
+            }
+            Item item = getRegisteredBlockItem(block);
+            if (item != null && item != Items.AIR) {
+                if (block instanceof AdAstraGlobeBlock) {
+                    item.setTileEntityItemStackRenderer(TileGlobeRenderer.ITEM_RENDERER);
+                    registerGlobeModelVariants(item, block);
+                } else if (block instanceof AdAstraSlidingDoorBlock) {
+                    registerSlidingDoorRenderVariants(item, block);
+                }
+                if (block instanceof ExtendraSaplingBlock) {
+                    ModelResourceLocation model = new ModelResourceLocation(item.getRegistryName(), "inventory");
+                    // BlockSapling exposes six vanilla tree-type metadata values.
+                    for (int metadata = 0; metadata < 6; metadata++) {
+                        ModelLoader.setCustomModelResourceLocation(item, metadata, model);
+                    }
+                } else if (block instanceof AdAstraWallBlock) {
+                    ModelResourceLocation model = new ModelResourceLocation(item.getRegistryName(), "inventory");
+                    ModelLoader.setCustomModelResourceLocation(item, 0, model);
+                    ModelLoader.setCustomModelResourceLocation(item, 1, model);
+                } else {
+                    registerItemModel(item);
+                }
+            }
+        }
+        for (Item item : ExtendraItems.ITEMS) {
+            registerItemModel(item);
+        }
     }
 
     private static void registerStateMapper(Block block) {
-        if (block instanceof AdAstraSlabBlock) {
+        if (block instanceof AdAstraGlobeBlock) {
+            ModelLoader.setCustomStateMapper(block, new AdAstraGlobeStateMapper());
+        } else if (block instanceof AdAstraSlabBlock) {
             ModelLoader.setCustomStateMapper(block, new AdAstraSlabStateMapper());
         } else if (block instanceof AdAstraFluidBlock) {
             ModelLoader.setCustomStateMapper(block, new AdAstraFluidStateMapper());
@@ -124,8 +181,6 @@ public final class ClientRegistry {
             ModelLoader.setCustomStateMapper(block, new AdAstraTrapDoorStateMapper());
         } else if (block instanceof AdAstraFenceGateBlock) {
             ModelLoader.setCustomStateMapper(block, new AdAstraFenceGateStateMapper());
-        } else if (block instanceof AdAstraWallBlock) {
-            ModelLoader.setCustomStateMapper(block, new AdAstraWallStateMapper());
         }
     }
 
@@ -138,8 +193,10 @@ public final class ClientRegistry {
         }
         ResourceLocation modelLocation = item.getRegistryName();
         if (item instanceof ConfigurableRocketItem) {
-            int modelTier = ((ConfigurableRocketItem) item).getSpec().getModelTier();
-            modelLocation = new ResourceLocation(Reference.MOD_ID, "tier_" + modelTier + "_rocket");
+            ConfigurableRocketSpec spec = ((ConfigurableRocketItem) item).getSpec();
+            int modelTier = spec.getModelTier();
+            int itemTier = spec.usesExtendraModel() ? spec.getTier() : modelTier;
+            modelLocation = new ResourceLocation(Reference.MOD_ID, "tier_" + itemTier + "_rocket");
         }
         // For 1.12.2, use the item registry name as the model location, except configurable rockets
         // which intentionally reuse an existing builtin/entity rocket item model.
@@ -154,12 +211,9 @@ public final class ClientRegistry {
         if (item == null || item == Items.AIR || item.getRegistryName() == null) {
             return;
         }
-        if (item instanceof CelestialItemBlock) {
-            registerCelestialBlockItemModels((CelestialItemBlock) item);
-            return;
-        }
         if (block instanceof AdAstraGlobeBlock) {
             item.setTileEntityItemStackRenderer(TileGlobeRenderer.ITEM_RENDERER);
+            registerGlobeModelVariants(item, block);
             registerItemModel(item);
             return;
         }
@@ -187,22 +241,17 @@ public final class ClientRegistry {
         registerItemModel(item);
     }
 
-    private static void registerCelestialBlockItemModels(CelestialItemBlock item) {
-        java.util.List<ModelResourceLocation> variants = new java.util.ArrayList<>();
-        for (int meta = 0; meta < item.getVariantCount(); meta++) {
-            String modelName = item.getVariantModelName(meta);
-            if (modelName == null) {
-                continue;
-            }
-            ModelResourceLocation model = new ModelResourceLocation(Reference.MOD_ID + ":" + modelName, "inventory");
-            ModelLoader.setCustomModelResourceLocation(item, meta, model);
-            variants.add(model);
+    private static void registerGlobeModelVariants(Item item, Block block) {
+        ResourceLocation registryName = block.getRegistryName();
+        if (registryName == null) {
+            return;
         }
-        if (!variants.isEmpty()) {
-            net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
-                item,
-                variants.toArray(new ModelResourceLocation[0]));
-        }
+        net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
+            item,
+            new ModelResourceLocation(registryName, "normal"),
+            new ModelResourceLocation(
+                new ResourceLocation(Reference.MOD_ID, registryName.getPath() + "_cube"),
+                "normal"));
     }
 
     private static void registerSlidingDoorRenderVariants(Item item, Block block) {
@@ -329,18 +378,23 @@ public final class ClientRegistry {
         }
     }
 
-    private static class AdAstraWallStateMapper extends StateMapperBase {
+    private static class ExtendraStateMapper extends StateMapperBase {
+
+        @Override
+        protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
+            String path = state.getBlock().getRegistryName().getPath();
+            return new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID, path), "normal");
+        }
+    }
+
+    private static class AdAstraGlobeStateMapper extends StateMapperBase {
 
         @Override
         protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
             Block block = state.getBlock();
             return new ModelResourceLocation(
-                Reference.MOD_ID + ":" + block.getRegistryName().getPath(),
-                "east=" + state.getValue(BlockWall.EAST)
-                    + ",north=" + state.getValue(BlockWall.NORTH)
-                    + ",south=" + state.getValue(BlockWall.SOUTH)
-                    + ",up=" + state.getValue(BlockWall.UP)
-                    + ",west=" + state.getValue(BlockWall.WEST));
+                new ResourceLocation(Reference.MOD_ID, block.getRegistryName().getPath() + "_cube"),
+                "normal");
         }
     }
 }

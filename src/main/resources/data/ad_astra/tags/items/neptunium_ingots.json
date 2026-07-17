@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:neptunium_ingot",
+    {
+      "id": "#c:neptunium_ingots",
+      "required": false
+    },
+    {
+      "id": "#forge:ingots/neptunium",
+      "required": false
+    }
+  ]
+}

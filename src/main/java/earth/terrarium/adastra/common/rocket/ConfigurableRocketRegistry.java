@@ -8,9 +8,6 @@ import net.minecraftforge.common.config.Property;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -27,8 +24,6 @@ import java.util.Map;
 public final class ConfigurableRocketRegistry {
 
     private static final String CATEGORY = "rockets";
-    private static final String DEFAULT_EXTERNAL_TEXTURE = "custom_tier_8_rocket.png";
-    private static final String DEFAULT_TEXTURE_RESOURCE = "assets/ad_astra/textures/entity/rocket/tier_7_rocket.png";
     private static final Map<String, ConfigurableRocketSpec> ROCKETS = new LinkedHashMap<>();
     private static final List<ConfigurableRocketSpec> ROCKET_LIST = new ArrayList<>();
     private static File rocketPngFolder;
@@ -48,15 +43,11 @@ public final class ConfigurableRocketRegistry {
         if (!rocketPngFolder.exists()) {
             rocketPngFolder.mkdirs();
         }
-        copyDefaultRocketTexture();
-
         Configuration config = new Configuration(file);
         config.setCategoryComment(CATEGORY,
             "\u914d\u7f6e\u706b\u7bad\uff1a\u901a\u8fc7\u8d34\u56fe\u8def\u5f84\u589e\u52a0\u989d\u5916\u706b\u7bad\u3002\n" +
             "\u6bcf\u884c\u683c\u5f0f\uff1aid|\u663e\u793a\u540d\u79f0|\u706b\u7bad\u7b49\u7ea7|\u71c3\u6599\u5bb9\u91cfmB|\u6a21\u578b\u7b49\u7ea7|\u8d34\u56fe\u3002\n" +
             "\u81ea\u5b9a\u4e49 PNG \u8bf7\u653e\u5165 config/ad_astra/rocket_png\uff0c\u8d34\u56fe\u5b57\u6bb5\u586b\u5199\u6587\u4ef6\u540d\u3002\n" +
-            "\u542f\u52a8\u65f6\u4f1a\u81ea\u52a8\u751f\u6210 7 \u9636\u706b\u7bad\u8d34\u56fe\u6a21\u677f\uff1a" + DEFAULT_EXTERNAL_TEXTURE + "\uff0c\u53ef\u76f4\u63a5\u6539\u8272\u4f7f\u7528\u3002\n" +
-            "\u793a\u4f8b\uff1acustom_tier_8_rocket|\u516b\u9636\u706b\u7bad|8|10000|7|" + DEFAULT_EXTERNAL_TEXTURE + "\n" +
             "\u4ecd\u517c\u5bb9\u8d44\u6e90\u5305\u8def\u5f84\uff0c\u4f8b\u5982 ad_astra:textures/entity/rocket/tier_7_rocket.png\u3002\n" +
             "\u9ed8\u8ba4\u4e3a\u7a7a\uff0c\u4e0d\u751f\u6210\u989d\u5916\u706b\u7bad\uff1b\u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u6e38\u620f/\u670d\u52a1\u5668\u3002");
 
@@ -66,8 +57,7 @@ public final class ConfigurableRocketRegistry {
             new String[0],
             "\u81ea\u5b9a\u4e49\u706b\u7bad\u5217\u8868\u3002\u6bcf\u884c\u683c\u5f0f\uff1aid|\u663e\u793a\u540d\u79f0|\u706b\u7bad\u7b49\u7ea7|\u71c3\u6599\u5bb9\u91cfmB|\u6a21\u578b\u7b49\u7ea7|\u8d34\u56fe\u3002\n" +
                 "\u5c06 PNG \u653e\u5230 config/ad_astra/rocket_png \u540e\uff0c\u8d34\u56fe\u5b57\u6bb5\u586b\u5199\u6587\u4ef6\u540d\u3002\n" +
-                "\u542f\u52a8\u540e\u6587\u4ef6\u5939\u4e2d\u4f1a\u81ea\u52a8\u751f\u6210 " + DEFAULT_EXTERNAL_TEXTURE + " \u4f5c\u4e3a\u6539\u8272\u6a21\u677f\u3002\n" +
-                "\u4f8b\uff1acustom_tier_8_rocket|\u516b\u9636\u706b\u7bad|8|10000|7|" + DEFAULT_EXTERNAL_TEXTURE);
+                "\u914d\u7f6e\u6587\u4ef6\u4e2d\u7684 PNG \u6587\u4ef6\u5e94\u653e\u5728 config/ad_astra/rocket_png \u76ee\u5f55\u4e2d\u3002");
         String[] rows = customRocketsProperty.getStringList();
 
         for (String row : rows) {
@@ -82,30 +72,25 @@ public final class ConfigurableRocketRegistry {
         loaded = true;
     }
 
-    private static void copyDefaultRocketTexture() {
-        if (rocketPngFolder == null) {
-            return;
-        }
-        File output = new File(rocketPngFolder, DEFAULT_EXTERNAL_TEXTURE);
-        if (output.isFile()) {
-            return;
-        }
-        try (InputStream input = ConfigurableRocketRegistry.class.getClassLoader().getResourceAsStream(DEFAULT_TEXTURE_RESOURCE)) {
-            if (input == null) {
-                return;
-            }
-            Files.copy(input, output.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception ignored) {
-            // The template is a convenience file only; startup should not fail if copying it is blocked.
-        }
-    }
-
     public static boolean isLoaded() {
         return loaded;
     }
 
     public static List<ConfigurableRocketSpec> getRockets() {
         return Collections.unmodifiableList(ROCKET_LIST);
+    }
+
+    /** Registers a code-defined rocket without exposing it as a user config row. */
+    public static synchronized void registerBuiltIn(ConfigurableRocketSpec spec) {
+        if (spec == null || spec.getId() == null || spec.getId().isEmpty()) {
+            return;
+        }
+        // A user-defined row owns its ID. Built-in content must never replace it.
+        if (ROCKETS.containsKey(spec.getId())) {
+            return;
+        }
+        ROCKETS.put(spec.getId(), spec);
+        ROCKET_LIST.add(spec);
     }
 
     @Nullable
@@ -146,6 +131,10 @@ public final class ConfigurableRocketRegistry {
         }
 
         String id = sanitizeId(parts[0]);
+        // Ignore the old example row that may still exist in a user's config.
+        if ("custom_tier_8_rocket".equals(id)) {
+            return null;
+        }
         if (id.isEmpty() || isReservedId(id) || ROCKETS.containsKey(id)) {
             return null;
         }
@@ -256,6 +245,14 @@ public final class ConfigurableRocketRegistry {
             || "tier_5_rocket".equals(id)
             || "tier_6_rocket".equals(id)
             || "tier_7_rocket".equals(id)
+            || "tier_8_rocket".equals(id)
+            || "tier_9_rocket".equals(id)
+            || "tier_10_rocket".equals(id)
+            || "tier_11_rocket".equals(id)
+            || "tier_12_rocket".equals(id)
+            || "tier_13_rocket".equals(id)
+            || "tier_14_rocket".equals(id)
+            || "tier_15_rocket".equals(id)
             || "tier_1_rover".equals(id)
             || "configurable_rocket".equals(id);
     }

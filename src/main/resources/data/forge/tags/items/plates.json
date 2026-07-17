@@ -4,6 +4,14 @@
     "#forge:plates/steel",
     "#forge:plates/desh",
     "#forge:plates/ostrum",
-    "#forge:plates/calorite"
+    "#forge:plates/calorite",
+    "#forge:plates/juperium",
+    "#forge:plates/saturlyte",
+    "#forge:plates/uranium",
+    "#forge:plates/neptunium",
+    "#forge:plates/radium",
+    "#forge:plates/plutonium",
+    "#forge:plates/electrolyte",
+    "#forge:plates/aurorite"
   ]
 }

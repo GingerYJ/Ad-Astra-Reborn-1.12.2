@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:saturlyte_plate",
+    {
+      "id": "#c:saturlyte_plates",
+      "required": false
+    },
+    {
+      "id": "#forge:plates/saturlyte",
+      "required": false
+    }
+  ]
+}

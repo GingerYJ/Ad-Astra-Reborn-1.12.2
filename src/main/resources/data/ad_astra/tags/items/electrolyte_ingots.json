@@ -1,0 +1,13 @@
+{
+  "values": [
+    "ad_astra:electrolyte_ingot",
+    {
+      "id": "#c:electrolyte_ingots",
+      "required": false
+    },
+    {
+      "id": "#forge:ingots/electrolyte",
+      "required": false
+    }
+  ]
+}

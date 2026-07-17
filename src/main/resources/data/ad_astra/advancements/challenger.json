@@ -1,0 +1,322 @@
+{
+  "display": {
+    "icon": {
+      "item": "ad_astra:earth_globe"
+    },
+    "title": {
+      "translate": "advancements.ad_astra.challenger.title"
+    },
+    "description": {
+      "translate": "advancements.ad_astra.challenger.description"
+    },
+    "frame": "challenge"
+  },
+  "parent": "ad_astra:b",
+  "criteria": {
+    "ad_astra:earth_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:earth_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:moon_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:moon_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:mars_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:mars_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:mercury_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:mercury_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:venus_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:venus_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:ceres_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:ceres_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:jupiter_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:jupiter_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:saturn_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:saturn_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:uranus_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:uranus_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:neptune_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:neptune_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:orcus_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:orcus_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:pluto_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:pluto_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:haumea_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:haumea_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:quaoar_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:quaoar_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:makemake_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:makemake_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:gonggong_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:gonggong_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:eris_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:eris_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:sedna_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:sedna_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:b_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:b_globe"
+            ]
+          }
+        ]
+      }
+    },
+    "ad_astra:glacio_globe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ad_astra:glacio_globe"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ad_astra:earth_globe"
+    ],
+    [
+      "ad_astra:moon_globe"
+    ],
+    [
+      "ad_astra:mars_globe"
+    ],
+    [
+      "ad_astra:mercury_globe"
+    ],
+    [
+      "ad_astra:venus_globe"
+    ],
+    [
+      "ad_astra:ceres_globe"
+    ],
+    [
+      "ad_astra:jupiter_globe"
+    ],
+    [
+      "ad_astra:saturn_globe"
+    ],
+    [
+      "ad_astra:uranus_globe"
+    ],
+    [
+      "ad_astra:neptune_globe"
+    ],
+    [
+      "ad_astra:orcus_globe"
+    ],
+    [
+      "ad_astra:pluto_globe"
+    ],
+    [
+      "ad_astra:haumea_globe"
+    ],
+    [
+      "ad_astra:quaoar_globe"
+    ],
+    [
+      "ad_astra:makemake_globe"
+    ],
+    [
+      "ad_astra:gonggong_globe"
+    ],
+    [
+      "ad_astra:eris_globe"
+    ],
+    [
+      "ad_astra:sedna_globe"
+    ],
+    [
+      "ad_astra:b_globe"
+    ],
+    [
+      "ad_astra:glacio_globe"
+    ]
+  ],
+  "rewards": {
+    "experience": 300
+  }
+}
