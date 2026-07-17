@@ -1,7 +1,13 @@
 {
   "variants": {
-    "normal": {
+    "type=bottom": {
       "model": "ad_astra:juperium_plating_slab"
+    },
+    "type=double": {
+      "model": "ad_astra:juperium_plating"
+    },
+    "type=top": {
+      "model": "ad_astra:juperium_plating_slab_top"
     }
   }
 }

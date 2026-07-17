@@ -1,1 +1,13 @@
-{"variants":{"normal":{"model":"ad_astra:vicinus_stone_brick_slab"}}}
+{
+  "variants": {
+    "type=bottom": {
+      "model": "ad_astra:vicinus_stone_brick_slab"
+    },
+    "type=double": {
+      "model": "ad_astra:vicinus_stone_bricks"
+    },
+    "type=top": {
+      "model": "ad_astra:vicinus_stone_brick_slab_top"
+    }
+  }
+}

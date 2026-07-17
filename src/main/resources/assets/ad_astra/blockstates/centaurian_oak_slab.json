@@ -1,7 +1,13 @@
 {
   "variants": {
-    "normal": {
+    "type=bottom": {
       "model": "ad_astra:centaurian_oak_slab"
+    },
+    "type=double": {
+      "model": "ad_astra:centaurian_oak_planks"
+    },
+    "type=top": {
+      "model": "ad_astra:centaurian_oak_slab_top"
     }
   }
 }

@@ -1,7 +1,13 @@
 {
   "variants": {
-    "normal": {
+    "type=bottom": {
       "model": "ad_astra:gonggong_stone_slab"
+    },
+    "type=double": {
+      "model": "ad_astra:gonggong_stone"
+    },
+    "type=top": {
+      "model": "ad_astra:gonggong_stone_slab_top"
     }
   }
 }

@@ -1,7 +1,13 @@
 {
   "variants": {
-    "normal": {
+    "type=bottom": {
       "model": "ad_astra:chiseled_b_stone_slab"
+    },
+    "type=double": {
+      "model": "ad_astra:chiseled_b_stone_bricks"
+    },
+    "type=top": {
+      "model": "ad_astra:chiseled_b_stone_slab_top"
     }
   }
 }

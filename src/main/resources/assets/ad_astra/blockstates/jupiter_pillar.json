@@ -1,7 +1,16 @@
 {
-  "variants": {
-    "normal": {
-      "model": "ad_astra:jupiter_pillar"
-    }
-  }
+    "variants":  {
+                     "axis=x":  {
+                                    "model":  "ad_astra:jupiter_pillar_horizontal",
+                                    "x":  90,
+                                    "y":  90
+                                },
+                     "axis=y":  {
+                                    "model":  "ad_astra:jupiter_pillar"
+                                },
+                     "axis=z":  {
+                                    "model":  "ad_astra:jupiter_pillar_horizontal",
+                                    "x":  90
+                                }
+                 }
 }

@@ -2,21 +2,33 @@ package earth.terrarium.adastra.common.registry;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.blocks.AdAstraBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraAxisBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraButtonBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraOreBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraFenceBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraFenceGateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPressurePlateBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraStairsBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
 import earth.terrarium.adastra.common.blocks.ExtendraFlowerPotBlock;
 import earth.terrarium.adastra.common.blocks.ExtendraIcicleBlock;
 import earth.terrarium.adastra.common.blocks.ExtendraMoonMyceliumBlock;
 import earth.terrarium.adastra.common.blocks.ExtendraSaplingBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemDoor;
+import net.minecraft.item.ItemSlab;
 import net.minecraftforge.event.RegistryEvent;
 
 import java.util.ArrayList;
@@ -40,8 +52,10 @@ public final class ExtendraBlocks {
     private static final Map<String, Block> PLANET_SURFACE = new LinkedHashMap<>();
     private static final Map<String, Block> ORES = new LinkedHashMap<>();
     private static final Map<String, Block> MATERIAL_BLOCKS = new LinkedHashMap<>();
+    private static final List<Block> DOUBLE_SLABS = new ArrayList<>();
 
     public static final List<Block> BLOCKS = Collections.unmodifiableList(INTERNAL_BLOCKS);
+    public static final List<Block> HIDDEN_BLOCKS = Collections.unmodifiableList(DOUBLE_SLABS);
     public static final List<String> PLANETS = Collections.unmodifiableList(java.util.Arrays.asList(
         "ceres", "jupiter", "saturn", "uranus", "neptune", "orcus", "pluto",
         "haumea", "quaoar", "makemake", "gonggong", "eris", "sedna", "b"));
@@ -173,6 +187,7 @@ public final class ExtendraBlocks {
 
     public static void register(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(INTERNAL_BLOCKS.toArray(new Block[0]));
+        event.getRegistry().registerAll(DOUBLE_SLABS.toArray(new Block[0]));
     }
 
     public static List<Item> createItemBlocks() {
@@ -187,7 +202,15 @@ public final class ExtendraBlocks {
                 && block.getRegistryName().getPath().startsWith("potted_")) {
                 continue;
             }
-            Item item = new ItemBlock(block);
+            Item item;
+            if (block instanceof AdAstraDoorBlock) {
+                item = new ItemDoor(block);
+            } else if (block instanceof AdAstraSlabBlock.Single) {
+                BlockSlab doubleSlab = findDoubleSlab(block);
+                item = new ItemSlab(block, (BlockSlab) block, doubleSlab);
+            } else {
+                item = new ItemBlock(block);
+            }
             item.setRegistryName(block.getRegistryName());
             item.setTranslationKey(Reference.MOD_ID + "." + block.getRegistryName().getPath());
             item.setCreativeTab(earth.terrarium.adastra.common.AdAstraCreativeTab.INSTANCE);
@@ -206,6 +229,16 @@ public final class ExtendraBlocks {
             String name = planet + "_" + variant;
             if ("stone_brick_wall".equals(variant)) {
                 registerWall(name, BY_NAME.get(planet + "_stone_bricks"));
+            } else if (variant.endsWith("_stairs")) {
+                String baseVariant = variant.substring(0, variant.length() - "_stairs".length());
+                if ("stone_brick".equals(baseVariant)) {
+                    baseVariant = "stone_bricks";
+                }
+                registerStairs(name, BY_NAME.get(planet + "_" + baseVariant));
+            } else if (variant.endsWith("_slab")) {
+                registerSlab(name, material, 1.5F, 6.0F, SoundType.STONE);
+            } else if ("pillar".equals(variant)) {
+                registerAxis(name, material, 1.5F, 6.0F);
             } else {
                 registerSimple(name, material, 1.5F, 6.0F);
             }
@@ -213,12 +246,12 @@ public final class ExtendraBlocks {
         // These names follow the attached project's registry IDs.  The material
         // prefix is part of the source texture/model name, not the planet prefix.
         registerSimple("cracked_" + planet + "_stone_bricks", material, 1.5F, 6.0F);
-        registerSimple("chiseled_" + planet + "_stone_bricks", material, 1.5F, 6.0F);
-        registerSimple("chiseled_" + planet + "_stone_stairs", material, 1.5F, 6.0F);
-        registerSimple("chiseled_" + planet + "_stone_slab", material, 1.5F, 6.0F);
-        registerSimple("polished_" + planet + "_stone", material, 1.5F, 6.0F);
-        registerSimple("polished_" + planet + "_stone_stairs", material, 1.5F, 6.0F);
-        registerSimple("polished_" + planet + "_stone_slab", material, 1.5F, 6.0F);
+        Block chiseledStoneBricks = registerSimple("chiseled_" + planet + "_stone_bricks", material, 1.5F, 6.0F);
+        registerStairs("chiseled_" + planet + "_stone_stairs", chiseledStoneBricks);
+        registerSlab("chiseled_" + planet + "_stone_slab", material, 1.5F, 6.0F, SoundType.STONE);
+        Block polishedStone = registerSimple("polished_" + planet + "_stone", material, 1.5F, 6.0F);
+        registerStairs("polished_" + planet + "_stone_stairs", polishedStone);
+        registerSlab("polished_" + planet + "_stone_slab", material, 1.5F, 6.0F, SoundType.STONE);
         Block stone = BY_NAME.get(planet + "_stone");
         PLANET_STONE.put(planet, stone);
 
@@ -231,9 +264,9 @@ public final class ExtendraBlocks {
         }
         if ("b".equals(planet)) {
             registerSimple("b_sandstone", Material.ROCK, 0.8F, 3.0F);
-            registerSimple("b_sandstone_bricks", Material.ROCK, 1.5F, 6.0F);
-            registerSimple("b_sandstone_brick_stairs", Material.ROCK, 1.5F, 6.0F);
-            registerSimple("b_sandstone_brick_slab", Material.ROCK, 1.5F, 6.0F);
+            Block bSandstoneBricks = registerSimple("b_sandstone_bricks", Material.ROCK, 1.5F, 6.0F);
+            registerStairs("b_sandstone_brick_stairs", bSandstoneBricks);
+            registerSlab("b_sandstone_brick_slab", Material.ROCK, 1.5F, 6.0F, SoundType.STONE);
             registerSimple("cracked_b_sandstone_bricks", Material.ROCK, 1.5F, 6.0F);
         }
     }
@@ -252,6 +285,12 @@ public final class ExtendraBlocks {
             } else if ("_plating_pressure_plate".equals(variant)) {
                 block = register(material + variant,
                     new AdAstraPressurePlateBlock(Material.IRON, AdAstraPressurePlateBlock.Sensitivity.MOBS));
+            } else if ("_plating_stairs".equals(variant)) {
+                block = registerStairs(material + variant, BY_NAME.get(material + "_plating"));
+            } else if ("_plating_slab".equals(variant)) {
+                block = registerSlab(material + variant, Material.IRON, 5.0F, 12.0F, SoundType.METAL);
+            } else if ("_pillar".equals(variant)) {
+                block = registerAxis(material + variant, Material.IRON, 5.0F, 12.0F);
             } else {
                 block = registerSimple(material + variant, Material.IRON, 5.0F, 12.0F);
             }
@@ -261,7 +300,7 @@ public final class ExtendraBlocks {
         }
         registerSimple("raw_" + material + "_block", Material.IRON, 5.0F, 12.0F);
         registerSimple("encased_" + material + "_block", Material.IRON, 5.0F, 12.0F);
-        registerSimple("glowing_" + material + "_pillar", Material.IRON, 5.0F, 12.0F).setLightLevel(1.0F);
+        registerAxis("glowing_" + material + "_pillar", Material.IRON, 5.0F, 12.0F).setLightLevel(1.0F);
     }
 
     private static void registerWoodBlocks() {
@@ -273,7 +312,29 @@ public final class ExtendraBlocks {
             "glacian_wood", "stripped_glacian_wood", "glacian_sapling", "potted_glacian_sapling"
         };
         for (String variant : variants) {
-            if ("centaurian_oak_sapling".equals(variant)) {
+            if ("centaurian_oak_log".equals(variant)
+                || "centaurian_oak_wood".equals(variant)
+                || "stripped_centaurian_oak_log".equals(variant)
+                || "stripped_centaurian_oak_wood".equals(variant)) {
+                registerAxis(variant, Material.WOOD, 2.0F, 3.0F);
+            } else if ("centaurian_oak_stairs".equals(variant)) {
+                registerStairs(variant, BY_NAME.get("centaurian_oak_planks"));
+            } else if ("centaurian_oak_slab".equals(variant)) {
+                registerSlab(variant, Material.WOOD, 2.0F, 3.0F, SoundType.WOOD);
+            } else if ("centaurian_oak_fence".equals(variant)) {
+                registerFence(variant);
+            } else if ("centaurian_oak_fence_gate".equals(variant)) {
+                registerFenceGate(variant);
+            } else if ("centaurian_oak_door".equals(variant)) {
+                registerDoor(variant, Material.WOOD);
+            } else if ("centaurian_oak_trapdoor".equals(variant)) {
+                registerTrapDoor(variant, Material.WOOD);
+            } else if ("centaurian_oak_button".equals(variant)) {
+                register(variant, new AdAstraButtonBlock(true));
+            } else if ("centaurian_oak_pressure_plate".equals(variant)) {
+                register(variant, new AdAstraPressurePlateBlock(Material.WOOD,
+                    AdAstraPressurePlateBlock.Sensitivity.EVERYTHING));
+            } else if ("centaurian_oak_sapling".equals(variant)) {
                 register(variant, new ExtendraSaplingBlock(false));
             } else if ("potted_centaurian_oak_sapling".equals(variant)) {
                 CENTAURIAN_OAK_POTTED_SAPLING = register(variant,
@@ -308,6 +369,24 @@ public final class ExtendraBlocks {
                 : "vicinus_" + variant;
             if ("stone_brick_wall".equals(variant)) {
                 registerWall(name, BY_NAME.get("vicinus_stone_bricks"));
+            } else if (variant.endsWith("_stairs")) {
+                String baseName;
+                if (variant.startsWith("chiseled_")) {
+                    baseName = "chiseled_vicinus_stone_bricks";
+                } else if (variant.startsWith("polished_")) {
+                    baseName = "polished_vicinus_stone";
+                } else {
+                    String baseVariant = variant.substring(0, variant.length() - "_stairs".length());
+                    if ("stone_brick".equals(baseVariant)) {
+                        baseVariant = "stone_bricks";
+                    }
+                    baseName = "vicinus_" + baseVariant;
+                }
+                registerStairs(name, BY_NAME.get(baseName));
+            } else if (variant.endsWith("_slab")) {
+                registerSlab(name, Material.ROCK, 1.5F, 6.0F, SoundType.STONE);
+            } else if ("pillar".equals(variant)) {
+                registerAxis(name, Material.ROCK, 1.5F, 6.0F);
             } else {
                 registerSimple(name, Material.ROCK, 1.5F, 6.0F);
             }
@@ -330,8 +409,52 @@ public final class ExtendraBlocks {
         return register(name, new AdAstraBlock(material, hardness, resistance));
     }
 
+    private static Block registerStairs(String name, Block modelBlock) {
+        if (modelBlock == null) {
+            throw new IllegalStateException("Missing stairs model block for " + name);
+        }
+        return register(name, new AdAstraStairsBlock(modelBlock.getDefaultState()));
+    }
+
+    private static Block registerSlab(String name, Material material, float hardness, float resistance,
+                                      SoundType soundType) {
+        AdAstraSlabBlock.Single single = new AdAstraSlabBlock.Single(material, hardness, resistance, soundType);
+        AdAstraSlabBlock.Double doubleSlab = new AdAstraSlabBlock.Double(
+            material, single, hardness, resistance, soundType);
+        register(name, single);
+        registerHidden("double_" + name, doubleSlab);
+        return single;
+    }
+
+    private static Block registerAxis(String name, Material material, float hardness, float resistance) {
+        return register(name, new AdAstraAxisBlock(material, hardness, resistance));
+    }
+
+    private static Block registerFence(String name) {
+        return register(name, new AdAstraFenceBlock(Material.WOOD, MapColor.WOOD));
+    }
+
+    private static Block registerFenceGate(String name) {
+        return register(name, new AdAstraFenceGateBlock());
+    }
+
+    private static Block registerDoor(String name, Material material) {
+        return register(name, new AdAstraDoorBlock(material));
+    }
+
+    private static Block registerTrapDoor(String name, Material material) {
+        return register(name, new AdAstraTrapDoorBlock(material));
+    }
+
     private static Block registerWall(String name, Block modelBlock) {
         return register(name, new AdAstraWallBlock(modelBlock));
+    }
+
+    private static Block registerHidden(String name, Block block) {
+        block.setRegistryName(Reference.MOD_ID, name);
+        block.setTranslationKey(Reference.MOD_ID + "." + name);
+        DOUBLE_SLABS.add(block);
+        return block;
     }
 
     private static Block registerGlobe(String name) {
@@ -348,5 +471,16 @@ public final class ExtendraBlocks {
         INTERNAL_BLOCKS.add(block);
         BY_NAME.put(name, block);
         return block;
+    }
+
+    private static BlockSlab findDoubleSlab(Block singleSlab) {
+        String name = singleSlab.getRegistryName().getPath();
+        for (Block block : DOUBLE_SLABS) {
+            if (block.getRegistryName() != null
+                && ("double_" + name).equals(block.getRegistryName().getPath())) {
+                return (BlockSlab) block;
+            }
+        }
+        throw new IllegalStateException("Missing double slab for " + name);
     }
 }

@@ -24,7 +24,9 @@ import earth.terrarium.adastra.common.tile.GravityNormalizerTileEntity;
 import earth.terrarium.adastra.common.tile.OxygenDistributorTileEntity;
 import earth.terrarium.adastra.common.tile.SlidingDoorTileEntity;
 import earth.terrarium.adastra.common.tile.WaterPumpTileEntity;
+import earth.terrarium.adastra.common.blocks.AdAstraAxisBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraDoorBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraFenceBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFenceGateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
@@ -32,6 +34,7 @@ import earth.terrarium.adastra.common.blocks.AdAstraButtonBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPressurePlateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraStairsBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraTrapDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraWallBlock;
 import earth.terrarium.adastra.common.blocks.ExtendraIcicleBlock;
@@ -131,11 +134,22 @@ public final class ClientRegistry {
             } else if (block instanceof AdAstraWallBlock) {
                 // Wall blockstates are multipart and must retain their
                 // directional connection properties.
+            } else if (block instanceof AdAstraSlabBlock
+                || block instanceof AdAstraDoorBlock
+                || block instanceof AdAstraTrapDoorBlock
+                || block instanceof AdAstraFenceGateBlock) {
+                registerStateMapper(block);
             } else if (block instanceof AdAstraSlidingDoorBlock) {
                 ModelLoader.setCustomStateMapper(block, new AdAstraSlidingDoorStateMapper());
             } else if (block instanceof ExtendraIcicleBlock) {
                 // Icicles have their own thickness and direction blockstate variants.
-            } else if (!(block instanceof AdAstraButtonBlock) && !(block instanceof AdAstraPressurePlateBlock)) {
+            } else if (block instanceof AdAstraButtonBlock
+                || block instanceof AdAstraPressurePlateBlock
+                || block instanceof AdAstraAxisBlock
+                || block instanceof AdAstraFenceBlock
+                || block instanceof AdAstraStairsBlock) {
+                // These blocks use their normal Forge state mapper and blockstate variants.
+            } else {
                 ModelLoader.setCustomStateMapper(block, new ExtendraStateMapper());
             }
             Item item = getRegisteredBlockItem(block);
@@ -160,6 +174,9 @@ public final class ClientRegistry {
                     registerItemModel(item);
                 }
             }
+        }
+        for (Block block : ExtendraBlocks.HIDDEN_BLOCKS) {
+            registerStateMapper(block);
         }
         for (Item item : ExtendraItems.ITEMS) {
             registerItemModel(item);
