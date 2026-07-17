@@ -39,6 +39,12 @@ public final class CTCustomPlanetBuilder {
         return this;
     }
 
+    @ZenMethod("solarSystem")
+    public CTCustomPlanetBuilder solarSystem(String solarSystem) {
+        builder.solarSystem(new ResourceLocation(solarSystem));
+        return this;
+    }
+
     @ZenMethod("saveFolder")
     public CTCustomPlanetBuilder saveFolder(String saveFolder) {
         builder.saveFolder(saveFolder);

@@ -33,6 +33,14 @@ public class AdAstraOreBlock extends AdAstraBlock {
         setHarvestLevel("pickaxe", 2);
     }
 
+    public Item getDroppedItem() {
+        return droppedItem;
+    }
+
+    public int getDroppedMeta() {
+        return droppedMeta;
+    }
+
     @Override
     public Item getItemDropped(IBlockState state, Random random, int fortune) {
         return droppedItem == null ? Item.getItemFromBlock(this) : droppedItem;

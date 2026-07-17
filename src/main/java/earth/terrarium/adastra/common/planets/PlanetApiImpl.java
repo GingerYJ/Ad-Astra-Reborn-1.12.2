@@ -1,9 +1,9 @@
 package earth.terrarium.adastra.common.planets;
 
-import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.planets.Planet;
 import earth.terrarium.adastra.api.planets.PlanetApi;
 import earth.terrarium.adastra.common.config.ExternalDimensionConfig;
+import earth.terrarium.adastra.common.constants.PlanetConstants;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class PlanetApiImpl implements PlanetApi {
 
-    private static final ResourceLocation SOLAR_SYSTEM = new ResourceLocation(Reference.MOD_ID, "solar_system");
+    private static final ResourceLocation SOLAR_SYSTEM = PlanetConstants.SOLAR_SYSTEM;
     private static final Map<Integer, Planet> PLANETS = new HashMap<>();
     private static volatile boolean defaultsRegistered = false;
 
@@ -49,19 +49,19 @@ public class PlanetApiImpl implements PlanetApi {
 
     private static void registerDefaultPlanets() {
         // Existing planets
-        registerPlanet(ModDimensions.MOON_PROPERTIES, ModDimensions.MOON_ORBIT_ID, 1);
-        registerPlanet(ModDimensions.MARS_PROPERTIES, ModDimensions.MARS_ORBIT_ID, 2);
-        registerPlanet(ModDimensions.MERCURY_PROPERTIES, ModDimensions.MERCURY_ORBIT_ID, 3);
-        registerPlanet(ModDimensions.VENUS_PROPERTIES, ModDimensions.VENUS_ORBIT_ID, 3);
-        registerPlanet(ModDimensions.GLACIO_PROPERTIES, ModDimensions.GLACIO_ORBIT_ID, 4);
+        registerPlanet(ModDimensions.MOON_PROPERTIES, ModDimensions.MOON_ORBIT_ID, 1, SOLAR_SYSTEM);
+        registerPlanet(ModDimensions.MARS_PROPERTIES, ModDimensions.MARS_ORBIT_ID, 2, SOLAR_SYSTEM);
+        registerPlanet(ModDimensions.MERCURY_PROPERTIES, ModDimensions.MERCURY_ORBIT_ID, 3, SOLAR_SYSTEM);
+        registerPlanet(ModDimensions.VENUS_PROPERTIES, ModDimensions.VENUS_ORBIT_ID, 3, SOLAR_SYSTEM);
+        registerPlanet(ModDimensions.GLACIO_PROPERTIES, ModDimensions.GLACIO_ORBIT_ID, 4, SOLAR_SYSTEM);
 
         // Built-in planet orbits
-        registerOrbit(ModDimensions.EARTH_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.MOON_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.MARS_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.MERCURY_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.VENUS_ORBIT_PROPERTIES);
-        registerOrbit(ModDimensions.GLACIO_ORBIT_PROPERTIES);
+        registerOrbit(ModDimensions.EARTH_ORBIT_PROPERTIES, SOLAR_SYSTEM);
+        registerOrbit(ModDimensions.MOON_ORBIT_PROPERTIES, SOLAR_SYSTEM);
+        registerOrbit(ModDimensions.MARS_ORBIT_PROPERTIES, SOLAR_SYSTEM);
+        registerOrbit(ModDimensions.MERCURY_ORBIT_PROPERTIES, SOLAR_SYSTEM);
+        registerOrbit(ModDimensions.VENUS_ORBIT_PROPERTIES, SOLAR_SYSTEM);
+        registerOrbit(ModDimensions.GLACIO_ORBIT_PROPERTIES, SOLAR_SYSTEM);
 
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
             registerCustomPlanet(definition);
@@ -71,20 +71,21 @@ public class PlanetApiImpl implements PlanetApi {
         }
     }
 
-    private static void registerPlanet(PlanetDimensionProperties properties, int orbitDimensionId, int tier) {
+    private static void registerPlanet(PlanetDimensionProperties properties, int orbitDimensionId, int tier,
+                                       ResourceLocation solarSystem) {
         Planet planet = Planet.builder(properties.getDimensionId())
             .oxygen(properties.hasOxygen()).temperature(properties.getTemperature())
             .gravity(properties.getGravity()).solarPower(properties.getSolarPower())
-            .solarSystem(SOLAR_SYSTEM).orbitDimensionId(orbitDimensionId).tier(tier)
+            .solarSystem(solarSystem).orbitDimensionId(orbitDimensionId).tier(tier)
             .additionalLaunchDimensions(Collections.emptyList()).build();
         PLANETS.put(planet.getDimensionId(), planet);
     }
 
-    private static void registerOrbit(PlanetDimensionProperties properties) {
+    private static void registerOrbit(PlanetDimensionProperties properties, ResourceLocation solarSystem) {
         Planet planet = Planet.builder(properties.getDimensionId())
             .oxygen(properties.hasOxygen()).temperature(properties.getTemperature())
             .gravity(properties.getGravity()).solarPower(properties.getSolarPower())
-            .solarSystem(SOLAR_SYSTEM).orbitDimensionId(null).tier(properties.getTier())
+            .solarSystem(solarSystem).orbitDimensionId(null).tier(properties.getTier())
             .additionalLaunchDimensions(Collections.emptyList()).build();
         PLANETS.put(planet.getDimensionId(), planet);
     }
@@ -94,7 +95,7 @@ public class PlanetApiImpl implements PlanetApi {
         Planet planet = Planet.builder(surface.getDimensionId())
             .oxygen(surface.hasOxygen()).temperature(surface.getTemperature())
             .gravity(surface.getGravity()).solarPower(surface.getSolarPower())
-            .solarSystem(new ResourceLocation(definition.getId().getNamespace(), "solar_system"))
+            .solarSystem(definition.getSolarSystem())
             .orbitDimensionId(definition.getOrbitDimensionId()).tier(surface.getTier())
             .additionalLaunchDimensions(Collections.emptyList()).build();
         PLANETS.put(planet.getDimensionId(), planet);
@@ -103,7 +104,7 @@ public class PlanetApiImpl implements PlanetApi {
         Planet orbitPlanet = Planet.builder(orbit.getDimensionId())
             .oxygen(orbit.hasOxygen()).temperature(orbit.getTemperature())
             .gravity(orbit.getGravity()).solarPower(orbit.getSolarPower())
-            .solarSystem(new ResourceLocation(definition.getId().getNamespace(), "solar_system"))
+            .solarSystem(definition.getSolarSystem())
             .orbitDimensionId(null).tier(orbit.getTier())
             .additionalLaunchDimensions(new ArrayList<>()).build();
         PLANETS.put(orbitPlanet.getDimensionId(), orbitPlanet);

@@ -54,11 +54,7 @@ public abstract class ModelBipedMixin extends ModelBase {
         }
 
         Item item = stack.getItem();
-        return item == ModItems.TIER_1_ROCKET
-            || item == ModItems.TIER_2_ROCKET
-            || item == ModItems.TIER_3_ROCKET
-            || item == ModItems.TIER_4_ROCKET
-            || item == ModItems.TIER_1_ROVER
+        return item == ModItems.TIER_1_ROVER
             || item == Item.getItemFromBlock(ModBlocks.LAUNCH_PAD);
     }
 }

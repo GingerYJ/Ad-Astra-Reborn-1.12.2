@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.registry;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.constants.PlanetConstants;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import net.minecraft.init.Items;
@@ -98,6 +99,7 @@ public final class ExtendraPlanetContent {
             .canRespawn(true)
             .environment("b".equals(name), (short) temperature, gravity, 11)
             .tier(tier)
+            .solarSystem(PlanetConstants.SOLAR_SYSTEM)
             .dayLength(24000)
             .fogColor(0.12D, 0.16D, 0.24D)
             .skyColor(0.28D, 0.42D, 0.62D)

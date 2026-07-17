@@ -4,6 +4,7 @@ import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.api.client.events.AdAstraClientEvents;
 import earth.terrarium.adastra.common.capability.SpaceStation;
 import earth.terrarium.adastra.common.config.ExternalDimensionConfig;
+import earth.terrarium.adastra.common.constants.PlanetConstants;
 import earth.terrarium.adastra.common.menus.PlanetsMenu;
 import earth.terrarium.adastra.common.menus.base.PlanetsMenuProvider;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
@@ -39,7 +40,7 @@ public class PlanetSelectionGui extends GuiScreen {
     private static final ResourceLocation BACK_BUTTON_HIGHLIGHTED = texture("back_button_highlighted");
     private static final ResourceLocation PLUS_BUTTON = texture("plus_button");
     private static final ResourceLocation PLUS_BUTTON_HIGHLIGHTED = texture("plus_button_highlighted");
-    private static final ResourceLocation SOLAR_SYSTEM = new ResourceLocation(Reference.MOD_ID, "solar_system");
+    private static final ResourceLocation SOLAR_SYSTEM = PlanetConstants.SOLAR_SYSTEM;
 
     private static final int MENU_X = 7;
     private static final int MENU_WIDTH = 209;
@@ -196,11 +197,11 @@ public class PlanetSelectionGui extends GuiScreen {
         int menuY = menuY();
         if (selectedPlanet != null && isInside(mouseX, mouseY, MENU_X + 3, menuY + 3, 12, 12)) {
             selectedPlanet = null;
-            scrollAmount = 0;
-            spaceStationScrollAmount = 0;
+            resetSelectionScroll();
             return;
         }
 
+        int listTop = height / 2 - 41;
         for (PlanetHitbox hitbox : planetHitboxes) {
             if (hitbox.contains(mouseX, mouseY) && menu.canReach(hitbox.planet)) {
                 selectedPlanet = hitbox.planet;
@@ -209,9 +210,9 @@ public class PlanetSelectionGui extends GuiScreen {
             }
         }
 
-        int listTop = height / 2 - 41;
-        for (int i = 0; i < planets.size(); i++) {
-            PlanetDimensionProperties planet = planets.get(i);
+        List<PlanetDimensionProperties> displayedPlanets = getDisplayedPlanets();
+        for (int i = 0; i < displayedPlanets.size(); i++) {
+            PlanetDimensionProperties planet = displayedPlanets.get(i);
             int buttonY = listTop + i * 24 - scrollAmount;
             if (buttonY <= height / 2 - 63 || buttonY >= height / 2 + 88) {
                 continue;
@@ -311,7 +312,7 @@ public class PlanetSelectionGui extends GuiScreen {
         int mouseX = org.lwjgl.input.Mouse.getEventX() * width / mc.displayWidth;
         int mouseY = height - org.lwjgl.input.Mouse.getEventY() * height / mc.displayHeight - 1;
         if (isInside(mouseX, mouseY, MENU_X, height / 2 - 43, 112, 131)) {
-            int maxScroll = Math.max(0, planets.size() * 24 - 131);
+            int maxScroll = Math.max(0, getSelectionEntryCount() * 24 - 131);
             scrollAmount += wheel < 0 ? 12 : -12;
             scrollAmount = Math.max(0, Math.min(maxScroll, scrollAmount));
         } else if (selectedPlanet != null && isInside(mouseX, mouseY, RIGHT_PANEL_X, height / 2 + 43, RIGHT_PANEL_WIDTH, SPACE_STATION_LIST_HEIGHT)) {
@@ -356,7 +357,7 @@ public class PlanetSelectionGui extends GuiScreen {
             drawCenteredString(fontRenderer, "<", MENU_X + 9, menuY + 5, 0xFFFFFFFF);
         }
 
-        String title = selectedPlanet == null ? I18n.format("text.ad_astra.text.catalog") : getPlanetLabel(selectedPlanet);
+        String title = selectedPlanet == null ? getSolarSystemLabel(SOLAR_SYSTEM) : getPlanetLabel(selectedPlanet);
         drawCenteredString(fontRenderer, title, MENU_X + SMALL_MENU_WIDTH / 2, menuY + 15, 0xFFFFFF);
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
@@ -365,12 +366,13 @@ public class PlanetSelectionGui extends GuiScreen {
         drawPlanetButtons(mouseX, mouseY);
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
-        int maxScroll = Math.max(0, planets.size() * 24 - 131);
+        int entryCount = getSelectionEntryCount();
+        int maxScroll = Math.max(0, entryCount * 24 - 131);
         if (maxScroll > 0) {
             int trackX = MENU_X + 105;
             int trackY = height / 2 - 41;
             int trackHeight = 129;
-            int thumbHeight = Math.max(18, trackHeight * 131 / Math.max(131, planets.size() * 24));
+            int thumbHeight = Math.max(18, trackHeight * 131 / Math.max(131, entryCount * 24));
             int thumbY = trackY + (trackHeight - thumbHeight) * scrollAmount / maxScroll;
             drawRect(trackX, trackY, trackX + 3, trackY + trackHeight, 0x55FFFFFF);
             drawRect(trackX, thumbY, trackX + 3, thumbY + thumbHeight, 0xFFFFFFFF);
@@ -383,8 +385,9 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private void drawPlanetButtons(int mouseX, int mouseY) {
         int listTop = height / 2 - 41;
-        for (int i = 0; i < planets.size(); i++) {
-            PlanetDimensionProperties planet = planets.get(i);
+        List<PlanetDimensionProperties> displayedPlanets = getDisplayedPlanets();
+        for (int i = 0; i < displayedPlanets.size(); i++) {
+            PlanetDimensionProperties planet = displayedPlanets.get(i);
             int x = MENU_X + 3;
             int y = listTop + i * 24 - scrollAmount;
             boolean enabled = menu.canReach(planet);
@@ -628,6 +631,31 @@ public class PlanetSelectionGui extends GuiScreen {
             height);
     }
 
+    private List<PlanetDimensionProperties> getDisplayedPlanets() {
+        return new ArrayList<>(planets);
+    }
+
+    private int getSelectionEntryCount() {
+        return getDisplayedPlanets().size();
+    }
+
+    private void resetSelectionScroll() {
+        scrollAmount = 0;
+        spaceStationScrollAmount = 0;
+        mapOffsetX = 0;
+        mapOffsetY = 0;
+        mapZoom = 1.0F;
+    }
+
+    private String getSolarSystemLabel(ResourceLocation solarSystem) {
+        if (solarSystem == null) {
+            return I18n.format("text.ad_astra.text.catalog");
+        }
+        String translationKey = "solar_system." + solarSystem.getNamespace() + "." + solarSystem.getPath();
+        String translated = I18n.format(translationKey);
+        return translated.equals(translationKey) ? formatPlanetName(solarSystem.getPath()) : translated;
+    }
+
     private List<OrbitRing> buildOrbitRings(double centerX, double centerY, float scale, List<PlanetRenderNode> nodes) {
         List<OrbitRing> rings = new ArrayList<>();
         List<Integer> primaryOrbitIndexes = new ArrayList<>();
@@ -657,7 +685,8 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private List<PlanetRenderNode> buildPlanetNodes(double centerX, double centerY, float scale) {
         List<PlanetRenderNode> nodes = new ArrayList<>();
-        for (PlanetDimensionProperties planet : planets) {
+        List<PlanetDimensionProperties> displayedPlanets = getDisplayedPlanets();
+        for (PlanetDimensionProperties planet : displayedPlanets) {
             String key = getPlanetKey(planet);
             LayoutSpec spec = getLayoutSpec(planet, key);
             if (spec != null && spec.parent != null) {
@@ -666,7 +695,7 @@ public class PlanetSelectionGui extends GuiScreen {
             nodes.add(createPrimaryNode(planet, key, centerX, centerY, scale, true));
         }
 
-        for (PlanetDimensionProperties planet : planets) {
+        for (PlanetDimensionProperties planet : displayedPlanets) {
             String key = getPlanetKey(planet);
             LayoutSpec spec = getLayoutSpec(planet, key);
             if (spec == null || spec.parent == null) {
@@ -723,7 +752,7 @@ public class PlanetSelectionGui extends GuiScreen {
     }
 
     private PlanetDimensionProperties getAnchorClickTarget(String key) {
-        for (PlanetDimensionProperties planet : planets) {
+        for (PlanetDimensionProperties planet : getDisplayedPlanets()) {
             String planetKey = getPlanetKey(planet);
             LayoutSpec spec = getLayoutSpec(planet, planetKey);
             if (spec != null && key.equals(spec.parent) && menu.canReach(planet)) {
@@ -785,7 +814,21 @@ public class PlanetSelectionGui extends GuiScreen {
         if ("earth".equals(key)) return new LayoutSpec(2, 18.0D);
         if ("moon".equals(key)) return new LayoutSpec("earth", 52, -26.0D);
         if ("mars".equals(key)) return new LayoutSpec(3, -34.0D);
-        if ("glacio".equals(key)) return new LayoutSpec(5, 105.0D);
+        if ("b".equals(key)) return new LayoutSpec(17, 0.0D);
+        if ("glacio".equals(key)) return new LayoutSpec(18, 0.0D);
+        if ("ceres".equals(key)) return new LayoutSpec(4, 0.0D);
+        if ("jupiter".equals(key)) return new LayoutSpec(5, 0.0D);
+        if ("saturn".equals(key)) return new LayoutSpec(6, 0.0D);
+        if ("uranus".equals(key)) return new LayoutSpec(7, 0.0D);
+        if ("neptune".equals(key)) return new LayoutSpec(8, 0.0D);
+        if ("orcus".equals(key)) return new LayoutSpec(9, 0.0D);
+        if ("pluto".equals(key)) return new LayoutSpec(10, 0.0D);
+        if ("haumea".equals(key)) return new LayoutSpec(11, 0.0D);
+        if ("quaoar".equals(key)) return new LayoutSpec(12, 0.0D);
+        if ("makemake".equals(key)) return new LayoutSpec(13, 0.0D);
+        if ("gonggong".equals(key)) return new LayoutSpec(14, 0.0D);
+        if ("eris".equals(key)) return new LayoutSpec(15, 0.0D);
+        if ("sedna".equals(key)) return new LayoutSpec(16, 0.0D);
         if ("mineral_world".equals(key)) return new LayoutSpec(getSpecialOuterOrbit(key), 50.0D);
         if (isNetherKey(key)) return new LayoutSpec(getSpecialOuterOrbit(key), -96.0D);
         if (isEndKey(key)) return new LayoutSpec(getSpecialOuterOrbit(key), -52.0D);
@@ -804,15 +847,30 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private LayoutSpec getFallbackLayout(String key) {
         int hash = key.hashCode() & 0x7FFFFFFF;
-        int outerStart = getSpecialOuterOrbit("the_end") + 1;
+        int outerStart = getFallbackOrbitStart();
         int orbit = outerStart + getUnknownOuterIndex(key);
         double angle = (hash % 360);
         return new LayoutSpec(orbit, angle);
     }
 
+    private int getFallbackOrbitStart() {
+        int outermostOrbit = -1;
+        for (PlanetDimensionProperties planet : getDisplayedPlanets()) {
+            if (ExternalDimensionConfig.isExternalDimension(planet.getDimensionId())) {
+                continue;
+            }
+            String key = getPlanetKey(planet);
+            LayoutSpec spec = getLayoutSpec(planet, key);
+            if (spec != null && spec.parent == null) {
+                outermostOrbit = Math.max(outermostOrbit, spec.orbit);
+            }
+        }
+        return outermostOrbit + 1;
+    }
+
     private int getExternalOrbitStart() {
         int outermostOrbit = -1;
-        for (PlanetDimensionProperties planet : planets) {
+        for (PlanetDimensionProperties planet : getDisplayedPlanets()) {
             if (ExternalDimensionConfig.isExternalDimension(planet.getDimensionId())) {
                 continue;
             }
@@ -857,7 +915,7 @@ public class PlanetSelectionGui extends GuiScreen {
 
     private int getUnknownOuterIndex(String key) {
         List<String> unknownKeys = new ArrayList<>();
-        for (PlanetDimensionProperties planet : planets) {
+        for (PlanetDimensionProperties planet : getDisplayedPlanets()) {
             if (ExternalDimensionConfig.isExternalDimension(planet.getDimensionId())) {
                 continue;
             }

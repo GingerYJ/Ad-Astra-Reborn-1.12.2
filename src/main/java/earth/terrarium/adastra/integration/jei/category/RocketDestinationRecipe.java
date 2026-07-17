@@ -3,11 +3,14 @@ package earth.terrarium.adastra.integration.jei.category;
 import earth.terrarium.adastra.common.util.PlanetTravelHelper;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RocketDestinationRecipe {
 
@@ -47,16 +50,27 @@ public class RocketDestinationRecipe {
 
     public static List<Destination> collectDestinations() {
         List<Destination> destinations = new ArrayList<>();
+        Set<Integer> registeredDimensions = new HashSet<>();
+        addDestination(destinations, registeredDimensions, PlanetTravelHelper.EARTH_PROPERTIES);
         for (PlanetDimensionProperties planet : PlanetTravelHelper.getPlanets()) {
-            if (planet == null) {
+            if (planet == null || planet.getDimensionId() == PlanetTravelHelper.EARTH_PROPERTIES.getDimensionId()
+                || !DimensionManager.isDimensionRegistered(planet.getDimensionId())) {
                 continue;
             }
-            int requiredTier = PlanetTravelHelper.getRequiredRocketTier(planet);
-            destinations.add(new Destination(planet.getName(), planet.getDimensionId(), requiredTier));
+            addDestination(destinations, registeredDimensions, planet);
         }
         destinations.sort(Comparator.comparingInt(Destination::getRequiredTier)
             .thenComparing(Destination::getName));
         return destinations;
+    }
+
+    private static void addDestination(List<Destination> destinations, Set<Integer> registeredDimensions,
+                                       PlanetDimensionProperties planet) {
+        if (planet == null || !registeredDimensions.add(planet.getDimensionId())) {
+            return;
+        }
+        int requiredTier = PlanetTravelHelper.getRequiredRocketTier(planet);
+        destinations.add(new Destination(planet.getName(), planet.getDimensionId(), requiredTier));
     }
 
     public static class Destination {

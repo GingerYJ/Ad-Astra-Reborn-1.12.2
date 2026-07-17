@@ -24,6 +24,7 @@ public final class CustomPlanetDefinition {
     public static final int DEFAULT_DAY_LENGTH = 24000;
 
     private final ResourceLocation id;
+    private final ResourceLocation solarSystem;
     private final String planetName;
     @Nullable
     private final String displayName;
@@ -51,6 +52,7 @@ public final class CustomPlanetDefinition {
 
     private CustomPlanetDefinition(Builder builder) {
         this.id = builder.id;
+        this.solarSystem = builder.solarSystem;
         this.planetName = builder.planetName == null ? sanitizeName(builder.id.getPath()) : sanitizeName(builder.planetName);
         this.displayName = builder.displayName;
         this.dimensionId = builder.dimensionId;
@@ -78,6 +80,10 @@ public final class CustomPlanetDefinition {
 
     public ResourceLocation getId() {
         return id;
+    }
+
+    public ResourceLocation getSolarSystem() {
+        return solarSystem;
     }
 
     public String getPlanetName() {
@@ -403,6 +409,7 @@ public final class CustomPlanetDefinition {
 
 
         private final ResourceLocation id;
+        private ResourceLocation solarSystem;
         private String planetName;
         @Nullable
         private String displayName;
@@ -438,6 +445,7 @@ public final class CustomPlanetDefinition {
             this.id = id;
             this.dimensionId = dimensionId;
             this.orbitDimensionId = dimensionId + 1;
+            this.solarSystem = new ResourceLocation(id.getNamespace(), "solar_system");
         }
 
         public Builder planetName(String planetName) {
@@ -447,6 +455,14 @@ public final class CustomPlanetDefinition {
 
         public Builder displayName(@Nullable String displayName) {
             this.displayName = displayName;
+            return this;
+        }
+
+        public Builder solarSystem(ResourceLocation solarSystem) {
+            if (solarSystem == null) {
+                throw new IllegalArgumentException("solarSystem cannot be null.");
+            }
+            this.solarSystem = solarSystem;
             return this;
         }
 

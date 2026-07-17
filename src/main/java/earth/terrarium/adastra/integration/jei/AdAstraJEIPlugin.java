@@ -13,6 +13,8 @@ import earth.terrarium.adastra.common.registry.ModGuiIds;
 import earth.terrarium.adastra.common.registry.ModItems;
 import earth.terrarium.adastra.common.registry.ExtendraItems;
 import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketRegistry;
+import earth.terrarium.adastra.common.rocket.ConfigurableRocketSpec;
 import earth.terrarium.adastra.integration.jei.category.*;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IJeiHelpers;
@@ -191,6 +193,17 @@ public class AdAstraJEIPlugin implements IModPlugin {
             if (item instanceof ConfigurableRocketItem) {
                 ConfigurableRocketItem rocket = (ConfigurableRocketItem) item;
                 addRocket(rockets, rocket, rocket.getSpec().getTier());
+            }
+        }
+        for (Item item : ModItems.ITEMS) {
+            if (item instanceof ConfigurableRocketItem) {
+                ConfigurableRocketItem rocket = (ConfigurableRocketItem) item;
+                addRocket(rockets, rocket, rocket.getSpec().getTier());
+            }
+        }
+        for (ConfigurableRocketSpec spec : ConfigurableRocketRegistry.getRockets()) {
+            if (spec.getItem() != null) {
+                addRocket(rockets, spec.getItem(), spec.getTier());
             }
         }
         rockets.sort(java.util.Comparator.<RocketItemEntry>comparingInt(entry -> entry.tier)
