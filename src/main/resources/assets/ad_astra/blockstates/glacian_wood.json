@@ -1,7 +1,16 @@
 {
   "variants": {
-    "normal": {
+    "axis=x": {
+      "model": "ad_astra:glacian_wood",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
       "model": "ad_astra:glacian_wood"
+    },
+    "axis=z": {
+      "model": "ad_astra:glacian_wood",
+      "x": 90
     }
   }
 }

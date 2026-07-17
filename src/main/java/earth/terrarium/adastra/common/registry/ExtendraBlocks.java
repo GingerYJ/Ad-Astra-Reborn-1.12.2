@@ -315,7 +315,9 @@ public final class ExtendraBlocks {
             if ("centaurian_oak_log".equals(variant)
                 || "centaurian_oak_wood".equals(variant)
                 || "stripped_centaurian_oak_log".equals(variant)
-                || "stripped_centaurian_oak_wood".equals(variant)) {
+                || "stripped_centaurian_oak_wood".equals(variant)
+                || "glacian_wood".equals(variant)
+                || "stripped_glacian_wood".equals(variant)) {
                 registerAxis(variant, Material.WOOD, 2.0F, 3.0F);
             } else if ("centaurian_oak_stairs".equals(variant)) {
                 registerStairs(variant, BY_NAME.get("centaurian_oak_planks"));
@@ -344,11 +346,6 @@ public final class ExtendraBlocks {
             } else if ("potted_glacian_sapling".equals(variant)) {
                 GLACIAN_POTTED_SAPLING = register(variant,
                     new ExtendraFlowerPotBlock(BY_NAME.get("glacian_sapling")));
-            } else if ("centaurian_oak_button".equals(variant)) {
-                register(variant, new AdAstraButtonBlock(true));
-            } else if ("centaurian_oak_pressure_plate".equals(variant)) {
-                register(variant, new AdAstraPressurePlateBlock(Material.WOOD,
-                    AdAstraPressurePlateBlock.Sensitivity.EVERYTHING));
             } else {
                 registerSimple(variant, Material.WOOD, 2.0F, 3.0F);
             }
