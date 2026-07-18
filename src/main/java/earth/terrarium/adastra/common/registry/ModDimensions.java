@@ -61,12 +61,12 @@ public final class ModDimensions {
         new Vec3d(0.58D, 0.72D, 0.9D), new Vec3d(0.34D, 0.48D, 0.68D));
 
     // ===== Existing Orbit Properties =====
-    public static final PlanetDimensionProperties EARTH_ORBIT_PROPERTIES = orbit("earth_orbit", EARTH_ORBIT_ID, "DIM_AD_ASTRA_EARTH_ORBIT", 1, new Vec3d(0.1D,0.2D,0.4D), new Vec3d(0.05D,0.1D,0.2D));
-    public static final PlanetDimensionProperties MOON_ORBIT_PROPERTIES = orbit("moon_orbit", MOON_ORBIT_ID, "DIM_AD_ASTRA_MOON_ORBIT", 1, MOON_PROPERTIES.getFogColor(), MOON_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties MARS_ORBIT_PROPERTIES = orbit("mars_orbit", MARS_ORBIT_ID, "DIM_AD_ASTRA_MARS_ORBIT", 2, MARS_PROPERTIES.getFogColor(), MARS_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties MERCURY_ORBIT_PROPERTIES = orbit("mercury_orbit", MERCURY_ORBIT_ID, "DIM_AD_ASTRA_MERCURY_ORBIT", 3, MERCURY_PROPERTIES.getFogColor(), MERCURY_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties VENUS_ORBIT_PROPERTIES = orbit("venus_orbit", VENUS_ORBIT_ID, "DIM_AD_ASTRA_VENUS_ORBIT", 3, VENUS_PROPERTIES.getFogColor(), VENUS_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties GLACIO_ORBIT_PROPERTIES = orbit("glacio_orbit", GLACIO_ORBIT_ID, "DIM_AD_ASTRA_GLACIO_ORBIT", 4, GLACIO_PROPERTIES.getFogColor(), GLACIO_PROPERTIES.getSkyColor());
+    public static final PlanetDimensionProperties EARTH_ORBIT_PROPERTIES = orbit("earth_orbit", EARTH_ORBIT_ID, "DIM_AD_ASTRA_EARTH_ORBIT", 1, 32, new Vec3d(0.1D,0.2D,0.4D), new Vec3d(0.05D,0.1D,0.2D));
+    public static final PlanetDimensionProperties MOON_ORBIT_PROPERTIES = orbit("moon_orbit", MOON_ORBIT_ID, "DIM_AD_ASTRA_MOON_ORBIT", 1, 32, MOON_PROPERTIES.getFogColor(), MOON_PROPERTIES.getSkyColor());
+    public static final PlanetDimensionProperties MARS_ORBIT_PROPERTIES = orbit("mars_orbit", MARS_ORBIT_ID, "DIM_AD_ASTRA_MARS_ORBIT", 2, 24, MARS_PROPERTIES.getFogColor(), MARS_PROPERTIES.getSkyColor());
+    public static final PlanetDimensionProperties MERCURY_ORBIT_PROPERTIES = orbit("mercury_orbit", MERCURY_ORBIT_ID, "DIM_AD_ASTRA_MERCURY_ORBIT", 3, 72, MERCURY_PROPERTIES.getFogColor(), MERCURY_PROPERTIES.getSkyColor());
+    public static final PlanetDimensionProperties VENUS_ORBIT_PROPERTIES = orbit("venus_orbit", VENUS_ORBIT_ID, "DIM_AD_ASTRA_VENUS_ORBIT", 3, 48, VENUS_PROPERTIES.getFogColor(), VENUS_PROPERTIES.getSkyColor());
+    public static final PlanetDimensionProperties GLACIO_ORBIT_PROPERTIES = orbit("glacio_orbit", GLACIO_ORBIT_ID, "DIM_AD_ASTRA_GLACIO_ORBIT", 4, 36, GLACIO_PROPERTIES.getFogColor(), GLACIO_PROPERTIES.getSkyColor());
 
     // ===== DimensionType instances =====
     public static DimensionType MOON, MARS, MERCURY, VENUS, GLACIO;
@@ -104,7 +104,7 @@ public final class ModDimensions {
 
     private static net.minecraft.block.state.IBlockState state(Block block) { return block.getDefaultState(); }
 
-    private static PlanetDimensionProperties orbit(String name, int id, String folder, int tier, Vec3d fog, Vec3d sky) {
-        return new PlanetDimensionProperties(name, id, folder, Biomes.SKY, state(Blocks.AIR), state(Blocks.AIR), true, true, false, (short)-270, 0.05F, 64, tier, DAY, fog, sky);
+    private static PlanetDimensionProperties orbit(String name, int id, String folder, int tier, int solarPower, Vec3d fog, Vec3d sky) {
+        return new PlanetDimensionProperties(name, id, folder, Biomes.SKY, state(Blocks.AIR), state(Blocks.AIR), true, true, false, (short)-270, 0.05F, solarPower, tier, DAY, fog, sky);
     }
 }

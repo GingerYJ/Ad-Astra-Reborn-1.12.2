@@ -38,6 +38,7 @@ public final class PlanetResourceJeiInfo {
         // These vanilla blocks are placed by the custom planet generators.
         add(registry, registered, "moon", new ItemStack(Blocks.SOUL_SAND), false, null);
         add(registry, registered, "uranus", new ItemStack(Blocks.PACKED_ICE), false, null);
+        add(registry, registered, "uranus", new ItemStack(ExtendraBlocks.BLUE_SLUSHY_ICE), false, null);
 
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
             String planet = definition.getPlanetName();

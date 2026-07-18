@@ -1,6 +1,6 @@
 {
   "dimension": "ad_astra:venus",
-  "gravity": 8.87,
+  "gravity": 0.9,
   "orbit": "ad_astra:venus_orbit",
   "oxygen": false,
   "solar_power": 8,

@@ -1,6 +1,6 @@
 {
   "dimension": "ad_astra:glacio",
-  "gravity": 3.721,
+  "gravity": 0.25,
   "orbit": "ad_astra:glacio_orbit",
   "oxygen": true,
   "solar_power": 14,

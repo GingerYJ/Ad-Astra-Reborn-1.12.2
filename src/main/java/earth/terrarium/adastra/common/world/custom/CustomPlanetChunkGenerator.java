@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.world.custom;
 
+import earth.terrarium.adastra.common.config.OreGenConfig;
 import earth.terrarium.adastra.common.world.AdAstraChunkGenerator;
 import earth.terrarium.adastra.common.blocks.ExtendraIcicleBlock;
 import earth.terrarium.adastra.common.registry.ModBlocks;
@@ -37,7 +38,8 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
         BlockPos chunkOrigin = new BlockPos(chunkX * 16, 0, chunkZ * 16);
 
         for (CustomPlanetDefinition.OreDefinition ore : definition.getOres()) {
-            generateCustomOre(ore, chunkOrigin, random);
+            OreGenConfig.OreSettings settings = OreGenConfig.getCustomPlanetOreSettings(definition, ore);
+            generateCustomOre(ore, settings, chunkOrigin, random);
         }
 
         for (CustomPlanetDefinition.FluidLakeDefinition lake : definition.getFluidLakes()) {
@@ -62,33 +64,40 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
         return random;
     }
 
-    private void generateCustomOre(CustomPlanetDefinition.OreDefinition ore, BlockPos chunkOrigin, Random random) {
-        int maxGenerationY = 255 - 3;
-        for (int i = 0; i < ore.getCountPerChunk(); i++) {
+    private void generateCustomOre(CustomPlanetDefinition.OreDefinition ore, OreGenConfig.OreSettings settings,
+                                   BlockPos chunkOrigin, Random random) {
+        int minGenerationY = Math.max(1, settings.minY);
+        int maxGenerationY = Math.min(255 - 3, settings.maxY);
+        if (settings.countPerChunk <= 0 || settings.veinSize <= 0 || minGenerationY > maxGenerationY) {
+            return;
+        }
+
+        for (int i = 0; i < settings.countPerChunk; i++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
-            int y = ore.getMinY() + random.nextInt(Math.min(ore.getMaxY(), maxGenerationY) - ore.getMinY() + 1);
+            int y = minGenerationY + random.nextInt(maxGenerationY - minGenerationY + 1);
             int z = chunkOrigin.getZ() + random.nextInt(16);
-            generateCustomVein(ore, random, new BlockPos(x, y, z));
+            generateCustomVein(ore, settings.veinSize, random, new BlockPos(x, y, z));
         }
     }
 
-    private void generateCustomVein(CustomPlanetDefinition.OreDefinition ore, Random random, BlockPos origin) {
+    private void generateCustomVein(CustomPlanetDefinition.OreDefinition ore, int veinSize,
+                                    Random random, BlockPos origin) {
         float angle = random.nextFloat() * (float) Math.PI;
-        double startX = (double) origin.getX() + 8.0D + (double) (MathHelper.sin(angle) * (float) ore.getVeinSize()) / 8.0D;
-        double endX = (double) origin.getX() + 8.0D - (double) (MathHelper.sin(angle) * (float) ore.getVeinSize()) / 8.0D;
-        double startZ = (double) origin.getZ() + 8.0D + (double) (MathHelper.cos(angle) * (float) ore.getVeinSize()) / 8.0D;
-        double endZ = (double) origin.getZ() + 8.0D - (double) (MathHelper.cos(angle) * (float) ore.getVeinSize()) / 8.0D;
+        double startX = (double) origin.getX() + 8.0D + (double) (MathHelper.sin(angle) * (float) veinSize) / 8.0D;
+        double endX = (double) origin.getX() + 8.0D - (double) (MathHelper.sin(angle) * (float) veinSize) / 8.0D;
+        double startZ = (double) origin.getZ() + 8.0D + (double) (MathHelper.cos(angle) * (float) veinSize) / 8.0D;
+        double endZ = (double) origin.getZ() + 8.0D - (double) (MathHelper.cos(angle) * (float) veinSize) / 8.0D;
         double startY = (double) origin.getY() + random.nextInt(3) - 2;
         double endY = (double) origin.getY() + random.nextInt(3) - 2;
 
         int maxGenerationY = 255 - 2;
 
-        for (int step = 0; step < ore.getVeinSize(); step++) {
-            float progress = (float) step / (float) ore.getVeinSize();
+        for (int step = 0; step < veinSize; step++) {
+            float progress = (float) step / (float) veinSize;
             double centerX = startX + (endX - startX) * (double) progress;
             double centerY = startY + (endY - startY) * (double) progress;
             double centerZ = startZ + (endZ - startZ) * (double) progress;
-            double diameter = random.nextDouble() * (double) ore.getVeinSize() / 16.0D;
+            double diameter = random.nextDouble() * (double) veinSize / 16.0D;
             double horizontalRadius = (double) (MathHelper.sin((float) Math.PI * progress) + 1.0F) * diameter + 1.0D;
             double verticalRadius = (double) (MathHelper.sin((float) Math.PI * progress) + 1.0F) * diameter + 1.0D;
 

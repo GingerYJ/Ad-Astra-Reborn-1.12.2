@@ -11,6 +11,10 @@ public final class PlanetTierOverrideRegistry {
     private PlanetTierOverrideRegistry() {
     }
 
+    public static void clear() {
+        PLANET_TIERS.clear();
+    }
+
     public static void setPlanetTier(int dimensionId, int tier) {
         PLANET_TIERS.put(dimensionId, Math.max(0, tier));
     }

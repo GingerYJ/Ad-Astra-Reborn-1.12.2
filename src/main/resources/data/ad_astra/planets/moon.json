@@ -1,6 +1,6 @@
 {
   "dimension": "ad_astra:moon",
-  "gravity": 1.622,
+  "gravity": 0.166,
   "orbit": "ad_astra:moon_orbit",
   "oxygen": false,
   "solar_power": 24,

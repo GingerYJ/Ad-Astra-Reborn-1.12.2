@@ -42,6 +42,7 @@ public final class CustomPlanetDefinition {
     private final short temperature;
     private final float gravity;
     private final int solarPower;
+    private final int orbitSolarPower;
     private final int tier;
     private final int dayLength;
     private final Vec3d fogColor;
@@ -69,6 +70,7 @@ public final class CustomPlanetDefinition {
         this.temperature = builder.temperature;
         this.gravity = builder.gravity;
         this.solarPower = builder.solarPower;
+        this.orbitSolarPower = builder.orbitSolarPower;
         this.tier = builder.tier;
         this.dayLength = builder.dayLength;
         this.fogColor = builder.fogColor;
@@ -155,6 +157,10 @@ public final class CustomPlanetDefinition {
         return solarPower;
     }
 
+    public int getOrbitSolarPower() {
+        return orbitSolarPower;
+    }
+
     public int getTier() {
         return tier;
     }
@@ -222,7 +228,7 @@ public final class CustomPlanetDefinition {
             false,
             (short) -270,
             0.0F,
-            solarPower,
+            orbitSolarPower,
             tier,
             dayLength,
             new Vec3d(0.0D, 0.0D, 0.0D),
@@ -314,6 +320,7 @@ public final class CustomPlanetDefinition {
 
     public static final class OreDefinition {
 
+        private final String configKey;
         private final IBlockState oreBlock;
         private final IBlockState replaceBlock;
         private final int veinSize;
@@ -322,8 +329,14 @@ public final class CustomPlanetDefinition {
         private final int maxY;
 
         public OreDefinition(IBlockState oreBlock, IBlockState replaceBlock, int veinSize, int countPerChunk, int minY, int maxY) {
+            this(null, oreBlock, replaceBlock, veinSize, countPerChunk, minY, maxY);
+        }
+
+        public OreDefinition(String configKey, IBlockState oreBlock, IBlockState replaceBlock,
+                             int veinSize, int countPerChunk, int minY, int maxY) {
             this.oreBlock = requireState(oreBlock, "oreBlock");
             this.replaceBlock = requireState(replaceBlock, "replaceBlock");
+            this.configKey = sanitizeConfigKey(configKey, this.oreBlock);
             this.veinSize = positive(veinSize, "veinSize");
             this.countPerChunk = nonNegative(countPerChunk, "countPerChunk");
             this.minY = clampY(minY, "minY");
@@ -331,6 +344,11 @@ public final class CustomPlanetDefinition {
             if (this.minY > this.maxY) {
                 throw new IllegalArgumentException("minY cannot be greater than maxY.");
             }
+        }
+
+        /** Stable suffix used for the generated worldgen_<planet> config properties. */
+        public String getConfigKey() {
+            return configKey;
         }
 
         public IBlockState getOreBlock() {
@@ -355,6 +373,28 @@ public final class CustomPlanetDefinition {
 
         public int getMaxY() {
             return maxY;
+        }
+
+        private static String sanitizeConfigKey(String value, IBlockState oreBlock) {
+            String source = value == null ? "" : value.trim();
+            if (source.isEmpty() && oreBlock.getBlock().getRegistryName() != null) {
+                source = oreBlock.getBlock().getRegistryName().getPath();
+            }
+            if (source.isEmpty()) {
+                source = "ore";
+            }
+
+            String lower = source.toLowerCase(Locale.ROOT);
+            StringBuilder builder = new StringBuilder(lower.length());
+            for (int i = 0; i < lower.length(); i++) {
+                char c = lower.charAt(i);
+                if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') {
+                    builder.append(c);
+                } else {
+                    builder.append('_');
+                }
+            }
+            return builder.length() == 0 ? "ore" : builder.toString();
         }
     }
 
@@ -427,6 +467,7 @@ public final class CustomPlanetDefinition {
         private short temperature;
         private float gravity = 1.0F;
         private int solarPower = 10;
+        private int orbitSolarPower = 10;
         private int tier = 1;
         private int dayLength = DEFAULT_DAY_LENGTH;
         private Vec3d fogColor = new Vec3d(0.0D, 0.0D, 0.0D);
@@ -528,6 +569,12 @@ public final class CustomPlanetDefinition {
             this.temperature = temperature;
             this.gravity = gravity;
             this.solarPower = solarPower;
+            this.orbitSolarPower = solarPower;
+            return this;
+        }
+
+        public Builder orbitSolarPower(int orbitSolarPower) {
+            this.orbitSolarPower = orbitSolarPower;
             return this;
         }
 
@@ -557,7 +604,12 @@ public final class CustomPlanetDefinition {
         }
 
         public Builder addOre(IBlockState oreBlock, IBlockState replaceBlock, int veinSize, int countPerChunk, int minY, int maxY) {
-            this.ores.add(new OreDefinition(oreBlock, replaceBlock, veinSize, countPerChunk, minY, maxY));
+            return addOre(null, oreBlock, replaceBlock, veinSize, countPerChunk, minY, maxY);
+        }
+
+        public Builder addOre(String configKey, IBlockState oreBlock, IBlockState replaceBlock,
+                              int veinSize, int countPerChunk, int minY, int maxY) {
+            this.ores.add(new OreDefinition(configKey, oreBlock, replaceBlock, veinSize, countPerChunk, minY, maxY));
             return this;
         }
 

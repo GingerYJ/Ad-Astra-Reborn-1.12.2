@@ -37,8 +37,7 @@ public final class ExtendraPlanetContent {
                 "saturn_gold_ore", 4, 10, "saturn_diamond_ore", 5, 9)));
         DEFINITIONS.add(planet("uranus", "Uranus", ExtendraBiomes.URANUS_ICE_PEAKS, -224, 0.886F, 6,
             ExtendraBlocks.getPlanetStone("uranus"), ores("uranus_uranium_ore", 8, 9, "uranus_ice_shard_ore", 12, 11,
-                "uranus_iron_ore", 10, 11, "uranus_lapis_ore", 5, 9, "uranus_diamond_ore", 6, 9,
-                "icicle", 6, 8)));
+                "uranus_iron_ore", 10, 11, "uranus_lapis_ore", 5, 9, "uranus_diamond_ore", 6, 9)));
         DEFINITIONS.add(planet("neptune", "Neptune", ExtendraBiomes.WINDY_WASTELANDS, -218, 1.138F, 7,
             ExtendraBlocks.getPlanetStone("neptune"), ores("neptune_neptunium_ore", 8, 9, "neptune_ice_shard_ore", 11, 11,
                 "neptune_iron_ore", 10, 11, "neptune_copper_ore", 10, 17, "neptune_coal_ore", 9, 17)));
@@ -46,7 +45,7 @@ public final class ExtendraPlanetContent {
             ExtendraBlocks.getPlanetStone("orcus"), ores("orcus_radium_ore", 6, 9, "orcus_copper_ore", 16, 17,
                 "orcus_iron_ore", 10, 11)));
         DEFINITIONS.add(planet("pluto", "Pluto", ExtendraBiomes.PLUTONIAN_BARRENS, -229, 0.063F, 9,
-            ExtendraBlocks.getPlanetSurface("pluto"), ores("pluto_plutonium_ore", 6, 9, "pluto_ice_shard_ore", 10, 11,
+            ExtendraBlocks.getPlanetSurface("pluto"), ores("pluto_plutonium_ore", 6, 9, "pluto_ice_shard_ore", 11, 9,
                 "pluto_gold_ore", 10, 10, "pluto_diamond_ore", 8, 9)));
         DEFINITIONS.add(planet("haumea", "Haumea", ExtendraBiomes.HAUMEAN_WASTELANDS, -240, 0.045F, 8,
             ExtendraBlocks.getPlanetStone("haumea"), ores("haumea_copper_ore", 16, 17, "haumea_iron_ore", 10, 11)));
@@ -98,6 +97,7 @@ public final class ExtendraPlanetContent {
             .skyLight(true)
             .canRespawn(true)
             .environment("b".equals(name), (short) temperature, gravity, 11)
+            .orbitSolarPower(13)
             .tier(tier)
             .solarSystem(PlanetConstants.SOLAR_SYSTEM)
             .dayLength(24000)
@@ -106,6 +106,7 @@ public final class ExtendraPlanetContent {
             .registerDimension(true);
         for (OreSpec ore : ores) {
             builder.addOre(
+                ore.blockName,
                 ExtendraBlocks.getOre(ore.blockName) == null
                     ? ExtendraBlocks.get(ore.blockName).getDefaultState()
                     : ExtendraBlocks.getOre(ore.blockName).getDefaultState(),

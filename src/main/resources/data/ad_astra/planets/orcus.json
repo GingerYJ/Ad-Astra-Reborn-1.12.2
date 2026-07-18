@@ -1,0 +1,10 @@
+{
+  "dimension": "ad_astra:extendra_orcus",
+  "gravity": 0.028,
+  "orbit": "ad_astra:extendra_orcus_orbit",
+  "oxygen": false,
+  "solar_power": 11,
+  "solar_system": "ad_astra:solar_system",
+  "temperature": -240,
+  "tier": 8
+}

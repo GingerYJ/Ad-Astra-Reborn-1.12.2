@@ -61,6 +61,9 @@ public class AdAstraReborn {
         // double-subscribing LivingUpdateEvent, causing players to be suffocated twice in oxygen-free environments, so they are no longer registered.
         ModDimensions.register();
         ExtendraPlanetContent.register();
+        // Extendra definitions are registered after the first config load. Refresh
+        // tier and ore categories now so all imported planets receive config rows.
+        AdAstraConfig.sync();
         NetworkHandler.init();
         ModTileEntities.register();
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new ModGuiHandler());

@@ -38,9 +38,38 @@ public final class ExtendraOreDictionary {
         register("rawElectrolyte", ExtendraItems.RAW_ELECTROLYTE);
         register("rawAurorite", ExtendraItems.RAW_AURORITE);
         register("gemFreezeShard", ExtendraItems.FREEZE_SHARD);
-        register("oreFreezeShard", ExtendraBlocks.getOre("uranus_ice_shard_ore"));
-        register("oreFreezeShard", ExtendraBlocks.getOre("neptune_ice_shard_ore"));
-        register("oreFreezeShard", ExtendraBlocks.getOre("pluto_ice_shard_ore"));
+
+        registerOreFamily("oreCopper",
+            "ceres_copper_ore", "neptune_copper_ore", "orcus_copper_ore", "haumea_copper_ore",
+            "quaoar_copper_ore", "makemake_copper_ore", "gonggong_copper_ore", "eris_copper_ore",
+            "sedna_copper_ore");
+        registerOreFamily("oreIron",
+            "ceres_iron_ore", "uranus_iron_ore", "neptune_iron_ore", "orcus_iron_ore",
+            "haumea_iron_ore", "quaoar_iron_ore", "makemake_iron_ore", "gonggong_iron_ore",
+            "eris_iron_ore", "sedna_iron_ore", "b_iron_ore");
+        registerOreFamily("oreCoal", "jupiter_coal_ore", "saturn_coal_ore", "neptune_coal_ore");
+        registerOreFamily("oreGold", "jupiter_gold_ore", "saturn_gold_ore", "pluto_gold_ore");
+        registerOreFamily("oreDiamond",
+            "jupiter_diamond_ore", "saturn_diamond_ore", "uranus_diamond_ore",
+            "pluto_diamond_ore", "b_diamond_ore");
+        registerOreFamily("oreLapis", "uranus_lapis_ore");
+        registerOreFamily("oreRedstone", "b_redstone_ore");
+        registerOreFamily("oreEmerald", "b_emerald_ore");
+
+        registerOreFamily("oreJuperium", "jupiter_juperium_ore");
+        registerOreFamily("oreSaturlyte", "saturn_saturlyte_ore");
+        registerOreFamily("oreUranium", "uranus_uranium_ore");
+        registerOreFamily("oreNeptunium", "neptune_neptunium_ore");
+        registerOreFamily("oreRadium", "orcus_radium_ore");
+        registerOreFamily("orePlutonium", "pluto_plutonium_ore");
+        registerOreFamily("oreElectrolyte", "sedna_electrolyte_ore");
+        registerOreFamily("oreAurorite", "vicinus_aurorite_ore");
+
+        registerOreFamily("oreIceShard",
+            "uranus_ice_shard_ore", "neptune_ice_shard_ore", "pluto_ice_shard_ore");
+        // Keep the old material name for recipes from earlier extension builds.
+        registerOreFamily("oreFreezeShard",
+            "uranus_ice_shard_ore", "neptune_ice_shard_ore", "pluto_ice_shard_ore");
 
         // The source wood tag is converted to the 1.12 OreDictionary name used
         // by the workbench recipe loader.
@@ -55,6 +84,12 @@ public final class ExtendraOreDictionary {
         register("nugget" + capitalize(name), nugget);
         register("plate" + capitalize(name), plate);
         register("block" + capitalize(name), block);
+    }
+
+    private static void registerOreFamily(String name, String... oreNames) {
+        for (String oreName : oreNames) {
+            register(name, ExtendraBlocks.getOre(oreName));
+        }
     }
 
     private static String capitalize(String value) {
