@@ -68,16 +68,67 @@ public final class BlockDestroyStageRenderer {
         minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
         GlStateManager.pushMatrix();
-        prepareOverlay(alpha);
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-        buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
-        minecraft.getBlockRendererDispatcher()
-            .getBlockModelRenderer()
-            .renderModel(world, damageModel, state, pos, buffer, true);
-        buffer.setTranslation(0.0D, 0.0D, 0.0D);
-        tessellator.draw();
-        finishOverlay();
-        GlStateManager.popMatrix();
+        try {
+            prepareOverlay(alpha);
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+            buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
+            minecraft.getBlockRendererDispatcher()
+                .getBlockModelRenderer()
+                .renderModel(world, damageModel, state, pos, buffer, true);
+            tessellator.draw();
+        } finally {
+            buffer.setTranslation(0.0D, 0.0D, 0.0D);
+            finishOverlay(alpha);
+            GlStateManager.popMatrix();
+        }
+    }
+
+    /**
+     * Renders a damage-model overlay using the model's block-local coordinates.
+     * This is required for special renderers that apply their own transforms,
+     * such as the rotating globe model.
+     */
+    public static void renderDamageModelLocal(
+        IBlockAccess world,
+        BlockPos pos,
+        IBlockState state,
+        IBakedModel model,
+        int destroyStage,
+        float alpha) {
+        if (!isDestroying(destroyStage) || world == null || pos == null || state == null || model == null) {
+            return;
+        }
+
+        Minecraft minecraft = Minecraft.getMinecraft();
+        IBakedModel missingModel = minecraft.getBlockRendererDispatcher()
+            .getBlockModelShapes()
+            .getModelManager()
+            .getMissingModel();
+        if (model == missingModel) {
+            return;
+        }
+
+        TextureAtlasSprite sprite = getDestroyStageSprite(destroyStage);
+        if (sprite == null) {
+            return;
+        }
+
+        IBakedModel damageModel = ForgeHooksClient.getDamageModel(model, sprite, state, world, pos);
+        if (damageModel == null) {
+            return;
+        }
+
+        minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        GlStateManager.pushMatrix();
+        try {
+            prepareOverlay(alpha);
+            minecraft.getBlockRendererDispatcher()
+                .getBlockModelRenderer()
+                .renderModelBrightnessColor(state, damageModel, 1.0f, 1.0f, 1.0f, 1.0f);
+        } finally {
+            finishOverlay(alpha);
+            GlStateManager.popMatrix();
+        }
     }
 
     public static void renderDestroyStageQuad(
@@ -108,22 +159,25 @@ public final class BlockDestroyStageRenderer {
         BufferBuilder buffer = tessellator.getBuffer();
 
         GlStateManager.pushMatrix();
-        prepareOverlay(alpha);
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        if (reverse) {
-            buffer.pos(x1, y1, z1).tex(maxU, maxV).endVertex();
-            buffer.pos(x2, y1, z1).tex(minU, maxV).endVertex();
-            buffer.pos(x2, y2, z2).tex(minU, minV).endVertex();
-            buffer.pos(x1, y2, z2).tex(maxU, minV).endVertex();
-        } else {
-            buffer.pos(x1, y1, z1).tex(minU, maxV).endVertex();
-            buffer.pos(x1, y2, z2).tex(minU, minV).endVertex();
-            buffer.pos(x2, y2, z2).tex(maxU, minV).endVertex();
-            buffer.pos(x2, y1, z1).tex(maxU, maxV).endVertex();
+        try {
+            prepareOverlay(alpha);
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            if (reverse) {
+                buffer.pos(x1, y1, z1).tex(maxU, maxV).endVertex();
+                buffer.pos(x2, y1, z1).tex(minU, maxV).endVertex();
+                buffer.pos(x2, y2, z2).tex(minU, minV).endVertex();
+                buffer.pos(x1, y2, z2).tex(maxU, minV).endVertex();
+            } else {
+                buffer.pos(x1, y1, z1).tex(minU, maxV).endVertex();
+                buffer.pos(x1, y2, z2).tex(minU, minV).endVertex();
+                buffer.pos(x2, y2, z2).tex(maxU, minV).endVertex();
+                buffer.pos(x2, y1, z1).tex(maxU, maxV).endVertex();
+            }
+            tessellator.draw();
+        } finally {
+            finishOverlay(alpha);
+            GlStateManager.popMatrix();
         }
-        tessellator.draw();
-        finishOverlay();
-        GlStateManager.popMatrix();
     }
 
     private static TextureAtlasSprite getDestroyStageSprite(int destroyStage) {
@@ -139,11 +193,11 @@ public final class BlockDestroyStageRenderer {
         GlStateManager.doPolygonOffset(-3.0f, -3.0f);
         GlStateManager.enablePolygonOffset();
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
+        GlStateManager.enableAlpha();
     }
 
-    private static void finishOverlay() {
-        GlStateManager.disablePolygonOffset();
-        GlStateManager.disableBlend();
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+    private static void finishOverlay(float alpha) {
+        // Keep the vanilla damage-pass state active for the next model in this TESR.
+        prepareOverlay(alpha);
     }
 }

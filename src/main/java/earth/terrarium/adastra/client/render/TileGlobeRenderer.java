@@ -30,20 +30,19 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
             return;
         }
 
-        float yRot = te.getLastYRot() + (te.getYRot() - te.getLastYRot()) * partialTicks;
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        renderGlobe(te.getWorld().getBlockState(te.getPos()), yRot, te.getWorld(), te.getPos(), destroyStage, alpha);
+        renderGlobe(te.getWorld().getBlockState(te.getPos()), te.getWorld(), te.getPos(), destroyStage, alpha);
         GlStateManager.popMatrix();
     }
 
-    private static void renderGlobe(IBlockState state, float yRot, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
+    private static void renderGlobe(IBlockState state, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        renderBakedStand(state, world, pos, destroyStage, alpha);
-        renderBakedGlobe(state, yRot, world, pos, destroyStage, alpha);
+        boolean destroying = BlockDestroyStageRenderer.isDestroying(destroyStage);
+        renderBakedStand(state, world, pos, destroyStage, alpha, destroying);
 
         GlStateManager.enableCull();
         GlStateManager.enableLighting();
@@ -51,7 +50,13 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         GlStateManager.popMatrix();
     }
 
-    private static void renderBakedStand(IBlockState state, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
+    private static void renderBakedStand(
+        IBlockState state,
+        IBlockAccess world,
+        BlockPos pos,
+        int destroyStage,
+        float alpha,
+        boolean destroying) {
         if (state == null || state.getBlock().getRegistryName() == null) {
             return;
         }
@@ -72,44 +77,12 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         GlStateManager.enableTexture2D();
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
-        minecraft.getBlockRendererDispatcher()
-            .getBlockModelRenderer()
-            .renderModelBrightnessColor(state, model, 1.0f, 1.0f, 1.0f, 1.0f);
-        BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
-    }
-
-    private static void renderBakedGlobe(IBlockState state, float yRot, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
-        if (state == null || state.getBlock().getRegistryName() == null) {
-            return;
+        if (!destroying) {
+            minecraft.getBlockRendererDispatcher()
+                .getBlockModelRenderer()
+                .renderModelBrightnessColor(state, model, 1.0f, 1.0f, 1.0f, 1.0f);
         }
-
-        Minecraft minecraft = Minecraft.getMinecraft();
-        // Globe block registry names already end in "_globe" (for example,
-        // "earth_globe"); the cube model adds only the "_cube" suffix.
-        String path = state.getBlock().getRegistryName().getPath() + "_cube";
-        ModelResourceLocation modelLocation = new ModelResourceLocation(
-            new ResourceLocation(Reference.MOD_ID, path), "normal");
-        IBakedModel model = minecraft.getBlockRendererDispatcher()
-            .getBlockModelShapes()
-            .getModelManager()
-            .getModel(modelLocation);
-        if (model == minecraft.getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getMissingModel()) {
-            return;
-        }
-
-        minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        GlStateManager.pushMatrix();
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableAlpha();
-        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
-        GlStateManager.translate(0.5f, 0.0f, 0.5f);
-        GlStateManager.rotate(-yRot, 0.0f, 1.0f, 0.0f);
-        GlStateManager.translate(-0.5f, 0.0f, -0.5f);
-        minecraft.getBlockRendererDispatcher()
-            .getBlockModelRenderer()
-            .renderModelBrightnessColor(state, model, 1.0f, 1.0f, 1.0f, 1.0f);
-        BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
-        GlStateManager.popMatrix();
+        BlockDestroyStageRenderer.renderDamageModelLocal(world, pos, state, model, destroyStage, alpha);
     }
 
     @SideOnly(Side.CLIENT)
@@ -124,10 +97,7 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
             if (block == null || block.getRegistryName() == null) {
                 return;
             }
-            GlStateManager.pushMatrix();
-            float yRot = (System.currentTimeMillis() / 20.0f) % 360.0f;
-            renderGlobe(block.getDefaultState(), yRot, null, null, -1, 1.0f);
-            GlStateManager.popMatrix();
+            renderGlobe(block.getDefaultState(), null, null, -1, 1.0f);
         }
     }
 }

@@ -207,10 +207,7 @@ public final class ClientRegistry {
         }
         net.minecraft.client.renderer.block.model.ModelBakery.registerItemVariants(
             item,
-            new ModelResourceLocation(registryName, "normal"),
-            new ModelResourceLocation(
-                new ResourceLocation(Reference.MOD_ID, registryName.getPath() + "_cube"),
-                "normal"));
+            new ModelResourceLocation(registryName, "normal"));
     }
 
     private static void registerSlidingDoorRenderVariants(Item item, Block block) {
@@ -371,9 +368,7 @@ public final class ClientRegistry {
         @Override
         protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
             Block block = state.getBlock();
-            return new ModelResourceLocation(
-                new ResourceLocation(Reference.MOD_ID, block.getRegistryName().getPath() + "_cube"),
-                "normal");
+            return new ModelResourceLocation(block.getRegistryName(), "normal");
         }
     }
 
