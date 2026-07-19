@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.world;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.registry.ModResourceIds;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -54,9 +55,9 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private static final String LEGACY_METEOR_LOOT_TABLE = "minecraft:loot";
     private static final String METEOR_LOOT_TABLE = Reference.MOD_ID + ":chests/meteor";
 
-    private static final int MARS_DIMENSION_ID = 1202;
-    private static final int VENUS_DIMENSION_ID = 1204;
-    private static final int MOON_DIMENSION_ID = 1201;
+    private static final int MARS_DIMENSION_ID = ModDimensions.MARS_ID;
+    private static final int VENUS_DIMENSION_ID = ModDimensions.VENUS_ID;
+    private static final int MOON_DIMENSION_ID = ModDimensions.MOON_ID;
     private static final ResourceLocation MARS_TEMPLE_TEMPLATE =
         new ResourceLocation(Reference.MOD_ID, "temple/mars/mars_temple");
     private static final ResourceLocation VENUS_TOWER_TEMPLATE =

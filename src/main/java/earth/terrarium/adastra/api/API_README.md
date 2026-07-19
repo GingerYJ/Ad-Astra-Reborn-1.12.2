@@ -188,13 +188,13 @@ Ad Astra uses Forge's Capability system for player data. See the existing `AdAst
 In 1.12.2, dimensions are identified by integer IDs:
 
 - `0` - Overworld (Earth)
-- `1201` - Moon
-- `1202` - Mars
-- `1203` - Mercury
-- `1204` - Venus
-- `1205` - Glacio
+- `108490` - Moon
+- `108491` - Mars
+- `108492` - Mercury
+- `108493` - Venus
+- `108494` - Glacio
 
-Custom planets should use IDs not conflicting with other mods.
+Custom planets should use IDs not conflicting with other mods. Ad Astra reserves surface IDs from `108490` and orbit IDs from `107490`.
 
 ### Energy System
 

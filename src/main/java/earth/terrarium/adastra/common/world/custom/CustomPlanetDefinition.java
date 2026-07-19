@@ -346,7 +346,7 @@ public final class CustomPlanetDefinition {
             }
         }
 
-        /** Stable suffix used for the generated worldgen_<planet> config properties. */
+        /** Stable key derived from the ore block for integrations that expose ore settings. */
         public String getConfigKey() {
             return configKey;
         }

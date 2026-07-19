@@ -15,7 +15,8 @@ import java.util.List;
 /** Registers custom Ad Astra planets and their orbit dimensions. */
 public final class ModPlanets {
 
-    private static final int FIRST_DIMENSION_ID = 1400;
+    private static final int FIRST_DIMENSION_ID = ModDimensions.FIRST_PLANET_ID + 5;
+    private static final int FIRST_ORBIT_DIMENSION_ID = ModDimensions.FIRST_ORBIT_ID + 5;
     private static final List<CustomPlanetDefinition> DEFINITIONS = new ArrayList<>();
     private static boolean registered;
 
@@ -84,12 +85,15 @@ public final class ModPlanets {
         net.minecraft.block.Block surface,
         List<OreSpec> ores) {
         int index = ModBlocks.PLANETS.indexOf(name);
-        int dimensionId = FIRST_DIMENSION_ID + index * 2;
+        if (index < 0) {
+            throw new IllegalArgumentException("Unknown custom planet: " + name);
+        }
+        int dimensionId = FIRST_DIMENSION_ID + index;
         CustomPlanetDefinition.Builder builder = CustomPlanetDefinition.builder(
                 ModResourceIds.planet(name), dimensionId)
             .planetName(name)
             .displayName(displayName)
-            .orbitDimensionId(dimensionId + 1)
+            .orbitDimensionId(FIRST_ORBIT_DIMENSION_ID + index)
             .biome(biome.getRegistryName())
             .surfaceBlock(surface.getDefaultState())
             .stoneBlock(ModBlocks.getPlanetStone(name).getDefaultState())

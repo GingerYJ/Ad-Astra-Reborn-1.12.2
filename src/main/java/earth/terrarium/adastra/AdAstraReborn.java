@@ -50,6 +50,8 @@ public class AdAstraReborn {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        // Register planets before configuration sync so generated defaults see every surface planet.
+        ModDimensions.register();
         AdAstraConfig.init(event.getSuggestedConfigurationFile());
         AdAstraCapabilities.register();
         MinecraftForge.EVENT_BUS.register(AdAstraCapabilities.class);
@@ -57,9 +59,7 @@ public class AdAstraReborn {
         // it handles oxygen detection, space suit oxygen, suffocation and temperature damage through EnvironmentUtils.
         // systems.OxygenTickHandler + OxygenSystem are parallel old implementations, if also registered they will conflict with CommonEventHandler
         // double-subscribing LivingUpdateEvent, causing players to be suffocated twice in oxygen-free environments, so they are no longer registered.
-        ModDimensions.register();
-        // Custom planets are registered by ModDimensions with the built-in dimensions.
-        // Refresh tier and ore categories now so all registered planets receive config rows.
+        // Refresh compatibility/API mappings after all configuration files are loaded.
         AdAstraConfig.sync();
         NetworkHandler.init();
         ModTileEntities.register();
@@ -89,6 +89,8 @@ public class AdAstraReborn {
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
         CustomPlanetDimensionRegistrar.registerQueuedDimensions();
+        // CraftTweaker planet actions may run during post-initialization; refresh dynamic planet categories afterward.
+        AdAstraConfig.sync();
     }
 
     @Mod.EventHandler

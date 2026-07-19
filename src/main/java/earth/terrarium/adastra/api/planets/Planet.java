@@ -26,11 +26,11 @@ import java.util.List;
 public class Planet {
 
     // Default Ad Astra planet dimension IDs
-    public static final int MOON_DIM = 1201;
-    public static final int MARS_DIM = 1202;
-    public static final int MERCURY_DIM = 1203;
-    public static final int VENUS_DIM = 1204;
-    public static final int GLACIO_DIM = 1205;
+    public static final int MOON_DIM = 108490;
+    public static final int MARS_DIM = 108491;
+    public static final int MERCURY_DIM = 108492;
+    public static final int VENUS_DIM = 108493;
+    public static final int GLACIO_DIM = 108494;
 
     private final int dimensionId;
     private final boolean oxygen;

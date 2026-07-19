@@ -90,6 +90,9 @@ public final class EntityEnvironmentSystem {
 
         ResourceLocation registryName = EntityList.getKey(entity);
         String registryId = registryName == null ? "" : registryName.toString();
+        if (AdAstraConfig.isPlanetMobSpawnEntity(registryId)) {
+            return true;
+        }
         String namespaceWildcard = registryName == null ? "" : registryName.getNamespace() + ":*";
         String className = entity.getClass().getName();
         String simpleClassName = entity.getClass().getSimpleName();

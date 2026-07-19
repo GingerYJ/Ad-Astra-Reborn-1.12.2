@@ -52,14 +52,43 @@ config/ad_astra/
 | `core.cfg` | 通用玩法和环境系统 |
 | `client.cfg` | 客户端显示与 UI |
 | `machines.cfg` | 机器速度、能耗与容量 |
-| `dimensions.cfg` | 内置行星的维度、重力和火箭等级 |
+| `dimensions.cfg` | 19 个地表行星的火箭等级 |
 | `external_dimensions.cfg` | 接入其他 Mod 已存在的维度 |
 | `mobs.cfg` | 行星生物生成 |
 | `worldgen.cfg` | 结构、矿物和世界生成 |
-| `debug.cfg` | 调试选项 |
 | `rockets.cfg` | 配置驱动的额外火箭 |
 
-修改维度列表后应重启游戏或服务器。
+格式升级标记由代码维护，不写入配置文件。格式升级时，旧配置会移动到 `config/ad_astra/backup_yyyyMMdd_HHmmss/`，然后生成全新默认值，不导入旧值；之后的手动修改会保留。修改后应重启游戏或服务器，矿脉修改只影响新生成的区块。
+
+`dimensions.cfg` 为每个已注册地表行星使用一个 `planet_<planetKey>` 分类。当前范围为 19 个行星：月球、火星、水星、金星、冰川星、谷神星、木星、土星、天王星、海王星、奥尔库斯、冥王星、妊神星、创神星、鸟神星、共工星、阋神星、塞德娜和比邻星 b。轨道维度和外部维度不参与行星生物与矿脉配置。
+
+每个行星分类仅包含 `rocketTier`，分类注释会显示对应的中文和英文行星名称。维度数字 ID、轨道 ID 和注册表 ID 仅由注册代码维护，不写入配置；`rocketTier=0` 表示不限制火箭等级。当前版本不会生成没有运行时消费者的旧配置项。
+
+`mobs.cfg` 使用统一的 `planetMobSpawnWhitelist` 列表：
+
+```text
+planet|entityId|spawnType|weight|minGroup|maxGroup|maxCount
+```
+
+支持 `monster`、`creature`、`water`、`ambient`、`cave`。行星没有白名单行时使用生物群系默认生成；有白名单行时完全接管自然生成。实体 ID 按 Forge 注册表解析，支持 `minecraft:ender_dragon` 和其他 Mod 实体；白名单中的实体自动无视缺氧，`noOxygenEntityWhitelist` 用于额外添加实体。
+
+`maxCount=0` 禁止该实体；其他实体使用 `planetEntityCapPerType` 独立限额。
+
+`worldgen.cfg` 的 `worldgen` 区域只保留全局选项；每个地表行星单独使用一个 `planet_ore_<planetKey>` 区域。每个区域都包含自己的 `oreVeins` 列表，当前生成 19 个地表行星区域：
+
+```text
+planet|namespace:block[@meta]|veinSize|count|minY|maxY|replaceTargets
+```
+
+示例（为月球添加铁矿）：
+
+```text
+moon|minecraft:iron_ore|8|4|20|60|default
+```
+
+`replaceTargets` 可写 `default` 或逗号分隔的方块 ID；目标可以是矿石或普通方块，也可以来自其他 Mod。所有行使用 `oreGenerationMultiplier`，轨道维度和外部维度不生成矿脉。
+
+范围：矿脉大小 1-64、每区块次数 0-100、Y -80~320；方块可写 `namespace:block@meta`。
 
 ### 接入其他 Mod 的维度
 
@@ -74,6 +103,8 @@ config/ad_astra/external_dimensions.cfg
 ```text
 维度ID|显示ID|最低火箭等级|温度|重力倍率|天光倍率|显示名称（可选）
 ```
+
+范围：等级 0-15、温度 -32768~32767、重力 0.0-10.0、天光 0-1024；未注册维度会保留配置但被忽略。
 
 也兼容不带“显示名称”的 6 字段格式。
 
@@ -123,11 +154,13 @@ config/ad_astra/rockets.cfg
 注册ID|显示名称|火箭等级|燃料容量mB|复用模型等级|贴图
 ```
 
+等级范围 1-15，燃料 1000-64000 mB，模型 1-12；贴图为空时使用内置贴图，相对 PNG 放在 `config/ad_astra/rocket_png/`。
+
 示例：
 
 ```cfg
 S:customRockets <
-    custom_tier_8_rocket|八阶火箭|8|10000|7|custom_tier_8_rocket.png
+    lunar_scout|月球侦察火箭|8|10000|7|lunar_scout.png
  >
 ```
 
@@ -231,14 +264,45 @@ Main files:
 | `core.cfg` | General gameplay and environmental systems |
 | `client.cfg` | Client display and UI |
 | `machines.cfg` | Machine speed, energy use, and capacity |
-| `dimensions.cfg` | Built-in planet dimensions, gravity, and rocket tiers |
+| `dimensions.cfg` | Rocket tiers for 19 registered surface planets |
 | `external_dimensions.cfg` | Existing dimensions supplied by other mods |
 | `mobs.cfg` | Planet mob spawning |
 | `worldgen.cfg` | Structures, ores, and world generation |
-| `debug.cfg` | Debug options |
 | `rockets.cfg` | Configuration-driven additional rockets |
 
-Restart the game or server after changing dimension lists.
+The format migration marker is maintained by code and is not written into configuration files. When the format changes, the old files are moved to `config/ad_astra/backup_yyyyMMdd_HHmmss/` and fresh defaults are generated; old values are not imported. Later edits are preserved. Restart the game or server after configuration changes. Ore changes affect new chunks only.
+
+`dimensions.cfg` uses one category per registered surface planet: `planet_<planetKey>`. The current 19 planets are Moon, Mars, Mercury, Venus, Glacio, Ceres, Jupiter, Saturn, Uranus, Neptune, Orcus, Pluto, Haumea, Quaoar, Makemake, Gonggong, Eris, Sedna, and Proxima Centauri b. Orbit and external dimensions are excluded from planet mob and ore settings.
+
+Each planet category contains only `rocketTier`; its comment shows the Chinese and English planet names. Numeric dimension, orbit, and registry IDs are code-owned and are not written to the configuration; `rocketTier=0` removes the rocket restriction. Legacy options without a runtime consumer are no longer generated.
+
+`mobs.cfg` uses `planetMobSpawnWhitelist` rows:
+
+```text
+planet|entityId|spawnType|weight|minGroup|maxGroup|maxCount
+```
+
+Supported types are `monster`, `creature`, `water`, `ambient`, and `cave`. An empty whitelist keeps biome defaults; rows for a planet replace its full natural spawn list. Entity IDs are Forge registry IDs, so entries such as `minecraft:ender_dragon` and entities from other mods are supported. Whitelisted entities automatically ignore oxygen; `noOxygenEntityWhitelist` adds extra entities.
+
+`maxCount=0` blocks that entity; other entities use the independent `planetEntityCapPerType` limit.
+
+`planetMobCountRescanIntervalTicks` controls the full count calibration interval. The default `6000` is five minutes; calibration runs only in planet dimensions with players, and `0` performs only the initial calibration. `planetMobRespawnIntervalTicks` adds a cooldown after a living entity dies before its natural spawn checks are accepted; `0` keeps the default behavior. The cooldown does not block summoned or otherwise manually added entities.
+
+In `worldgen.cfg`, the `worldgen` section contains only global options. Each surface planet has its own `planet_ore_<planetKey>` section with an `oreVeins` list. The current defaults generate 19 surface-planet sections:
+
+```text
+planet|namespace:block[@meta]|veinSize|count|minY|maxY|replaceTargets
+```
+
+Example (add iron ore to the Moon):
+
+```text
+moon|minecraft:iron_ore|8|4|20|60|default
+```
+
+Use `default` or comma-separated block IDs for `replaceTargets`. The target may be an ore or any ordinary block, including blocks from other mods. All rows use `oreGenerationMultiplier`; orbit and external dimensions do not generate ores.
+
+Ranges: vein size 1-64, count 0-100, Y -80 to 320; blocks may use `namespace:block@meta`.
 
 ### Integrating External Dimensions
 
@@ -253,6 +317,8 @@ The default list is empty. Each row uses:
 ```text
 dimension ID|display ID|minimum rocket tier|temperature|gravity multiplier|skylight multiplier|display name (optional)
 ```
+
+Ranges: tier 0-15, temperature -32768 to 32767, gravity 0.0-10.0, skylight 0-1024; unregistered dimensions remain saved but are ignored.
 
 The legacy six-field format without a display name is also accepted.
 
@@ -302,11 +368,13 @@ Format:
 registry ID|display name|rocket tier|fuel capacity in mB|reused model tier|texture
 ```
 
+Tier 1-15, fuel 1000-64000 mB, model 1-12; an empty texture uses the built-in texture, and relative PNG files go in `config/ad_astra/rocket_png/`.
+
 Example:
 
 ```cfg
 S:customRockets <
-    custom_tier_8_rocket|Tier 8 Rocket|8|10000|7|custom_tier_8_rocket.png
+    lunar_scout|Lunar Scout|8|10000|7|lunar_scout.png
  >
 ```
 

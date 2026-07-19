@@ -12,20 +12,26 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.DimensionManager;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public final class ModDimensions {
 
-    // ===== Existing dimensions =====
-    public static final int MOON_ID = 1201;
-    public static final int MARS_ID = 1202;
-    public static final int MERCURY_ID = 1203;
-    public static final int VENUS_ID = 1204;
-    public static final int GLACIO_ID = 1205;
-    public static final int EARTH_ORBIT_ID = 1210;
-    public static final int MOON_ORBIT_ID = 1211;
-    public static final int MARS_ORBIT_ID = 1212;
-    public static final int MERCURY_ORBIT_ID = 1213;
-    public static final int VENUS_ORBIT_ID = 1214;
-    public static final int GLACIO_ORBIT_ID = 1215;
+    // Keep surface and orbit IDs in separate high ranges to reduce mod conflicts.
+    public static final int FIRST_PLANET_ID = 108490;
+    public static final int FIRST_ORBIT_ID = 107490;
+    public static final int MOON_ID = FIRST_PLANET_ID;
+    public static final int MARS_ID = FIRST_PLANET_ID + 1;
+    public static final int MERCURY_ID = FIRST_PLANET_ID + 2;
+    public static final int VENUS_ID = FIRST_PLANET_ID + 3;
+    public static final int GLACIO_ID = FIRST_PLANET_ID + 4;
+    public static final int EARTH_ORBIT_ID = FIRST_ORBIT_ID - 1;
+    public static final int MOON_ORBIT_ID = FIRST_ORBIT_ID;
+    public static final int MARS_ORBIT_ID = FIRST_ORBIT_ID + 1;
+    public static final int MERCURY_ORBIT_ID = FIRST_ORBIT_ID + 2;
+    public static final int VENUS_ORBIT_ID = FIRST_ORBIT_ID + 3;
+    public static final int GLACIO_ORBIT_ID = FIRST_ORBIT_ID + 4;
 
     private static final int DAY = 24000;
 
@@ -93,6 +99,26 @@ public final class ModDimensions {
         ModPlanets.register();
 
         registered = true;
+    }
+
+    /** Returns the registered surface-planet properties, excluding orbit dimensions. */
+    public static List<PlanetDimensionProperties> getPlanetProperties() {
+        return Collections.unmodifiableList(Arrays.asList(
+            MOON_PROPERTIES,
+            MARS_PROPERTIES,
+            MERCURY_PROPERTIES,
+            VENUS_PROPERTIES,
+            GLACIO_PROPERTIES));
+    }
+
+    /** Returns the orbit dimension paired with a built-in surface planet. */
+    public static int getOrbitDimensionId(String planetName) {
+        if ("moon".equals(planetName)) return MOON_ORBIT_ID;
+        if ("mars".equals(planetName)) return MARS_ORBIT_ID;
+        if ("mercury".equals(planetName)) return MERCURY_ORBIT_ID;
+        if ("venus".equals(planetName)) return VENUS_ORBIT_ID;
+        if ("glacio".equals(planetName)) return GLACIO_ORBIT_ID;
+        return 0;
     }
 
     private static DimensionType reg(String name, PlanetDimensionProperties p, Class<? extends WorldProvider> cls) {

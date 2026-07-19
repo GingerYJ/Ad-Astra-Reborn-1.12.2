@@ -160,7 +160,7 @@ The API README includes complete examples for:
 
 ## Backward Compatibility Features
 
-- All dimension ID constants match 1.12.2 allocation (1201-1205)
+- Built-in surface dimension IDs use the reserved 108490-108494 range
 - Energy system uses Forge Energy (FE) compatible with RF
 - Capability patterns follow standard Forge 1.12.2 conventions
 - ServiceLoader pattern ensures loose coupling

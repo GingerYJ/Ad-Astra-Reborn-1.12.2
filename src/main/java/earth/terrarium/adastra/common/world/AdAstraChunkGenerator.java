@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -498,7 +497,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     private List<PlanetOreSpec> getOreSpecs(String planetName) {
         // Cache ore specs per planet for performance
         if (!ORE_SPECS_CACHE.containsKey(planetName)) {
-            List<PlanetOreSpec> specs = createOreSpecs(planetName);
+            List<PlanetOreSpec> specs = createUnifiedOreSpecs(planetName);
             ORE_SPECS_CACHE.put(planetName, specs);
         }
         return ORE_SPECS_CACHE.get(planetName);
@@ -511,121 +510,25 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         ORE_SPECS_CACHE.clear();
     }
 
-    private List<PlanetOreSpec> createOreSpecs(String planetName) {
+    private List<PlanetOreSpec> createUnifiedOreSpecs(String planetName) {
         List<PlanetOreSpec> specs = new ArrayList<>();
-
-        switch (planetName) {
-            case "moon":
-                addConfiguredOre(specs, "moon", ModBlocks.MOON_CHEESE_ORE,
-                    OreGenConfig.moonCheeseVeinSize, OreGenConfig.moonCheeseCount,
-                    OreGenConfig.moonCheeseMinY, OreGenConfig.moonCheeseMaxY,
-                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-                addConfiguredOre(specs, "moon", ModBlocks.MOON_DESH_ORE,
-                    OreGenConfig.moonDeshVeinSize, OreGenConfig.moonDeshCount,
-                    OreGenConfig.moonDeshMinY, OreGenConfig.moonDeshMaxY,
-                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-                addConfiguredOre(specs, "moon", ModBlocks.MOON_ICE_SHARD_ORE,
-                    OreGenConfig.moonIceShardVeinSize, OreGenConfig.moonIceShardCount,
-                    OreGenConfig.moonIceShardMinY, OreGenConfig.moonIceShardMaxY,
-                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-                addConfiguredOre(specs, "moon", ModBlocks.MOON_IRON_ORE,
-                    OreGenConfig.moonIronVeinSize, OreGenConfig.moonIronCount,
-                    OreGenConfig.moonIronMinY, OreGenConfig.moonIronMaxY,
-                    ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE);
-                break;
-
-            case "mars":
-                addConfiguredOre(specs, "mars", ModBlocks.MARS_DIAMOND_ORE,
-                    OreGenConfig.marsDiamondVeinSize, OreGenConfig.marsDiamondCount,
-                    OreGenConfig.marsDiamondMinY, OreGenConfig.marsDiamondMaxY,
-                    ModBlocks.MARS_STONE);
-                addConfiguredOre(specs, "mars", ModBlocks.MARS_ICE_SHARD_ORE,
-                    OreGenConfig.marsIceShardVeinSize, OreGenConfig.marsIceShardCount,
-                    OreGenConfig.marsIceShardMinY, OreGenConfig.marsIceShardMaxY,
-                    ModBlocks.MARS_STONE);
-                addConfiguredOre(specs, "mars", ModBlocks.MARS_IRON_ORE,
-                    OreGenConfig.marsIronVeinSize, OreGenConfig.marsIronCount,
-                    OreGenConfig.marsIronMinY, OreGenConfig.marsIronMaxY,
-                    ModBlocks.MARS_STONE);
-                addConfiguredOre(specs, "mars", ModBlocks.MARS_OSTRUM_ORE,
-                    OreGenConfig.marsOstrumVeinSize, OreGenConfig.marsOstrumCount,
-                    OreGenConfig.marsOstrumMinY, OreGenConfig.marsOstrumMaxY,
-                    ModBlocks.MARS_STONE);
-                break;
-
-            case "mercury":
-                addConfiguredOre(specs, "mercury", ModBlocks.MERCURY_IRON_ORE,
-                    OreGenConfig.mercuryIronVeinSize, OreGenConfig.mercuryIronCount,
-                    OreGenConfig.mercuryIronMinY, OreGenConfig.mercuryIronMaxY,
-                    ModBlocks.MERCURY_STONE);
-                break;
-
-            case "venus":
-                addConfiguredOre(specs, "venus", ModBlocks.VENUS_CALORITE_ORE,
-                    OreGenConfig.venusCaloriteVeinSize, OreGenConfig.venusCaloriteCount,
-                    OreGenConfig.venusCaloriteMinY, OreGenConfig.venusCaloriteMaxY,
-                    ModBlocks.VENUS_STONE);
-                addConfiguredOre(specs, "venus", ModBlocks.VENUS_COAL_ORE,
-                    OreGenConfig.venusCoalVeinSize, OreGenConfig.venusCoalCount,
-                    OreGenConfig.venusCoalMinY, OreGenConfig.venusCoalMaxY,
-                    ModBlocks.VENUS_STONE);
-                addConfiguredOre(specs, "venus", ModBlocks.VENUS_DIAMOND_ORE,
-                    OreGenConfig.venusDiamondVeinSize, OreGenConfig.venusDiamondCount,
-                    OreGenConfig.venusDiamondMinY, OreGenConfig.venusDiamondMaxY,
-                    ModBlocks.VENUS_STONE);
-                addConfiguredOre(specs, "venus", ModBlocks.VENUS_GOLD_ORE,
-                    OreGenConfig.venusGoldVeinSize, OreGenConfig.venusGoldCount,
-                    OreGenConfig.venusGoldMinY, OreGenConfig.venusGoldMaxY,
-                    ModBlocks.VENUS_STONE);
-                break;
-
-            case "glacio":
-                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_COAL_ORE,
-                    OreGenConfig.glacioCoalVeinSize, OreGenConfig.glacioCoalCount,
-                    OreGenConfig.glacioCoalMinY, OreGenConfig.glacioCoalMaxY,
-                    ModBlocks.GLACIO_STONE);
-                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_ICE_SHARD_ORE,
-                    OreGenConfig.glacioIceShardVeinSize, OreGenConfig.glacioIceShardCount,
-                    OreGenConfig.glacioIceShardMinY, OreGenConfig.glacioIceShardMaxY,
-                    ModBlocks.GLACIO_STONE);
-                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_IRON_ORE,
-                    OreGenConfig.glacioIronVeinSize, OreGenConfig.glacioIronCount,
-                    OreGenConfig.glacioIronMinY, OreGenConfig.glacioIronMaxY,
-                    ModBlocks.GLACIO_STONE);
-                addConfiguredOre(specs, "glacio", ModBlocks.GLACIO_LAPIS_ORE,
-                    OreGenConfig.glacioLapisVeinSize, OreGenConfig.glacioLapisCount,
-                    OreGenConfig.glacioLapisMinY, OreGenConfig.glacioLapisMaxY,
-                    ModBlocks.GLACIO_STONE);
-                break;
-
-            default:
-                break;
-        }
-
-        addCustomConfiguredBlocks(specs, planetName);
-        return specs;
-    }
-
-
-    private void addCustomConfiguredBlocks(List<PlanetOreSpec> specs, String planetName) {
-        for (OreGenConfig.CustomBlockSettings settings : OreGenConfig.getCustomBlockSettings(planetName)) {
-            IBlockState targetState = parseConfiguredBlockState(settings.blockState);
-            if (targetState == null) {
-                if (OreGenConfig.debugWorldgen) {
-                    AdAstraReborn.LOGGER.warn("Ignored custom planet block generator on {}: invalid target block '{}'",
-                        planetName, settings.blockState);
-                }
+        for (OreGenConfig.OreEntry entry : OreGenConfig.getOreEntries(planetName)) {
+            IBlockState oreState = OreGenConfig.resolveBlockState(entry.blockState);
+            if (oreState == null) {
+                AdAstraReborn.LOGGER.warn("Ignored ore row on {}: invalid target block '{}'.",
+                    planetName, entry.blockState);
                 continue;
             }
-
-            IBlockState[] replaceableStates = parseReplaceableStates(settings.replaceTargets);
-            if (replaceableStates.length == 0) {
-                replaceableStates = defaultCustomReplaceableStates();
+            IBlockState[] replaceableStates = parseReplaceableStates(entry.replaceTargets);
+            if (replaceableStates == null) {
+                AdAstraReborn.LOGGER.warn("Ignored ore row on {}: invalid replace target '{}'.",
+                    planetName, entry.replaceTargets);
+                continue;
             }
-
-            addConfiguredOre(specs, settings.planetName, targetState,
-                settings.veinSize, settings.countPerChunk, settings.minY, settings.maxY, replaceableStates);
+            addConfiguredOre(specs, planetName, oreState, entry.veinSize, entry.countPerChunk,
+                entry.minY, entry.maxY, replaceableStates);
         }
+        return specs;
     }
 
     private IBlockState[] parseReplaceableStates(String replaceTargets) {
@@ -635,12 +538,13 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         String[] parts = replaceTargets.split(",");
         List<IBlockState> states = new ArrayList<>();
         for (String part : parts) {
-            IBlockState state = parseConfiguredBlockState(part.trim());
-            if (state != null) {
-                states.add(state);
+            IBlockState state = OreGenConfig.resolveBlockState(part.trim());
+            if (state == null) {
+                return null;
             }
+            states.add(state);
         }
-        return states.toArray(new IBlockState[0]);
+        return states.isEmpty() ? null : states.toArray(new IBlockState[0]);
     }
 
     private IBlockState[] defaultCustomReplaceableStates() {
@@ -665,53 +569,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         states.add(state);
     }
 
-    private static IBlockState parseConfiguredBlockState(String value) {
-        if (value == null) {
-            return null;
-        }
-        String trimmed = value.trim();
-        if (trimmed.isEmpty() || "default".equalsIgnoreCase(trimmed)) {
-            return null;
-        }
-        int meta = 0;
-        int metaSeparator = trimmed.lastIndexOf('@');
-        if (metaSeparator >= 0) {
-            String metaText = trimmed.substring(metaSeparator + 1).trim();
-            trimmed = trimmed.substring(0, metaSeparator).trim();
-            try {
-                meta = Integer.parseInt(metaText);
-            } catch (NumberFormatException ignored) {
-                meta = 0;
-            }
-        }
-        if (trimmed.indexOf(':') < 0) {
-            trimmed = "minecraft:" + trimmed;
-        }
-        try {
-            Block block = Block.REGISTRY.getObject(new ResourceLocation(trimmed));
-            if (block == null || block == Blocks.AIR) {
-                return null;
-            }
-            return block.getStateFromMeta(meta);
-        } catch (RuntimeException ignored) {
-            return null;
-        }
-    }
-
     private static IBlockState state(Block block, int meta) {
         return block.getStateFromMeta(meta);
-    }
-
-    private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, Block oreBlock,
-                                  OreGenConfig.OreSettings settings,
-                                  Block... replaceableBlocks) {
-        addConfiguredOre(specs, planetName, oreBlock, settings.veinSize, settings.countPerChunk, settings.minY, settings.maxY, replaceableBlocks);
-    }
-
-    private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, IBlockState oreState,
-                                  OreGenConfig.OreSettings settings,
-                                  IBlockState... replaceableStates) {
-        addConfiguredOre(specs, planetName, oreState, settings.veinSize, settings.countPerChunk, settings.minY, settings.maxY, replaceableStates);
     }
 
     private void addConfiguredOre(List<PlanetOreSpec> specs, String planetName, Block oreBlock,

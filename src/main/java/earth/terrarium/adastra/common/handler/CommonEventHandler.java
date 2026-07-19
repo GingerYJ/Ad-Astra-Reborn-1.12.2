@@ -32,6 +32,7 @@ import earth.terrarium.adastra.common.util.KeybindManager;
 import earth.terrarium.adastra.common.util.PlanetTravelHelper;
 import earth.terrarium.adastra.common.util.SpaceStationLandingProtection;
 import earth.terrarium.adastra.common.util.radio.RadioHolder;
+import earth.terrarium.adastra.common.world.PlanetMobSpawns;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EntityLiving;
@@ -66,11 +67,13 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -151,7 +154,12 @@ public class CommonEventHandler {
             return;
         }
 
-        if (event.phase != TickEvent.Phase.END || !SPACE_SLEEPING_DIMENSIONS.remove(dimension)) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+
+        PlanetMobSpawns.tickWorld(world);
+        if (!SPACE_SLEEPING_DIMENSIONS.remove(dimension)) {
             return;
         }
 
@@ -331,17 +339,48 @@ public class CommonEventHandler {
             return;
         }
         if (event.getEntityLiving() instanceof EntityLiving
+            && !event.isSpawner()
+            && PlanetMobSpawns.isRespawnOnCooldown((EntityLiving) event.getEntityLiving(), event.getWorld())) {
+            event.setResult(Event.Result.DENY);
+            return;
+        }
+        if (event.getEntityLiving() instanceof EntityLiving
+            && !event.isSpawner()
+            && shouldBlockPlanetWhitelistSpawn((EntityLiving) event.getEntityLiving(), event.getWorld())) {
+            event.setResult(Event.Result.DENY);
+            return;
+        }
+        if (event.getEntityLiving() instanceof EntityLiving
             && exceedsPlanetEntityTypeCap((EntityLiving) event.getEntityLiving(), event.getWorld())) {
             event.setResult(Event.Result.DENY);
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
         if (event.getEntity() instanceof EntityLiving
             && exceedsPlanetEntityTypeCap((EntityLiving) event.getEntity(), event.getWorld())) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onEntityJoinWorldTracking(EntityJoinWorldEvent event) {
+        if (!event.isCanceled() && event.getEntity() instanceof EntityLiving) {
+            PlanetMobSpawns.onEntityJoined((EntityLiving) event.getEntity(), event.getWorld());
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onLivingDeath(LivingDeathEvent event) {
+        if (!event.isCanceled() && event.getEntityLiving() instanceof EntityLiving) {
+            PlanetMobSpawns.onEntityDied((EntityLiving) event.getEntityLiving(), event.getEntityLiving().world);
+        }
+    }
+
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+        PlanetMobSpawns.onWorldUnload(event.getWorld());
     }
 
     private boolean shouldBlockDisabledHostileMobSpawn(EntityLiving entity, World world) {
@@ -362,6 +401,15 @@ public class CommonEventHandler {
             return false;
         }
         return !EntityEnvironmentSystem.canLiveWithoutOxygen(entity);
+    }
+
+    private boolean shouldBlockPlanetWhitelistSpawn(EntityLiving entity, World world) {
+        if (entity == null || world == null || world.isRemote || world.provider == null) {
+            return false;
+        }
+        int dimensionId = world.provider.getDimension();
+        return AdAstraConfig.isPlanetDimension(dimensionId)
+            && !PlanetMobSpawns.isSpawnAllowed(entity, dimensionId);
     }
 
     private void tickAcidRain(EntityLivingBase entity) {
@@ -537,17 +585,7 @@ public class CommonEventHandler {
             return true;
         }
 
-        int count = 0;
-        Class<?> entityClass = entity.getClass();
-        for (Entity loaded : world.loadedEntityList) {
-            if (loaded == entity || !loaded.isEntityAlive()) {
-                continue;
-            }
-            if (loaded.getClass() == entityClass && ++count >= AdAstraConfig.planetEntityCapPerType) {
-                return true;
-            }
-        }
-        return false;
+        return PlanetMobSpawns.exceedsEntityTypeCap(entity, world.provider.getDimension());
     }
 
     private boolean canUseSuitOxygen(EntityPlayer player) {
