@@ -153,7 +153,8 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         float verticalSize = maxY - minY;
         // The fixed support axle is tall but narrow; planet and ring quads are broad.
         boolean supportAxle = verticalSize > 0.9f && horizontalSize < 0.8f;
-        return !supportAxle && (horizontalSize > 0.7f || verticalSize > 0.7f);
+        // Oval planets have side faces that are 0.65 blocks wide after baking.
+        return !supportAxle && (horizontalSize > 0.6f || verticalSize > 0.6f);
     }
 
     private static final class FilteredBakedModel implements IBakedModel {
