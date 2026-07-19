@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:uranium_block",
+    "ad_astra:block_uranium_block",
     {
       "id": "#c:uranium_blocks",
       "required": false

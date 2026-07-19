@@ -4,8 +4,8 @@
     "ad_astra:mars_ice_shard_ore",
     "ad_astra:glacio_ice_shard_ore",
     "ad_astra:deepslate_ice_shard_ore",
-    "ad_astra:uranus_ice_shard_ore",
-    "ad_astra:neptune_ice_shard_ore",
-    "ad_astra:pluto_ice_shard_ore"
+    "ad_astra:item_uranus_ice_shard_ore",
+    "ad_astra:item_neptune_ice_shard_ore",
+    "ad_astra:item_pluto_ice_shard_ore"
   ]
 }

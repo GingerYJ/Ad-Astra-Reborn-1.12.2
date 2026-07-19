@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#E#",
+    " F "
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateUranium"
+    },
+    "E": {
+      "item": "ad_astra:item_saturlyte_engine"
+    },
+    "F": {
+      "item": "ad_astra:fan"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_uranium_engine"
+  }
+}

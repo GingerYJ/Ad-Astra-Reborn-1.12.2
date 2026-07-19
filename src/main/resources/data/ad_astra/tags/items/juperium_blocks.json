@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:juperium_block",
+    "ad_astra:item_juperium_block",
     {
       "id": "#c:juperium_blocks",
       "required": false

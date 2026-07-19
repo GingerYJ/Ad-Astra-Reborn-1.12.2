@@ -1,6 +1,0 @@
-{
-  "parent": "ad_astra:block/wall_side_tall",
-  "textures": {
-    "wall": "ad_astra:block/quaoar_stone_bricks"
-  }
-}

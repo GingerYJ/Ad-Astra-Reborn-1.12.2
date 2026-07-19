@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:tier_10_rocket"
+      "item": "ad_astra:item_tier_10_rocket"
     },
     "title": {
       "translate": "advancements.ad_astra.tier_10_rocket.title"
@@ -21,7 +21,7 @@
         "items": [
           {
             "items": [
-              "ad_astra:tier_10_rocket"
+              "ad_astra:item_tier_10_rocket"
             ]
           }
         ]

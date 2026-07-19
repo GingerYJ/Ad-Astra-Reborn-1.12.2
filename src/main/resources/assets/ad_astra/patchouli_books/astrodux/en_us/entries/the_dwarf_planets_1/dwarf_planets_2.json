@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "title": "Plutonium",
-      "item": "ad_astra:plutonium_ingot",
-      "text": "Once you've gathered enough Radium to craft a Extendra Tier 17 rocket, you can travel to Pluto, Gonggong, and Eris. The next material that you seek is Plutonium (Element #94)."
+      "item": "ad_astra:item_plutonium_ingot",
+      "text": "Once you've gathered enough Radium to craft a Ad Astra Tier 17 rocket, you can travel to Pluto, Gonggong, and Eris. The next material that you seek is Plutonium (Element #94)."
     },
     {
       "type": "patchouli:text",
-      "text": "Plutonium is used to craft a Extendra Tier 18 rocket capable of travelling to Sedna."
+      "text": "Plutonium is used to craft a Ad Astra Tier 18 rocket capable of travelling to Sedna."
     }
   ]
 }

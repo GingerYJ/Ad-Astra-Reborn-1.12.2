@@ -79,7 +79,7 @@
         ]
       }
     },
-    "ad_astra:extendra_ceres": {
+    "ad_astra:planet_ceres": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -88,14 +88,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_ceres"
+                "dimension": "ad_astra:planet_ceres"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_jupiter": {
+    "ad_astra:planet_jupiter": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -104,14 +104,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_jupiter"
+                "dimension": "ad_astra:planet_jupiter"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_saturn": {
+    "ad_astra:planet_saturn": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -120,14 +120,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_saturn"
+                "dimension": "ad_astra:planet_saturn"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_uranus": {
+    "ad_astra:planet_uranus": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -136,14 +136,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_uranus"
+                "dimension": "ad_astra:planet_uranus"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_neptune": {
+    "ad_astra:planet_neptune": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -152,14 +152,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_neptune"
+                "dimension": "ad_astra:planet_neptune"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_orcus": {
+    "ad_astra:planet_orcus": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -168,14 +168,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_orcus"
+                "dimension": "ad_astra:planet_orcus"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_haumea": {
+    "ad_astra:planet_haumea": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -184,14 +184,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_haumea"
+                "dimension": "ad_astra:planet_haumea"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_quaoar": {
+    "ad_astra:planet_quaoar": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -200,14 +200,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_quaoar"
+                "dimension": "ad_astra:planet_quaoar"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_makemake": {
+    "ad_astra:planet_makemake": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -216,14 +216,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_makemake"
+                "dimension": "ad_astra:planet_makemake"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_pluto": {
+    "ad_astra:planet_pluto": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -232,14 +232,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_pluto"
+                "dimension": "ad_astra:planet_pluto"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_gonggong": {
+    "ad_astra:planet_gonggong": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -248,14 +248,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_gonggong"
+                "dimension": "ad_astra:planet_gonggong"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_eris": {
+    "ad_astra:planet_eris": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -264,14 +264,14 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_eris"
+                "dimension": "ad_astra:planet_eris"
               }
             }
           }
         ]
       }
     },
-    "ad_astra:extendra_sedna": {
+    "ad_astra:planet_sedna": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -280,7 +280,7 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_sedna"
+                "dimension": "ad_astra:planet_sedna"
               }
             }
           }
@@ -303,7 +303,7 @@
         ]
       }
     },
-    "ad_astra:extendra_b": {
+    "ad_astra:planet_proxima_centauri_b": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -312,7 +312,7 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_b"
+                "dimension": "ad_astra:planet_proxima_centauri_b"
               }
             }
           }
@@ -334,49 +334,49 @@
       "ad_astra:venus"
     ],
     [
-      "ad_astra:extendra_ceres"
+      "ad_astra:planet_ceres"
     ],
     [
-      "ad_astra:extendra_jupiter"
+      "ad_astra:planet_jupiter"
     ],
     [
-      "ad_astra:extendra_saturn"
+      "ad_astra:planet_saturn"
     ],
     [
-      "ad_astra:extendra_uranus"
+      "ad_astra:planet_uranus"
     ],
     [
-      "ad_astra:extendra_neptune"
+      "ad_astra:planet_neptune"
     ],
     [
-      "ad_astra:extendra_orcus"
+      "ad_astra:planet_orcus"
     ],
     [
-      "ad_astra:extendra_haumea"
+      "ad_astra:planet_haumea"
     ],
     [
-      "ad_astra:extendra_quaoar"
+      "ad_astra:planet_quaoar"
     ],
     [
-      "ad_astra:extendra_makemake"
+      "ad_astra:planet_makemake"
     ],
     [
-      "ad_astra:extendra_pluto"
+      "ad_astra:planet_pluto"
     ],
     [
-      "ad_astra:extendra_gonggong"
+      "ad_astra:planet_gonggong"
     ],
     [
-      "ad_astra:extendra_eris"
+      "ad_astra:planet_eris"
     ],
     [
-      "ad_astra:extendra_sedna"
+      "ad_astra:planet_sedna"
     ],
     [
       "ad_astra:glacio"
     ],
     [
-      "ad_astra:extendra_b"
+      "ad_astra:planet_proxima_centauri_b"
     ]
   ],
   "rewards": {

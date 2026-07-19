@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:radium_block",
+    "ad_astra:item_radium_block",
     {
       "id": "#c:radium_blocks",
       "required": false

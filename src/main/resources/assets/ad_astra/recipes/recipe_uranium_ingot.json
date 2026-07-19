@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ad_astra:item_uranium_block"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:item_uranium_ingot",
+    "count": 9
+  }
+}

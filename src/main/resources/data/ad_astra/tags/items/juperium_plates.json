@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:juperium_plate",
+    "ad_astra:item_juperium_plate",
     {
       "id": "#c:juperium_plates",
       "required": false

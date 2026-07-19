@@ -19,6 +19,8 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -45,7 +47,10 @@ public class TileOxygenDistributorRenderer extends TileEntitySpecialRenderer<Oxy
 
         IBlockState state = te.getWorld().getBlockState(te.getPos());
         float yRot = te.getLastYRot() + (te.getYRot() - te.getLastYRot()) * partialTicks;
-        renderRotatingTop(state, x, y, z, yRot, alpha);
+        renderRotatingTop(state, te.getWorld(), te.getPos(), x, y, z, yRot, alpha, destroyStage);
+        if (BlockDestroyStageRenderer.isDestroying(destroyStage)) {
+            return;
+        }
 
         // Spawn oxygen bubble particles around the distributor when active
         if (te.isLit()) {
@@ -59,7 +64,16 @@ public class TileOxygenDistributorRenderer extends TileEntitySpecialRenderer<Oxy
         }
     }
 
-    private static void renderRotatingTop(IBlockState state, double x, double y, double z, float yRot, float alpha) {
+    private static void renderRotatingTop(
+        IBlockState state,
+        IBlockAccess world,
+        BlockPos pos,
+        double x,
+        double y,
+        double z,
+        float yRot,
+        float alpha,
+        int destroyStage) {
         Minecraft minecraft = Minecraft.getMinecraft();
         IBakedModel model = minecraft.getBlockRendererDispatcher()
             .getBlockModelShapes()
@@ -83,6 +97,7 @@ public class TileOxygenDistributorRenderer extends TileEntitySpecialRenderer<Oxy
         GlStateManager.translate(-0.5f, 0.0f, -0.5f);
 
         renderModel(minecraft, state, model, alpha);
+        BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
 
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
@@ -279,7 +294,7 @@ public class TileOxygenDistributorRenderer extends TileEntitySpecialRenderer<Oxy
             GlStateManager.pushMatrix();
             renderBaseModel(state, 1.0f);
             float yRot = (System.currentTimeMillis() / 5.0f) % 360.0f;
-            renderRotatingTop(state, 0.0d, 0.0d, 0.0d, yRot, 1.0f);
+            renderRotatingTop(state, null, null, 0.0d, 0.0d, 0.0d, yRot, 1.0f, -1);
             GlStateManager.popMatrix();
         }
     }

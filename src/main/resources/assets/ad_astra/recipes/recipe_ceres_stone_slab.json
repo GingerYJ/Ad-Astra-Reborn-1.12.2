@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_ceres_stone"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_ceres_stone_slab",
+    "data": 0,
+    "count": 6
+  }
+}

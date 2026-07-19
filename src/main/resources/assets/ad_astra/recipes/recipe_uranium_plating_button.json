@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ad_astra:item_uranium_plating"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:item_uranium_plating_button"
+  }
+}

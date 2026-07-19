@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_saturn_stone"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_polished_saturn_stone",
+    "count": 9
+  }
+}

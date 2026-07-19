@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_juperium_plating"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_juperium_plating_stairs",
+    "count": 4
+  }
+}

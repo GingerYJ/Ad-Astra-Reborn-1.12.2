@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "PBP",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateUranium"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockUranium"
+    },
+    "P": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_uranium_sliding_door"
+  }
+}

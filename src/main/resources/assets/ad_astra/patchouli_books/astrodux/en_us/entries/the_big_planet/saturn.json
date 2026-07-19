@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "title": "Saturlyte",
-      "item": "ad_astra:saturlyte_ingot",
-      "text": "Once you've gathered enough Juperium to craft a Extendra Tier 13 rocket, you can travel to Saturn. The next material that you seek is Saturlyte (Said like satellite)."
+      "item": "ad_astra:item_saturlyte_ingot",
+      "text": "Once you've gathered enough Juperium to craft a Ad Astra Tier 13 rocket, you can travel to Saturn. The next material that you seek is Saturlyte (Said like satellite)."
     },
     {
       "type": "patchouli:text",
-      "text": "Saturlyte is used to craft a Extendra Tier 14 rocket capable of travelling to the coldest planet."
+      "text": "Saturlyte is used to craft a Ad Astra Tier 14 rocket capable of travelling to the coldest planet."
     }
   ]
 }

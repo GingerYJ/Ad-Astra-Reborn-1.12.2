@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:raw_aurorite",
+    "ad_astra:item_raw_aurorite",
     {
       "id": "#c:raw_aurorite_ores",
       "required": false

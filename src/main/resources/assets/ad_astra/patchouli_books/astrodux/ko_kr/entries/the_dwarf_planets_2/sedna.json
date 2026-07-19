@@ -7,7 +7,7 @@
     {
       "type": "patchouli:spotlight",
       "title": "전해질",
-      "item": "ad_astra:electrolyte_ingot",
+      "item": "ad_astra:item_electrolyte_ingot",
       "text": "10티어 로켓을 제작할 만큼의 플루토늄을 모으면 세드나로 갈 수 있습니다. 다음으로 찾아야 할 재료는 전해질입니다."
     },
     {

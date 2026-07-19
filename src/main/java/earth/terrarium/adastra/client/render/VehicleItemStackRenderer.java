@@ -59,13 +59,13 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
 
     private ModelBase configurableModel(ConfigurableRocketSpec spec) {
         int modelTier = spec.getModelTier();
-        int cacheKey = spec.usesExtendraModel()
+        int cacheKey = spec.usesHighTierModel()
             ? 100 + modelTier
             : modelTier;
         ModelBase model = configurableRocketModels.get(cacheKey);
         if (model == null) {
-            model = spec.usesExtendraModel()
-                ? new ModelExtendraRocket(modelTier)
+            model = spec.usesHighTierModel()
+                ? new ModelHighTierRocket(modelTier)
                 : new ModelRocket(modelTier);
             configurableRocketModels.put(cacheKey, model);
         }

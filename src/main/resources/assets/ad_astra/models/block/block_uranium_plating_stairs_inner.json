@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "ad_astra:block/block_uranium_plating",
+    "side": "ad_astra:block/block_uranium_plating",
+    "top": "ad_astra:block/block_uranium_plating"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateJuperium"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotJuperium"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_juperium_factory_block",
+    "count": 64
+  }
+}

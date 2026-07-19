@@ -16,16 +16,16 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "item": "ad_astra:sedna_electrolyte_ore"
+      "item": "ad_astra:item_sedna_electrolyte_ore"
     }
   ],
   "results": [
     {
-      "item": "ad_astra:raw_electrolyte",
+      "item": "ad_astra:item_raw_electrolyte",
       "count": 1
     },
     {
-      "item": "ad_astra:raw_electrolyte",
+      "item": "ad_astra:item_raw_electrolyte",
       "count": 1,
       "chance": 0.25
     },
@@ -35,7 +35,7 @@
       "chance": 0.75
     },
     {
-      "item": "ad_astra:sedna_cobblestone",
+      "item": "ad_astra:item_sedna_cobblestone",
       "count": 1,
       "chance": 0.125
     }

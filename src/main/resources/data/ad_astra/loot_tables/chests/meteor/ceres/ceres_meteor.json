@@ -37,7 +37,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:ceres_sand",
+          "name": "ad_astra:item_ceres_sand",
           "weight": 40,
           "functions": [
             {
@@ -93,7 +93,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:ceres_globe",
+          "name": "ad_astra:item_ceres_globe",
           "weight": 2
         }
       ]

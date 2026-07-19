@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:jupiter_globe"
+      "item": "ad_astra:item_jupiter_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.jupiter.title"
@@ -18,7 +18,7 @@
     "jupiter": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_jupiter"
+        "to": "ad_astra:planet_jupiter"
       }
     }
   },

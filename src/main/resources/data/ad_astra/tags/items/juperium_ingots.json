@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:juperium_ingot",
+    "ad_astra:item_juperium_ingot",
     {
       "id": "#c:juperium_ingots",
       "required": false

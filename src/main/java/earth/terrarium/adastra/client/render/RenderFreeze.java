@@ -2,7 +2,7 @@ package earth.terrarium.adastra.client.render;
 
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.client.model.ModelFreeze;
-import earth.terrarium.adastra.common.entities.mob.ExtendraFreezeEntity;
+import earth.terrarium.adastra.common.entities.mob.FreezeEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderFreeze extends RenderLiving<ExtendraFreezeEntity> {
+public class RenderFreeze extends RenderLiving<FreezeEntity> {
 
     private static final ResourceLocation BODY = new ResourceLocation(
         Reference.MOD_ID, "textures/entity/mob/freeze/freeze.png");
@@ -32,13 +32,13 @@ public class RenderFreeze extends RenderLiving<ExtendraFreezeEntity> {
     }
 
     @Override
-    protected ResourceLocation getEntityTexture(ExtendraFreezeEntity entity) {
+    protected ResourceLocation getEntityTexture(FreezeEntity entity) {
         return BODY;
     }
 
-    private final class EyesLayer implements LayerRenderer<ExtendraFreezeEntity> {
+    private final class EyesLayer implements LayerRenderer<FreezeEntity> {
         @Override
-        public void doRenderLayer(ExtendraFreezeEntity entity, float limbSwing, float limbSwingAmount,
+        public void doRenderLayer(FreezeEntity entity, float limbSwing, float limbSwingAmount,
                                   float partialTicks, float ageInTicks, float netHeadYaw,
                                   float headPitch, float scale) {
             Minecraft.getMinecraft().getTextureManager().bindTexture(EYES);

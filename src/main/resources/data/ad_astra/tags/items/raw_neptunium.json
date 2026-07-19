@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:raw_neptunium",
+    "ad_astra:item_raw_neptunium",
     {
       "id": "#c:raw_neptunium_ores",
       "required": false

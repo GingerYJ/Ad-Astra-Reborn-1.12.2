@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:aurorite_ingot",
+    "ad_astra:item_aurorite_ingot",
     {
       "id": "#c:aurorite_ingots",
       "required": false

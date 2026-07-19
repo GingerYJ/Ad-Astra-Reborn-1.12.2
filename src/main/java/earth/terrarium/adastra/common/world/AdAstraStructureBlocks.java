@@ -1,10 +1,14 @@
 package earth.terrarium.adastra.common.world;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.registry.ModBlocks;
+import earth.terrarium.adastra.common.registry.ModEntities;
+import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 
 /**
  * Shared block-name remapping for Ad Astra structure NBTs authored in 1.16+ (Mojang's newer
@@ -39,10 +43,26 @@ public final class AdAstraStructureBlocks {
         }
     }
 
-    public static String remapBlockName(String name) {
-        if (name != null && name.startsWith("ad_extendra:")) {
-            return Reference.MOD_ID + ":" + name.substring("ad_extendra:".length());
+    /** Rewrites item and entity IDs stored in structure block entities and entity payloads. */
+    public static void remapStructureData(NBTTagCompound tag) {
+        NBTTagList blocks = tag.getTagList("blocks", 10);
+        for (int i = 0; i < blocks.tagCount(); i++) {
+            NBTTagCompound block = blocks.getCompoundTagAt(i);
+            if (block.hasKey("nbt", 10)) {
+                remapBlockEntity(block.getCompoundTag("nbt"));
+            }
         }
+
+        NBTTagList entities = tag.getTagList("entities", 10);
+        for (int i = 0; i < entities.tagCount(); i++) {
+            NBTTagCompound entity = entities.getCompoundTagAt(i);
+            if (entity.hasKey("nbt", 10)) {
+                remapEntityData(entity.getCompoundTag("nbt"));
+            }
+        }
+    }
+
+    public static String remapBlockName(String name) {
         if ("minecraft:soul_soil".equals(name)) {
             return "minecraft:soul_sand";
         }
@@ -98,10 +118,116 @@ public final class AdAstraStructureBlocks {
         if ("minecraft:black_stained_glass_pane".equals(name)) {
             return "minecraft:stained_glass_pane";
         }
-        return name;
+        return remapImportedBlockName(name);
     }
 
     public static boolean isKnownBlock(String name) {
         return Block.REGISTRY.containsKey(new ResourceLocation(name));
+    }
+
+    private static String remapImportedBlockName(String name) {
+        ResourceLocation location = parse(name);
+        if (location == null || !Reference.MOD_ID.equals(location.getNamespace())
+            || location.getPath().startsWith("block_")) {
+            return name;
+        }
+
+        Block block = ModBlocks.get(location.getPath());
+        if (block == null || block.getRegistryName() == null
+            || !block.getRegistryName().getPath().startsWith("block_")) {
+            return name;
+        }
+        return block.getRegistryName().toString();
+    }
+
+    private static void remapBlockEntity(NBTTagCompound blockEntity) {
+        if (blockEntity.hasKey("Items", 9)) {
+            remapItemList(blockEntity.getTagList("Items", 10));
+        }
+        if (blockEntity.hasKey("item", 10)) {
+            remapItemCompound(blockEntity.getCompoundTag("item"));
+        }
+        if (blockEntity.hasKey("SpawnData", 10)) {
+            remapEntityData(blockEntity.getCompoundTag("SpawnData"));
+        }
+        if (blockEntity.hasKey("SpawnPotentials", 9)) {
+            NBTTagList potentials = blockEntity.getTagList("SpawnPotentials", 10);
+            for (int i = 0; i < potentials.tagCount(); i++) {
+                NBTTagCompound potential = potentials.getCompoundTagAt(i);
+                if (potential.hasKey("Entity", 10)) {
+                    remapEntityData(potential.getCompoundTag("Entity"));
+                }
+            }
+        }
+    }
+
+    private static void remapItemList(NBTTagList items) {
+        for (int i = 0; i < items.tagCount(); i++) {
+            remapItemCompound(items.getCompoundTagAt(i));
+        }
+    }
+
+    private static void remapItemCompound(NBTTagCompound item) {
+        if (item.hasKey("id", 8)) {
+            item.setString("id", remapItemId(item.getString("id")));
+        }
+    }
+
+    private static void remapEntityData(NBTTagCompound entity) {
+        if (entity.hasKey("id", 8)) {
+            entity.setString("id", remapEntityId(entity.getString("id")));
+        }
+        if (entity.hasKey("Entity", 10)) {
+            remapEntityData(entity.getCompoundTag("Entity"));
+        }
+        if (entity.hasKey("SpawnData", 10)) {
+            remapEntityData(entity.getCompoundTag("SpawnData"));
+        }
+    }
+
+    private static String remapItemId(String name) {
+        ResourceLocation location = parse(name);
+        if (location == null || !Reference.MOD_ID.equals(location.getNamespace())
+            || location.getPath().startsWith("item_")) {
+            return name;
+        }
+
+        net.minecraft.item.Item item = ModItems.get(location.getPath());
+        if (item != null && item.getRegistryName() != null
+            && item.getRegistryName().getPath().startsWith("item_")) {
+            return item.getRegistryName().toString();
+        }
+
+        Block block = ModBlocks.get(location.getPath());
+        if (block != null && block.getRegistryName() != null
+            && block.getRegistryName().getPath().startsWith("block_")) {
+            return Reference.MOD_ID + ":item_" + location.getPath();
+        }
+        return name;
+    }
+
+    private static String remapEntityId(String name) {
+        ResourceLocation location = parse(name);
+        if (location == null || !Reference.MOD_ID.equals(location.getNamespace())
+            || location.getPath().startsWith("entity_")) {
+            return name;
+        }
+
+        for (EntityEntry entry : ModEntities.ENTITIES) {
+            ResourceLocation registryName = entry.getRegistryName();
+            if (registryName != null && registryName.getPath().startsWith("entity_")
+                && registryName.getPath().substring("entity_".length()).equals(location.getPath())) {
+                return registryName.toString();
+            }
+        }
+        return name;
+    }
+
+    private static ResourceLocation parse(String name) {
+        try {
+            return new ResourceLocation(name);
+        } catch (RuntimeException exception) {
+            return null;
+        }
     }
 }

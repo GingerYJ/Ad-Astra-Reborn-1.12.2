@@ -15,7 +15,11 @@ public class ConfigurableRocketItem extends VehicleItem {
     private final ConfigurableRocketSpec spec;
 
     public ConfigurableRocketItem(ConfigurableRocketSpec spec) {
-        super(spec.getId(), world -> new ConfigurableRocketEntity(world, spec));
+        this(spec, true);
+    }
+
+    public ConfigurableRocketItem(ConfigurableRocketSpec spec, boolean registerName) {
+        super(spec.getId(), world -> new ConfigurableRocketEntity(world, spec), registerName);
         this.spec = spec;
     }
 

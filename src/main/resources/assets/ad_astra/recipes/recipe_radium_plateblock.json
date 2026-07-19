@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#|#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateRadium"
+    },
+    "|": {
+      "item": "ad_astra:steel_rod"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_radium_plateblock",
+    "count": 64
+  }
+}

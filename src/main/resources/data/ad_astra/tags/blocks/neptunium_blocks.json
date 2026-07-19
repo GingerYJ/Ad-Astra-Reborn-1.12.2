@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:neptunium_block",
+    "ad_astra:block_neptunium_block",
     {
       "id": "#c:neptunium_blocks",
       "required": false

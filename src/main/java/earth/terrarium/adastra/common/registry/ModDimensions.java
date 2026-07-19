@@ -90,6 +90,8 @@ public final class ModDimensions {
         VENUS_ORBIT = reg("venus_orbit", VENUS_ORBIT_PROPERTIES, WorldProviderVenusOrbit.class);
         GLACIO_ORBIT = reg("glacio_orbit", GLACIO_ORBIT_PROPERTIES, WorldProviderGlacioOrbit.class);
 
+        ModPlanets.register();
+
         registered = true;
     }
 

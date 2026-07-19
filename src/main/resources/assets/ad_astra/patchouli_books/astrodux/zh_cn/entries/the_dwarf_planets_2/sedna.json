@@ -7,7 +7,7 @@
     {
       "type": "patchouli:spotlight",
       "title": "电解质",
-      "item": "ad_astra:electrolyte_ingot",
+      "item": "ad_astra:item_electrolyte_ingot",
       "text": "一旦你收集到足够的钚来制造一枚十级火箭，你就可以前往塞德娜。您寻找的最终材料是电解质。"
     },
     {

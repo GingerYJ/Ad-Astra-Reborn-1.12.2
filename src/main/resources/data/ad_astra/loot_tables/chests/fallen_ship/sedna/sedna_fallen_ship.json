@@ -24,7 +24,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:sedna_cobblestone",
+          "name": "ad_astra:item_sedna_cobblestone",
           "weight": 40,
           "functions": [
             {
@@ -38,7 +38,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_electrolyte",
+          "name": "ad_astra:item_raw_electrolyte",
           "weight": 10,
           "functions": [
             {
@@ -128,7 +128,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:sedna_globe",
+          "name": "ad_astra:item_sedna_globe",
           "weight": 2
         }
       ]

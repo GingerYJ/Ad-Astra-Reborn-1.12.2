@@ -6,14 +6,14 @@
     "ad_astra:ostrum_plating_pressure_plate",
     "ad_astra:calorite_plating_pressure_plate",
     "ad_astra:glacian_pressure_plate",
-    "ad_astra:juperium_plating_pressure_plate",
-    "ad_astra:saturlyte_plating_pressure_plate",
-    "ad_astra:uranium_plating_pressure_plate",
-    "ad_astra:neptunium_plating_pressure_plate",
-    "ad_astra:radium_plating_pressure_plate",
-    "ad_astra:plutonium_plating_pressure_plate",
-    "ad_astra:electrolyte_plating_pressure_plate",
-    "ad_astra:centaurian_oak_pressure_plate",
-    "ad_astra:aurorite_plating_pressure_plate"
+    "ad_astra:block_juperium_plating_pressure_plate",
+    "ad_astra:block_saturlyte_plating_pressure_plate",
+    "ad_astra:block_uranium_plating_pressure_plate",
+    "ad_astra:block_neptunium_plating_pressure_plate",
+    "ad_astra:block_radium_plating_pressure_plate",
+    "ad_astra:block_plutonium_plating_pressure_plate",
+    "ad_astra:block_electrolyte_plating_pressure_plate",
+    "ad_astra:block_centaurian_oak_pressure_plate",
+    "ad_astra:block_aurorite_plating_pressure_plate"
   ]
 }

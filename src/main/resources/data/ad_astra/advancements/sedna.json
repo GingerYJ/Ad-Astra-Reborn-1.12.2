@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:sedna_globe"
+      "item": "ad_astra:item_sedna_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.sedna.title"
@@ -18,12 +18,12 @@
     "sedna": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_sedna"
+        "to": "ad_astra:planet_sedna"
       }
     }
   },
   "rewards": {
     "experience": 750
   },
-  "parent": "ad_astra:tier_13_rocket"
+  "parent": "ad_astra:item_tier_13_rocket"
 }

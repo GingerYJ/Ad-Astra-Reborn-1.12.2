@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "title": "Electrolyte",
-      "item": "ad_astra:electrolyte_ingot",
-      "text": "Once you've gathered enough Plutonium to craft a Extendra Tier 18 rocket, you can travel to Sedna. The next material that you seek is Electrolyte."
+      "item": "ad_astra:item_electrolyte_ingot",
+      "text": "Once you've gathered enough Plutonium to craft a Ad Astra Tier 18 rocket, you can travel to Sedna. The next material that you seek is Electrolyte."
     },
     {
       "type": "patchouli:text",
-      "text": "Electrolyte is used to craft a Extendra Tier 19 rocket capable of travelling to a new solar system."
+      "text": "Electrolyte is used to craft a Ad Astra Tier 19 rocket capable of travelling to a new solar system."
     }
   ]
 }

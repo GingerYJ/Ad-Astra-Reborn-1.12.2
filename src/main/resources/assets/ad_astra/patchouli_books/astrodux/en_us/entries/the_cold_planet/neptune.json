@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "title": "Neptunium",
-      "item": "ad_astra:neptunium_ingot",
-      "text": "Once you've gathered enough Uranium to craft a Extendra Tier 15 rocket, you can travel to Neptune. The next material that you seek is Neptunium (Element #93)."
+      "item": "ad_astra:item_neptunium_ingot",
+      "text": "Once you've gathered enough Uranium to craft a Ad Astra Tier 15 rocket, you can travel to Neptune. The next material that you seek is Neptunium (Element #93)."
     },
     {
       "type": "patchouli:text",
-      "text": "Neptunium is used to craft a Extendra Tier 16 rocket capable of travelling to dwarf planets."
+      "text": "Neptunium is used to craft a Ad Astra Tier 16 rocket capable of travelling to dwarf planets."
     }
   ]
 }

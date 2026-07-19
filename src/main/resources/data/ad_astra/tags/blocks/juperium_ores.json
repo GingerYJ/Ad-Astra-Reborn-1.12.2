@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:jupiter_juperium_ore",
+    "ad_astra:block_jupiter_juperium_ore",
     {
       "id": "#c:juperium_ores",
       "required": false

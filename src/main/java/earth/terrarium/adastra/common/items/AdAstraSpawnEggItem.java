@@ -25,11 +25,18 @@ public class AdAstraSpawnEggItem extends Item {
     private final int secondaryColor;
 
     public AdAstraSpawnEggItem(String name, Function<World, ? extends EntityLivingBase> factory, int primaryColor, int secondaryColor) {
+        this(name, factory, primaryColor, secondaryColor, true);
+    }
+
+    public AdAstraSpawnEggItem(String name, Function<World, ? extends EntityLivingBase> factory,
+                               int primaryColor, int secondaryColor, boolean registerName) {
         this.factory = factory;
         this.primaryColor = primaryColor & 0x00FFFFFF;
         this.secondaryColor = secondaryColor & 0x00FFFFFF;
-        setRegistryName(Reference.MOD_ID, name);
-        setTranslationKey(Reference.MOD_ID + "." + name);
+        if (registerName) {
+            setRegistryName(Reference.MOD_ID, name);
+            setTranslationKey(Reference.MOD_ID + "." + name);
+        }
         setCreativeTab(AdAstraCreativeTab.INSTANCE);
         setMaxStackSize(64);
     }

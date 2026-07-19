@@ -18,6 +18,8 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -44,8 +46,8 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
 
         IBlockState state = te.getWorld().getBlockState(te.getPos());
         float animation = te.getLastAnimation() + (te.getAnimation() - te.getLastAnimation()) * partialTicks;
-        renderAnimatedModels(state, x, y, z, animation, alpha);
-        if (!te.isLit()) {
+        renderAnimatedModels(state, te.getWorld(), te.getPos(), x, y, z, animation, alpha, destroyStage);
+        if (!te.isLit() || BlockDestroyStageRenderer.isDestroying(destroyStage)) {
             return;
         }
 
@@ -79,7 +81,16 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
         GlStateManager.popMatrix();
     }
 
-    private static void renderAnimatedModels(IBlockState state, double x, double y, double z, float animation, float alpha) {
+    private static void renderAnimatedModels(
+        IBlockState state,
+        IBlockAccess world,
+        BlockPos pos,
+        double x,
+        double y,
+        double z,
+        float animation,
+        float alpha,
+        int destroyStage) {
         Minecraft minecraft = Minecraft.getMinecraft();
         IBakedModel topModel = minecraft.getBlockRendererDispatcher()
             .getBlockModelShapes()
@@ -103,8 +114,8 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
         GlStateManager.color(1.0f, 1.0f, 1.0f, alpha);
 
         applyAttachmentTransform(state);
-        renderTopModel(minecraft, state, topModel, animation, alpha);
-        renderToeModels(minecraft, state, toeModel, animation, alpha);
+        renderTopModel(minecraft, state, topModel, world, pos, animation, alpha, destroyStage);
+        renderToeModels(minecraft, state, toeModel, world, pos, animation, alpha, destroyStage);
 
         GlStateManager.enableCull();
         GlStateManager.popMatrix();
@@ -124,7 +135,15 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
         GlStateManager.enableCull();
     }
 
-    private static void renderTopModel(Minecraft minecraft, IBlockState state, IBakedModel model, float animation, float alpha) {
+    private static void renderTopModel(
+        Minecraft minecraft,
+        IBlockState state,
+        IBakedModel model,
+        IBlockAccess world,
+        BlockPos pos,
+        float animation,
+        float alpha,
+        int destroyStage) {
         GlStateManager.pushMatrix();
         GlStateManager.translate(0.5f, 0.7f, 0.5f);
         GlStateManager.rotate(animation, 1.0f, 0.0f, 0.0f);
@@ -141,10 +160,19 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
 
         GlStateManager.translate(-0.5f, -0.7f, -0.5f);
         renderModel(minecraft, state, model, alpha);
+        BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
         GlStateManager.popMatrix();
     }
 
-    private static void renderToeModels(Minecraft minecraft, IBlockState state, IBakedModel model, float animation, float alpha) {
+    private static void renderToeModels(
+        Minecraft minecraft,
+        IBlockState state,
+        IBakedModel model,
+        IBlockAccess world,
+        BlockPos pos,
+        float animation,
+        float alpha,
+        int destroyStage) {
         for (int i = 0; i < 4; i++) {
             GlStateManager.pushMatrix();
             GlStateManager.translate(0.5f, 0.0f, 0.5f);
@@ -156,6 +184,7 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
             GlStateManager.translate(-0.27f, -0.27f, -0.27f);
 
             renderModel(minecraft, state, model, alpha);
+            BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
             GlStateManager.popMatrix();
         }
     }
@@ -284,7 +313,7 @@ public class TileGravityNormalizerRenderer extends TileEntitySpecialRenderer<Gra
             GlStateManager.pushMatrix();
             renderBaseModel(state, 1.0f);
             float animation = System.currentTimeMillis() / 5.0f;
-            renderAnimatedModels(state, 0.0d, 0.0d, 0.0d, animation, 1.0f);
+            renderAnimatedModels(state, null, null, 0.0d, 0.0d, 0.0d, animation, 1.0f, -1);
             GlStateManager.popMatrix();
         }
     }

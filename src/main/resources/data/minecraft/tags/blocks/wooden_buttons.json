@@ -1,8 +1,8 @@
 {
   "values": [
     "ad_astra:glacian_button",
-    "ad_astra:centaurian_oak_button",
-    "ad_astra:aeronos_button",
-    "ad_astra:strophar_button"
+    "ad_astra:block_centaurian_oak_button",
+    "ad_astra:block_aeronos_button",
+    "ad_astra:block_strophar_button"
   ]
 }

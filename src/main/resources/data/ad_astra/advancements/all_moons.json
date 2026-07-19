@@ -31,7 +31,7 @@
         ]
       }
     },
-    "ad_astra:extendra_b": {
+    "ad_astra:planet_proxima_centauri_b": {
       "trigger": "minecraft:location",
       "conditions": {
         "player": [
@@ -40,7 +40,7 @@
             "entity": "this",
             "predicate": {
               "location": {
-                "dimension": "ad_astra:extendra_b"
+                "dimension": "ad_astra:planet_proxima_centauri_b"
               }
             }
           }
@@ -53,7 +53,7 @@
       "ad_astra:moon"
     ],
     [
-      "ad_astra:extendra_b"
+      "ad_astra:planet_proxima_centauri_b"
     ]
   ],
   "rewards": {

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_raw_aurorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_raw_aurorite_block"
+  }
+}

@@ -9,7 +9,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:pluto_sand",
+          "name": "ad_astra:item_pluto_sand",
           "weight": 40,
           "functions": [
             {
@@ -65,7 +65,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_plutonium",
+          "name": "ad_astra:item_raw_plutonium",
           "weight": 5,
           "functions": [
             {

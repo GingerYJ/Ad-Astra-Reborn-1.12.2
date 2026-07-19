@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:raw_plutonium",
+    "ad_astra:item_raw_plutonium",
     {
       "id": "#c:raw_plutonium_ores",
       "required": false

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "ad_astra:block_electrolyte_block"
+    }
+  }
+}

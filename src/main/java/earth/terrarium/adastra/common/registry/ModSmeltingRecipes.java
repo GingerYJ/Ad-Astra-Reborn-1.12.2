@@ -18,7 +18,71 @@ public final class ModSmeltingRecipes {
         registerAdAstraMetalSmelting();
         registerPlanetaryOreSmelting();
         registerStoneSmelting();
-        ExtendraRecipes.register();
+        registerAdditionalMaterialSmelting();
+        registerOreSmelting();
+        registerAdditionalStoneSmelting();
+    }
+
+    private static void registerAdditionalMaterialSmelting() {
+        material("juperium", ModItems.RAW_JUPERIUM, ModItems.JUPERIUM_INGOT, "jupiter_juperium_ore");
+        material("saturlyte", ModItems.RAW_SATURLYTE, ModItems.SATURLYTE_INGOT, "saturn_saturlyte_ore");
+        material("uranium", ModItems.RAW_URANIUM, ModItems.URANIUM_INGOT, "uranus_uranium_ore");
+        material("neptunium", ModItems.RAW_NEPTUNIUM, ModItems.NEPTUNIUM_INGOT, "neptune_neptunium_ore");
+        material("radium", ModItems.RAW_RADIUM, ModItems.RADIUM_INGOT, "orcus_radium_ore");
+        material("plutonium", ModItems.RAW_PLUTONIUM, ModItems.PLUTONIUM_INGOT, "pluto_plutonium_ore");
+        material("electrolyte", ModItems.RAW_ELECTROLYTE, ModItems.ELECTROLYTE_INGOT, "sedna_electrolyte_ore");
+        material("aurorite", ModItems.RAW_AURORITE, ModItems.AURORITE_INGOT, "vicinus_aurorite_ore");
+    }
+
+    private static void registerOreSmelting() {
+        smeltOre("ceres_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("ceres_iron_ore", Items.IRON_INGOT);
+        smeltOre("jupiter_coal_ore", Items.COAL);
+        smeltOre("jupiter_diamond_ore", Items.DIAMOND);
+        smeltOre("jupiter_gold_ore", Items.GOLD_INGOT);
+        smeltOre("saturn_coal_ore", Items.COAL);
+        smeltOre("saturn_diamond_ore", Items.DIAMOND);
+        smeltOre("saturn_gold_ore", Items.GOLD_INGOT);
+        smeltOre("uranus_ice_shard_ore", ModItems.FREEZE_SHARD);
+        smeltOre("uranus_iron_ore", Items.IRON_INGOT);
+        smeltOre("uranus_lapis_ore", new ItemStack(Items.DYE, 1, 4));
+        smeltOre("uranus_diamond_ore", Items.DIAMOND);
+        smeltOre("neptune_ice_shard_ore", ModItems.FREEZE_SHARD);
+        smeltOre("neptune_iron_ore", Items.IRON_INGOT);
+        smeltOre("neptune_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("neptune_coal_ore", Items.COAL);
+        smeltOre("orcus_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("orcus_iron_ore", Items.IRON_INGOT);
+        smeltOre("pluto_ice_shard_ore", ModItems.FREEZE_SHARD);
+        smeltOre("pluto_gold_ore", Items.GOLD_INGOT);
+        smeltOre("pluto_diamond_ore", Items.DIAMOND);
+        smeltOre("haumea_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("haumea_iron_ore", Items.IRON_INGOT);
+        smeltOre("quaoar_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("quaoar_iron_ore", Items.IRON_INGOT);
+        smeltOre("makemake_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("makemake_iron_ore", Items.IRON_INGOT);
+        smeltOre("gonggong_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("gonggong_iron_ore", Items.IRON_INGOT);
+        smeltOre("eris_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("eris_iron_ore", Items.IRON_INGOT);
+        smeltOre("sedna_copper_ore", ModItems.COPPER_INGOT);
+        smeltOre("sedna_iron_ore", Items.IRON_INGOT);
+        smeltOre("proxima_centauri_b_iron_ore", Items.IRON_INGOT);
+        smeltOre("proxima_centauri_b_redstone_ore", Items.REDSTONE);
+        smeltOre("proxima_centauri_b_emerald_ore", Items.EMERALD);
+        smeltOre("proxima_centauri_b_diamond_ore", Items.DIAMOND);
+    }
+
+    private static void registerAdditionalStoneSmelting() {
+        for (String planet : ModBlocks.PLANETS) {
+            smelt(ModBlocks.get(planet + "_cobblestone"), ModBlocks.getPlanetStone(planet));
+            smelt(ModBlocks.get(planet + "_stone_bricks"),
+                ModBlocks.get("cracked_" + planet + "_stone_bricks"));
+        }
+        smelt(ModBlocks.get("vicinus_cobblestone"), ModBlocks.get("vicinus_stone"));
+        smelt(ModBlocks.get("vicinus_stone_bricks"),
+            ModBlocks.get("cracked_vicinus_stone_bricks"));
     }
 
     private static void registerAdAstraMetalSmelting() {
@@ -72,30 +136,70 @@ public final class ModSmeltingRecipes {
     }
 
     private static void smelt(Block input, int meta, Item output) {
+        if (input == null || output == null) {
+            return;
+        }
         smelt(input, meta, new ItemStack(output));
     }
 
     private static void smelt(Block input, int meta, ItemStack output) {
+        if (input == null || output == null || output.isEmpty()) {
+            return;
+        }
         GameRegistry.addSmelting(new ItemStack(input, 1, meta), output, SOURCE_EXPERIENCE);
     }
 
     private static void smelt(Item input, Item output) {
+        if (input == null || output == null) {
+            return;
+        }
         smelt(input, new ItemStack(output));
     }
 
     private static void smelt(Item input, ItemStack output) {
+        if (input == null || output == null || output.isEmpty()) {
+            return;
+        }
         GameRegistry.addSmelting(input, output, SOURCE_EXPERIENCE);
     }
 
     private static void smelt(Block input, Item output) {
+        if (input == null || output == null) {
+            return;
+        }
         smelt(input, new ItemStack(output));
     }
 
     private static void smelt(Block input, Block output) {
+        if (input == null || output == null) {
+            return;
+        }
         smelt(input, new ItemStack(output));
     }
 
     private static void smelt(Block input, ItemStack output) {
+        if (input == null || output == null || output.isEmpty()) {
+            return;
+        }
         GameRegistry.addSmelting(input, output, SOURCE_EXPERIENCE);
+    }
+
+    private static void material(String name, Item raw, Item ingot, String ore) {
+        smelt(raw, ingot);
+        smeltOre(ore, ingot);
+    }
+
+    private static void smeltOre(String blockName, Item output) {
+        Block input = ModBlocks.getOre(blockName);
+        if (input != null && output != null) {
+            smelt(input, output);
+        }
+    }
+
+    private static void smeltOre(String blockName, ItemStack output) {
+        Block input = ModBlocks.getOre(blockName);
+        if (input != null) {
+            GameRegistry.addSmelting(input, output, SOURCE_EXPERIENCE);
+        }
     }
 }

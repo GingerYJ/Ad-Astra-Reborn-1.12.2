@@ -10,7 +10,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:makemake_cobblestone",
+          "name": "ad_astra:item_makemake_cobblestone",
           "weight": 40,
           "functions": [
             {
@@ -128,7 +128,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:makemake_globe",
+          "name": "ad_astra:item_makemake_globe",
           "weight": 2
         }
       ]

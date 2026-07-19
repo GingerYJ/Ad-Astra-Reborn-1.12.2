@@ -1,6 +1,6 @@
 {
   "name": "一颗有环的行星",
   "description": "你现在可以登陆土星，你的新目标是收集足够的 Saturlyte 来到达天王星。",
-  "icon": "ad_astra:tier_8_rocket",
+  "icon": "ad_astra:item_tier_8_rocket",
   "sortnum": 5
 }

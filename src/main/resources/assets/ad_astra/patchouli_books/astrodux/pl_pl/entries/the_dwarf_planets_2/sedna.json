@@ -7,8 +7,8 @@
     {
       "type": "patchouli:spotlight",
       "title": "Elektrolit",
-      "item": "ad_astra:electrolyte_ingot",
-      "text": "Gdy zbierzesz wystarczająco dużo Plutonium, aby stworzyć rakietę Extendra Tier 18, możesz udać się do Sedny. Następnym materiałem, którego szukasz, jest elektrolit."
+      "item": "ad_astra:item_electrolyte_ingot",
+      "text": "Gdy zbierzesz wystarczająco dużo Plutonium, aby stworzyć rakietę Ad Astra Tier 18, możesz udać się do Sedny. Następnym materiałem, którego szukasz, jest elektrolit."
     },
     {
       "type": "patchouli:text",

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateAurorite"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_aurorite_plating",
+    "count": 64
+  }
+}

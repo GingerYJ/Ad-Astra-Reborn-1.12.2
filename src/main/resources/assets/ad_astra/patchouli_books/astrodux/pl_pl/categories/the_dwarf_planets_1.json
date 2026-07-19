@@ -1,6 +1,6 @@
 {
   "name": "Planety karłowate (część 1)",
   "description": "Teraz możesz polecieć do Orcus, Haumea, Quaoar i Makemake. Twoim następnym celem jest wydobycie dużej ilości radu, aby dostać się do większej liczby planet karłowatych.",
-  "icon": "ad_astra:tier_11_rocket",
+  "icon": "ad_astra:item_tier_11_rocket",
   "sortnum": 8
 }

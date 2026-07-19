@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_centaurian_oak_planks"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_centaurian_oak_trapdoor",
+    "count": 2
+  }
+}

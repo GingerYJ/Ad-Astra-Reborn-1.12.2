@@ -1,14 +1,14 @@
 {
   "values": [
     "ad_astra:glacio_copper_ore",
-    "ad_astra:ceres_copper_ore",
-    "ad_astra:neptune_copper_ore",
-    "ad_astra:orcus_copper_ore",
-    "ad_astra:haumea_copper_ore",
-    "ad_astra:quaoar_copper_ore",
-    "ad_astra:makemake_copper_ore",
-    "ad_astra:gonggong_copper_ore",
-    "ad_astra:eris_copper_ore",
-    "ad_astra:sedna_copper_ore"
+    "ad_astra:item_ceres_copper_ore",
+    "ad_astra:item_neptune_copper_ore",
+    "ad_astra:item_orcus_copper_ore",
+    "ad_astra:item_haumea_copper_ore",
+    "ad_astra:item_quaoar_copper_ore",
+    "ad_astra:item_makemake_copper_ore",
+    "ad_astra:item_gonggong_copper_ore",
+    "ad_astra:item_eris_copper_ore",
+    "ad_astra:item_sedna_copper_ore"
   ]
 }

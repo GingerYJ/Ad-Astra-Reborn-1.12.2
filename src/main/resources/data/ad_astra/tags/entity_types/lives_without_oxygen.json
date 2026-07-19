@@ -13,6 +13,6 @@
     "minecraft:magma_cube",
     "minecraft:zombified_piglin",
     "minecraft:zoglin",
-    "ad_astra:freeze"
+    "ad_astra:entity_freeze"
   ]
 }

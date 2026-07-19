@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:ceres_globe"
+      "item": "ad_astra:item_ceres_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.ceres.title"
@@ -18,7 +18,7 @@
     "ceres": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_ceres"
+        "to": "ad_astra:planet_ceres"
       }
     }
   },

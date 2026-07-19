@@ -2,8 +2,8 @@
   "values": [
     "ad_astra:venus_coal_ore",
     "ad_astra:glacio_coal_ore",
-    "ad_astra:jupiter_coal_ore",
-    "ad_astra:saturn_coal_ore",
-    "ad_astra:neptune_coal_ore"
+    "ad_astra:block_jupiter_coal_ore",
+    "ad_astra:block_saturn_coal_ore",
+    "ad_astra:block_neptune_coal_ore"
   ]
 }

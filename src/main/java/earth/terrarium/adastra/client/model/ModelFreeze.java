@@ -1,11 +1,11 @@
 package earth.terrarium.adastra.client.model;
 
-import earth.terrarium.adastra.common.entities.mob.ExtendraFreezeEntity;
+import earth.terrarium.adastra.common.entities.mob.FreezeEntity;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
-/** Converted from Ad Extendra's Blockbench Freeze model for the 1.12 renderer. */
+/** Blockbench Freeze model converted for the 1.12 renderer. */
 public class ModelFreeze extends ModelBase {
 
     private final ModelRenderer head;
@@ -77,7 +77,7 @@ public class ModelFreeze extends ModelBase {
                                   float netHeadYaw, float headPitch, float scaleFactor, Entity entity) {
         head.rotateAngleY = netHeadYaw * 0.017453292F;
         head.rotateAngleX = headPitch * 0.017453292F;
-        float wobble = ((ExtendraFreezeEntity) entity).ticksExisted * 0.05F;
+        float wobble = ((FreezeEntity) entity).ticksExisted * 0.05F;
         tornadoBottom.rotateAngleY = wobble;
         tornadoMid.rotateAngleY = -wobble * 1.3F;
         tornadoTop.rotateAngleY = wobble * 1.7F;

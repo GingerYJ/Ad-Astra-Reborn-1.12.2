@@ -1,6 +1,6 @@
 {
   "name": "A Ringed Planet",
   "description": "You now can land on Saturn, and your new goal is to gather enough Saturlyte to get to Uranus.",
-  "icon": "ad_astra:tier_8_rocket",
+  "icon": "ad_astra:item_tier_8_rocket",
   "sortnum": 5
 }

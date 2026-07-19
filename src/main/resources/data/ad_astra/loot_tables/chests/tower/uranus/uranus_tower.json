@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_uranium",
+          "name": "ad_astra:item_raw_uranium",
           "weight": 15,
           "functions": [
             {

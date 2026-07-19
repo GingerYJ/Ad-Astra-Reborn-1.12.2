@@ -16,8 +16,8 @@ import earth.terrarium.adastra.common.entities.mob.SulfurCreeperEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedMoglerEntity;
 import earth.terrarium.adastra.common.entities.mob.ZombifiedPygroEntity;
 import earth.terrarium.adastra.common.entities.projectile.IceSpitEntity;
-import earth.terrarium.adastra.common.entities.projectile.ExtendraIceChargeEntity;
-import earth.terrarium.adastra.common.entities.mob.ExtendraFreezeEntity;
+import earth.terrarium.adastra.common.entities.projectile.IceChargeEntity;
+import earth.terrarium.adastra.common.entities.mob.FreezeEntity;
 import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
 import earth.terrarium.adastra.common.entities.vehicles.ConfigurableRocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier1RocketEntity;
@@ -29,7 +29,6 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier5RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier6RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier7RocketEntity;
 import earth.terrarium.adastra.common.registry.ModItems;
-import earth.terrarium.adastra.common.registry.ExtendraItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -119,9 +118,9 @@ public final class AdAstraEntityRenderers {
 
         RenderingRegistry.registerEntityRenderingHandler(IceSpitEntity.class,
             manager -> new RenderSnowball<IceSpitEntity>(manager, ModItems.ICE_SHARD, Minecraft.getMinecraft().getRenderItem()));
-        RenderingRegistry.registerEntityRenderingHandler(ExtendraIceChargeEntity.class,
-            manager -> new RenderSnowball<ExtendraIceChargeEntity>(manager, ExtendraItems.FREEZE_SHARD, Minecraft.getMinecraft().getRenderItem()));
-        RenderingRegistry.registerEntityRenderingHandler(ExtendraFreezeEntity.class,
+        RenderingRegistry.registerEntityRenderingHandler(IceChargeEntity.class,
+            manager -> new RenderSnowball<IceChargeEntity>(manager, ModItems.FREEZE_SHARD, Minecraft.getMinecraft().getRenderItem()));
+        RenderingRegistry.registerEntityRenderingHandler(FreezeEntity.class,
             RenderFreeze::new);
     }
 

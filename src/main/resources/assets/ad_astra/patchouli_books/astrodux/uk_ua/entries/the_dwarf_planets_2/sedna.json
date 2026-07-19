@@ -7,7 +7,7 @@
     {
       "type": "patchouli:spotlight",
       "title": "Електроліт",
-      "item": "ad_astra:electrolyte_ingot",
+      "item": "ad_astra:item_electrolyte_ingot",
       "text": "Як тільки ви зберете достатньо плутонію для створення ракети 10-го рівня, ви зможете вирушити до Седни. Наступний матеріал, який ви шукатимете, — це електроліт."
     },
     {

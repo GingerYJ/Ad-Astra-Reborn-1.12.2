@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:plutonium_block",
+    "ad_astra:item_plutonium_block",
     {
       "id": "#c:plutonium_blocks",
       "required": false

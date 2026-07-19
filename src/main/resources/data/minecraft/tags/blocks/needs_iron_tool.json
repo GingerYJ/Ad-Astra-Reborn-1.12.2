@@ -26,13 +26,13 @@
     "ad_astra:glacio_lapis_ore",
     "ad_astra:steel_door",
     "ad_astra:steel_trapdoor",
-    "ad_astra:juperium_sliding_door",
-    "ad_astra:saturlyte_sliding_door",
-    "ad_astra:uranium_sliding_door",
-    "ad_astra:neptunium_sliding_door",
-    "ad_astra:radium_sliding_door",
-    "ad_astra:plutonium_sliding_door",
-    "ad_astra:electrolyte_sliding_door",
-    "ad_astra:aurorite_sliding_door"
+    "ad_astra:block_juperium_sliding_door",
+    "ad_astra:block_saturlyte_sliding_door",
+    "ad_astra:block_uranium_sliding_door",
+    "ad_astra:block_neptunium_sliding_door",
+    "ad_astra:block_radium_sliding_door",
+    "ad_astra:block_plutonium_sliding_door",
+    "ad_astra:block_electrolyte_sliding_door",
+    "ad_astra:block_aurorite_sliding_door"
   ]
 }

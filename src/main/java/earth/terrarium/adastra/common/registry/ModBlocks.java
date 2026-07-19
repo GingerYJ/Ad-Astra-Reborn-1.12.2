@@ -9,22 +9,26 @@ import earth.terrarium.adastra.common.blocks.AdAstraButtonBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraEnergizerBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFlagBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraFlowerPotBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFenceBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFenceGateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraGlobeBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraHugeMushroomBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraIndustrialLampBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraIcicleBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraLadderBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraMachineBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraModelBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraMushroomBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraMoonMyceliumBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraOreBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPipeBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPipeDuctBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraPressurePlateBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraRadioBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSensorBlock;
+import earth.terrarium.adastra.common.blocks.AdAstraSaplingBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlabBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraSlidingDoorBlock;
 import earth.terrarium.adastra.common.blocks.AdAstraStairsBlock;
@@ -51,16 +55,27 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 public final class ModBlocks {
 
     private static final List<Block> INTERNAL_BLOCKS = new ArrayList<>();
     private static final List<Block> DOUBLE_SLABS = new ArrayList<>();
+    private static final Map<String, Block> BY_NAME = new LinkedHashMap<>();
+    private static final Map<String, Block> PLANET_STONE = new LinkedHashMap<>();
+    private static final Map<String, Block> PLANET_SURFACE = new LinkedHashMap<>();
+    private static final Map<String, Block> ORES = new LinkedHashMap<>();
+    private static final Map<String, Block> MATERIAL_BLOCKS = new LinkedHashMap<>();
 
     public static final List<Block> BLOCKS = Collections.unmodifiableList(INTERNAL_BLOCKS);
     public static final List<Block> HIDDEN_BLOCKS = Collections.unmodifiableList(DOUBLE_SLABS);
+    public static final List<String> PLANETS = Collections.unmodifiableList(Arrays.asList(
+        "ceres", "jupiter", "saturn", "uranus", "neptune", "orcus", "pluto",
+        "haumea", "quaoar", "makemake", "gonggong", "eris", "sedna", "proxima_centauri_b"));
     public static final Block LAUNCH_PAD = launchPad("launch_pad", Material.IRON, 5.0f, 12.0f);
     public static final Block STEEL_CABLE = pipe("steel_cable", 0.5f, 12.0f);
     public static final Block DESH_CABLE = pipe("desh_cable", 0.5f, 9.0f);
@@ -414,8 +429,109 @@ public final class ModBlocks {
     public static final Block GLACIAN_FENCE = fence("glacian_fence");
     public static final Block GLACIAN_FENCE_GATE = fenceGate("glacian_fence_gate");
     public static final Block GLACIAN_BUTTON = button("glacian_button", true);
-    public static final Block GLACIAN_PRESSURE_PLATE = pressurePlate("glacian_pressure_plate", Material.WOOD, AdAstraPressurePlateBlock.Sensitivity.EVERYTHING);
+    public static final Block GLACIAN_PRESSURE_PLATE = pressurePlate("glacian_pressure_plate", Material.WOOD,
+        AdAstraPressurePlateBlock.Sensitivity.EVERYTHING);
     public static final Block GLACIAN_FUR = simple("glacian_fur", Material.CLOTH, 0.8f, 1.0f);
+
+    public static final Block ICICLE;
+    public static final Block SLUSHY_ICE;
+    public static final Block PACKED_SLUSHY_ICE;
+    public static final Block BLUE_SLUSHY_ICE;
+    public static final Block SATURN_ICE;
+    public static final Block MOON_MYCELIUM;
+    public static final Block AERONOS_BUTTON;
+    public static final Block AERONOS_PRESSURE_PLATE;
+    public static final Block STROPHAR_BUTTON;
+    public static final Block STROPHAR_PRESSURE_PLATE;
+    public static final Block AERONOS_POTTED_MUSHROOM;
+    public static final Block STROPHAR_POTTED_MUSHROOM;
+    public static Block CENTAURIAN_OAK_POTTED_SAPLING;
+    public static Block GLACIAN_POTTED_SAPLING;
+    public static final Block VICINUS_AURORITE_ORE;
+    public static final Block VICINUS_GLOBE;
+
+    static {
+        for (String planet : PLANETS) {
+            registerPlanetBlocks(planet);
+        }
+
+        registerOre("ceres_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("ceres_iron_ore", Items.IRON_INGOT);
+        registerOre("jupiter_juperium_ore", ModItems.RAW_JUPERIUM);
+        registerOre("jupiter_coal_ore", Items.COAL);
+        registerOre("jupiter_diamond_ore", Items.DIAMOND);
+        registerOre("jupiter_gold_ore", Items.GOLD_INGOT);
+        registerOre("saturn_saturlyte_ore", ModItems.RAW_SATURLYTE);
+        registerOre("saturn_coal_ore", Items.COAL);
+        registerOre("saturn_diamond_ore", Items.DIAMOND);
+        registerOre("saturn_gold_ore", Items.GOLD_INGOT);
+        registerOre("uranus_uranium_ore", ModItems.RAW_URANIUM);
+        registerOre("uranus_diamond_ore", Items.DIAMOND);
+        registerOre("uranus_ice_shard_ore", ModItems.FREEZE_SHARD);
+        registerOre("uranus_iron_ore", Items.IRON_INGOT);
+        registerOre("uranus_lapis_ore", Items.DYE, 4);
+        registerOre("neptune_neptunium_ore", ModItems.RAW_NEPTUNIUM);
+        registerOre("neptune_coal_ore", Items.COAL);
+        registerOre("neptune_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("neptune_iron_ore", Items.IRON_INGOT);
+        registerOre("neptune_ice_shard_ore", ModItems.FREEZE_SHARD);
+        registerOre("orcus_radium_ore", ModItems.RAW_RADIUM);
+        registerOre("orcus_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("orcus_iron_ore", Items.IRON_INGOT);
+        registerOre("pluto_plutonium_ore", ModItems.RAW_PLUTONIUM);
+        registerOre("pluto_diamond_ore", Items.DIAMOND);
+        registerOre("pluto_gold_ore", Items.GOLD_INGOT);
+        registerOre("pluto_ice_shard_ore", ModItems.FREEZE_SHARD);
+        registerOre("haumea_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("haumea_iron_ore", Items.IRON_INGOT);
+        registerOre("quaoar_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("quaoar_iron_ore", Items.IRON_INGOT);
+        registerOre("makemake_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("makemake_iron_ore", Items.IRON_INGOT);
+        registerOre("gonggong_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("gonggong_iron_ore", Items.IRON_INGOT);
+        registerOre("eris_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("eris_iron_ore", Items.IRON_INGOT);
+        registerOre("sedna_electrolyte_ore", ModItems.RAW_ELECTROLYTE);
+        registerOre("sedna_copper_ore", ModItems.COPPER_INGOT);
+        registerOre("sedna_iron_ore", Items.IRON_INGOT);
+        registerOre("proxima_centauri_b_diamond_ore", Items.DIAMOND);
+        registerOre("proxima_centauri_b_emerald_ore", Items.EMERALD);
+        registerOre("proxima_centauri_b_iron_ore", Items.IRON_INGOT);
+        registerOre("proxima_centauri_b_redstone_ore", Items.REDSTONE);
+
+        for (String material : new String[] {
+            "juperium", "saturlyte", "uranium", "neptunium", "radium", "plutonium", "electrolyte", "aurorite"
+        }) {
+            registerMaterialBlocks(material);
+        }
+
+        VICINUS_AURORITE_ORE = registerOre("vicinus_aurorite_ore", ModItems.RAW_AURORITE);
+        registerVicinusBlocks();
+
+        ICICLE = registerPrefixed("icicle", new AdAstraIcicleBlock());
+        SLUSHY_ICE = registerSimple("slushy_ice", Material.ICE, 0.5F, 0.5F);
+        PACKED_SLUSHY_ICE = registerSimple("packed_slushy_ice", Material.ICE, 0.8F, 0.8F);
+        BLUE_SLUSHY_ICE = registerSimple("blue_slushy_ice", Material.ICE, 0.5F, 0.5F);
+        SATURN_ICE = registerSimple("saturn_ice", Material.ICE, 0.5F, 0.5F);
+        MOON_MYCELIUM = registerPrefixed("moon_mycelium", new AdAstraMoonMyceliumBlock());
+        AERONOS_BUTTON = registerPrefixed("aeronos_button", new AdAstraButtonBlock(true));
+        AERONOS_PRESSURE_PLATE = registerPrefixed("aeronos_pressure_plate",
+            new AdAstraPressurePlateBlock(Material.WOOD, AdAstraPressurePlateBlock.Sensitivity.EVERYTHING));
+        STROPHAR_BUTTON = registerPrefixed("strophar_button", new AdAstraButtonBlock(true));
+        STROPHAR_PRESSURE_PLATE = registerPrefixed("strophar_pressure_plate",
+            new AdAstraPressurePlateBlock(Material.WOOD, AdAstraPressurePlateBlock.Sensitivity.EVERYTHING));
+        AERONOS_POTTED_MUSHROOM = registerPrefixed("potted_aeronos_mushroom",
+            new AdAstraFlowerPotBlock(AERONOS_MUSHROOM));
+        STROPHAR_POTTED_MUSHROOM = registerPrefixed("potted_strophar_mushroom",
+            new AdAstraFlowerPotBlock(STROPHAR_MUSHROOM));
+
+        registerWoodBlocks();
+        for (String planet : PLANETS) {
+            registerGlobe(planet + "_globe");
+        }
+        VICINUS_GLOBE = registerGlobe("vicinus_globe");
+    }
 
     private ModBlocks() {
     }
@@ -424,10 +540,16 @@ public final class ModBlocks {
     public static void register(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(INTERNAL_BLOCKS.toArray(new Block[0]));
         event.getRegistry().registerAll(DOUBLE_SLABS.toArray(new Block[0]));
-        ExtendraBlocks.register(event);
     }
 
     public static Item createItemBlock(Block block) {
+        if (block == null || block.getRegistryName() == null) {
+            return null;
+        }
+        boolean prefixed = block.getRegistryName().getPath().startsWith("block_");
+        if (prefixed && block.getRegistryName().getPath().startsWith("block_potted_")) {
+            return null;
+        }
         Item item;
         if (block instanceof AdAstraDoorBlock) {
             item = new ItemDoor(block);
@@ -451,10 +573,11 @@ public final class ModBlocks {
         } else {
             item = new ItemBlock(block);
         }
-        item.setRegistryName(block.getRegistryName());
-        if (block.getRegistryName() != null) {
-            item.setTranslationKey(Reference.MOD_ID + "." + block.getRegistryName().getPath());
-        }
+        String path = block.getRegistryName().getPath();
+        String logicalName = prefixed ? path.substring("block_".length()) : path;
+        item.setRegistryName(prefixed ? ModResourceIds.item(logicalName) : block.getRegistryName());
+        item.setTranslationKey(Reference.MOD_ID + "."
+            + (prefixed ? ModResourceIds.itemPath(logicalName) : path));
         if (item.getCreativeTab() == null) {
             item.setCreativeTab(AdAstraCreativeTab.INSTANCE);
         }
@@ -465,11 +588,385 @@ public final class ModBlocks {
         return DOUBLE_SLABS.contains(block) || block instanceof AdAstraFluidBlock;
     }
 
+    public static Block get(String name) {
+        return BY_NAME.get(name);
+    }
+
+    public static Block getPlanetStone(String planet) {
+        return PLANET_STONE.get(planet);
+    }
+
+    public static Block getPlanetSurface(String planet) {
+        return PLANET_SURFACE.get(planet);
+    }
+
+    public static Block getOre(String name) {
+        return ORES.get(name);
+    }
+
+    public static Block getMaterialBlock(String name) {
+        return MATERIAL_BLOCKS.get(name);
+    }
+
+    private static void registerPlanetBlocks(String planet) {
+        Material material = Material.ROCK;
+        String[] variants = {
+            "stone", "stone_stairs", "stone_slab", "cobblestone", "cobblestone_stairs", "cobblestone_slab",
+            "stone_bricks", "stone_brick_stairs", "stone_brick_slab", "stone_brick_wall", "pillar"
+        };
+        for (String variant : variants) {
+            String name = planet + "_" + variant;
+            if ("stone_brick_wall".equals(variant)) {
+                registerWall(name, BY_NAME.get(planet + "_stone_bricks"));
+            } else if (variant.endsWith("_stairs")) {
+                String baseVariant = variant.substring(0, variant.length() - "_stairs".length());
+                if ("stone_brick".equals(baseVariant)) {
+                    baseVariant = "stone_bricks";
+                }
+                registerStairs(name, BY_NAME.get(planet + "_" + baseVariant));
+            } else if (variant.endsWith("_slab")) {
+                registerSlab(name, material, 1.5F, 6.0F, SoundType.STONE);
+            } else if ("pillar".equals(variant)) {
+                registerAxis(name, material, 1.5F, 6.0F);
+            } else {
+                registerSimple(name, material, 1.5F, 6.0F);
+            }
+        }
+        registerSimple("cracked_" + planet + "_stone_bricks", material, 1.5F, 6.0F);
+        Block chiseledStoneBricks = registerSimple("chiseled_" + planet + "_stone_bricks", material, 1.5F, 6.0F);
+        registerStairs("chiseled_" + planet + "_stone_stairs", chiseledStoneBricks);
+        registerSlab("chiseled_" + planet + "_stone_slab", material, 1.5F, 6.0F, SoundType.STONE);
+        Block polishedStone = registerSimple("polished_" + planet + "_stone", material, 1.5F, 6.0F);
+        registerStairs("polished_" + planet + "_stone_stairs", polishedStone);
+        registerSlab("polished_" + planet + "_stone_slab", material, 1.5F, 6.0F, SoundType.STONE);
+        Block stone = BY_NAME.get(planet + "_stone");
+        PLANET_STONE.put(planet, stone);
+
+        if ("ceres".equals(planet) || "jupiter".equals(planet) || "saturn".equals(planet)
+            || "pluto".equals(planet) || "proxima_centauri_b".equals(planet)) {
+            Block sand = registerSimple(planet + "_sand", Material.SAND, 0.5F, 0.5F);
+            PLANET_SURFACE.put(planet, sand);
+        } else {
+            PLANET_SURFACE.put(planet, stone);
+        }
+        if ("proxima_centauri_b".equals(planet)) {
+            registerSimple("proxima_centauri_b_sandstone", Material.ROCK, 0.8F, 3.0F);
+            Block sandstoneBricks = registerSimple("proxima_centauri_b_sandstone_bricks", Material.ROCK, 1.5F, 6.0F);
+            registerStairs("proxima_centauri_b_sandstone_brick_stairs", sandstoneBricks);
+            registerSlab("proxima_centauri_b_sandstone_brick_slab", Material.ROCK, 1.5F, 6.0F, SoundType.STONE);
+            registerSimple("cracked_proxima_centauri_b_sandstone_bricks", Material.ROCK, 1.5F, 6.0F);
+        }
+    }
+
+    private static void registerMaterialBlocks(String material) {
+        String[] variants = {
+            "_block", "_factory_block", "_plateblock", "_panel", "_plating",
+            "_plating_stairs", "_plating_slab", "_pillar", "_plating_button", "_plating_pressure_plate", "_sliding_door"
+        };
+        for (String variant : variants) {
+            Block block;
+            if ("_sliding_door".equals(variant)) {
+                block = registerSlidingDoor(material + variant, 5.0F, 12.0F);
+            } else if ("_plating_button".equals(variant)) {
+                block = registerPrefixed(material + variant, new AdAstraButtonBlock(false));
+            } else if ("_plating_pressure_plate".equals(variant)) {
+                block = registerPrefixed(material + variant,
+                    new AdAstraPressurePlateBlock(Material.IRON, AdAstraPressurePlateBlock.Sensitivity.MOBS));
+            } else if ("_plating_stairs".equals(variant)) {
+                block = registerStairs(material + variant, BY_NAME.get(material + "_plating"));
+            } else if ("_plating_slab".equals(variant)) {
+                block = registerSlab(material + variant, Material.IRON, 5.0F, 12.0F, SoundType.METAL);
+            } else if ("_pillar".equals(variant)) {
+                block = registerAxis(material + variant, Material.IRON, 5.0F, 12.0F);
+            } else {
+                block = registerSimple(material + variant, Material.IRON, 5.0F, 12.0F);
+            }
+            if ("_block".equals(variant)) {
+                MATERIAL_BLOCKS.put(material, block);
+            }
+        }
+        registerSimple("raw_" + material + "_block", Material.IRON, 5.0F, 12.0F);
+        registerSimple("encased_" + material + "_block", Material.IRON, 5.0F, 12.0F);
+        registerAxis("glowing_" + material + "_pillar", Material.IRON, 5.0F, 12.0F).setLightLevel(1.0F);
+    }
+
+    private static void registerWoodBlocks() {
+        String[] variants = {
+            "centaurian_oak_log", "centaurian_oak_wood", "stripped_centaurian_oak_log", "stripped_centaurian_oak_wood",
+            "centaurian_oak_leaves", "centaurian_oak_planks", "centaurian_oak_stairs", "centaurian_oak_slab",
+            "centaurian_oak_fence", "centaurian_oak_fence_gate", "centaurian_oak_door", "centaurian_oak_trapdoor",
+            "centaurian_oak_button", "centaurian_oak_pressure_plate", "centaurian_oak_sapling", "potted_centaurian_oak_sapling",
+            "glacian_wood", "stripped_glacian_wood", "glacian_sapling", "potted_glacian_sapling"
+        };
+        for (String variant : variants) {
+            if ("centaurian_oak_log".equals(variant)
+                || "centaurian_oak_wood".equals(variant)
+                || "stripped_centaurian_oak_log".equals(variant)
+                || "stripped_centaurian_oak_wood".equals(variant)
+                || "glacian_wood".equals(variant)
+                || "stripped_glacian_wood".equals(variant)) {
+                registerPrefixedAxis(variant, Material.WOOD, 2.0F, 3.0F);
+            } else if ("centaurian_oak_stairs".equals(variant)) {
+                registerPrefixedStairs(variant, BY_NAME.get("centaurian_oak_planks"));
+            } else if ("centaurian_oak_slab".equals(variant)) {
+                registerPrefixedSlab(variant, Material.WOOD, 2.0F, 3.0F, SoundType.WOOD);
+            } else if ("centaurian_oak_fence".equals(variant)) {
+                registerPrefixedFence(variant);
+            } else if ("centaurian_oak_fence_gate".equals(variant)) {
+                registerPrefixedFenceGate(variant);
+            } else if ("centaurian_oak_door".equals(variant)) {
+                registerPrefixedDoor(variant, Material.WOOD);
+            } else if ("centaurian_oak_trapdoor".equals(variant)) {
+                registerPrefixedTrapDoor(variant, Material.WOOD);
+            } else if ("centaurian_oak_button".equals(variant)) {
+                registerPrefixed(variant, new AdAstraButtonBlock(true));
+            } else if ("centaurian_oak_pressure_plate".equals(variant)) {
+                registerPrefixed(variant, new AdAstraPressurePlateBlock(Material.WOOD,
+                    AdAstraPressurePlateBlock.Sensitivity.EVERYTHING));
+            } else if ("centaurian_oak_sapling".equals(variant)) {
+                registerPrefixed(variant, new AdAstraSaplingBlock(false));
+            } else if ("potted_centaurian_oak_sapling".equals(variant)) {
+                CENTAURIAN_OAK_POTTED_SAPLING = registerPrefixed(variant,
+                    new AdAstraFlowerPotBlock(BY_NAME.get("centaurian_oak_sapling")));
+            } else if ("glacian_sapling".equals(variant)) {
+                registerPrefixed(variant, new AdAstraSaplingBlock(true));
+            } else if ("potted_glacian_sapling".equals(variant)) {
+                GLACIAN_POTTED_SAPLING = registerPrefixed(variant,
+                    new AdAstraFlowerPotBlock(BY_NAME.get("glacian_sapling")));
+            } else {
+                prefixedSimple(variant, Material.WOOD, 2.0F, 3.0F);
+            }
+        }
+    }
+
+    private static void registerVicinusBlocks() {
+        String[] variants = {
+            "stone", "stone_stairs", "stone_slab", "cobblestone", "cobblestone_stairs", "cobblestone_slab",
+            "stone_bricks", "stone_brick_stairs", "stone_brick_slab", "stone_brick_wall",
+            "cracked_stone_bricks", "chiseled_stone_bricks", "chiseled_stone_stairs", "chiseled_stone_slab",
+            "polished_stone", "polished_stone_stairs", "polished_stone_slab", "pillar"
+        };
+        for (String variant : variants) {
+            String name = variant.startsWith("cracked_") || variant.startsWith("chiseled_")
+                || variant.startsWith("polished_")
+                ? variant.replace("_stone", "_vicinus_stone")
+                : "vicinus_" + variant;
+            if ("stone_brick_wall".equals(variant)) {
+                registerWall(name, BY_NAME.get("vicinus_stone_bricks"));
+            } else if (variant.endsWith("_stairs")) {
+                String baseName;
+                if (variant.startsWith("chiseled_")) {
+                    baseName = "chiseled_vicinus_stone_bricks";
+                } else if (variant.startsWith("polished_")) {
+                    baseName = "polished_vicinus_stone";
+                } else {
+                    String baseVariant = variant.substring(0, variant.length() - "_stairs".length());
+                    if ("stone_brick".equals(baseVariant)) {
+                        baseVariant = "stone_bricks";
+                    }
+                    baseName = "vicinus_" + baseVariant;
+                }
+                registerStairs(name, BY_NAME.get(baseName));
+            } else if (variant.endsWith("_slab")) {
+                registerSlab(name, Material.ROCK, 1.5F, 6.0F, SoundType.STONE);
+            } else if ("pillar".equals(variant)) {
+                registerAxis(name, Material.ROCK, 1.5F, 6.0F);
+            } else {
+                registerSimple(name, Material.ROCK, 1.5F, 6.0F);
+            }
+        }
+    }
+
+    private static Block registerOre(String name, Item droppedItem) {
+        return registerOre(name, droppedItem, 0);
+    }
+
+    private static Block registerOre(String name, Item droppedItem, int droppedMeta) {
+        Block block = new AdAstraOreBlock(droppedItem, droppedMeta, 1, 1,
+            droppedItem == null ? 0 : 2, droppedItem == null ? 0 : 5);
+        block.setHarvestLevel("pickaxe", 2);
+        registerPrefixed(name, block);
+        ORES.put(name, block);
+        return block;
+    }
+
+    private static Block registerSimple(String name, Material material, float hardness, float resistance) {
+        return registerPrefixed(name, new AdAstraBlock(material, hardness, resistance));
+    }
+
+    private static Block registerStairs(String name, Block modelBlock) {
+        if (modelBlock == null) {
+            throw new IllegalStateException("Missing stairs model block for " + name);
+        }
+        return registerPrefixed(name, new AdAstraStairsBlock(modelBlock.getDefaultState()));
+    }
+
+    private static Block registerSlab(String name, Material material, float hardness, float resistance,
+                                      SoundType soundType) {
+        AdAstraSlabBlock.Single single = new AdAstraSlabBlock.Single(material, hardness, resistance, soundType);
+        AdAstraSlabBlock.Double doubleSlab = new AdAstraSlabBlock.Double(
+            material, single, hardness, resistance, soundType);
+        registerPrefixed(name, single);
+        registerPrefixedHidden("double_" + name, doubleSlab);
+        return single;
+    }
+
+    private static Block registerAxis(String name, Material material, float hardness, float resistance) {
+        return registerPrefixed(name, new AdAstraAxisBlock(material, hardness, resistance));
+    }
+
+    private static Block registerFence(String name) {
+        return registerPrefixed(name, new AdAstraFenceBlock(Material.WOOD, MapColor.WOOD));
+    }
+
+    private static Block registerFenceGate(String name) {
+        return registerPrefixed(name, new AdAstraFenceGateBlock());
+    }
+
+    private static Block registerDoor(String name, Material material) {
+        return registerPrefixed(name, new AdAstraDoorBlock(material));
+    }
+
+    private static Block registerTrapDoor(String name, Material material) {
+        return registerPrefixed(name, new AdAstraTrapDoorBlock(material));
+    }
+
+    private static Block registerWall(String name, Block modelBlock) {
+        return registerPrefixed(name, new AdAstraWallBlock(modelBlock));
+    }
+
+    private static Block registerPrefixedHidden(String name, Block block) {
+        block.setRegistryName(ModResourceIds.block(name));
+        block.setTranslationKey(Reference.MOD_ID + "." + ModResourceIds.blockPath(name));
+        DOUBLE_SLABS.add(block);
+        return block;
+    }
+
+    private static Block prefixedSimple(String name, Material material, float hardness, float resistance) {
+        return registerPrefixed(name, new AdAstraBlock(material, hardness, resistance));
+    }
+
+    private static Block prefixedWood(String name) {
+        return prefixedSimple(name, Material.WOOD, 2.0f, 3.0f);
+    }
+
+    private static Block prefixedHugeMushroom(String name) {
+        return registerPrefixed(name, new AdAstraHugeMushroomBlock());
+    }
+
+    private static Block prefixedMushroom(String name) {
+        return registerPrefixed(name, new AdAstraMushroomBlock());
+    }
+
+    private static Block prefixedPillar(String name, Material material, float hardness, float resistance) {
+        Block block = new AdAstraAxisBlock(material, hardness, resistance);
+        if (material == Material.ROCK) {
+            block.setHarvestLevel("pickaxe", 1);
+        } else if (material == Material.WOOD) {
+            block.setHarvestLevel("axe", 0);
+        } else if (material == Material.IRON) {
+            block.setHarvestLevel("pickaxe", 1);
+        }
+        return registerPrefixed(name, block);
+    }
+
+    private static Block prefixedStairs(String name, Block modelBlock) {
+        return registerPrefixedStairs(name, modelBlock);
+    }
+
+    private static Block prefixedSlab(String name, Material material, float hardness, float resistance,
+                                      SoundType soundType) {
+        return registerPrefixedSlab(name, material, hardness, resistance, soundType);
+    }
+
+    private static Block prefixedFence(String name) {
+        return registerPrefixedFence(name);
+    }
+
+    private static Block prefixedFenceGate(String name) {
+        return registerPrefixedFenceGate(name);
+    }
+
+    private static Block prefixedLadder(String name) {
+        return registerPrefixed(name, new AdAstraLadderBlock());
+    }
+
+    private static Block prefixedDoor(String name, Material material) {
+        return registerPrefixedDoor(name, material);
+    }
+
+    private static Block prefixedTrapDoor(String name, Material material) {
+        return registerPrefixedTrapDoor(name, material);
+    }
+
+    private static Block prefixedButton(String name, boolean wooden) {
+        return registerPrefixed(name, new AdAstraButtonBlock(wooden));
+    }
+
+    private static Block prefixedPressurePlate(String name, Material material,
+                                               AdAstraPressurePlateBlock.Sensitivity sensitivity) {
+        return registerPrefixed(name, new AdAstraPressurePlateBlock(material, sensitivity));
+    }
+
+    private static Block registerPrefixedAxis(String name, Material material, float hardness, float resistance) {
+        return registerPrefixed(name, new AdAstraAxisBlock(material, hardness, resistance));
+    }
+
+    private static Block registerPrefixedStairs(String name, Block modelBlock) {
+        if (modelBlock == null) {
+            throw new IllegalStateException("Missing stairs model block for " + name);
+        }
+        return registerPrefixed(name, new AdAstraStairsBlock(modelBlock.getDefaultState()));
+    }
+
+    private static Block registerPrefixedSlab(String name, Material material, float hardness, float resistance,
+                                              SoundType soundType) {
+        AdAstraSlabBlock.Single single = new AdAstraSlabBlock.Single(material, hardness, resistance, soundType);
+        AdAstraSlabBlock.Double doubleSlab = new AdAstraSlabBlock.Double(
+            material, single, hardness, resistance, soundType);
+        registerPrefixed(name, single);
+        registerPrefixedHidden("double_" + name, doubleSlab);
+        return single;
+    }
+
+    private static Block registerPrefixedFence(String name) {
+        return registerPrefixed(name, new AdAstraFenceBlock(Material.WOOD, MapColor.WOOD));
+    }
+
+    private static Block registerPrefixedFenceGate(String name) {
+        return registerPrefixed(name, new AdAstraFenceGateBlock());
+    }
+
+    private static Block registerPrefixedDoor(String name, Material material) {
+        return registerPrefixed(name, new AdAstraDoorBlock(material));
+    }
+
+    private static Block registerPrefixedTrapDoor(String name, Material material) {
+        return registerPrefixed(name, new AdAstraTrapDoorBlock(material));
+    }
+
+    private static Block registerGlobe(String name) {
+        return registerPrefixed(name, new AdAstraGlobeBlock());
+    }
+
+    private static Block registerSlidingDoor(String name, float hardness, float resistance) {
+        return registerPrefixed(name, new AdAstraSlidingDoorBlock(hardness, resistance));
+    }
+
+    private static Block registerPrefixed(String name, Block block) {
+        block.setRegistryName(ModResourceIds.block(name));
+        block.setTranslationKey(Reference.MOD_ID + "." + ModResourceIds.blockPath(name));
+        INTERNAL_BLOCKS.add(block);
+        BY_NAME.put(name, block);
+        return block;
+    }
+
     private static Block simple(String name, Material material, float hardness, float resistance) {
         Block block = new AdAstraBlock(material, hardness, resistance);
         block.setRegistryName(Reference.MOD_ID, name);
         block.setTranslationKey(Reference.MOD_ID + "." + name);
         INTERNAL_BLOCKS.add(block);
+        BY_NAME.put(name, block);
         return block;
     }
 
@@ -654,6 +1151,7 @@ public final class ModBlocks {
         block.setRegistryName(Reference.MOD_ID, name);
         block.setTranslationKey(Reference.MOD_ID + "." + name);
         INTERNAL_BLOCKS.add(block);
+        BY_NAME.put(name, block);
         return block;
     }
 
@@ -661,13 +1159,17 @@ public final class ModBlocks {
         block.setRegistryName(Reference.MOD_ID, name);
         block.setTranslationKey(Reference.MOD_ID + "." + name);
         DOUBLE_SLABS.add(block);
+        BY_NAME.put(name, block);
         return block;
     }
 
     private static BlockSlab findDoubleSlab(Block singleSlab) {
         String name = singleSlab.getRegistryName().getPath();
+        String expected = name.startsWith("block_")
+            ? "block_double_" + name.substring("block_".length())
+            : "double_" + name;
         for (Block block : DOUBLE_SLABS) {
-            if (block.getRegistryName() != null && block.getRegistryName().getPath().equals("double_" + name)) {
+            if (block.getRegistryName() != null && block.getRegistryName().getPath().equals(expected)) {
                 return (BlockSlab) block;
             }
         }

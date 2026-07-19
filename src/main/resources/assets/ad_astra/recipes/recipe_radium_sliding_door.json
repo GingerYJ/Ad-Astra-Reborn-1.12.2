@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "PBP",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateRadium"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "blockRadium"
+    },
+    "P": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_radium_sliding_door"
+  }
+}

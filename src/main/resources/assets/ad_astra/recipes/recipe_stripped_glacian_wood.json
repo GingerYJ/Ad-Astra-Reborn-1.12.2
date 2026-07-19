@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:stripped_glacian_log"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_stripped_glacian_wood",
+    "count": 3
+  }
+}

@@ -16,16 +16,16 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "item": "ad_astra:jupiter_juperium_ore"
+      "item": "ad_astra:item_jupiter_juperium_ore"
     }
   ],
   "results": [
     {
-      "item": "ad_astra:raw_juperium",
+      "item": "ad_astra:item_raw_juperium",
       "count": 1
     },
     {
-      "item": "ad_astra:raw_juperium",
+      "item": "ad_astra:item_raw_juperium",
       "count": 1,
       "chance": 0.25
     },
@@ -35,7 +35,7 @@
       "chance": 0.75
     },
     {
-      "item": "ad_astra:jupiter_cobblestone",
+      "item": "ad_astra:item_jupiter_cobblestone",
       "count": 1,
       "chance": 0.125
     }

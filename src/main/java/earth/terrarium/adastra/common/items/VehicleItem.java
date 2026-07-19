@@ -27,10 +27,17 @@ public class VehicleItem extends Item {
     private final int rocketTier;
 
     public VehicleItem(String name, Function<World, ? extends AdAstraVehicleEntity> factory) {
+        this(name, factory, true);
+    }
+
+    protected VehicleItem(String name, Function<World, ? extends AdAstraVehicleEntity> factory,
+                          boolean registerName) {
         this.factory = factory;
         this.rocketTier = rocketTierOf(name);
-        setRegistryName(Reference.MOD_ID, name);
-        setTranslationKey(Reference.MOD_ID + "." + name);
+        if (registerName) {
+            setRegistryName(Reference.MOD_ID, name);
+            setTranslationKey(Reference.MOD_ID + "." + name);
+        }
         setCreativeTab(AdAstraCreativeTab.INSTANCE);
         setMaxStackSize(1);
     }

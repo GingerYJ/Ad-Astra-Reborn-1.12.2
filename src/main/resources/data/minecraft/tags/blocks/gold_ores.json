@@ -1,8 +1,8 @@
 {
   "values": [
     "ad_astra:venus_gold_ore",
-    "ad_astra:jupiter_gold_ore",
-    "ad_astra:saturn_gold_ore",
-    "ad_astra:pluto_gold_ore"
+    "ad_astra:block_jupiter_gold_ore",
+    "ad_astra:block_saturn_gold_ore",
+    "ad_astra:block_pluto_gold_ore"
   ]
 }

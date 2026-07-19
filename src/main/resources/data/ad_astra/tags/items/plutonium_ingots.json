@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:plutonium_ingot",
+    "ad_astra:item_plutonium_ingot",
     {
       "id": "#c:plutonium_ingots",
       "required": false

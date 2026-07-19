@@ -23,7 +23,7 @@
       ],
       "movement_type": "TIME_OF_DAY",
       "scale": 7.0,
-      "texture": "ad_astra:textures/environment/blue_sun.png"
+      "texture": "ad_astra:textures/environment/proxima_centauri_blue_sun.png"
     },
     {
       "back_light_color": -12813094,

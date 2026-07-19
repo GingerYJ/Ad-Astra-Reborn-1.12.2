@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_uranus_cobblestone"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_uranus_cobblestone_slab",
+    "data": 0,
+    "count": 6
+  }
+}

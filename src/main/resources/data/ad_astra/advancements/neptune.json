@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:neptune_globe"
+      "item": "ad_astra:item_neptune_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.neptune.title"
@@ -18,12 +18,12 @@
     "neptune": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_neptune"
+        "to": "ad_astra:planet_neptune"
       }
     }
   },
   "rewards": {
     "experience": 300
   },
-  "parent": "ad_astra:tier_10_rocket"
+  "parent": "ad_astra:item_tier_10_rocket"
 }

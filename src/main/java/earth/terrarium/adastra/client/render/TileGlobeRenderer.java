@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -31,17 +33,17 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         float yRot = te.getLastYRot() + (te.getYRot() - te.getLastYRot()) * partialTicks;
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        renderGlobe(te.getWorld().getBlockState(te.getPos()), yRot);
+        renderGlobe(te.getWorld().getBlockState(te.getPos()), yRot, te.getWorld(), te.getPos(), destroyStage, alpha);
         GlStateManager.popMatrix();
     }
 
-    private static void renderGlobe(IBlockState state, float yRot) {
+    private static void renderGlobe(IBlockState state, float yRot, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        renderBakedStand(state);
-        renderBakedGlobe(state, yRot);
+        renderBakedStand(state, world, pos, destroyStage, alpha);
+        renderBakedGlobe(state, yRot, world, pos, destroyStage, alpha);
 
         GlStateManager.enableCull();
         GlStateManager.enableLighting();
@@ -49,7 +51,7 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         GlStateManager.popMatrix();
     }
 
-    private static void renderBakedStand(IBlockState state) {
+    private static void renderBakedStand(IBlockState state, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
         if (state == null || state.getBlock().getRegistryName() == null) {
             return;
         }
@@ -73,9 +75,10 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         minecraft.getBlockRendererDispatcher()
             .getBlockModelRenderer()
             .renderModelBrightnessColor(state, model, 1.0f, 1.0f, 1.0f, 1.0f);
+        BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
     }
 
-    private static void renderBakedGlobe(IBlockState state, float yRot) {
+    private static void renderBakedGlobe(IBlockState state, float yRot, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
         if (state == null || state.getBlock().getRegistryName() == null) {
             return;
         }
@@ -105,6 +108,7 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
         minecraft.getBlockRendererDispatcher()
             .getBlockModelRenderer()
             .renderModelBrightnessColor(state, model, 1.0f, 1.0f, 1.0f, 1.0f);
+        BlockDestroyStageRenderer.renderDamageModel(world, pos, state, model, destroyStage, alpha);
         GlStateManager.popMatrix();
     }
 
@@ -122,7 +126,7 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
             }
             GlStateManager.pushMatrix();
             float yRot = (System.currentTimeMillis() / 20.0f) % 360.0f;
-            renderGlobe(block.getDefaultState(), yRot);
+            renderGlobe(block.getDefaultState(), yRot, null, null, -1, 1.0f);
             GlStateManager.popMatrix();
         }
     }

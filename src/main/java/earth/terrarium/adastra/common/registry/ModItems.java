@@ -19,6 +19,7 @@ import earth.terrarium.adastra.common.items.AdAstraEnergyItem;
 import earth.terrarium.adastra.common.items.AdAstraBucketItem;
 import earth.terrarium.adastra.common.items.AdAstraSpawnEggItem;
 import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
+import earth.terrarium.adastra.common.items.IceChargeItem;
 import earth.terrarium.adastra.common.items.AdAstraWrenchItem;
 import earth.terrarium.adastra.common.items.GasTankItem;
 import earth.terrarium.adastra.common.items.JetSuitItem;
@@ -44,6 +45,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -51,12 +53,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 public final class ModItems {
 
     private static final List<Item> INTERNAL_ITEMS = new ArrayList<>();
+    private static final Map<String, Item> BY_NAME = new LinkedHashMap<>();
 
     public static final List<Item> ITEMS = Collections.unmodifiableList(INTERNAL_ITEMS);
 
@@ -104,6 +109,76 @@ public final class ModItems {
     public static final Item CALORITE_TANK = item("calorite_tank");
     public static final Item ROCKET_FIN = item("rocket_fin");
     public static final Item ICE_SHARD = item("ice_shard");
+
+    public static final Item JUPERIUM_INGOT = registerItem("juperium_ingot");
+    public static final Item JUPERIUM_NUGGET = registerItem("juperium_nugget");
+    public static final Item JUPERIUM_PLATE = registerItem("juperium_plate");
+    public static final Item RAW_JUPERIUM = registerItem("raw_juperium");
+    public static final Item JUPERIUM_ENGINE = registerItem("juperium_engine");
+    public static final Item JUPERIUM_TANK = registerItem("juperium_tank");
+
+    public static final Item SATURLYTE_INGOT = registerItem("saturlyte_ingot");
+    public static final Item SATURLYTE_NUGGET = registerItem("saturlyte_nugget");
+    public static final Item SATURLYTE_PLATE = registerItem("saturlyte_plate");
+    public static final Item RAW_SATURLYTE = registerItem("raw_saturlyte");
+    public static final Item SATURLYTE_ENGINE = registerItem("saturlyte_engine");
+    public static final Item SATURLYTE_TANK = registerItem("saturlyte_tank");
+
+    public static final Item URANIUM_INGOT = registerItem("uranium_ingot");
+    public static final Item URANIUM_NUGGET = registerItem("uranium_nugget");
+    public static final Item URANIUM_PLATE = registerItem("uranium_plate");
+    public static final Item RAW_URANIUM = registerItem("raw_uranium");
+    public static final Item URANIUM_ENGINE = registerItem("uranium_engine");
+    public static final Item URANIUM_TANK = registerItem("uranium_tank");
+
+    public static final Item NEPTUNIUM_INGOT = registerItem("neptunium_ingot");
+    public static final Item NEPTUNIUM_NUGGET = registerItem("neptunium_nugget");
+    public static final Item NEPTUNIUM_PLATE = registerItem("neptunium_plate");
+    public static final Item RAW_NEPTUNIUM = registerItem("raw_neptunium");
+    public static final Item NEPTUNIUM_ENGINE = registerItem("neptunium_engine");
+    public static final Item NEPTUNIUM_TANK = registerItem("neptunium_tank");
+
+    public static final Item RADIUM_INGOT = registerItem("radium_ingot");
+    public static final Item RADIUM_NUGGET = registerItem("radium_nugget");
+    public static final Item RADIUM_PLATE = registerItem("radium_plate");
+    public static final Item RAW_RADIUM = registerItem("raw_radium");
+    public static final Item RADIUM_ENGINE = registerItem("radium_engine");
+    public static final Item RADIUM_TANK = registerItem("radium_tank");
+
+    public static final Item PLUTONIUM_INGOT = registerItem("plutonium_ingot");
+    public static final Item PLUTONIUM_NUGGET = registerItem("plutonium_nugget");
+    public static final Item PLUTONIUM_PLATE = registerItem("plutonium_plate");
+    public static final Item RAW_PLUTONIUM = registerItem("raw_plutonium");
+    public static final Item PLUTONIUM_ENGINE = registerItem("plutonium_engine");
+    public static final Item PLUTONIUM_TANK = registerItem("plutonium_tank");
+
+    public static final Item ELECTROLYTE_INGOT = registerItem("electrolyte_ingot");
+    public static final Item ELECTROLYTE_NUGGET = registerItem("electrolyte_nugget");
+    public static final Item ELECTROLYTE_PLATE = registerItem("electrolyte_plate");
+    public static final Item RAW_ELECTROLYTE = registerItem("raw_electrolyte");
+    public static final Item ELECTROLYTE_ENGINE = registerItem("electrolyte_engine");
+    public static final Item ELECTROLYTE_TANK = registerItem("electrolyte_tank");
+
+    public static final Item AURORITE_INGOT = registerItem("aurorite_ingot");
+    public static final Item AURORITE_NUGGET = registerItem("aurorite_nugget");
+    public static final Item AURORITE_PLATE = registerItem("aurorite_plate");
+    public static final Item RAW_AURORITE = registerItem("raw_aurorite");
+    public static final Item AURORITE_ENGINE = registerItem("aurorite_engine");
+    public static final Item AURORITE_TANK = registerItem("aurorite_tank");
+
+    public static final Item FREEZE_SHARD = registerItem("freeze_shard");
+    public static final Item ICE_CHARGE = registerIceCharge();
+
+    public static final Item TIER_8_ROCKET = registerRocket(8, 18000);
+    public static final Item TIER_9_ROCKET = registerRocket(9, 19000);
+    public static final Item TIER_10_ROCKET = registerRocket(10, 20000);
+    public static final Item TIER_11_ROCKET = registerRocket(11, 21000);
+    public static final Item TIER_12_ROCKET = registerRocket(12, 22000);
+    public static final Item TIER_13_ROCKET = registerRocket(13, 23000);
+    public static final Item TIER_14_ROCKET = registerRocket(14, 24000);
+    public static final Item TIER_15_ROCKET = registerRocket(15, 25000);
+
+    public static final Item FREEZE_SPAWN_EGG = registerSpawnEgg();
 
     public static final Item SPACE_HELMET = armor("space_helmet", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.HEAD);
     public static final Item SPACE_SUIT = armor("space_suit", SpaceSuitMaterial.SPACE, EntityEquipmentSlot.CHEST);
@@ -164,12 +239,17 @@ public final class ModItems {
             if (block instanceof AdAstraFluidBlock) {
                 continue;
             }
-            all.add(ModBlocks.createItemBlock(block));
+            Item blockItem = ModBlocks.createItemBlock(block);
+            if (blockItem != null) {
+                all.add(blockItem);
+            }
         }
-        all.addAll(ExtendraBlocks.createItemBlocks());
         all.addAll(INTERNAL_ITEMS);
-        all.addAll(ExtendraItems.ITEMS);
         event.getRegistry().registerAll(all.toArray(new Item[0]));
+    }
+
+    public static Item get(String name) {
+        return BY_NAME.get(name);
     }
 
     private static Item item(String name) {
@@ -252,6 +332,10 @@ public final class ModItems {
     private static List<ConfigurableRocketItem> configurableRockets() {
         List<ConfigurableRocketItem> rockets = new ArrayList<>();
         for (ConfigurableRocketSpec spec : ConfigurableRocketRegistry.getRockets()) {
+            if (spec.getItem() != null) {
+                rockets.add(spec.getItem());
+                continue;
+            }
             ConfigurableRocketItem item = new ConfigurableRocketItem(spec);
             spec.setItem(item);
             INTERNAL_ITEMS.add(item);
@@ -282,5 +366,52 @@ public final class ModItems {
         item.setMaxStackSize(1);
         INTERNAL_ITEMS.add(item);
         return item;
+    }
+
+    private static Item registerItem(String name) {
+        return registerItem(new Item(), name);
+    }
+
+    private static Item registerItem(Item item, String name) {
+        item.setRegistryName(ModResourceIds.item(name));
+        item.setTranslationKey(Reference.MOD_ID + "." + ModResourceIds.itemPath(name));
+        item.setCreativeTab(AdAstraCreativeTab.INSTANCE);
+        INTERNAL_ITEMS.add(item);
+        BY_NAME.put(name, item);
+        return item;
+    }
+
+    private static Item registerIceCharge() {
+        return registerItem(new IceChargeItem("ice_charge", false), "ice_charge");
+    }
+
+    private static Item registerRocket(int tier, int fuelCapacity) {
+        String id = "tier_" + tier + "_rocket";
+        int modelTier = Math.min(Math.max(tier - 3, 5), 12);
+        ConfigurableRocketSpec spec = new ConfigurableRocketSpec(
+            id,
+            "Tier " + tier + " Rocket",
+            tier,
+            fuelCapacity,
+            modelTier,
+            new ResourceLocation(Reference.MOD_ID, "textures/entity/rocket/tier_" + tier + "_rocket.png"),
+            null,
+            "ad_astra:textures/entity/rocket/tier_" + tier + "_rocket.png",
+            true,
+            true);
+        ConfigurableRocketItem item = new ConfigurableRocketItem(spec, false);
+        registerItem(item, id);
+        spec.setItem(item);
+        ConfigurableRocketRegistry.registerBuiltIn(spec);
+        return item;
+    }
+
+    private static Item registerSpawnEgg() {
+        return registerItem(new AdAstraSpawnEggItem(
+            "freeze_spawn_egg",
+            earth.terrarium.adastra.common.entities.mob.FreezeEntity::new,
+            0xCBF8FF,
+            0x79B7D0,
+            false), "freeze_spawn_egg");
     }
 }

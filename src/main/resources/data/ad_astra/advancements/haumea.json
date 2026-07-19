@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:haumea_globe"
+      "item": "ad_astra:item_haumea_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.haumea.title"
@@ -18,12 +18,12 @@
     "haumea": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_haumea"
+        "to": "ad_astra:planet_haumea"
       }
     }
   },
   "rewards": {
     "experience": 400
   },
-  "parent": "ad_astra:tier_11_rocket"
+  "parent": "ad_astra:item_tier_11_rocket"
 }

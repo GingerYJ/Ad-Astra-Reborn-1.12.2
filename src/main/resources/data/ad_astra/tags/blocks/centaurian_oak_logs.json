@@ -1,8 +1,8 @@
 {
   "values": [
-    "ad_astra:centaurian_oak_log",
-    "ad_astra:centaurian_oak_wood",
-    "ad_astra:stripped_centaurian_oak_log",
-    "ad_astra:stripped_centaurian_oak_wood"
+    "ad_astra:block_centaurian_oak_log",
+    "ad_astra:block_centaurian_oak_wood",
+    "ad_astra:block_stripped_centaurian_oak_log",
+    "ad_astra:block_stripped_centaurian_oak_wood"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:plutonium_plate",
+    "ad_astra:item_plutonium_plate",
     {
       "id": "#c:plutonium_plates",
       "required": false

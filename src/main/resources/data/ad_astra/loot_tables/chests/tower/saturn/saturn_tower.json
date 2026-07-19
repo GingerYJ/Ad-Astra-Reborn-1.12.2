@@ -9,7 +9,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:saturn_sand",
+          "name": "ad_astra:item_saturn_sand",
           "weight": 40,
           "functions": [
             {
@@ -23,7 +23,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:saturn_ice",
+          "name": "ad_astra:item_saturn_ice",
           "weight": 40,
           "functions": [
             {
@@ -51,7 +51,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_saturlyte",
+          "name": "ad_astra:item_raw_saturlyte",
           "weight": 5,
           "functions": [
             {

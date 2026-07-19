@@ -1,0 +1,6 @@
+{
+  "parent": "ad_astra:block/wall_side_tall",
+  "textures": {
+    "wall": "ad_astra:block/block_sedna_stone_bricks"
+  }
+}

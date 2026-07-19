@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:neptune_neptunium_ore",
+    "ad_astra:block_neptune_neptunium_ore",
     {
       "id": "#c:neptunium_ores",
       "required": false

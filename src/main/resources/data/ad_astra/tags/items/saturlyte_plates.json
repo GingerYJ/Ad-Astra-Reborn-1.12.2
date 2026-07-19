@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:saturlyte_plate",
+    "ad_astra:item_saturlyte_plate",
     {
       "id": "#c:saturlyte_plates",
       "required": false

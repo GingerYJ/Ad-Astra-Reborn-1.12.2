@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:quaoar_globe"
+      "item": "ad_astra:item_quaoar_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.quaoar.title"
@@ -18,12 +18,12 @@
     "quaoar": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_quaoar"
+        "to": "ad_astra:planet_quaoar"
       }
     }
   },
   "rewards": {
     "experience": 400
   },
-  "parent": "ad_astra:tier_11_rocket"
+  "parent": "ad_astra:item_tier_11_rocket"
 }

@@ -16,16 +16,16 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "item": "ad_astra:neptune_neptunium_ore"
+      "item": "ad_astra:item_neptune_neptunium_ore"
     }
   ],
   "results": [
     {
-      "item": "ad_astra:raw_neptunium",
+      "item": "ad_astra:item_raw_neptunium",
       "count": 1
     },
     {
-      "item": "ad_astra:raw_neptunium",
+      "item": "ad_astra:item_raw_neptunium",
       "count": 1,
       "chance": 0.25
     },
@@ -35,7 +35,7 @@
       "chance": 0.75
     },
     {
-      "item": "ad_astra:neptune_cobblestone",
+      "item": "ad_astra:item_neptune_cobblestone",
       "count": 1,
       "chance": 0.125
     }

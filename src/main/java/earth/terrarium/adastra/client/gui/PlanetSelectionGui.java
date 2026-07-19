@@ -814,7 +814,7 @@ public class PlanetSelectionGui extends GuiScreen {
         if ("earth".equals(key)) return new LayoutSpec(2, 18.0D);
         if ("moon".equals(key)) return new LayoutSpec("earth", 52, -26.0D);
         if ("mars".equals(key)) return new LayoutSpec(3, -34.0D);
-        if ("b".equals(key)) return new LayoutSpec(17, 0.0D);
+        if ("proxima_centauri_b".equals(key)) return new LayoutSpec(17, 0.0D);
         if ("glacio".equals(key)) return new LayoutSpec(18, 0.0D);
         if ("ceres".equals(key)) return new LayoutSpec(4, 0.0D);
         if ("jupiter".equals(key)) return new LayoutSpec(5, 0.0D);

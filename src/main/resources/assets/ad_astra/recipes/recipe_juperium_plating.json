@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateJuperium"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_juperium_plating",
+    "count": 64
+  }
+}

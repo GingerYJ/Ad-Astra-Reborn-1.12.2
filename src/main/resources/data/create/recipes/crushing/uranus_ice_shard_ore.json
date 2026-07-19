@@ -16,7 +16,7 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "item": "ad_astra:uranus_ice_shard_ore"
+      "item": "ad_astra:item_uranus_ice_shard_ore"
     }
   ],
   "results": [
@@ -35,7 +35,7 @@
       "chance": 0.75
     },
     {
-      "item": "ad_astra:uranus_cobblestone",
+      "item": "ad_astra:item_uranus_cobblestone",
       "count": 1,
       "chance": 0.125
     }

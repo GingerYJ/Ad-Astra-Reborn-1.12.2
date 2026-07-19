@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "ad_astra:freeze"
+    "ad_astra:entity_freeze"
   ]
 }

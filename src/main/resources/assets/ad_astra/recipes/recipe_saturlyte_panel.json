@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#X#",
+    "XXX",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateSaturlyte"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotSaturlyte"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_saturlyte_panel",
+    "count": 64
+  }
+}

@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:radium_nugget",
+    "ad_astra:item_radium_nugget",
     {
       "id": "#c:radium_nuggets",
       "required": false

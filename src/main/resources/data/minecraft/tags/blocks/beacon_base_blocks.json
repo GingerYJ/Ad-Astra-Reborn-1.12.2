@@ -5,13 +5,13 @@
     "ad_astra:desh_block",
     "ad_astra:ostrum_block",
     "ad_astra:calorite_block",
-    "ad_astra:juperium_block",
-    "ad_astra:saturlyte_block",
-    "ad_astra:uranium_block",
-    "ad_astra:neptunium_block",
-    "ad_astra:radium_block",
-    "ad_astra:plutonium_block",
-    "ad_astra:electrolyte_block",
-    "ad_astra:aurorite_block"
+    "ad_astra:block_juperium_block",
+    "ad_astra:block_saturlyte_block",
+    "ad_astra:block_uranium_block",
+    "ad_astra:block_neptunium_block",
+    "ad_astra:block_radium_block",
+    "ad_astra:block_plutonium_block",
+    "ad_astra:block_electrolyte_block",
+    "ad_astra:block_aurorite_block"
   ]
 }

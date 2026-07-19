@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#X#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateUranium"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotUranium"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_uranium_factory_block",
+    "count": 64
+  }
+}

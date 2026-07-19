@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:raw_electrolyte_block",
+    "ad_astra:item_raw_electrolyte_block",
     {
       "id": "#c:raw_electrolyte_blocks",
       "required": false

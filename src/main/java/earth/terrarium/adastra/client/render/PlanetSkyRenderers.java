@@ -164,7 +164,7 @@ public class PlanetSkyRenderers {
         Vec3d skyColor = definition.getSkyColor();
         PlanetSkyRenderer renderer = new PlanetSkyRenderer(false, tint(skyColor.x), tint(skyColor.y), tint(skyColor.z));
         String planet = definition.getPlanetName();
-        if ("b".equals(planet)) {
+        if ("proxima_centauri_b".equals(planet)) {
             addEnvironmentBody(renderer, "sun", 12.0f, 0, 0, 0, true, true);
             addEnvironmentBody(renderer, "glacio", 50.0f, 60, 0, 5, false, false);
         } else if ("ceres".equals(planet)) {
@@ -236,7 +236,7 @@ public class PlanetSkyRenderers {
         PlanetSkyRenderer renderer = new PlanetSkyRenderer(false,
             tint(skyColor.x) * 0.5f, tint(skyColor.y) * 0.5f, tint(skyColor.z) * 0.5f);
         String planet = definition.getPlanetName();
-        float sunScale = "b".equals(planet) ? 10.0f
+        float sunScale = "proxima_centauri_b".equals(planet) ? 10.0f
             : "ceres".equals(planet) ? 4.0f
             : "eris".equals(planet) ? 0.15f
             : "gonggong".equals(planet) ? 0.16f
@@ -250,7 +250,7 @@ public class PlanetSkyRenderers {
             : "saturn".equals(planet) ? 1.2f
             : "sedna".equals(planet) ? 0.012f
             : "uranus".equals(planet) ? 0.6f : 14.0f;
-        addEnvironmentBody(renderer, "sun", sunScale, 0, 0, 0, true, "b".equals(planet));
+        addEnvironmentBody(renderer, "sun", sunScale, 0, 0, 0, true, "proxima_centauri_b".equals(planet));
         float planetScale = "saturn".equals(planet) ? 150.0f : "uranus".equals(planet) ? 125.0f : 80.0f;
         addEnvironmentBody(renderer, planet, planetScale, 180, 0, 0, false, false);
         return renderer;

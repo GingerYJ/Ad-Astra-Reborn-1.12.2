@@ -1,7 +1,6 @@
 package earth.terrarium.adastra.integration.jei;
 
 import earth.terrarium.adastra.common.blocks.AdAstraOreBlock;
-import earth.terrarium.adastra.common.registry.ExtendraBlocks;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
@@ -31,14 +30,10 @@ public final class PlanetResourceJeiInfo {
         for (Block block : ModBlocks.BLOCKS) {
             registerBlock(registry, registered, block);
         }
-        for (Block block : ExtendraBlocks.BLOCKS) {
-            registerBlock(registry, registered, block);
-        }
-
         // These vanilla blocks are placed by the custom planet generators.
         add(registry, registered, "moon", new ItemStack(Blocks.SOUL_SAND), false, null);
         add(registry, registered, "uranus", new ItemStack(Blocks.PACKED_ICE), false, null);
-        add(registry, registered, "uranus", new ItemStack(ExtendraBlocks.BLUE_SLUSHY_ICE), false, null);
+        add(registry, registered, "uranus", new ItemStack(ModBlocks.BLUE_SLUSHY_ICE), false, null);
 
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
             String planet = definition.getPlanetName();
@@ -62,6 +57,9 @@ public final class PlanetResourceJeiInfo {
             return;
         }
         String path = block.getRegistryName().getPath();
+        if (path.startsWith("block_")) {
+            path = path.substring("block_".length());
+        }
         if (path.endsWith("_globe") || path.contains("flag") || path.startsWith("potted_")) {
             return;
         }
@@ -103,7 +101,7 @@ public final class PlanetResourceJeiInfo {
             addPlanet(planets, "glacio");
         }
 
-        for (String planet : ExtendraBlocks.PLANETS) {
+        for (String planet : ModBlocks.PLANETS) {
             addPrefixPlanet(planets, path, planet);
         }
 
@@ -112,7 +110,7 @@ public final class PlanetResourceJeiInfo {
         } else if (path.startsWith("aeronos_") || path.startsWith("strophar_")) {
             addPlanet(planets, "moon");
         } else if (path.startsWith("centaurian_")) {
-            addPlanet(planets, "b");
+            addPlanet(planets, "proxima_centauri_b");
         } else if (path.equals("icicle") || path.equals("slushy_ice")
             || path.equals("packed_slushy_ice") || path.equals("blue_slushy_ice")) {
             addPlanet(planets, "uranus");

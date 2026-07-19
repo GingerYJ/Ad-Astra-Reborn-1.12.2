@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "ad_astra:item_raw_radium_block"
+    }
+  ],
+  "result": {
+    "item": "ad_astra:item_raw_radium",
+    "count": 9
+  }
+}

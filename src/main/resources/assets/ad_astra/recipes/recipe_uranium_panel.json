@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#X#",
+    "XXX",
+    "#X#"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "plateUranium"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotUranium"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_uranium_panel",
+    "count": 64
+  }
+}

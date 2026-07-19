@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_gate_open",
+  "textures": {
+    "texture": "ad_astra:block/block_centaurian_oak_planks"
+  }
+}

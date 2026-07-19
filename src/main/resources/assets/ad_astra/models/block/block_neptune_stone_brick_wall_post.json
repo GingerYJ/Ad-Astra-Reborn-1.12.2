@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_post",
+  "textures": {
+    "wall": "ad_astra:block/block_neptune_stone_bricks"
+  }
+}

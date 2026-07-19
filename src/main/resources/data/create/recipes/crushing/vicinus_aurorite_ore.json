@@ -16,16 +16,16 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "item": "ad_astra:vicinus_aurorite_ore"
+      "item": "ad_astra:item_vicinus_aurorite_ore"
     }
   ],
   "results": [
     {
-      "item": "ad_astra:raw_aurorite",
+      "item": "ad_astra:item_raw_aurorite",
       "count": 1
     },
     {
-      "item": "ad_astra:raw_aurorite",
+      "item": "ad_astra:item_raw_aurorite",
       "count": 1,
       "chance": 0.25
     },
@@ -35,7 +35,7 @@
       "chance": 0.75
     },
     {
-      "item": "ad_astra:vicinus_cobblestone",
+      "item": "ad_astra:item_vicinus_cobblestone",
       "count": 1,
       "chance": 0.125
     }

@@ -30,6 +30,9 @@ public class TileEnergizerRenderer extends TileEntitySpecialRenderer<EnergizerTi
         if (te == null) {
             return;
         }
+        if (BlockDestroyStageRenderer.isDestroying(destroyStage)) {
+            return;
+        }
 
         ItemStack stack = te.getStackInSlot(0);
         if (!stack.isEmpty() && te.isLit()) {

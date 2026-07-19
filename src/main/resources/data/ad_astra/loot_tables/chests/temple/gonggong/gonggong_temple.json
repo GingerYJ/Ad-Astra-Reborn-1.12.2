@@ -10,7 +10,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:gonggong_cobblestone",
+          "name": "ad_astra:item_gonggong_cobblestone",
           "weight": 40,
           "functions": [
             {
@@ -128,7 +128,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:gonggong_globe",
+          "name": "ad_astra:item_gonggong_globe",
           "weight": 2
         }
       ]

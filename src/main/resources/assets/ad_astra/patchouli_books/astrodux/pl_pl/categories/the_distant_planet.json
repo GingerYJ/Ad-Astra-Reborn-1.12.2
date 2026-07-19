@@ -1,6 +1,6 @@
 {
   "name": "Odległa Planeta",
   "description": "Teraz, gdy jesteś na Sednie, upewnij się, że wydobędziesz tyle elektrolitu, aby zbudować prawdziwą rakietę!",
-  "icon": "ad_astra:tier_13_rocket",
+  "icon": "ad_astra:item_tier_13_rocket",
   "sortnum": 10
 }

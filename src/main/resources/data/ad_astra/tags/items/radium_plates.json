@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:radium_plate",
+    "ad_astra:item_radium_plate",
     {
       "id": "#c:radium_plates",
       "required": false

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:jupiter_sand",
+          "name": "ad_astra:item_jupiter_sand",
           "weight": 40,
           "functions": [
             {
@@ -34,7 +34,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_juperium",
+          "name": "ad_astra:item_raw_juperium",
           "weight": 5,
           "functions": [
             {
@@ -91,7 +91,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:jupiter_globe",
+          "name": "ad_astra:item_jupiter_globe",
           "weight": 2,
           "functions": [
             {

@@ -1,6 +1,7 @@
 package earth.terrarium.adastra.common.world;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.registry.ModResourceIds;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -94,6 +95,29 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private static final int MOON_DUNGEON_CHUNK_REACH = 24;
     private static final int LUNARIAN_VILLAGE_CHUNK_REACH = 12;
     private static final int LUNAR_TOWER_CHUNK_REACH = 2;
+
+    private static final int ADDITIONAL_STRUCTURE_CHUNK_REACH = 5;
+    private static final StructureSpec[] ADDITIONAL_STRUCTURES = new StructureSpec[] {
+        new StructureSpec("ceres", "ceres_meteor", 40, 5, 1471040600, -5),
+        new StructureSpec("eris", "eris_building", 40, 5, 1471040600, 0),
+        new StructureSpec("glacio", "glacian_tree", 7, 1, 951165700, 0),
+        new StructureSpec("glacio", "glacio_hut", 20, 6, 1642136474, 0),
+        new StructureSpec("gonggong", "gonggong_temple", 40, 5, 1471040600, -4),
+        new StructureSpec("haumea", "haumea_building", 40, 5, 1471040600, 0),
+        new StructureSpec("jupiter", "jupiter_temple", 20, 6, 1642136474, 0),
+        new StructureSpec("makemake", "makemake_building", 40, 5, 1471040600, 0),
+        new StructureSpec("mercury", "mercury_volcano", 40, 5, 1471040600, 0),
+        new StructureSpec("moon", "moon_mushroom_spot", 80, 1, 951165700, 1),
+        new StructureSpec("neptune", "neptune_maze", 40, 5, 1471040600, 0),
+        new StructureSpec("orcus", "orcus_temple", 40, 5, 1471040600, 0),
+        new StructureSpec("pluto", "pluto_temple", 40, 5, 1471040600, 0),
+        new StructureSpec("quaoar", "quaoar_temple", 40, 5, 1471040600, -4),
+        new StructureSpec("saturn", "saturn_tower", 40, 5, 1471040600, 0),
+        new StructureSpec("sedna", "sedna_fallen_ship", 40, 5, 1471040600, -2),
+        new StructureSpec("uranus", "uranus_dungeon", 40, 5, 1471040600, -40),
+        new StructureSpec("uranus", "uranus_tower", 20, 6, 1642136474, 0),
+        new StructureSpec("venus", "venus_volcano", 40, 5, 1471040600, 0)
+    };
     private static final ITemplateProcessor SKIP_AIR_PROCESSOR = new ITemplateProcessor() {
         @Override
         public Template.BlockInfo processBlock(World world, BlockPos pos, Template.BlockInfo blockInfo) {
@@ -126,7 +150,66 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
                 generateLunarianVillage(serverWorld, chunkX, chunkZ);
                 generateLunarTower(serverWorld, chunkX, chunkZ);
             }
+            generateAdditionalStructures(serverWorld, chunkX, chunkZ);
         }
+    }
+
+    private void generateAdditionalStructures(WorldServer world, int chunkX, int chunkZ) {
+        if (world.provider instanceof AdAstraOrbitWorldProvider) {
+            return;
+        }
+
+        String planet = ((AdAstraWorldProvider) world.provider).getPlanetName();
+        if (planet == null) {
+            return;
+        }
+
+        for (StructureSpec structure : ADDITIONAL_STRUCTURES) {
+            if (!structure.planet.equals(planet)) {
+                continue;
+            }
+            generateAdditionalStructure(world, chunkX, chunkZ, structure);
+        }
+    }
+
+    private void generateAdditionalStructure(WorldServer world, int chunkX, int chunkZ, StructureSpec structure) {
+        int regionX = floorDiv(chunkX, structure.spacing);
+        int regionZ = floorDiv(chunkZ, structure.spacing);
+        for (int offsetX = -1; offsetX <= 1; offsetX++) {
+            for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+                generateAdditionalRegion(
+                    world, chunkX, chunkZ, structure, regionX + offsetX, regionZ + offsetZ);
+            }
+        }
+    }
+
+    private void generateAdditionalRegion(WorldServer world, int chunkX, int chunkZ, StructureSpec structure,
+                                        int regionX, int regionZ) {
+        Random structureRandom = new Random(world.getSeed()
+            + (long) regionX * 341873128712L
+            + (long) regionZ * 132897987541L
+            + (long) world.provider.getDimension() * 1442695040888963407L
+            + structure.salt);
+        int range = structure.spacing - structure.separation;
+        if (range <= 0) {
+            return;
+        }
+        int candidateX = regionX * structure.spacing + structureRandom.nextInt(range);
+        int candidateZ = regionZ * structure.spacing + structureRandom.nextInt(range);
+        if (!isWithinChunkReach(chunkX, chunkZ, candidateX, candidateZ, ADDITIONAL_STRUCTURE_CHUNK_REACH)) {
+            return;
+        }
+
+        String startPool = ModResourceIds.structure(structure.name).toString() + "/start_pool";
+        jigsawGenerator.generateChunkSlice(
+            world,
+            new ChunkPos(candidateX, candidateZ),
+            new ChunkPos(chunkX, chunkZ),
+            startPool,
+            2,
+            structure.startYOffset,
+            ADDITIONAL_STRUCTURE_CHUNK_REACH,
+            structureRandom);
     }
 
     private void generateOilWell(WorldServer world, int chunkX, int chunkZ) {
@@ -392,6 +475,7 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             tag = world.getMinecraftServer().getDataFixer().process(FixTypes.STRUCTURE, tag);
             if (Reference.MOD_ID.equals(location.getNamespace())) {
                 AdAstraStructureBlocks.remapPalette(tag);
+                AdAstraStructureBlocks.remapStructureData(tag);
             }
             if (isMeteorTemplate(location)) {
                 remapMeteorLootTables(tag);
@@ -454,5 +538,23 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         BlockPos center = origin.add(size.getX() / 2, size.getY(), size.getZ() / 2);
         IBlockState surface = world.getBlockState(world.getHeight(center).down());
         return surface.getMaterial().isLiquid();
+    }
+
+    private static final class StructureSpec {
+        private final String planet;
+        private final String name;
+        private final int spacing;
+        private final int separation;
+        private final int salt;
+        private final int startYOffset;
+
+        private StructureSpec(String planet, String name, int spacing, int separation, int salt, int startYOffset) {
+            this.planet = planet;
+            this.name = name;
+            this.spacing = spacing;
+            this.separation = separation;
+            this.salt = salt;
+            this.startYOffset = startYOffset;
+        }
     }
 }

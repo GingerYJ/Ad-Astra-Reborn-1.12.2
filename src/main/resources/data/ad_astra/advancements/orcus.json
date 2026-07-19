@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:orcus_globe"
+      "item": "ad_astra:item_orcus_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.orcus.title"
@@ -18,12 +18,12 @@
     "orcus": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_orcus"
+        "to": "ad_astra:planet_orcus"
       }
     }
   },
   "rewards": {
     "experience": 400
   },
-  "parent": "ad_astra:tier_11_rocket"
+  "parent": "ad_astra:item_tier_11_rocket"
 }

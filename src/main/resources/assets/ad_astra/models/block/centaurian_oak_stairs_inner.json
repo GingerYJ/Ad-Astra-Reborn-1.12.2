@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/inner_stairs",
-  "textures": {
-    "bottom": "ad_astra:block/centaurian_oak_planks",
-    "side": "ad_astra:block/centaurian_oak_planks",
-    "top": "ad_astra:block/centaurian_oak_planks"
-  }
-}

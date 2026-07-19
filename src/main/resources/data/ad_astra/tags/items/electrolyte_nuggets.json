@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:electrolyte_nugget",
+    "ad_astra:item_electrolyte_nugget",
     {
       "id": "#c:electrolyte_nuggets",
       "required": false

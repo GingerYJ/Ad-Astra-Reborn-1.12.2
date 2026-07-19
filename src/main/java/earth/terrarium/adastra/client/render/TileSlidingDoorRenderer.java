@@ -60,17 +60,21 @@ public class TileSlidingDoorRenderer extends TileEntitySpecialRenderer<SlidingDo
         }
 
         renderModel(minecraft, state, model);
+        BlockDestroyStageRenderer.renderDamageModel(te.getWorld(), te.getPos(), state, model, destroyStage, alpha);
 
         GlStateManager.translate(-slide - slide, 0.0f, 0.0f);
         if (flipSecondDoor) {
             GlStateManager.translate(-1.25f, 0.0f, 0.0f);
-            renderModel(minecraft, state, getModel(minecraft, state.getBlock(), "flipped"));
+            IBakedModel flippedModel = getModel(minecraft, state.getBlock(), "flipped");
+            renderModel(minecraft, state, flippedModel);
+            BlockDestroyStageRenderer.renderDamageModel(te.getWorld(), te.getPos(), state, flippedModel, destroyStage, alpha);
         } else {
             GlStateManager.translate(0.5f, 0.0f, 0.5f);
             GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
             GlStateManager.translate(-0.5f, 0.0f, -0.5f);
             GlStateManager.translate(0.0f, 0.0f, 0.8125f);
             renderModel(minecraft, state, model);
+            BlockDestroyStageRenderer.renderDamageModel(te.getWorld(), te.getPos(), state, model, destroyStage, alpha);
         }
 
         GlStateManager.enableCull();

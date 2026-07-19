@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:plutonium_nugget",
+    "ad_astra:item_plutonium_nugget",
     {
       "id": "#c:plutonium_nuggets",
       "required": false

@@ -15,9 +15,7 @@ import earth.terrarium.adastra.common.registry.ModSmeltingRecipes;
 import earth.terrarium.adastra.common.registry.ModTileEntities;
 import earth.terrarium.adastra.common.tags.ModBlockTags;
 import earth.terrarium.adastra.common.world.AdAstraStructureWorldGenerator;
-import earth.terrarium.adastra.common.world.ExtendraStructureWorldGenerator;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDimensionRegistrar;
-import earth.terrarium.adastra.common.registry.ExtendraPlanetContent;
 import earth.terrarium.adastra.proxy.IProxy;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -60,9 +58,8 @@ public class AdAstraReborn {
         // systems.OxygenTickHandler + OxygenSystem are parallel old implementations, if also registered they will conflict with CommonEventHandler
         // double-subscribing LivingUpdateEvent, causing players to be suffocated twice in oxygen-free environments, so they are no longer registered.
         ModDimensions.register();
-        ExtendraPlanetContent.register();
-        // Extendra definitions are registered after the first config load. Refresh
-        // tier and ore categories now so all imported planets receive config rows.
+        // Custom planets are registered by ModDimensions with the built-in dimensions.
+        // Refresh tier and ore categories now so all registered planets receive config rows.
         AdAstraConfig.sync();
         NetworkHandler.init();
         ModTileEntities.register();
@@ -85,7 +82,6 @@ public class AdAstraReborn {
 
         ModSmeltingRecipes.register();
         GameRegistry.registerWorldGenerator(new AdAstraStructureWorldGenerator(), 0);
-        GameRegistry.registerWorldGenerator(new ExtendraStructureWorldGenerator(), 0);
         proxy.init(event);
     }
 

@@ -9,7 +9,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:orcus_stone",
+          "name": "ad_astra:item_orcus_stone",
           "weight": 40,
           "functions": [
             {
@@ -65,7 +65,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_radium",
+          "name": "ad_astra:item_raw_radium",
           "weight": 5,
           "functions": [
             {

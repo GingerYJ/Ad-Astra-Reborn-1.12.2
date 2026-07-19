@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:uranus_uranium_ore",
+    "ad_astra:item_uranus_uranium_ore",
     {
       "id": "#c:uranium_ores",
       "required": false

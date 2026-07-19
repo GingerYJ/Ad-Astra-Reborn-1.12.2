@@ -15,7 +15,8 @@ public class TileWaterPumpRenderer extends TileEntitySpecialRenderer<WaterPumpTi
 
     @Override
     public void render(WaterPumpTileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
-        if (te == null || te.getWorld() == null || !te.isLit() || !te.consumeBubbleParticleTick()) {
+        if (te == null || te.getWorld() == null || BlockDestroyStageRenderer.isDestroying(destroyStage)
+            || !te.isLit() || !te.consumeBubbleParticleTick()) {
             return;
         }
 

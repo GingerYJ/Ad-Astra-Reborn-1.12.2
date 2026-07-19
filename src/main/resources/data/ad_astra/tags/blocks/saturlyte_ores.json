@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:saturn_saturlyte_ore",
+    "ad_astra:block_saturn_saturlyte_ore",
     {
       "id": "#c:saturlyte_ores",
       "required": false

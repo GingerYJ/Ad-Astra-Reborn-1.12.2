@@ -7,12 +7,12 @@
     {
       "type": "patchouli:spotlight",
       "title": "Radium",
-      "item": "ad_astra:radium_ingot",
-      "text": "Once you've gathered enough Neptunium to craft a Extendra Tier 16 rocket, you can travel to Orcus, Haumea, Quaoar, and Makemake. The next material that you seek is Radium (Element #88)."
+      "item": "ad_astra:item_radium_ingot",
+      "text": "Once you've gathered enough Neptunium to craft a Ad Astra Tier 16 rocket, you can travel to Orcus, Haumea, Quaoar, and Makemake. The next material that you seek is Radium (Element #88)."
     },
     {
       "type": "patchouli:text",
-      "text": "Radium is used to craft a Extendra Tier 17 rocket capable of travelling to 3 more dwarf planets."
+      "text": "Radium is used to craft a Ad Astra Tier 17 rocket capable of travelling to 3 more dwarf planets."
     }
   ]
 }

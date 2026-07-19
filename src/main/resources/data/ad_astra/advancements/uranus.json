@@ -1,7 +1,7 @@
 {
   "display": {
     "icon": {
-      "item": "ad_astra:uranus_globe"
+      "item": "ad_astra:item_uranus_globe"
     },
     "title": {
       "translate": "advancements.ad_astra.uranus.title"
@@ -18,12 +18,12 @@
     "uranus": {
       "trigger": "minecraft:changed_dimension",
       "conditions": {
-        "to": "ad_astra:extendra_uranus"
+        "to": "ad_astra:planet_uranus"
       }
     }
   },
   "rewards": {
     "experience": 250
   },
-  "parent": "ad_astra:tier_9_rocket"
+  "parent": "ad_astra:item_tier_9_rocket"
 }

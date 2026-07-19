@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:pluto_plutonium_ore",
+    "ad_astra:block_pluto_plutonium_ore",
     {
       "id": "#c:plutonium_ores",
       "required": false

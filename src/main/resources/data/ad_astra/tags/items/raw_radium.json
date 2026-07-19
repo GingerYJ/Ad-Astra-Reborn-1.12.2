@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:raw_radium",
+    "ad_astra:item_raw_radium",
     {
       "id": "#c:raw_radium_ores",
       "required": false

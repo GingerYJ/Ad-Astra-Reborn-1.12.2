@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:vicinus_aurorite_ore",
+    "ad_astra:item_vicinus_aurorite_ore",
     {
       "id": "#c:aurorite_ores",
       "required": false

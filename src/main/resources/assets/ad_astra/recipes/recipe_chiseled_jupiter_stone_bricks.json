@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#",
+    "#"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_jupiter_stone_brick_slab",
+    "data": 0
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_chiseled_jupiter_stone_bricks"
+  }
+}

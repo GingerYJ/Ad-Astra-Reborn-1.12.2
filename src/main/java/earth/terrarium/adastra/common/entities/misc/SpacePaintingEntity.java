@@ -93,7 +93,7 @@ public class SpacePaintingEntity extends EntityHanging {
         GONGGONG("gonggong", 16, 16),
         ERIS("eris", 16, 16),
         SEDNA("sedna", 16, 16),
-        B("b", 32, 32),
+        PROXIMA_CENTAURI_B("proxima_centauri_b", 32, 32),
         VICINUS("vicinus", 32, 32);
 
         private final String id;

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "ad_astra:item_neptunium_nugget"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_neptunium_ingot"
+  }
+}

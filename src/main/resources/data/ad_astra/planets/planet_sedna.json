@@ -1,0 +1,10 @@
+{
+  "dimension": "ad_astra:planet_sedna",
+  "gravity": 0.019,
+  "orbit": "ad_astra:planet_sedna_orbit",
+  "oxygen": false,
+  "solar_power": 11,
+  "solar_system": "ad_astra:solar_system",
+  "temperature": -240,
+  "tier": 10
+}

@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:neptunium_plate",
+    "ad_astra:item_neptunium_plate",
     {
       "id": "#c:neptunium_plates",
       "required": false

@@ -11,7 +11,6 @@ import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModFluids;
 import earth.terrarium.adastra.common.registry.ModGuiIds;
 import earth.terrarium.adastra.common.registry.ModItems;
-import earth.terrarium.adastra.common.registry.ExtendraItems;
 import earth.terrarium.adastra.common.items.ConfigurableRocketItem;
 import earth.terrarium.adastra.common.rocket.ConfigurableRocketRegistry;
 import earth.terrarium.adastra.common.rocket.ConfigurableRocketSpec;
@@ -188,12 +187,6 @@ public class AdAstraJEIPlugin implements IModPlugin {
         addRocket(rockets, ModItems.TIER_7_ROCKET, 7);
         for (ConfigurableRocketItem rocket : ModItems.CONFIGURABLE_ROCKETS) {
             addRocket(rockets, rocket, rocket.getSpec().getTier());
-        }
-        for (Item item : ExtendraItems.ITEMS) {
-            if (item instanceof ConfigurableRocketItem) {
-                ConfigurableRocketItem rocket = (ConfigurableRocketItem) item;
-                addRocket(rockets, rocket, rocket.getSpec().getTier());
-            }
         }
         for (Item item : ModItems.ITEMS) {
             if (item instanceof ConfigurableRocketItem) {

@@ -16,16 +16,16 @@
   "type": "create:crushing",
   "ingredients": [
     {
-      "item": "ad_astra:orcus_radium_ore"
+      "item": "ad_astra:item_orcus_radium_ore"
     }
   ],
   "results": [
     {
-      "item": "ad_astra:raw_radium",
+      "item": "ad_astra:item_raw_radium",
       "count": 1
     },
     {
-      "item": "ad_astra:raw_radium",
+      "item": "ad_astra:item_raw_radium",
       "count": 1,
       "chance": 0.25
     },
@@ -35,7 +35,7 @@
       "chance": 0.75
     },
     {
-      "item": "ad_astra:orcus_cobblestone",
+      "item": "ad_astra:item_orcus_cobblestone",
       "count": 1,
       "chance": 0.125
     }

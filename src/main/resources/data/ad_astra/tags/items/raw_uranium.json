@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:raw_uranium",
+    "ad_astra:item_raw_uranium",
     {
       "id": "#c:raw_uranium_ores",
       "required": false

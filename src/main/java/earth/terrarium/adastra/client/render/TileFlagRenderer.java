@@ -64,6 +64,26 @@ public class TileFlagRenderer extends TileEntitySpecialRenderer<FlagTileEntity> 
         GlStateManager.color(1.0f, 1.0f, 1.0f, alpha);
         Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         renderFlagImage();
+        BlockDestroyStageRenderer.renderDestroyStageQuad(
+            destroyStage,
+            -15.0f / 16.0f,
+            -1.0f / 16.0f,
+            0.497f,
+            7.0f / 16.0f,
+            15.0f / 16.0f,
+            0.497f,
+            false,
+            alpha);
+        BlockDestroyStageRenderer.renderDestroyStageQuad(
+            destroyStage,
+            -15.0f / 16.0f,
+            -1.0f / 16.0f,
+            0.503f,
+            7.0f / 16.0f,
+            15.0f / 16.0f,
+            0.503f,
+            true,
+            alpha);
         GlStateManager.disableBlend();
         GlStateManager.enableCull();
         GlStateManager.enableLighting();

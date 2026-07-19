@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:aurorite_plate",
+    "ad_astra:item_aurorite_plate",
     {
       "id": "#c:aurorite_plates",
       "required": false

@@ -7,7 +7,7 @@
     {
       "type": "patchouli:spotlight",
       "title": "饱和电解质",
-      "item": "ad_astra:saturlyte_ingot",
+      "item": "ad_astra:item_saturlyte_ingot",
       "text": "一旦你收集了足够的 Juperium 来建造第五级火箭，你就可以前往土星。您寻找的下一个材料是 Saturlyte（如卫星）。"
     },
     {

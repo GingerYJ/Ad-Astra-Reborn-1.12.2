@@ -6,14 +6,14 @@
     "ad_astra:ostrum_plating_button",
     "ad_astra:calorite_plating_button",
     "ad_astra:glacian_button",
-    "ad_astra:juperium_plating_button",
-    "ad_astra:saturlyte_plating_button",
-    "ad_astra:uranium_plating_button",
-    "ad_astra:neptunium_plating_button",
-    "ad_astra:radium_plating_button",
-    "ad_astra:plutonium_plating_button",
-    "ad_astra:electrolyte_plating_button",
-    "ad_astra:centaurian_oak_button",
-    "ad_astra:aurorite_plating_button"
+    "ad_astra:item_juperium_plating_button",
+    "ad_astra:item_saturlyte_plating_button",
+    "ad_astra:item_uranium_plating_button",
+    "ad_astra:item_neptunium_plating_button",
+    "ad_astra:item_radium_plating_button",
+    "ad_astra:item_plutonium_plating_button",
+    "ad_astra:item_electrolyte_plating_button",
+    "ad_astra:item_centaurian_oak_button",
+    "ad_astra:item_aurorite_plating_button"
   ]
 }

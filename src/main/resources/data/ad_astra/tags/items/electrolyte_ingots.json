@@ -1,6 +1,6 @@
 {
   "values": [
-    "ad_astra:electrolyte_ingot",
+    "ad_astra:item_electrolyte_ingot",
     {
       "id": "#c:electrolyte_ingots",
       "required": false

@@ -9,7 +9,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "ad_astra:neptune_stone",
+          "name": "ad_astra:item_neptune_stone",
           "weight": 40,
           "functions": [
             {
@@ -65,7 +65,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ad_astra:raw_neptunium",
+          "name": "ad_astra:item_raw_neptunium",
           "weight": 5,
           "functions": [
             {

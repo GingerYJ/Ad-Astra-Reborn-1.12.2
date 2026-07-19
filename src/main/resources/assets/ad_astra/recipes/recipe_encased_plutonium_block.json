@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "###",
+    "XXX"
+  ],
+  "key": {
+    "#": {
+      "type": "forge:ore_dict",
+      "ore": "platePlutonium"
+    },
+    "X": {
+      "type": "forge:ore_dict",
+      "ore": "ingotSteel"
+    }
+  },
+  "result": {
+    "item": "ad_astra:item_encased_plutonium_block",
+    "count": 64
+  }
+}
