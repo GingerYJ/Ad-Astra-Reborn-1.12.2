@@ -2150,8 +2150,8 @@ tile.ad_astra.block_eris_globe.name=Eris Globe
 item.ad_astra.item_eris_globe.name=Eris Globe
 tile.ad_astra.block_sedna_globe.name=Sedna Globe
 item.ad_astra.item_sedna_globe.name=Sedna Globe
-tile.ad_astra.b_globe.name=Proxima Centauri b Globe
-item.ad_astra.b_globe.name=Proxima Centauri b Globe
+tile.ad_astra.block_proxima_centauri_b_globe.name=Proxima Centauri b Globe
+item.ad_astra.item_proxima_centauri_b_globe.name=Proxima Centauri b Globe
 tile.ad_astra.block_vicinus_globe.name=Vicinus Globe
 item.ad_astra.item_vicinus_globe.name=Vicinus Globe
 

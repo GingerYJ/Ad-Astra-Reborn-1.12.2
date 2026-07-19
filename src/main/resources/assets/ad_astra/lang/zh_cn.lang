@@ -81,8 +81,8 @@ item.ad_astra.item_freeze_shard.name=冰霜碎片
 # Ad Astra Chinese display-name overrides
 
 item.ad_astra.item_vicinus_globe.name=维西努斯仪
-item.ad_astra.b_globe.name=比邻星 b 仪
-tile.ad_astra.b_globe.name=比邻星 b 仪
+item.ad_astra.item_proxima_centauri_b_globe.name=比邻星 b 仪
+tile.ad_astra.block_proxima_centauri_b_globe.name=比邻星 b 仪
 item.ad_astra.item_sedna_globe.name=塞德娜仪
 tile.ad_astra.block_sedna_globe.name=塞德娜仪
 item.ad_astra.item_eris_globe.name=阋神星仪

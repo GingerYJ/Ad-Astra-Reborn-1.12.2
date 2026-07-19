@@ -30,18 +30,28 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
             return;
         }
 
+        float yRot = te.getLastYRot() + (te.getYRot() - te.getLastYRot()) * partialTicks;
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        renderGlobe(te.getWorld().getBlockState(te.getPos()), te.getWorld(), te.getPos(), destroyStage, alpha);
+        renderGlobe(te.getWorld().getBlockState(te.getPos()), yRot, te.getWorld(), te.getPos(), destroyStage, alpha);
         GlStateManager.popMatrix();
     }
 
-    private static void renderGlobe(IBlockState state, IBlockAccess world, BlockPos pos, int destroyStage, float alpha) {
+    private static void renderGlobe(
+        IBlockState state,
+        float yRot,
+        IBlockAccess world,
+        BlockPos pos,
+        int destroyStage,
+        float alpha) {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         boolean destroying = BlockDestroyStageRenderer.isDestroying(destroyStage);
+        GlStateManager.translate(0.5f, 0.0f, 0.5f);
+        GlStateManager.rotate(-yRot, 0.0f, 1.0f, 0.0f);
+        GlStateManager.translate(-0.5f, 0.0f, -0.5f);
         renderBakedStand(state, world, pos, destroyStage, alpha, destroying);
 
         GlStateManager.enableCull();
@@ -97,7 +107,8 @@ public class TileGlobeRenderer extends TileEntitySpecialRenderer<GlobeTileEntity
             if (block == null || block.getRegistryName() == null) {
                 return;
             }
-            renderGlobe(block.getDefaultState(), null, null, -1, 1.0f);
+            float yRot = (System.currentTimeMillis() / 20.0f) % 360.0f;
+            renderGlobe(block.getDefaultState(), yRot, null, null, -1, 1.0f);
         }
     }
 }
