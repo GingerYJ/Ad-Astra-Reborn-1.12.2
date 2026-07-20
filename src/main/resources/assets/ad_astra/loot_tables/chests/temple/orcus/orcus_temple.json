@@ -1,0 +1,152 @@
+﻿{
+    "pools":  [
+                  {
+                      "name":  "main",
+                      "rolls":  {
+                                    "min":  3,
+                                    "max":  8
+                                },
+                      "entries":  [
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:item_orcus_stone",
+                                          "weight":  40,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  6,
+                                                                              "max":  14
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:ice",
+                                          "weight":  40,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  5,
+                                                                              "max":  10
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:ice_shard",
+                                          "weight":  10,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  6,
+                                                                              "max":  12
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:iron_ingot",
+                                          "weight":  10,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  5,
+                                                                              "max":  15
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:item_raw_radium",
+                                          "weight":  5,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  1,
+                                                                              "max":  2
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:emerald",
+                                          "weight":  30,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  6,
+                                                                              "max":  9
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:diamond",
+                                          "weight":  5,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  2,
+                                                                              "max":  4
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:stick",
+                                          "weight":  5,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  5,
+                                                                              "max":  10
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:golden_apple",
+                                          "weight":  6
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:golden_apple",
+                                          "weight":  2,
+                                          "entryName":  "enchanted_golden_apple",
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_data",
+                                                                "data":  1
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:book",
+                                          "weight":  20,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "enchant_randomly"
+                                                            }
+                                                        ]
+                                      }
+                                  ]
+                  }
+              ]
+}

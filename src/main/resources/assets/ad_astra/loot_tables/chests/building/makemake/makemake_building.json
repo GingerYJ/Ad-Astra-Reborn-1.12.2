@@ -1,0 +1,129 @@
+﻿{
+    "pools":  [
+                  {
+                      "name":  "main",
+                      "rolls":  {
+                                    "min":  3,
+                                    "max":  8
+                                },
+                      "entries":  [
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:item_makemake_cobblestone",
+                                          "weight":  40,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  6,
+                                                                              "max":  12
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:iron_nugget",
+                                          "weight":  10,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  1,
+                                                                              "max":  3
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:iron_ingot",
+                                          "weight":  10,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  3,
+                                                                              "max":  12
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:steel_ingot",
+                                          "weight":  5,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  1,
+                                                                              "max":  3
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:steel_nugget",
+                                          "weight":  5,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  3,
+                                                                              "max":  12
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:torch",
+                                          "weight":  10,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_count",
+                                                                "count":  {
+                                                                              "min":  3,
+                                                                              "max":  9
+                                                                          }
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:golden_apple",
+                                          "weight":  6
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:golden_apple",
+                                          "weight":  2,
+                                          "entryName":  "enchanted_golden_apple",
+                                          "functions":  [
+                                                            {
+                                                                "function":  "set_data",
+                                                                "data":  1
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "minecraft:book",
+                                          "weight":  10,
+                                          "functions":  [
+                                                            {
+                                                                "function":  "enchant_randomly"
+                                                            }
+                                                        ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:item_makemake_globe",
+                                          "weight":  2
+                                      }
+                                  ]
+                  }
+              ]
+}

@@ -1,8 +1,12 @@
 package earth.terrarium.adastra;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,10 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -28,6 +34,35 @@ class ResourceIntegrityTest {
 
     private static final Pattern ITEM_REFERENCE = Pattern.compile(
         "\\\"item\\\"\\s*:\\s*\\\"ad_astra:([^\\\"]+)\\\"");
+
+    private static final List<String> EXTENSION_LOOT_TABLES = List.of(
+        "building/eris/eris_building.json",
+        "building/haumea/haumea_building.json",
+        "building/makemake/makemake_building.json",
+        "fallen_ship/sedna/sedna_fallen_ship.json",
+        "maze/neptune/neptune_maze.json",
+        "meteor/ceres/ceres_meteor.json",
+        "temple/gonggong/gonggong_temple.json",
+        "temple/jupiter/jupiter_temple.json",
+        "temple/orcus/orcus_temple.json",
+        "temple/pluto/pluto_temple.json",
+        "temple/quaoar/quaoar_temple.json",
+        "tower/saturn/saturn_tower.json",
+        "tower/uranus/uranus_tower.json",
+        "volcano/mercury/mercury_volcano.json",
+        "volcano/venus/venus_volcano.json");
+
+    private static final Set<String> REMOVED_MODERN_ITEMS = Set.of(
+        "minecraft:soul_lantern", "minecraft:glow_berries", "minecraft:suspicious_stew",
+        "minecraft:warped_fungus", "minecraft:magma_block", "minecraft:raw_iron", "minecraft:raw_gold",
+        "minecraft:soul_torch", "minecraft:music_disc_wait", "minecraft:enchanted_golden_apple");
+
+    private static final Set<String> CORE_AD_ASTRA_LOOT_ITEMS = Set.of(
+        "space_painting", "sky_stone", "moon_sand", "mars_sand", "venus_sand",
+        "mercury_cobblestone", "mercury_globe", "cheese", "ice_shard", "raw_desh",
+        "raw_ostrum", "raw_calorite", "desh_ingot", "desh_nugget", "steel_ingot",
+        "steel_nugget", "launch_pad", "fuel_bucket", "gas_tank", "space_helmet",
+        "space_suit", "space_pants", "space_boots");
 
     @Test
     void sourceAndTextResourcesContainNoLegacyNamespace() throws IOException {
@@ -95,8 +130,156 @@ class ResourceIntegrityTest {
         assertTrue(Files.exists(assets.resolve("textures/block/globe/block_vicinus_globe.png")));
         assertTrue(Files.exists(resources.resolve("data/ad_astra/planets/planet_ceres.json")));
         assertTrue(Files.exists(resources.resolve("data/ad_astra/planets/planet_proxima_centauri_b.json")));
-        assertFalse(Files.exists(resources.resolve("data/ad_astra/worldgen/structure/structure_proxima_centauri_b_hut.json")));
+        assertTrue(Files.exists(resources.resolve(
+            "data/ad_astra/worldgen/structure/structure_proxima_centauri_b_hut.json")));
+        assertTrue(Files.exists(resources.resolve(
+            "data/ad_astra/worldgen/structure_set/structure_proxima_centauri_b_hut.json")));
+        assertTrue(Files.exists(resources.resolve(
+            "data/ad_astra/worldgen/template_pool/structure_proxima_centauri_b_hut/start_pool.json")));
+        assertTrue(Files.exists(resources.resolve(
+            "data/ad_astra/structures/structure_proxima_centauri_b_hut.nbt")));
+        assertTrue(Files.exists(assets.resolve(
+            "loot_tables/chests/hut/proxima_centauri_b/proxima_centauri_b_hut.json")));
         assertTrue(failures.isEmpty(), String.join(System.lineSeparator(), failures));
+    }
+
+    @Test
+    void extensionLootTablesUseLegacyAssetsAndIds() throws IOException {
+        Path resources = projectRoot().resolve("src/main/resources");
+        Path assets = resources.resolve("assets/ad_astra/loot_tables/chests");
+        Path data = resources.resolve("data/ad_astra/loot_tables/chests");
+
+        for (String relative : EXTENSION_LOOT_TABLES) {
+            Path asset = assets.resolve(relative);
+            assertTrue(Files.exists(asset), "Missing converted loot table " + relative);
+            assertFalse(Files.exists(data.resolve(relative)), "Duplicate data loot table " + relative);
+
+            JsonObject root = JsonParser.parseString(read(asset)).getAsJsonObject();
+            assertFalse(root.has("type"), relative + " still has a modern root type");
+            for (JsonElement poolElement : root.getAsJsonArray("pools")) {
+                JsonObject pool = poolElement.getAsJsonObject();
+                assertFalse(pool.has("bonus_rolls"), relative + " still has bonus_rolls");
+                for (JsonElement entryElement : pool.getAsJsonArray("entries")) {
+                    JsonObject entry = entryElement.getAsJsonObject();
+                    assertEquals("item", entry.get("type").getAsString(), relative);
+                    String name = entry.get("name").getAsString();
+                    assertFalse(name.startsWith("ad_extendra:"), relative + " has a legacy namespace");
+                    assertFalse(REMOVED_MODERN_ITEMS.contains(name), relative + " has " + name);
+                    if (name.startsWith("ad_astra:")) {
+                        String path = name.substring("ad_astra:".length());
+                        boolean allowedUnprefixed = CORE_AD_ASTRA_LOOT_ITEMS.contains(path);
+                        assertTrue(allowedUnprefixed || path.startsWith("item_"),
+                            relative + " uses an unprefixed migrated item " + name);
+                        assertTrue(Files.exists(resources.resolve("assets/ad_astra/models/item/" + path + ".json")),
+                            relative + " references an unregistered item model " + name);
+                    }
+
+                    JsonArray functions = entry.has("functions") ? entry.getAsJsonArray("functions") : null;
+                    if (functions != null) {
+                        for (JsonElement functionElement : functions) {
+                            JsonObject function = functionElement.getAsJsonObject();
+                            String functionName = function.get("function").getAsString();
+                            assertFalse(functionName.startsWith("minecraft:"),
+                                relative + " has a modern function " + functionName);
+                            assertFalse("set_potion".equals(functionName), relative);
+                        }
+                    }
+
+                    if ("minecraft:golden_apple".equals(name) && entry.get("weight").getAsInt() == 2) {
+                        assertTrue(hasSetData(functions), relative + " lost enchanted golden apple metadata");
+                    }
+                    if ("minecraft:potion".equals(name)) {
+                        assertTrue(hasSetNbt(functions), relative + " has an unconverted potion function");
+                        String tag = findSetNbtTag(functions);
+                        if (relative.contains("jupiter")) {
+                            assertTrue(tag.contains("CustomPotionEffects"), relative);
+                            assertTrue(tag.contains("CustomPotionColor"), relative);
+                        } else {
+                            assertTrue(tag.contains("Potion:"), relative);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void legacyLootTableUsesLegacyAssetsAndIds() throws IOException {
+        Path resources = projectRoot().resolve("src/main/resources");
+        Path table = resources.resolve("assets/minecraft/loot_tables/loot.json");
+        assertTrue(Files.exists(table), "Missing legacy minecraft:loot table");
+
+        JsonObject root = JsonParser.parseString(read(table)).getAsJsonObject();
+        assertFalse(root.has("type"), "Legacy loot table still has a modern root type");
+        for (JsonElement poolElement : root.getAsJsonArray("pools")) {
+            JsonObject pool = poolElement.getAsJsonObject();
+            assertFalse(pool.has("bonus_rolls"), "Legacy loot table still has bonus_rolls");
+            for (JsonElement entryElement : pool.getAsJsonArray("entries")) {
+                JsonObject entry = entryElement.getAsJsonObject();
+                assertEquals("item", entry.get("type").getAsString());
+                assertFalse("minecraft:cobweb".equals(entry.get("name").getAsString()));
+                JsonArray functions = entry.has("functions") ? entry.getAsJsonArray("functions") : null;
+                if (functions != null) {
+                    for (JsonElement functionElement : functions) {
+                        assertFalse(functionElement.getAsJsonObject().get("function").getAsString()
+                            .startsWith("minecraft:"));
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void allStructureTemplatesReferenceExistingLootTables() throws IOException {
+        Path resources = projectRoot().resolve("src/main/resources");
+        Path structureRoot = resources.resolve("data/ad_astra/structures");
+        Path assets = resources.resolve("assets");
+        int legacyReferences = 0;
+        try (Stream<Path> paths = Files.walk(structureRoot)) {
+            for (Path structure : paths.filter(path -> Files.isRegularFile(path)
+                && path.toString().endsWith(".nbt")).toList()) {
+                try (var input = Files.newInputStream(structure)) {
+                    NBTTagCompound root = CompressedStreamTools.readCompressed(input);
+                    NBTTagList blocks = root.getTagList("blocks", 10);
+                    for (int i = 0; i < blocks.tagCount(); i++) {
+                        NBTTagCompound block = blocks.getCompoundTagAt(i);
+                        if (!block.hasKey("nbt", 10)) {
+                            continue;
+                        }
+                        NBTTagCompound blockEntity = block.getCompoundTag("nbt");
+                        if (!blockEntity.hasKey("LootTable", 8)) {
+                            continue;
+                        }
+                        String lootTable = blockEntity.getString("LootTable");
+                        if ("minecraft:loot".equals(lootTable)) {
+                            legacyReferences++;
+                        }
+                        Path table = lootTablePath(assets, lootTable);
+                        assertTrue(Files.exists(table), structure.getFileName() + " references missing " + lootTable);
+                    }
+                }
+            }
+        }
+        assertTrue(legacyReferences > 0, "Expected legacy Venus/Pygro or meteor loot references.");
+
+        Path structure = structureRoot.resolve("structure_proxima_centauri_b_hut.nbt");
+        try (var input = Files.newInputStream(structure)) {
+            NBTTagCompound hut = CompressedStreamTools.readCompressed(input);
+            NBTTagList size = hut.getTagList("size", 3);
+            assertEquals(3, size.tagCount());
+            assertEquals(9, size.getIntAt(0));
+            assertEquals(7, size.getIntAt(1));
+            assertEquals(9, size.getIntAt(2));
+        }
+    }
+
+    private static Path lootTablePath(Path assets, String id) {
+        int separator = id.indexOf(':');
+        assertTrue(separator > 0 && separator < id.length() - 1, "Invalid loot table id " + id);
+        String namespace = id.substring(0, separator);
+        String path = id.substring(separator + 1);
+        assertFalse(path.contains(".."), "Unsafe loot table path " + id);
+        return assets.resolve(namespace).resolve("loot_tables").resolve(path + ".json");
     }
 
     @Test
@@ -265,6 +448,37 @@ class ResourceIntegrityTest {
         }
         String objectTail = text.substring(referenceEnd, boundary);
         return objectTail.matches("(?s).*\\\"data\\\"\\s*:\\s*0.*");
+    }
+
+    private static boolean hasSetData(JsonArray functions) {
+        if (functions == null) {
+            return false;
+        }
+        for (JsonElement element : functions) {
+            JsonObject function = element.getAsJsonObject();
+            if ("set_data".equals(function.get("function").getAsString())
+                && function.get("data").getAsInt() == 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasSetNbt(JsonArray functions) {
+        return findSetNbtTag(functions) != null;
+    }
+
+    private static String findSetNbtTag(JsonArray functions) {
+        if (functions == null) {
+            return null;
+        }
+        for (JsonElement element : functions) {
+            JsonObject function = element.getAsJsonObject();
+            if ("set_nbt".equals(function.get("function").getAsString())) {
+                return function.get("tag").getAsString();
+            }
+        }
+        return null;
     }
 
     private static void checkModelReferences(Path model, Path assets, List<String> failures) {

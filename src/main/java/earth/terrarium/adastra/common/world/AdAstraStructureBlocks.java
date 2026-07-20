@@ -1,10 +1,12 @@
 package earth.terrarium.adastra.common.world;
 
+import com.google.common.base.Optional;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModEntities;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
@@ -33,23 +35,25 @@ public final class AdAstraStructureBlocks {
             String originalName = state.getString("Name");
             String remappedName = remapBlockName(originalName);
             if (!isKnownBlock(remappedName)) {
-                remappedName = "minecraft:air";
+                state.setString("Name", "minecraft:air");
+                state.removeTag("Properties");
+                continue;
             }
 
-            if (!originalName.equals(remappedName)) {
-                state.setString("Name", remappedName);
-                state.removeTag("Properties");
-            }
+            state.setString("Name", remappedName);
+            remapProperties(state, originalName, remappedName);
         }
     }
 
-    /** Rewrites item and entity IDs stored in structure block entities and entity payloads. */
+    /** Rewrites item, block-entity, and entity IDs stored in structure payloads. */
     public static void remapStructureData(NBTTagCompound tag) {
         NBTTagList blocks = tag.getTagList("blocks", 10);
         for (int i = 0; i < blocks.tagCount(); i++) {
             NBTTagCompound block = blocks.getCompoundTagAt(i);
             if (block.hasKey("nbt", 10)) {
-                remapBlockEntity(block.getCompoundTag("nbt"));
+                if (!remapBlockEntity(block.getCompoundTag("nbt"))) {
+                    block.removeTag("nbt");
+                }
             }
         }
 
@@ -63,6 +67,29 @@ public final class AdAstraStructureBlocks {
     }
 
     public static String remapBlockName(String name) {
+        String stainedGlass = remapStainedGlassName(name);
+        if (stainedGlass != null) {
+            return stainedGlass;
+        }
+        if ("minecraft:barrel".equals(name)) {
+            return "minecraft:chest";
+        }
+        if ("minecraft:spawner".equals(name)) {
+            return "minecraft:mob_spawner";
+        }
+        if ("minecraft:campfire".equals(name) || "minecraft:soul_campfire".equals(name)
+            || "minecraft:soul_fire".equals(name)) {
+            return "minecraft:fire";
+        }
+        if ("minecraft:soul_torch".equals(name)) {
+            return "minecraft:torch";
+        }
+        if ("minecraft:soul_wall_torch".equals(name)) {
+            return "minecraft:wall_torch";
+        }
+        if ("minecraft:lightning_rod".equals(name)) {
+            return "minecraft:iron_bars";
+        }
         if ("minecraft:soul_soil".equals(name)) {
             return "minecraft:soul_sand";
         }
@@ -78,9 +105,6 @@ public final class AdAstraStructureBlocks {
         if ("minecraft:magma_block".equals(name)) {
             return "minecraft:magma";
         }
-        if ("minecraft:soul_fire".equals(name)) {
-            return "minecraft:air";
-        }
         // 1.16+ decorative blocks -> closest 1.12 equivalents
         if ("minecraft:chain".equals(name)) {
             return "minecraft:iron_bars";
@@ -94,6 +118,14 @@ public final class AdAstraStructureBlocks {
         if ("minecraft:polished_blackstone_stairs".equals(name) || "minecraft:blackstone_stairs".equals(name)) {
             return "minecraft:stone_brick_stairs";
         }
+        if ("minecraft:polished_blackstone_brick_stairs".equals(name)) {
+            return "minecraft:stone_brick_stairs";
+        }
+        if ("minecraft:polished_blackstone_brick_slab".equals(name)
+            || "minecraft:polished_blackstone_slab".equals(name)
+            || "minecraft:blackstone_slab".equals(name)) {
+            return "minecraft:stone_slab";
+        }
         if ("minecraft:polished_blackstone".equals(name) || "minecraft:polished_blackstone_bricks".equals(name)) {
             return "minecraft:stonebrick";
         }
@@ -101,10 +133,10 @@ public final class AdAstraStructureBlocks {
             return "minecraft:quartz_block";
         }
         if ("minecraft:quartz_slab".equals(name) || "minecraft:smooth_quartz_slab".equals(name)) {
-            return "minecraft:quartz_block";
+            return "minecraft:stone_slab";
         }
         if ("minecraft:quartz_stairs".equals(name) || "minecraft:smooth_quartz_stairs".equals(name)) {
-            return "minecraft:quartz_block";
+            return "minecraft:stone_brick_stairs";
         }
         if ("minecraft:smooth_quartz".equals(name)) {
             return "minecraft:quartz_block";
@@ -112,17 +144,156 @@ public final class AdAstraStructureBlocks {
         if ("minecraft:shroomlight".equals(name)) {
             return "minecraft:sea_lantern";
         }
-        if ("minecraft:orange_stained_glass".equals(name)) {
-            return "minecraft:stained_glass";
+        if (name.endsWith("_door") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:wooden_door";
         }
-        if ("minecraft:black_stained_glass_pane".equals(name)) {
-            return "minecraft:stained_glass_pane";
+        if (name.endsWith("_trapdoor") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:trapdoor";
+        }
+        if (name.endsWith("_fence_gate") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:fence_gate";
+        }
+        if (name.endsWith("_fence") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:fence";
+        }
+        if (name.endsWith("_button") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:wooden_button";
+        }
+        if (name.endsWith("_pressure_plate") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:wooden_pressure_plate";
+        }
+        if (name.endsWith("_stairs") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:oak_stairs";
+        }
+        if (name.endsWith("_slab") && (name.startsWith("minecraft:warped_") || name.startsWith("minecraft:crimson_"))) {
+            return "minecraft:wooden_slab";
+        }
+        if ("minecraft:warped_planks".equals(name) || "minecraft:crimson_planks".equals(name)) {
+            return "minecraft:planks";
+        }
+        if ("minecraft:warped_wood".equals(name) || "minecraft:crimson_wood".equals(name)
+            || "minecraft:stripped_warped_wood".equals(name)
+            || "minecraft:stripped_crimson_wood".equals(name)
+            || name.endsWith("_stem") || name.endsWith("_hyphae")) {
+            return "minecraft:log";
+        }
+        if ("minecraft:warped_fungus".equals(name) || "minecraft:crimson_fungus".equals(name)) {
+            return "minecraft:red_mushroom";
+        }
+        if ("minecraft:warped_roots".equals(name) || "minecraft:crimson_roots".equals(name)
+            || "minecraft:nether_sprouts".equals(name)) {
+            return "minecraft:dead_bush";
+        }
+        if ("minecraft:twisting_vines".equals(name) || "minecraft:weeping_vines".equals(name)) {
+            return "minecraft:vine";
+        }
+        if ("minecraft:warped_nylium".equals(name) || "minecraft:crimson_nylium".equals(name)
+            || "minecraft:warped_wart_block".equals(name) || "minecraft:nether_wart_block".equals(name)) {
+            return "minecraft:netherrack";
         }
         return remapImportedBlockName(name);
     }
 
     public static boolean isKnownBlock(String name) {
-        return Block.REGISTRY.containsKey(new ResourceLocation(name));
+        ResourceLocation location = parse(name);
+        return location != null && Block.REGISTRY.containsKey(location);
+    }
+
+    private static void remapProperties(NBTTagCompound state, String originalName, String remappedName) {
+        Block target = Block.REGISTRY.getObject(parse(remappedName));
+        if (target == null) {
+            state.removeTag("Properties");
+            return;
+        }
+
+        NBTTagCompound source = state.hasKey("Properties", 10)
+            ? state.getCompoundTag("Properties") : null;
+        NBTTagCompound filtered = new NBTTagCompound();
+        if (source != null) {
+            for (String key : source.getKeySet()) {
+                String value = source.getString(key);
+                String targetKey = key;
+                if ("type".equals(key) && findProperty(target, "type") == null
+                    && findProperty(target, "half") != null) {
+                    targetKey = "half";
+                    if ("double".equals(value)) {
+                        value = "bottom";
+                    }
+                }
+
+                IProperty<?> property = findProperty(target, targetKey);
+                if (property == null || !isValidPropertyValue(property, value)) {
+                    continue;
+                }
+                filtered.setString(targetKey, value);
+            }
+        }
+
+        String color = stainedGlassColor(originalName);
+        if (color != null && findProperty(target, "color") != null
+            && isValidPropertyValue(findProperty(target, "color"), color)) {
+            filtered.setString("color", color);
+        }
+
+        if (filtered.getKeySet().isEmpty()) {
+            state.removeTag("Properties");
+        } else {
+            state.setTag("Properties", filtered);
+        }
+    }
+
+    private static IProperty<?> findProperty(Block block, String name) {
+        for (IProperty<?> property : block.getBlockState().getProperties()) {
+            if (property.getName().equals(name)) {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isValidPropertyValue(IProperty<?> property, String value) {
+        Optional<?> parsed = property.parseValue(value);
+        return parsed.isPresent();
+    }
+
+    private static String remapStainedGlassName(String name) {
+        if (stainedGlassColor(name) == null) {
+            return null;
+        }
+        return name.endsWith("_pane") ? "minecraft:stained_glass_pane" : "minecraft:stained_glass";
+    }
+
+    private static String stainedGlassColor(String name) {
+        if (!name.startsWith("minecraft:")) {
+            return null;
+        }
+        String path = name.substring("minecraft:".length());
+        String suffix = path.endsWith("_pane") ? "_stained_glass_pane" : "_stained_glass";
+        if (!path.endsWith(suffix)) {
+            return null;
+        }
+        String color = path.substring(0, path.length() - suffix.length());
+        switch (color) {
+            case "white":
+            case "orange":
+            case "magenta":
+            case "light_blue":
+            case "yellow":
+            case "lime":
+            case "pink":
+            case "gray":
+            case "light_gray":
+            case "cyan":
+            case "purple":
+            case "blue":
+            case "brown":
+            case "green":
+            case "red":
+            case "black":
+                return color;
+            default:
+                return null;
+        }
     }
 
     private static String remapImportedBlockName(String name) {
@@ -140,7 +311,20 @@ public final class AdAstraStructureBlocks {
         return block.getRegistryName().toString();
     }
 
-    private static void remapBlockEntity(NBTTagCompound blockEntity) {
+    private static boolean remapBlockEntity(NBTTagCompound blockEntity) {
+        if (blockEntity.hasKey("id", 8)) {
+            String id = blockEntity.getString("id");
+            if ("minecraft:barrel".equals(id) || "minecraft:spawner".equals(id)) {
+                blockEntity.setString("id", "minecraft:" + ("minecraft:barrel".equals(id) ? "chest" : "mob_spawner"));
+            } else if ("minecraft:campfire".equals(id) || "minecraft:soul_campfire".equals(id)) {
+                return false;
+            } else {
+                String remappedId = remapModBlockEntityId(id);
+                if (!id.equals(remappedId)) {
+                    blockEntity.setString("id", remappedId);
+                }
+            }
+        }
         if (blockEntity.hasKey("Items", 9)) {
             remapItemList(blockEntity.getTagList("Items", 10));
         }
@@ -157,8 +341,12 @@ public final class AdAstraStructureBlocks {
                 if (potential.hasKey("Entity", 10)) {
                     remapEntityData(potential.getCompoundTag("Entity"));
                 }
+                if (potential.hasKey("entity", 10)) {
+                    remapEntityData(potential.getCompoundTag("entity"));
+                }
             }
         }
+        return true;
     }
 
     private static void remapItemList(NBTTagList items) {
@@ -179,6 +367,9 @@ public final class AdAstraStructureBlocks {
         }
         if (entity.hasKey("Entity", 10)) {
             remapEntityData(entity.getCompoundTag("Entity"));
+        }
+        if (entity.hasKey("entity", 10)) {
+            remapEntityData(entity.getCompoundTag("entity"));
         }
         if (entity.hasKey("SpawnData", 10)) {
             remapEntityData(entity.getCompoundTag("SpawnData"));
@@ -202,6 +393,25 @@ public final class AdAstraStructureBlocks {
         if (block != null && block.getRegistryName() != null
             && block.getRegistryName().getPath().startsWith("block_")) {
             return Reference.MOD_ID + ":item_" + location.getPath();
+        }
+        return name;
+    }
+
+    private static String remapModBlockEntityId(String name) {
+        ResourceLocation location = parse(name);
+        if (location == null || !Reference.MOD_ID.equals(location.getNamespace())) {
+            return name;
+        }
+
+        String path = location.getPath();
+        if (path.endsWith("_globe")) {
+            return Reference.MOD_ID + ":globe";
+        }
+        if (path.endsWith("_sliding_door") || "airlock".equals(path) || "reinforced_door".equals(path)) {
+            return Reference.MOD_ID + ":sliding_door";
+        }
+        if (path.endsWith("_flag")) {
+            return Reference.MOD_ID + ":flag";
         }
         return name;
     }

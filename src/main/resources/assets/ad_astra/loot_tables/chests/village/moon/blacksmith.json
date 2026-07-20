@@ -1,6 +1,7 @@
 {
   "pools": [
     {
+      "name": "supplies",
       "entries": [
         {
           "type": "item",
@@ -84,6 +85,7 @@
       }
     },
     {
+      "name": "equipment",
       "entries": [
         {
           "type": "item",

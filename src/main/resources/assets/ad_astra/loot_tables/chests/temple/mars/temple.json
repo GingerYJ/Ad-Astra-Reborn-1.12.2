@@ -1,6 +1,7 @@
 {
   "pools": [
     {
+      "name": "main",
       "entries": [
         {
           "type": "item",
@@ -193,6 +194,7 @@
           "type": "item",
           "name": "minecraft:golden_apple",
           "weight": 2,
+          "entryName": "enchanted_golden_apple",
           "functions": [
             {
               "function": "set_data",

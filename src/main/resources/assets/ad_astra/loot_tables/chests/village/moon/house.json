@@ -1,6 +1,7 @@
 {
   "pools": [
     {
+      "name": "main",
       "entries": [
         {
           "type": "item",

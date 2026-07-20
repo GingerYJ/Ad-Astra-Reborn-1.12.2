@@ -22,6 +22,7 @@ import net.minecraft.world.gen.IChunkGenerator;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -32,6 +33,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     public static final int SPAWN_Y = SURFACE_Y + 1;
 
     private static final int MIN_GENERATION_Y = 1;
+    private static final int MAX_CACHED_CRATER_CHUNKS = 256;
     private static final Map<String, List<PlanetOreSpec>> ORE_SPECS_CACHE = new HashMap<>();
 
     private final World world;
@@ -40,6 +42,13 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
     private final CraterConfig craterConfig;
     private final AdAstraNoiseGenerator heightNoise;
     private final AdAstraNoiseGenerator caveNoise;
+    private final Map<Long, List<CraterCarver>> craterCache =
+        new LinkedHashMap<Long, List<CraterCarver>>(MAX_CACHED_CRATER_CHUNKS, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Long, List<CraterCarver>> eldest) {
+                return size() > MAX_CACHED_CRATER_CHUNKS;
+            }
+        };
 
     public AdAstraChunkGenerator(World world, PlanetDimensionProperties properties) {
         this.world = world;
@@ -88,12 +97,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                 primer.setBlockState(x, 0, z, bedrock);
 
                 // Generate terrain column
-                for (int y = 1; y <= 255; y++) {
-                    if (y > terrainHeight) {
-                        // Air above terrain
-                        continue;
-                    }
-
+                int maxTerrainY = Math.min(255, terrainHeight);
+                for (int y = 1; y <= maxTerrainY; y++) {
                     // Check for cave carving
                     if (terrainConfig.shouldGenerateCaves() &&
                         y >= terrainConfig.getCaveMinY() &&
@@ -122,6 +127,10 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             carveCraters(primer, chunkX, chunkZ);
         }
 
+        // Ore is part of the chunk's terrain. Writing it into the primer avoids per-block
+        // world updates during populate for every planet and keeps generation local to this chunk.
+        generateConfiguredOres(primer, chunkX, chunkZ);
+
         Chunk chunk = new Chunk(world, primer, chunkX, chunkZ);
         byte biomeId = (byte) Biome.getIdForBiome(properties.getBiome());
         byte[] biomeArray = chunk.getBiomeArray();
@@ -134,28 +143,10 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
     @Override
     public void populate(int chunkX, int chunkZ) {
-        Random random = createChunkRandom(chunkX, chunkZ);
-        List<PlanetOreSpec> specs = getOreSpecs(properties.getName());
         BlockPos chunkOrigin = new BlockPos(chunkX * 16, 0, chunkZ * 16);
-        ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
-
-        int oreCount = 0;
-        for (PlanetOreSpec spec : specs) {
-            int generated = generateOre(spec, chunkOrigin, random);
-            oreCount += generated;
-
-            if (OreGenConfig.debugWorldgen && generated > 0) {
-                AdAstraReborn.LOGGER.info("Generated {} {} ore veins in chunk [{}, {}] at Y:{}-{}",
-                    generated, spec.getOreName(), chunkPos.x, chunkPos.z, spec.minY, spec.maxY);
-            }
-        }
-
-        if (OreGenConfig.debugWorldgen && oreCount > 0) {
-            AdAstraReborn.LOGGER.debug("Total {} ore veins generated in chunk [{}, {}] on {}",
-                oreCount, chunkPos.x, chunkPos.z, properties.getName());
-        }
-
-        generateSimpleFeatures(chunkOrigin, random);
+        // Keep population-only features on their own deterministic stream so ore generation
+        // changes do not affect their placement relative to one another.
+        generateSimpleFeatures(chunkOrigin, createChunkRandom(chunkX, chunkZ));
     }
 
     @Override
@@ -191,22 +182,55 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         return random;
     }
 
-    private int generateOre(PlanetOreSpec spec, BlockPos chunkOrigin, Random random) {
+    private void generateConfiguredOres(ChunkPrimer primer, int chunkX, int chunkZ) {
+        Random random = createChunkRandom(chunkX, chunkZ);
+        BlockPos chunkOrigin = new BlockPos(chunkX * 16, 0, chunkZ * 16);
+        ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
+        List<PlanetOreSpec> specs = getOreSpecs(properties.getName());
+
+        int oreCount = 0;
+        for (PlanetOreSpec spec : specs) {
+            int generated = generateOre(spec, primer, chunkOrigin, random, chunkX, chunkZ);
+            oreCount += generated;
+
+            if (OreGenConfig.debugWorldgen && generated > 0) {
+                AdAstraReborn.LOGGER.info("Generated {} {} ore veins in chunk [{}, {}] at Y:{}-{}",
+                    generated, spec.getOreName(), chunkPos.x, chunkPos.z, spec.minY, spec.maxY);
+            }
+        }
+
+        if ("moon".equals(properties.getName())) {
+            oreCount += generateMoonSoulSand(primer, chunkOrigin, random, chunkX, chunkZ);
+        }
+
+        if (OreGenConfig.debugWorldgen && oreCount > 0) {
+            AdAstraReborn.LOGGER.debug("Total {} ore veins generated in chunk [{}, {}] on {}",
+                oreCount, chunkPos.x, chunkPos.z, properties.getName());
+        }
+    }
+
+    private int generateOre(PlanetOreSpec spec, ChunkPrimer primer, BlockPos chunkOrigin, Random random,
+                             int chunkX, int chunkZ) {
         int generated = 0;
         int maxGenerationY = terrainConfig.getMaxHeight() - 3; // Stay below surface
+        int maxY = Math.min(spec.maxY, maxGenerationY);
+        if (spec.minY > maxY) {
+            return 0;
+        }
 
         for (int i = 0; i < spec.countPerChunk; i++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
-            int y = spec.minY + random.nextInt(Math.min(spec.maxY, maxGenerationY) - spec.minY + 1);
+            int y = spec.minY + random.nextInt(maxY - spec.minY + 1);
             int z = chunkOrigin.getZ() + random.nextInt(16);
-            if (generateVein(spec, random, new BlockPos(x, y, z))) {
+            if (generateVein(spec, primer, random, new BlockPos(x, y, z), chunkX, chunkZ)) {
                 generated++;
             }
         }
         return generated;
     }
 
-    private boolean generateVein(PlanetOreSpec spec, Random random, BlockPos origin) {
+    private boolean generateVein(PlanetOreSpec spec, ChunkPrimer primer, Random random, BlockPos origin,
+                                 int chunkX, int chunkZ) {
         float angle = random.nextFloat() * (float) Math.PI;
         double startX = (double) origin.getX() + 8.0D + (double) (MathHelper.sin(angle) * (float) spec.veinSize) / 8.0D;
         double endX = (double) origin.getX() + 8.0D - (double) (MathHelper.sin(angle) * (float) spec.veinSize) / 8.0D;
@@ -217,6 +241,10 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
         boolean generated = false;
         int maxGenerationY = terrainConfig.getMaxHeight() - 2;
+        int chunkMinX = chunkX << 4;
+        int chunkMinZ = chunkZ << 4;
+        int chunkMaxX = chunkMinX + 15;
+        int chunkMaxZ = chunkMinZ + 15;
 
         for (int step = 0; step < spec.veinSize; step++) {
             float progress = (float) step / (float) spec.veinSize;
@@ -234,6 +262,14 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             int maxY = Math.min(maxGenerationY, MathHelper.floor(centerY + verticalRadius / 2.0D));
             int maxZ = MathHelper.floor(centerZ + horizontalRadius / 2.0D);
 
+            minX = Math.max(minX, chunkMinX);
+            maxX = Math.min(maxX, chunkMaxX);
+            minZ = Math.max(minZ, chunkMinZ);
+            maxZ = Math.min(maxZ, chunkMaxZ);
+            if (minX > maxX || minZ > maxZ || minY > maxY) {
+                continue;
+            }
+
             for (int x = minX; x <= maxX; x++) {
                 double xDistance = ((double) x + 0.5D - centerX) / (horizontalRadius / 2.0D);
                 if (xDistance * xDistance >= 1.0D) {
@@ -249,7 +285,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                     for (int z = minZ; z <= maxZ; z++) {
                         double zDistance = ((double) z + 0.5D - centerZ) / (horizontalRadius / 2.0D);
                         if (xDistance * xDistance + yDistance * yDistance + zDistance * zDistance < 1.0D) {
-                            if (replaceOreBlock(spec, new BlockPos(x, y, z))) {
+                            if (replaceOreBlock(spec, primer, x, y, z, chunkX, chunkZ)) {
                                 generated = true;
                             }
                         }
@@ -261,13 +297,17 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         return generated;
     }
 
-    private boolean replaceOreBlock(PlanetOreSpec spec, BlockPos pos) {
-        if (!world.isBlockLoaded(pos)) {
+    private boolean replaceOreBlock(PlanetOreSpec spec, ChunkPrimer primer, int x, int y, int z,
+                                    int chunkX, int chunkZ) {
+        BlockPos pos = new BlockPos(x, y, z);
+        if (!isInChunk(pos, chunkX, chunkZ)) {
             return false;
         }
-        IBlockState current = world.getBlockState(pos);
+        int localX = x & 15;
+        int localZ = z & 15;
+        IBlockState current = primer.getBlockState(localX, y, localZ);
         if (spec.canReplace(current)) {
-            world.setBlockState(pos, spec.oreState, 2);
+            primer.setBlockState(localX, y, localZ, spec.oreState);
             return true;
         }
         return false;
@@ -275,37 +315,38 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
     private void generateSimpleFeatures(BlockPos chunkOrigin, Random random) {
         String planetName = properties.getName();
-        if ("moon".equals(planetName)) {
-            generateMoonSoulSand(chunkOrigin, random);
-        } else if ("mars".equals(planetName)) {
+        if ("mars".equals(planetName)) {
             generateMarsRockBlobs(chunkOrigin, random);
         } else if ("venus".equals(planetName)) {
             generateInfernalSpireColumns(chunkOrigin, random);
         }
     }
 
-    private void generateMoonSoulSand(BlockPos chunkOrigin, Random random) {
+    private int generateMoonSoulSand(ChunkPrimer primer, BlockPos chunkOrigin, Random random,
+                                     int chunkX, int chunkZ) {
         PlanetOreSpec soulSand = new PlanetOreSpec(
             "moon",
             Blocks.SOUL_SAND.getDefaultState(),
-            60,
-            20,
+            8,
+            8,
             MIN_GENERATION_Y,
             terrainConfig.getMaxHeight() - 5,
             new Block[]{ModBlocks.MOON_STONE, ModBlocks.MOON_DEEPSLATE},
             null
         );
-        generateOre(soulSand, chunkOrigin, random);
+        return generateOre(soulSand, primer, chunkOrigin, random, chunkX, chunkZ);
     }
 
     private void generateMarsRockBlobs(BlockPos chunkOrigin, Random random) {
+        int chunkX = chunkOrigin.getX() >> 4;
+        int chunkZ = chunkOrigin.getZ() >> 4;
         for (int i = 0; i < 2; i++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
             int z = chunkOrigin.getZ() + random.nextInt(16);
             int searchStartY = terrainConfig.getMaxHeight() + 8;
             BlockPos surface = findSurface(new BlockPos(x, searchStartY, z), ModBlocks.MARS_SAND);
             if (surface != null) {
-                generateMarsRockBlob(surface.up(), random);
+                generateMarsRockBlob(surface.up(), random, chunkX, chunkZ);
             }
         }
     }
@@ -322,7 +363,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
         return null;
     }
 
-    private void generateMarsRockBlob(BlockPos origin, Random random) {
+    private void generateMarsRockBlob(BlockPos origin, Random random, int chunkX, int chunkZ) {
         BlockPos center = origin;
         for (int i = 0; i < 3; i++) {
             int radiusX = random.nextInt(2);
@@ -334,7 +375,8 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                 for (int y = center.getY() - radiusY; y <= center.getY() + radiusY; y++) {
                     for (int z = center.getZ() - radiusZ; z <= center.getZ() + radiusZ; z++) {
                         BlockPos pos = new BlockPos(x, y, z);
-                        if (pos.distanceSq(center) <= (double) (radius * radius)) {
+                        if (isInChunk(pos, chunkX, chunkZ)
+                            && pos.distanceSq(center) <= (double) (radius * radius)) {
                             world.setBlockState(pos, ModBlocks.CONGLOMERATE.getDefaultState(), 2);
                         }
                     }
@@ -440,7 +482,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
                 List<CraterCarver> craters = generateCratersForChunk(checkX, checkZ);
                 for (CraterCarver crater : craters) {
                     if (crater.affectsChunk(chunkX, chunkZ)) {
-                        crater.carveInPrimer(primer, chunkX, chunkZ, airState);
+                        crater.carveInPrimer(primer, chunkX, chunkZ, airState, terrainConfig.getMaxHeight());
                     }
                 }
             }
@@ -451,6 +493,12 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
      * Generate list of craters for a specific chunk using deterministic random.
      */
     private List<CraterCarver> generateCratersForChunk(int chunkX, int chunkZ) {
+        long cacheKey = chunkKey(chunkX, chunkZ);
+        List<CraterCarver> cached = craterCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+
         List<CraterCarver> craters = new ArrayList<>();
         Random random = createChunkRandom(chunkX, chunkZ);
 
@@ -459,6 +507,7 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
 
         // Check if this chunk should have craters
         if (random.nextDouble() > craterConfig.getCraterChance()) {
+            craterCache.put(cacheKey, craters);
             return craters; // No craters in this chunk
         }
 
@@ -491,7 +540,16 @@ public class AdAstraChunkGenerator implements IChunkGenerator {
             craters.add(crater);
         }
 
+        craterCache.put(cacheKey, craters);
         return craters;
+    }
+
+    private long chunkKey(int chunkX, int chunkZ) {
+        return ((long) chunkX << 32) ^ (chunkZ & 0xffffffffL);
+    }
+
+    protected static boolean isInChunk(BlockPos pos, int chunkX, int chunkZ) {
+        return (pos.getX() >> 4) == chunkX && (pos.getZ() >> 4) == chunkZ;
     }
 
     private List<PlanetOreSpec> getOreSpecs(String planetName) {

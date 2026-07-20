@@ -15,6 +15,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.structure.StructureBoundingBox;
+import net.minecraft.world.gen.structure.template.ITemplateProcessor;
 import net.minecraft.world.gen.structure.template.PlacementSettings;
 import net.minecraft.world.gen.structure.template.Template;
 
@@ -320,7 +321,22 @@ public final class JigsawStructureGenerator {
             .setReplacedBlock(Blocks.STRUCTURE_VOID)
             .setChunk(targetChunk)
             .setBoundingBox(chunkBox);
-        piece.parsed.template.addBlocksToWorld(world, piece.origin, settings, 2);
+        // Forge invokes IWorldGenerator during chunk population. Template placement must never
+        // touch a neighboring chunk here, or that chunk is synchronously loaded and cascades
+        // the population pass across the whole structure.
+        piece.parsed.template.addBlocksToWorld(
+            world, piece.origin, currentChunkProcessor(targetChunk), settings, 2);
+    }
+
+    private ITemplateProcessor currentChunkProcessor(final ChunkPos targetChunk) {
+        return new ITemplateProcessor() {
+            @Override
+            public Template.BlockInfo processBlock(
+                net.minecraft.world.World world, BlockPos pos, Template.BlockInfo blockInfo) {
+                return (pos.getX() >> 4) == targetChunk.x && (pos.getZ() >> 4) == targetChunk.z
+                    ? blockInfo : null;
+            }
+        };
     }
 
     private StructureBoundingBox boundingBoxOf(PlacedPiece piece) {

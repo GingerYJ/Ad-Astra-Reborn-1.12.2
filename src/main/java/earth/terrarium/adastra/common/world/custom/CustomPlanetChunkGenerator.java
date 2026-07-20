@@ -59,20 +59,38 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
     private void generateCustomFluidLake(CustomPlanetDefinition.FluidLakeDefinition lake, BlockPos chunkOrigin, Random random) {
         IBlockState fluidBlock = lake.getFluidBlock();
         IBlockState replaceBlock = lake.getReplaceBlock();
-        int maxGenerationY = 255 - 3;
+        int maxGenerationY = Math.min(lake.getMaxY(), world.getHeight() - 3);
+        if (lake.getMinY() > maxGenerationY) {
+            return;
+        }
+        int chunkX = chunkOrigin.getX() >> 4;
+        int chunkZ = chunkOrigin.getZ() >> 4;
+        int chunkMinX = chunkX << 4;
+        int chunkMinZ = chunkZ << 4;
+        int chunkMaxX = chunkMinX + 15;
+        int chunkMaxZ = chunkMinZ + 15;
 
         for (int i = 0; i < lake.getCountPerChunk(); i++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
-            int y = lake.getMinY() + random.nextInt(Math.min(lake.getMaxY(), maxGenerationY) - lake.getMinY() + 1);
+            int y = lake.getMinY() + random.nextInt(maxGenerationY - lake.getMinY() + 1);
             int z = chunkOrigin.getZ() + random.nextInt(16);
             BlockPos center = new BlockPos(x, y, z);
 
             int radius = lake.getLakeSize();
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dy = -radius / 2; dy <= radius / 2; dy++) {
-                    for (int dz = -radius; dz <= radius; dz++) {
+            int minDx = Math.max(-radius, chunkMinX - center.getX());
+            int maxDx = Math.min(radius, chunkMaxX - center.getX());
+            int minDz = Math.max(-radius, chunkMinZ - center.getZ());
+            int maxDz = Math.min(radius, chunkMaxZ - center.getZ());
+            int minDy = Math.max(-radius / 2, -center.getY());
+            int maxDy = Math.min(radius / 2, world.getHeight() - 1 - center.getY());
+            for (int dx = minDx; dx <= maxDx; dx++) {
+                for (int dy = minDy; dy <= maxDy; dy++) {
+                    for (int dz = minDz; dz <= maxDz; dz++) {
                         if (dx * dx + dz * dz + dy * dy * 4 <= radius * radius) {
                             BlockPos pos = center.add(dx, dy, dz);
+                            if (!isInChunk(pos, chunkX, chunkZ)) {
+                                continue;
+                            }
                             IBlockState current = world.getBlockState(pos);
                             if (current.getBlock() == replaceBlock.getBlock()) {
                                 world.setBlockState(pos, fluidBlock, 2);
@@ -106,12 +124,18 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
             return;
         }
         AdAstraIcicleBlock icicle = (AdAstraIcicleBlock) ModBlocks.ICICLE;
+        Block uranusStone = ModBlocks.getPlanetStone("uranus");
+        if (uranusStone == null) {
+            return;
+        }
+        int chunkX = chunkOrigin.getX() >> 4;
+        int chunkZ = chunkOrigin.getZ() >> 4;
         for (int attempt = 0; attempt < 8; attempt++) {
             int x = chunkOrigin.getX() + random.nextInt(16);
             int z = chunkOrigin.getZ() + random.nextInt(16);
             BlockPos surface = world.getHeight(new BlockPos(x, 0, z));
             BlockPos base = surface.down();
-        if (world.getBlockState(base).getBlock() != ModBlocks.getPlanetStone("uranus")) {
+            if (world.getBlockState(base).getBlock() != uranusStone) {
                 continue;
             }
 
@@ -124,7 +148,10 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
                     continue;
                 }
                 BlockPos nearbyBase = base.offset(horizontal);
-        if (world.getBlockState(nearbyBase).getBlock() == ModBlocks.getPlanetStone("uranus")) {
+                if (!isInChunk(nearbyBase, chunkX, chunkZ)) {
+                    continue;
+                }
+                if (world.getBlockState(nearbyBase).getBlock() == uranusStone) {
                     AdAstraIcicleBlock.grow(world, icicle, nearbyBase.up(), net.minecraft.util.EnumFacing.UP,
                         1 + random.nextInt(3), false);
                 }
@@ -132,7 +159,7 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
         }
     }
 
-/** A small 1.12.2 equivalent of the rare packed-ice icicle geode feature. */
+    /** A small 1.12.2 equivalent of the rare packed-ice icicle geode feature. */
     private void generateCustomIcicleGeode(BlockPos chunkOrigin, Random random) {
         if (random.nextInt(24) != 0) {
             return;
@@ -150,16 +177,31 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
 
         int outerRadius = 4 + random.nextInt(3);
         boolean alternateInner = random.nextFloat() < 0.083F;
-        for (int dx = -outerRadius; dx <= outerRadius; dx++) {
-            for (int dy = -outerRadius; dy <= outerRadius; dy++) {
-                for (int dz = -outerRadius; dz <= outerRadius; dz++) {
-                    double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                    if (distance > 4.2D || distance > outerRadius + 0.5D) {
+        int chunkX = chunkOrigin.getX() >> 4;
+        int chunkZ = chunkOrigin.getZ() >> 4;
+        int chunkMinX = chunkX << 4;
+        int chunkMinZ = chunkZ << 4;
+        int chunkMaxX = chunkMinX + 15;
+        int chunkMaxZ = chunkMinZ + 15;
+        int minDx = Math.max(-outerRadius, chunkMinX - center.getX());
+        int maxDx = Math.min(outerRadius, chunkMaxX - center.getX());
+        int minDz = Math.max(-outerRadius, chunkMinZ - center.getZ());
+        int maxDz = Math.min(outerRadius, chunkMaxZ - center.getZ());
+        int minDy = Math.max(-outerRadius, -center.getY());
+        int maxDy = Math.min(outerRadius, world.getHeight() - 1 - center.getY());
+        double maxDistanceSq = Math.min(4.2D, outerRadius + 0.5D);
+        maxDistanceSq *= maxDistanceSq;
+
+        for (int dx = minDx; dx <= maxDx; dx++) {
+            for (int dy = minDy; dy <= maxDy; dy++) {
+                for (int dz = minDz; dz <= maxDz; dz++) {
+                    double distanceSq = dx * dx + dy * dy + dz * dz;
+                    if (distanceSq > maxDistanceSq) {
                         continue;
                     }
 
                     BlockPos pos = center.add(dx, dy, dz);
-                    if (!world.isBlockLoaded(pos)) {
+                    if (!isInChunk(pos, chunkX, chunkZ)) {
                         continue;
                     }
                     IBlockState current = world.getBlockState(pos);
@@ -168,13 +210,13 @@ public class CustomPlanetChunkGenerator extends AdAstraChunkGenerator {
                     }
 
                     IBlockState replacement;
-                    if (distance <= 1.7D) {
+                    if (distanceSq <= 1.7D * 1.7D) {
                         replacement = Blocks.AIR.getDefaultState();
-                    } else if (distance <= 2.2D) {
+                    } else if (distanceSq <= 2.2D * 2.2D) {
                         replacement = alternateInner
-            ? ModBlocks.BLUE_SLUSHY_ICE.getDefaultState()
+                            ? ModBlocks.BLUE_SLUSHY_ICE.getDefaultState()
                             : Blocks.PACKED_ICE.getDefaultState();
-                    } else if (distance <= 3.2D) {
+                    } else if (distanceSq <= 3.2D * 3.2D) {
                         replacement = stone.getDefaultState();
                     } else {
                         replacement = outer.getDefaultState();

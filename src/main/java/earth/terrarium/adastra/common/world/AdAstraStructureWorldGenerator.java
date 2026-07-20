@@ -117,15 +117,9 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         new StructureSpec("sedna", "sedna_fallen_ship", 40, 5, 1471040600, -2),
         new StructureSpec("uranus", "uranus_dungeon", 40, 5, 1471040600, -40),
         new StructureSpec("uranus", "uranus_tower", 20, 6, 1642136474, 0),
-        new StructureSpec("venus", "venus_volcano", 40, 5, 1471040600, 0)
+        new StructureSpec("venus", "venus_volcano", 40, 5, 1471040600, 0),
+        new StructureSpec("proxima_centauri_b", "proxima_centauri_b_hut", 20, 6, 1642136474, 1)
     };
-    private static final ITemplateProcessor SKIP_AIR_PROCESSOR = new ITemplateProcessor() {
-        @Override
-        public Template.BlockInfo processBlock(World world, BlockPos pos, Template.BlockInfo blockInfo) {
-            return blockInfo.blockState.getBlock() == Blocks.AIR ? null : blockInfo;
-        }
-    };
-
     private final Map<ResourceLocation, Template> templateCache = new HashMap<ResourceLocation, Template>();
     private final JigsawStructureGenerator jigsawGenerator = new JigsawStructureGenerator();
 
@@ -249,7 +243,8 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             .setReplacedBlock(Blocks.STRUCTURE_VOID)
             .setChunk(new ChunkPos(chunkX, chunkZ))
             .setBoundingBox(new StructureBoundingBox(chunkX * 16, 1, chunkZ * 16, chunkX * 16 + 15, world.getHeight(), chunkZ * 16 + 15));
-        template.addBlocksToWorld(world, origin, settings, 2);
+        template.addBlocksToWorld(
+            world, origin, createChunkProcessor(new ChunkPos(chunkX, chunkZ), false), settings, 2);
     }
 
     private void generateMeteor(WorldServer world, int chunkX, int chunkZ) {
@@ -297,7 +292,8 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             .setReplacedBlock(Blocks.STRUCTURE_VOID)
             .setChunk(new ChunkPos(chunkX, chunkZ))
             .setBoundingBox(chunkBox);
-        template.addBlocksToWorld(world, origin, SKIP_AIR_PROCESSOR, settings, 2);
+        template.addBlocksToWorld(
+            world, origin, createChunkProcessor(new ChunkPos(chunkX, chunkZ), true), settings, 2);
     }
 
     private void generateMoonDungeon(WorldServer world, int chunkX, int chunkZ) {
@@ -414,7 +410,8 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             .setReplacedBlock(Blocks.STRUCTURE_VOID)
             .setChunk(new ChunkPos(chunkX, chunkZ))
             .setBoundingBox(getChunkBoundingBox(world, chunkX, chunkZ));
-        template.addBlocksToWorld(world, origin, SKIP_AIR_PROCESSOR, settings, 2);
+        template.addBlocksToWorld(
+            world, origin, createChunkProcessor(new ChunkPos(chunkX, chunkZ), true), settings, 2);
     }
 
     private ChunkPos getSurfaceStructureCandidate(long worldSeed, int dimension, int chunkX, int chunkZ, int salt) {
@@ -455,6 +452,18 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
 
     private StructureBoundingBox getChunkBoundingBox(World world, int chunkX, int chunkZ) {
         return new StructureBoundingBox(chunkX * 16, 1, chunkZ * 16, chunkX * 16 + 15, world.getHeight(), chunkZ * 16 + 15);
+    }
+
+    private ITemplateProcessor createChunkProcessor(final ChunkPos targetChunk, final boolean skipAir) {
+        return new ITemplateProcessor() {
+            @Override
+            public Template.BlockInfo processBlock(World world, BlockPos pos, Template.BlockInfo blockInfo) {
+                if ((pos.getX() >> 4) != targetChunk.x || (pos.getZ() >> 4) != targetChunk.z) {
+                    return null;
+                }
+                return skipAir && blockInfo.blockState.getBlock() == Blocks.AIR ? null : blockInfo;
+            }
+        };
     }
 
     private Random getMeteorRandom(long worldSeed, int dimension, int regionX, int regionZ) {

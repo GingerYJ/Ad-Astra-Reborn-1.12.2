@@ -35,8 +35,17 @@ public class CraterCarver {
      * This is the preferred method for performance.
      */
     public void carveInPrimer(ChunkPrimer primer, int chunkX, int chunkZ, IBlockState airState) {
+        carveInPrimer(primer, chunkX, chunkZ, airState, 255);
+    }
+
+    /**
+     * Carves only through the configured terrain height. Planet terrain is much lower than
+     * the legacy world ceiling, so scanning the unused upper air range wastes work per crater.
+     */
+    public void carveInPrimer(ChunkPrimer primer, int chunkX, int chunkZ, IBlockState airState, int maxY) {
         int chunkStartX = chunkX * 16;
         int chunkStartZ = chunkZ * 16;
+        int topY = Math.min(255, Math.max(0, maxY));
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -49,7 +58,7 @@ public class CraterCarver {
                 }
 
                 // Carve from target Y upward to surface
-                for (int y = targetY; y < 255; y++) {
+                for (int y = targetY; y <= topY; y++) {
                     IBlockState current = primer.getBlockState(x, y, z);
                     if (current.getBlock() == Blocks.AIR || current.getBlock() == Blocks.BEDROCK) {
                         break;

@@ -147,6 +147,11 @@ sourceSets {
             }
         }
     }
+    // Structure compatibility tests exercise the same remapped 1.12.2 classes as main.
+    test {
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.runtimeClasspath
+    }
 }
 
 idea {
