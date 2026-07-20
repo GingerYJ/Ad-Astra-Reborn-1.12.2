@@ -390,6 +390,7 @@ public final class JigsawStructureGenerator {
             List<Jigsaw> jigsaws = extractJigsaws(tag);
             AdAstraStructureBlocks.remapPalette(tag);
             AdAstraStructureBlocks.remapStructureData(tag);
+            AdAstraStructureBlocks.remapContextLootTables(tag, location);
 
             Template template = new Template();
             template.read(tag);

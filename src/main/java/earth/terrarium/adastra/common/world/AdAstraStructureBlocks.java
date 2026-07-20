@@ -66,6 +66,51 @@ public final class AdAstraStructureBlocks {
         }
     }
 
+    /**
+     * Resolves the placeholder loot marker used by the modern Venus and meteor templates.
+     * The marker is intentionally changed at load time so the same NBT can still be shared with
+     * the modern resource set while each legacy structure receives its own table.
+     */
+    static void remapContextLootTables(NBTTagCompound tag, ResourceLocation structure) {
+        String lootTable = contextLootTable(structure);
+        if (lootTable == null) {
+            return;
+        }
+
+        NBTTagList blocks = tag.getTagList("blocks", 10);
+        for (int i = 0; i < blocks.tagCount(); i++) {
+            NBTTagCompound block = blocks.getCompoundTagAt(i);
+            if (!block.hasKey("nbt", 10)) {
+                continue;
+            }
+            NBTTagCompound blockEntity = block.getCompoundTag("nbt");
+            if ("minecraft:loot".equals(blockEntity.getString("LootTable"))) {
+                blockEntity.setString("LootTable", lootTable);
+            }
+        }
+    }
+
+    private static String contextLootTable(ResourceLocation structure) {
+        if (structure == null || !Reference.MOD_ID.equals(structure.getNamespace())) {
+            return null;
+        }
+
+        String path = structure.getPath();
+        if ("venus_tower".equals(path)) {
+            return Reference.MOD_ID + ":chests/tower/venus/venus_tower";
+        }
+        if ("warped_watch_tower".equals(path)
+            || "crimson_room_2".equals(path)
+            || "crimson_room_3".equals(path)
+            || "crimson_room_4".equals(path)) {
+            return Reference.MOD_ID + ":chests/village/venus/pygro_village";
+        }
+        if (path.startsWith("meteor")) {
+            return Reference.MOD_ID + ":chests/meteor";
+        }
+        return null;
+    }
+
     public static String remapBlockName(String name) {
         String stainedGlass = remapStainedGlassName(name);
         if (stainedGlass != null) {

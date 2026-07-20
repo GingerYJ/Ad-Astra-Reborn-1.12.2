@@ -2,6 +2,13 @@ package earth.terrarium.adastra.common.registry;
 
 public final class ModParticles {
 
+    /**
+     * EffectRenderer reserves the low particle ids for EnumParticleTypes.
+     * Keep mod-only factories outside that range so vanilla particles such as
+     * water bubbles and splashes cannot be replaced by our factories.
+     */
+    private static final int FIRST_CUSTOM_PARTICLE_ID = 128;
+
     private ModParticles() {
     }
 
@@ -14,12 +21,12 @@ public final class ModParticles {
     public static int WIND;
 
     public static void register() {
-        ACID_RAIN = 0;
-        LARGE_FLAME = 1;
-        LARGE_SMOKE = 2;
-        OXYGEN_BUBBLE = 3;
-        OXYGEN_VENT = 4;
-        CRYO_FREEZE = 5;
-        WIND = 6;
+        ACID_RAIN = FIRST_CUSTOM_PARTICLE_ID;
+        LARGE_FLAME = FIRST_CUSTOM_PARTICLE_ID + 1;
+        LARGE_SMOKE = FIRST_CUSTOM_PARTICLE_ID + 2;
+        OXYGEN_BUBBLE = FIRST_CUSTOM_PARTICLE_ID + 3;
+        OXYGEN_VENT = FIRST_CUSTOM_PARTICLE_ID + 4;
+        CRYO_FREEZE = FIRST_CUSTOM_PARTICLE_ID + 5;
+        WIND = FIRST_CUSTOM_PARTICLE_ID + 6;
     }
 }

@@ -216,6 +216,11 @@
           ],
           "name": "minecraft:book",
           "weight": 20
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:mars_globe",
+          "weight": 2
         }
       ],
       "rolls": {

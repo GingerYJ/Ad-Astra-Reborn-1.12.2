@@ -145,6 +145,11 @@
                                                                 "function":  "enchant_randomly"
                                                             }
                                                         ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:item_pluto_globe",
+                                          "weight":  2
                                       }
                                   ]
                   }

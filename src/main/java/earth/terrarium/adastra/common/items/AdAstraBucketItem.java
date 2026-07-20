@@ -1,11 +1,15 @@
 package earth.terrarium.adastra.common.items;
 
+import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.Fluid;
@@ -24,6 +28,17 @@ public class AdAstraBucketItem extends ItemBucket {
     public AdAstraBucketItem(Block fluidBlock, Fluid fluid) {
         super(fluidBlock);
         this.fluid = fluid;
+    }
+
+    @Override
+    public boolean tryPlaceContainedLiquid(EntityPlayer player, World world, BlockPos pos) {
+        // ItemBucket writes the contained block directly and bypasses the
+        // BlockFluidBase displacement check. Keep vanilla water authoritative
+        // when a mod-fluid bucket is used on a water cell.
+        if (AdAstraFluidBlock.isVanillaWater(world.getBlockState(pos))) {
+            return false;
+        }
+        return super.tryPlaceContainedLiquid(player, world, pos);
     }
 
     @Override

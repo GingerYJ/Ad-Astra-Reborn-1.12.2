@@ -56,7 +56,7 @@ class StructureLootRuntimeTest {
         Set<String> ids = new LinkedHashSet<String>();
         Path structureRoot = resources.resolve("data/ad_astra/structures");
         try (Stream<Path> paths = Files.walk(structureRoot)) {
-            for (Path path : paths.filter(file -> file.toString().endsWith(".nbt")).toList()) {
+        for (Path path : paths.filter(file -> file.toString().endsWith(".nbt")).toList()) {
                 try (InputStream input = Files.newInputStream(path)) {
                     NBTTagCompound root = CompressedStreamTools.readCompressed(input);
                     NBTTagList blocks = root.getTagList("blocks", 10);
@@ -77,6 +77,10 @@ class StructureLootRuntimeTest {
                 }
             }
         }
+        ids.add("ad_astra:chests/oil_well");
+        ids.add("ad_astra:chests/tower/venus/venus_tower");
+        ids.add("ad_astra:chests/village/venus/pygro_village");
+        ids.add("ad_astra:chests/bullet/venus/venus_bullet");
         return ids;
     }
 

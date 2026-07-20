@@ -36,6 +36,7 @@ class ResourceIntegrityTest {
         "\\\"item\\\"\\s*:\\s*\\\"ad_astra:([^\\\"]+)\\\"");
 
     private static final List<String> EXTENSION_LOOT_TABLES = List.of(
+        "bullet/venus/venus_bullet.json",
         "building/eris/eris_building.json",
         "building/haumea/haumea_building.json",
         "building/makemake/makemake_building.json",
@@ -49,6 +50,9 @@ class ResourceIntegrityTest {
         "temple/quaoar/quaoar_temple.json",
         "tower/saturn/saturn_tower.json",
         "tower/uranus/uranus_tower.json",
+        "tower/venus/venus_tower.json",
+        "oil_well.json",
+        "village/venus/pygro_village.json",
         "volcano/mercury/mercury_volcano.json",
         "volcano/venus/venus_volcano.json");
 
@@ -59,7 +63,8 @@ class ResourceIntegrityTest {
 
     private static final Set<String> CORE_AD_ASTRA_LOOT_ITEMS = Set.of(
         "space_painting", "sky_stone", "moon_sand", "mars_sand", "venus_sand",
-        "mercury_cobblestone", "mercury_globe", "cheese", "ice_shard", "raw_desh",
+        "mercury_cobblestone", "earth_globe", "moon_globe", "mars_globe", "venus_globe",
+        "mercury_globe", "cheese", "ice_shard", "raw_desh",
         "raw_ostrum", "raw_calorite", "desh_ingot", "desh_nugget", "steel_ingot",
         "steel_nugget", "launch_pad", "fuel_bucket", "gas_tank", "space_helmet",
         "space_suit", "space_pants", "space_boots");
@@ -138,8 +143,13 @@ class ResourceIntegrityTest {
             "data/ad_astra/worldgen/template_pool/structure_proxima_centauri_b_hut/start_pool.json")));
         assertTrue(Files.exists(resources.resolve(
             "data/ad_astra/structures/structure_proxima_centauri_b_hut.nbt")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/worldgen/structure/pygro_tower.json")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/worldgen/structure/pygro_village.json")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/worldgen/structure/venus_bullet.json")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/structures/venus_bullet.nbt")));
         assertTrue(Files.exists(assets.resolve(
             "loot_tables/chests/hut/proxima_centauri_b/proxima_centauri_b_hut.json")));
+        assertTrue(Files.exists(assets.resolve("loot_tables/chests/oil_well.json")));
         assertTrue(failures.isEmpty(), String.join(System.lineSeparator(), failures));
     }
 
@@ -200,6 +210,42 @@ class ResourceIntegrityTest {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    void planetLootTablesContainTheirGlobeWithExpectedWeight() throws IOException {
+        Path root = projectRoot().resolve("src/main/resources/assets/ad_astra/loot_tables/chests");
+        String[][] expected = {
+            {"dungeon/moon/dungeon_chest.json", "ad_astra:moon_globe"},
+            {"dungeon/moon/large_dungeon_chest.json", "ad_astra:moon_globe"},
+            {"village/moon/house.json", "ad_astra:moon_globe"},
+            {"village/moon/blacksmith.json", "ad_astra:moon_globe"},
+            {"temple/mars/temple.json", "ad_astra:mars_globe"},
+            {"volcano/venus/venus_volcano.json", "ad_astra:venus_globe"},
+            {"tower/venus/venus_tower.json", "ad_astra:venus_globe"},
+            {"village/venus/pygro_village.json", "ad_astra:venus_globe"},
+            {"bullet/venus/venus_bullet.json", "ad_astra:venus_globe"},
+            {"maze/neptune/neptune_maze.json", "ad_astra:item_neptune_globe"},
+            {"temple/orcus/orcus_temple.json", "ad_astra:item_orcus_globe"},
+            {"temple/pluto/pluto_temple.json", "ad_astra:item_pluto_globe"},
+            {"tower/saturn/saturn_tower.json", "ad_astra:item_saturn_globe"},
+            {"tower/uranus/uranus_tower.json", "ad_astra:item_uranus_globe"}
+        };
+
+        for (String[] entry : expected) {
+            JsonObject rootObject = JsonParser.parseString(read(root.resolve(entry[0]))).getAsJsonObject();
+            boolean found = false;
+            for (JsonElement poolElement : rootObject.getAsJsonArray("pools")) {
+                for (JsonElement rawEntry : poolElement.getAsJsonObject().getAsJsonArray("entries")) {
+                    JsonObject lootEntry = rawEntry.getAsJsonObject();
+                    if (entry[1].equals(lootEntry.get("name").getAsString())
+                        && lootEntry.get("weight").getAsInt() == 2) {
+                        found = true;
+                    }
+                }
+            }
+            assertTrue(found, entry[0] + " is missing " + entry[1] + " with weight 2");
         }
     }
 
@@ -270,6 +316,29 @@ class ResourceIntegrityTest {
             assertEquals(9, size.getIntAt(0));
             assertEquals(7, size.getIntAt(1));
             assertEquals(9, size.getIntAt(2));
+        }
+
+        Path bulletPath = structureRoot.resolve("venus_bullet.nbt");
+        try (var input = Files.newInputStream(bulletPath)) {
+            NBTTagCompound bullet = CompressedStreamTools.readCompressed(input);
+            NBTTagList size = bullet.getTagList("size", 3);
+            assertEquals(11, size.getIntAt(0));
+            assertEquals(9, size.getIntAt(1));
+            assertEquals(11, size.getIntAt(2));
+            boolean hasLootChest = false;
+            NBTTagList blocks = bullet.getTagList("blocks", 10);
+            for (int i = 0; i < blocks.tagCount(); i++) {
+                NBTTagCompound block = blocks.getCompoundTagAt(i);
+                if (!block.hasKey("nbt", 10)) {
+                    continue;
+                }
+                NBTTagCompound entity = block.getCompoundTag("nbt");
+                if ("minecraft:chest".equals(entity.getString("id"))
+                    && "ad_astra:chests/bullet/venus/venus_bullet".equals(entity.getString("LootTable"))) {
+                    hasLootChest = true;
+                }
+            }
+            assertTrue(hasLootChest, "venus_bullet.nbt has no loot chest");
         }
     }
 

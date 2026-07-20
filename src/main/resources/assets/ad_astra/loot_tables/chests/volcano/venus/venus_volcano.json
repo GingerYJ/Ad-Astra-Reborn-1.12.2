@@ -182,6 +182,11 @@
                                                                 "tag":  "{Potion:\"minecraft:long_fire_resistance\"}"
                                                             }
                                                         ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:venus_globe",
+                                          "weight":  2
                                       }
                                   ]
                   }

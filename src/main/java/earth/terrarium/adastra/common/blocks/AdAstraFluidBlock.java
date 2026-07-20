@@ -6,11 +6,14 @@ import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 
 public class AdAstraFluidBlock extends BlockFluidClassic {
 
@@ -25,6 +28,41 @@ public class AdAstraFluidBlock extends BlockFluidClassic {
     @Override
     public boolean canDrain(World world, BlockPos pos) {
         return true;
+    }
+
+    @Override
+    public boolean canDisplace(IBlockAccess world, BlockPos pos) {
+        // Keep custom fluids and vanilla water in separate cells. Without this
+        // guard, dense fluids can replace water while water is blocked only on
+        // the custom-fluid side, producing an endless pair of fluid updates.
+        if (isVanillaWater(world.getBlockState(pos))) {
+            return false;
+        }
+        return super.canDisplace(world, pos);
+    }
+
+    @Override
+    public int place(World world, BlockPos pos, FluidStack resource, boolean doPlace) {
+        // FluidUtil and machine handlers can call this API directly, bypassing
+        // both the normal flow check and ItemBucket.tryPlaceContainedLiquid.
+        if (isVanillaWater(world.getBlockState(pos))) {
+            return 0;
+        }
+        return super.place(world, pos, resource, doPlace);
+    }
+
+    public static boolean isVanillaWater(IBlockState state) {
+        return state != null
+            && (state.getBlock() == Blocks.WATER || state.getBlock() == Blocks.FLOWING_WATER);
+    }
+
+    /**
+     * Forge fluids use a separate material instance, so vanilla's water
+     * overlay and fog checks do not recognize our liquid blocks by material
+     * alone.
+     */
+    public boolean usesWaterVisualEffects() {
+        return definedFluid != null && !definedFluid.isGaseous();
     }
 
     @Override

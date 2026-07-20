@@ -135,6 +135,11 @@
                                                                 "data":  1
                                                             }
                                                         ]
+                                      },
+                                      {
+                                          "type":  "item",
+                                          "name":  "ad_astra:item_uranus_globe",
+                                          "weight":  2
                                       }
                                   ]
                   }

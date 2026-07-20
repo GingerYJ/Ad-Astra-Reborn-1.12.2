@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -97,6 +98,29 @@ class AdAstraStructureBlocksTest {
         assertEquals("ad_astra:chests/test", barrel.getCompoundTag("nbt").getString("LootTable"));
         assertEquals("minecraft:mob_spawner", spawner.getCompoundTag("nbt").getString("id"));
         assertFalse(campfire.hasKey("nbt"));
+    }
+
+    @Test
+    void mapsContextualLootMarkersToTheStructureTable() {
+        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagList blocks = new NBTTagList();
+        blocks.appendTag(blockWithEntity("minecraft:chest", "minecraft:loot"));
+        blocks.appendTag(blockWithEntity("minecraft:chest", "ad_astra:already_set"));
+        tag.setTag("blocks", blocks);
+
+        AdAstraStructureBlocks.remapContextLootTables(
+            tag, new ResourceLocation("ad_astra", "warped_watch_tower"));
+
+        assertEquals("ad_astra:chests/village/venus/pygro_village",
+            blocks.getCompoundTagAt(0).getCompoundTag("nbt").getString("LootTable"));
+        assertEquals("ad_astra:already_set",
+            blocks.getCompoundTagAt(1).getCompoundTag("nbt").getString("LootTable"));
+
+        blocks.getCompoundTagAt(0).getCompoundTag("nbt").setString("LootTable", "minecraft:loot");
+        AdAstraStructureBlocks.remapContextLootTables(
+            tag, new ResourceLocation("ad_astra", "meteor3"));
+        assertEquals("ad_astra:chests/meteor",
+            blocks.getCompoundTagAt(0).getCompoundTag("nbt").getString("LootTable"));
     }
 
     private static NBTTagCompound properties(String... values) {

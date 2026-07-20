@@ -12,6 +12,7 @@
     "client.SoundHandlerMixin"
   ],
   "mixins": [
+    "common.BlockDynamicLiquidMixin",
     "common.MinecraftServerMixin",
     "common.NetHandlerPlayServerMixin",
     "common.environment.IceBlockMixin"

@@ -8,7 +8,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
@@ -52,8 +52,6 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private static final int METEOR_SEPARATION = 32;
     private static final int METEOR_SALT = 734154559;
     private static final int METEOR_ORIGIN_Y = AdAstraChunkGenerator.SURFACE_Y - 12;
-    private static final String LEGACY_METEOR_LOOT_TABLE = "minecraft:loot";
-    private static final String METEOR_LOOT_TABLE = Reference.MOD_ID + ":chests/meteor";
 
     private static final int MARS_DIMENSION_ID = ModDimensions.MARS_ID;
     private static final int VENUS_DIMENSION_ID = ModDimensions.VENUS_ID;
@@ -117,6 +115,12 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         new StructureSpec("sedna", "sedna_fallen_ship", 40, 5, 1471040600, -2),
         new StructureSpec("uranus", "uranus_dungeon", 40, 5, 1471040600, -40),
         new StructureSpec("uranus", "uranus_tower", 20, 6, 1642136474, 0),
+        new StructureSpec("venus", "pygro_tower", 29, 19, 1360696494,
+            "ad_astra:run_venus_tower/side_venus_tower_start", 1, 0, 5),
+        new StructureSpec("venus", "pygro_village", 24, 17, 302103168,
+            "ad_astra:crimson_village/crimson_start", 25, 0, 5),
+        new StructureSpec("venus", "venus_bullet", 27, 14, 1539450951,
+            "ad_astra:run_venus_bullet/side_venus_bullet_start", 1, 0, 5),
         new StructureSpec("venus", "venus_volcano", 40, 5, 1471040600, 0),
         new StructureSpec("proxima_centauri_b", "proxima_centauri_b_hut", 20, 6, 1642136474, 1)
     };
@@ -170,8 +174,9 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     private void generateAdditionalStructure(WorldServer world, int chunkX, int chunkZ, StructureSpec structure) {
         int regionX = floorDiv(chunkX, structure.spacing);
         int regionZ = floorDiv(chunkZ, structure.spacing);
-        for (int offsetX = -1; offsetX <= 1; offsetX++) {
-            for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+        int regionReach = Math.max(1, structure.chunkReach / structure.spacing + 1);
+        for (int offsetX = -regionReach; offsetX <= regionReach; offsetX++) {
+            for (int offsetZ = -regionReach; offsetZ <= regionReach; offsetZ++) {
                 generateAdditionalRegion(
                     world, chunkX, chunkZ, structure, regionX + offsetX, regionZ + offsetZ);
             }
@@ -191,19 +196,18 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         }
         int candidateX = regionX * structure.spacing + structureRandom.nextInt(range);
         int candidateZ = regionZ * structure.spacing + structureRandom.nextInt(range);
-        if (!isWithinChunkReach(chunkX, chunkZ, candidateX, candidateZ, ADDITIONAL_STRUCTURE_CHUNK_REACH)) {
+        if (!isWithinChunkReach(chunkX, chunkZ, candidateX, candidateZ, structure.chunkReach)) {
             return;
         }
 
-        String startPool = ModResourceIds.structure(structure.name).toString() + "/start_pool";
         jigsawGenerator.generateChunkSlice(
             world,
             new ChunkPos(candidateX, candidateZ),
             new ChunkPos(chunkX, chunkZ),
-            startPool,
-            2,
+            structure.startPool,
+            structure.maxPieces,
             structure.startYOffset,
-            ADDITIONAL_STRUCTURE_CHUNK_REACH,
+            structure.chunkReach,
             structureRandom);
     }
 
@@ -245,6 +249,13 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             .setBoundingBox(new StructureBoundingBox(chunkX * 16, 1, chunkZ * 16, chunkX * 16 + 15, world.getHeight(), chunkZ * 16 + 15));
         template.addBlocksToWorld(
             world, origin, createChunkProcessor(new ChunkPos(chunkX, chunkZ), false), settings, 2);
+
+        BlockPos chestPos = origin.add(6, 10, 8);
+        world.setBlockState(chestPos, Blocks.CHEST.getDefaultState(), 2);
+        if (world.getTileEntity(chestPos) instanceof TileEntityChest) {
+            TileEntityChest chest = (TileEntityChest) world.getTileEntity(chestPos);
+            chest.setLootTable(new ResourceLocation(Reference.MOD_ID, "chests/oil_well"), world.getSeed());
+        }
     }
 
     private void generateMeteor(WorldServer world, int chunkX, int chunkZ) {
@@ -446,10 +457,6 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         return template;
     }
 
-    private boolean isMeteorTemplate(ResourceLocation location) {
-        return Reference.MOD_ID.equals(location.getNamespace()) && location.getPath().startsWith("meteor");
-    }
-
     private StructureBoundingBox getChunkBoundingBox(World world, int chunkX, int chunkZ) {
         return new StructureBoundingBox(chunkX * 16, 1, chunkZ * 16, chunkX * 16 + 15, world.getHeight(), chunkZ * 16 + 15);
     }
@@ -486,30 +493,13 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
             if (Reference.MOD_ID.equals(location.getNamespace())) {
                 AdAstraStructureBlocks.remapPalette(tag);
                 AdAstraStructureBlocks.remapStructureData(tag);
-            }
-            if (isMeteorTemplate(location)) {
-                remapMeteorLootTables(tag);
+                AdAstraStructureBlocks.remapContextLootTables(tag, location);
             }
             Template template = new Template();
             template.read(tag);
             return template;
         } catch (IOException | RuntimeException exception) {
             return null;
-        }
-    }
-
-    private void remapMeteorLootTables(NBTTagCompound tag) {
-        NBTTagList blocks = tag.getTagList("blocks", 10);
-        for (int i = 0; i < blocks.tagCount(); i++) {
-            NBTTagCompound block = blocks.getCompoundTagAt(i);
-            if (!block.hasKey("nbt", 10)) {
-                continue;
-            }
-
-            NBTTagCompound blockEntity = block.getCompoundTag("nbt");
-            if (LEGACY_METEOR_LOOT_TABLE.equals(blockEntity.getString("LootTable"))) {
-                blockEntity.setString("LootTable", METEOR_LOOT_TABLE);
-            }
         }
     }
 
@@ -556,15 +546,28 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
         private final int spacing;
         private final int separation;
         private final int salt;
+        private final String startPool;
+        private final int maxPieces;
         private final int startYOffset;
+        private final int chunkReach;
 
         private StructureSpec(String planet, String name, int spacing, int separation, int salt, int startYOffset) {
+            this(planet, name, spacing, separation, salt,
+                ModResourceIds.structure(name).toString() + "/start_pool", 2, startYOffset,
+                ADDITIONAL_STRUCTURE_CHUNK_REACH);
+        }
+
+        private StructureSpec(String planet, String name, int spacing, int separation, int salt,
+                              String startPool, int maxPieces, int startYOffset, int chunkReach) {
             this.planet = planet;
             this.name = name;
             this.spacing = spacing;
             this.separation = separation;
             this.salt = salt;
+            this.startPool = startPool;
+            this.maxPieces = maxPieces;
             this.startYOffset = startYOffset;
+            this.chunkReach = chunkReach;
         }
     }
 }

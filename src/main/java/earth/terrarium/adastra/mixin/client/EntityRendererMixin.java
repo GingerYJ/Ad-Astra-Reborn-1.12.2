@@ -1,10 +1,13 @@
 package earth.terrarium.adastra.mixin.client;
 
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,6 +34,23 @@ public abstract class EntityRendererMixin {
         }
 
         textureManager.bindTexture(texture);
+    }
+
+    @Redirect(
+        method = "setupFog(IZ)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/state/IBlockState;getMaterial()Lnet/minecraft/block/material/Material;"
+        )
+    )
+    private Material adastra$useLiquidFog(IBlockState state) {
+        if (state.getBlock() instanceof AdAstraFluidBlock) {
+            AdAstraFluidBlock fluid = (AdAstraFluidBlock) state.getBlock();
+            if (fluid.usesWaterVisualEffects()) {
+                return Material.WATER;
+            }
+        }
+        return state.getMaterial();
     }
 
     private boolean adastra$hasVenusAcidRain() {

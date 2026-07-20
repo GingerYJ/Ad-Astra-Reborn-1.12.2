@@ -1,26 +1,33 @@
 package earth.terrarium.adastra.mixin.client;
 
 import earth.terrarium.adastra.client.render.Ti69Renderer;
+import earth.terrarium.adastra.common.blocks.AdAstraFluidBlock;
 import earth.terrarium.adastra.common.items.AdAstraArmorItem;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
@@ -116,5 +123,39 @@ public abstract class ItemRendererMixin {
         }
         GlStateManager.enableCull();
         GlStateManager.disableBlend();
+    }
+
+    @Redirect(
+        method = "renderOverlays(F)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/entity/EntityPlayerSP;isInsideOfMaterial(Lnet/minecraft/block/material/Material;)Z"
+        )
+    )
+    private boolean adastra$renderFluidOverlay(EntityPlayerSP player, Material material) {
+        if (material == Material.WATER && adastra$isInsideLiquidFluid(player)) {
+            return true;
+        }
+        return player.isInsideOfMaterial(material);
+    }
+
+    private boolean adastra$isInsideLiquidFluid(EntityPlayerSP player) {
+        if (player.world == null) {
+            return false;
+        }
+
+        double eyeY = player.posY + player.getEyeHeight();
+        Vec3d eye = new Vec3d(player.posX, eyeY, player.posZ);
+        BlockPos pos = new BlockPos(eye);
+        IBlockState state = player.world.getBlockState(pos);
+        if (!(state.getBlock() instanceof AdAstraFluidBlock)) {
+            return false;
+        }
+
+        AdAstraFluidBlock fluid = (AdAstraFluidBlock) state.getBlock();
+        if (!fluid.usesWaterVisualEffects()) {
+            return false;
+        }
+        return fluid.getStateAtViewpoint(state, player.world, pos, eye).getBlock() == fluid;
     }
 }

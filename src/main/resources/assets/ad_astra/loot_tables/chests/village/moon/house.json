@@ -142,6 +142,11 @@
           ],
           "name": "minecraft:coal",
           "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "ad_astra:moon_globe",
+          "weight": 2
         }
       ],
       "rolls": {
