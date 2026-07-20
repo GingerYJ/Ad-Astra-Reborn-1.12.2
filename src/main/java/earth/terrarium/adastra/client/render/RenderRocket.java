@@ -18,8 +18,20 @@ class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
     private final ResourceLocation texture;
 
     RenderRocket(RenderManager renderManager, int tier, ResourceLocation texture, float shadowSize) {
+        this(renderManager, new ModelRocket(tier), texture, shadowSize);
+    }
+
+    RenderRocket(RenderManager renderManager, int tier, ResourceLocation texture, float shadowSize,
+                 boolean highTierModel) {
+        this(renderManager,
+            highTierModel ? new ModelHighTierRocket(Math.max(5, tier - 3)) : new ModelRocket(tier),
+            texture,
+            shadowSize);
+    }
+
+    private RenderRocket(RenderManager renderManager, ModelBase model, ResourceLocation texture, float shadowSize) {
         super(renderManager);
-        this.model = new ModelRocket(tier);
+        this.model = model;
         this.texture = texture;
         this.shadowSize = shadowSize;
     }
@@ -51,7 +63,7 @@ class RenderRocket<T extends AdAstraVehicleEntity> extends Render<T> {
             ModelBase cached = modelCache.get(cacheKey);
             if (cached == null) {
                 cached = additional
-                    ? new ModelHighTierRocket(modelTier)
+                    ? new ModelHighTierRocket(rocket.getRocketSpec().getModelDefinitionTier())
                     : new ModelRocket(modelTier);
                 modelCache.put(cacheKey, cached);
             }

@@ -14,7 +14,7 @@ import java.util.function.Predicate;
  */
 public class AdAstraFluidTank extends FluidTank {
 
-    private final Predicate<FluidStack> fluidFilter;
+    private Predicate<FluidStack> fluidFilter;
     private Runnable changeListener;
 
     public AdAstraFluidTank(int capacity) {
@@ -31,6 +31,10 @@ public class AdAstraFluidTank extends FluidTank {
      */
     public void setChangeListener(Runnable listener) {
         this.changeListener = listener;
+    }
+
+    public void setFluidFilter(@Nullable Predicate<FluidStack> fluidFilter) {
+        this.fluidFilter = fluidFilter;
     }
 
     @Override

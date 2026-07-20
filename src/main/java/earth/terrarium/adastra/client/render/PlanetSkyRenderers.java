@@ -4,6 +4,7 @@ import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -45,36 +46,25 @@ public class PlanetSkyRenderers {
             world.provider.setSkyRenderer(createMercurySkyRenderer());
         } else if (dimension == ModDimensions.GLACIO_ID) {
             world.provider.setSkyRenderer(createGlacioSkyRenderer());
-        } else if (dimension == ModDimensions.EARTH_ORBIT_ID) {
-            world.provider.setSkyRenderer(createEarthOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.MOON_ORBIT_ID) {
-            world.provider.setSkyRenderer(createMoonOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.MARS_ORBIT_ID) {
-            world.provider.setSkyRenderer(createMarsOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.MERCURY_ORBIT_ID) {
-            world.provider.setSkyRenderer(createMercuryOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.VENUS_ORBIT_ID) {
-            world.provider.setSkyRenderer(createVenusOrbitSkyRenderer());
-        } else if (dimension == ModDimensions.GLACIO_ORBIT_ID) {
-            world.provider.setSkyRenderer(createGlacioOrbitSkyRenderer());
+        } else if (dimension == ModDimensions.SPACE_STATION_ID) {
+            world.provider.setSkyRenderer(createSpaceStationSkyRenderer());
         } else {
-            CustomPlanetDefinition planet = CustomPlanetRegistry.getByDimensionId(dimension);
+            CustomPlanetDefinition planet = BuiltInPlanetRegistry.getByDimensionId(dimension);
+            if (planet == null) {
+                planet = CustomPlanetRegistry.getByDimensionId(dimension);
+            }
             if (planet != null) {
                 world.provider.setSkyRenderer(createCustomPlanetSkyRenderer(planet));
                 registerCustomCloudRenderer(world, planet);
                 return;
             }
-            CustomPlanetDefinition orbitPlanet = CustomPlanetRegistry.getByOrbitDimensionId(dimension);
-            if (orbitPlanet != null) {
-                world.provider.setSkyRenderer(createCustomOrbitSkyRenderer(orbitPlanet));
-            }
         }
     }
 
     /**
-     * Earth orbit: the station should clearly sit above Earth.
+     * Shared space station: Earth and the Moon remain visible from the station.
      */
-    private static PlanetSkyRenderer createEarthOrbitSkyRenderer() {
+    private static PlanetSkyRenderer createSpaceStationSkyRenderer() {
         return new PlanetSkyRenderer()
             .addCelestialBody(EARTH_TEXTURE, 38.0f,
                 0, 0, 0,
@@ -87,76 +77,6 @@ public class PlanetSkyRenderers {
             .addCelestialBody(SUN_TEXTURE, 14.0f,
                 0, 0, 0,
                 0, 0, 230,
-                true, true);
-    }
-
-    /**
-     * Moon orbit: close moon, distant Earth, and the Sun.
-     */
-    private static PlanetSkyRenderer createMoonOrbitSkyRenderer() {
-        return new PlanetSkyRenderer()
-            .addCelestialBody(MOON_TEXTURE, 34.0f,
-                0, 0, 0,
-                55, 0, 12,
-                false, true)
-            .addCelestialBody(EARTH_TEXTURE, 18.0f,
-                0, 0, 0,
-                -35, 0, 145,
-                true, true)
-            .addCelestialBody(SUN_TEXTURE, 13.0f,
-                0, 0, 0,
-                0, 0, 250,
-                true, true);
-    }
-
-    /**
-     * Mars orbit: Mars dominates the view.
-     */
-    private static PlanetSkyRenderer createMarsOrbitSkyRenderer() {
-        return new PlanetSkyRenderer(false, 0.02f, 0.0f, 0.0f)
-            .addCelestialBody(MARS_TEXTURE, 36.0f,
-                0, 0, 0,
-                55, 0, 12,
-                false, true)
-            .addCelestialBody(SUN_TEXTURE, 12.0f,
-                0, 0, 0,
-                0, 0, 245,
-                true, true);
-    }
-
-    private static PlanetSkyRenderer createMercuryOrbitSkyRenderer() {
-        return new PlanetSkyRenderer()
-            .addCelestialBody(MERCURY_TEXTURE, 34.0f,
-                0, 0, 0,
-                55, 0, 12,
-                false, true)
-            .addCelestialBody(SUN_TEXTURE, 28.0f,
-                0, 0, 0,
-                -10, 0, 210,
-                true, true);
-    }
-
-    private static PlanetSkyRenderer createVenusOrbitSkyRenderer() {
-        return new PlanetSkyRenderer(false, 0.03f, 0.02f, 0.0f)
-            .addCelestialBody(VENUS_TEXTURE, 36.0f,
-                0, 0, 0,
-                55, 0, 12,
-                false, true)
-            .addCelestialBody(SUN_TEXTURE, 16.0f,
-                0, 0, 0,
-                -10, 0, 220,
-                true, true);
-    }
-
-    private static PlanetSkyRenderer createGlacioOrbitSkyRenderer() {
-        return new PlanetSkyRenderer(false, 0.0f, 0.015f, 0.04f)
-            .addCelestialBody(GLACIO_TEXTURE, 36.0f,
-                0, 0, 0,
-                55, 0, 12,
-                false, true)
-            .addCelestialBody(BLUE_SUN_TEXTURE, 12.0f,
-                0, 0, 0,
-                -20, 0, 230,
                 true, true);
     }
 
@@ -228,31 +148,6 @@ public class PlanetSkyRenderers {
             addEnvironmentBody(renderer, "sun", definition.hasOxygen() ? 12.0f : 16.0f,
                 0, 0, 0, true, true);
         }
-        return renderer;
-    }
-
-    private static PlanetSkyRenderer createCustomOrbitSkyRenderer(CustomPlanetDefinition definition) {
-        Vec3d skyColor = definition.getSkyColor();
-        PlanetSkyRenderer renderer = new PlanetSkyRenderer(false,
-            tint(skyColor.x) * 0.5f, tint(skyColor.y) * 0.5f, tint(skyColor.z) * 0.5f);
-        String planet = definition.getPlanetName();
-        float sunScale = "proxima_centauri_b".equals(planet) ? 10.0f
-            : "ceres".equals(planet) ? 4.0f
-            : "eris".equals(planet) ? 0.15f
-            : "gonggong".equals(planet) ? 0.16f
-            : "haumea".equals(planet) ? 0.19f
-            : "jupiter".equals(planet) ? 2.2f
-            : "makemake".equals(planet) ? 0.175f
-            : "neptune".equals(planet) ? 0.33f
-            : "orcus".equals(planet) ? 0.23f
-            : "pluto".equals(planet) ? 0.21f
-            : "quaoar".equals(planet) ? 0.18f
-            : "saturn".equals(planet) ? 1.2f
-            : "sedna".equals(planet) ? 0.012f
-            : "uranus".equals(planet) ? 0.6f : 14.0f;
-        addEnvironmentBody(renderer, "sun", sunScale, 0, 0, 0, true, "proxima_centauri_b".equals(planet));
-        float planetScale = "saturn".equals(planet) ? 150.0f : "uranus".equals(planet) ? 125.0f : 80.0f;
-        addEnvironmentBody(renderer, planet, planetScale, 180, 0, 0, false, false);
         return renderer;
     }
 

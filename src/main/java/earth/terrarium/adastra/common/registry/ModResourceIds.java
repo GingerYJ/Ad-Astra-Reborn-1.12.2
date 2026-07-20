@@ -43,10 +43,6 @@ public final class ModResourceIds {
         return prefixed("planet", name);
     }
 
-    public static ResourceLocation orbit(String planetName) {
-        return id(orbitPath(planetName));
-    }
-
     public static ResourceLocation structure(String name) {
         return prefixed("structure", name);
     }
@@ -77,17 +73,6 @@ public final class ModResourceIds {
 
     public static String planetPath(String name) {
         return prefixedPath("planet", name);
-    }
-
-    public static String orbitPath(String planetName) {
-        String normalized = normalize(planetName);
-        if (normalized.startsWith("planet_")) {
-            normalized = normalized.substring("planet_".length());
-        }
-        if (normalized.endsWith("_orbit")) {
-            normalized = normalized.substring(0, normalized.length() - "_orbit".length());
-        }
-        return "planet_" + normalized + "_orbit";
     }
 
     public static String structurePath(String name) {

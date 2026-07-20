@@ -4,6 +4,7 @@ import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -87,7 +88,7 @@ public final class OreGenConfig {
 
     public static List<OreEntry> getOreEntries(String planetName) {
         String key = normalizePlanetKey(planetName);
-        if (key.endsWith("_orbit") || "earth_orbit".equals(key)) {
+        if ("space_station".equals(key)) {
             return Collections.emptyList();
         }
         List<OreEntry> entries = ORE_ROWS.get(key);
@@ -194,6 +195,9 @@ public final class OreGenConfig {
         Map<String, List<String>> rows = new LinkedHashMap<>();
         for (earth.terrarium.adastra.common.world.PlanetDimensionProperties properties : ModDimensions.getPlanetProperties()) {
             rows.computeIfAbsent(normalizePlanetKey(properties.getName()), key -> new ArrayList<>());
+        }
+        for (CustomPlanetDefinition definition : BuiltInPlanetRegistry.getDefinitions()) {
+            rows.computeIfAbsent(normalizePlanetKey(definition.getPlanetName()), key -> new ArrayList<>());
         }
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
             rows.computeIfAbsent(normalizePlanetKey(definition.getPlanetName()), key -> new ArrayList<>());
@@ -306,27 +310,35 @@ public final class OreGenConfig {
     }
 
     private static void addCustomDefaults(Map<String, List<String>> rows) {
-        List<CustomPlanetDefinition> definitions = CustomPlanetRegistry.getDefinitions();
-        if (!definitions.isEmpty()) {
-            for (CustomPlanetDefinition definition : definitions) {
-                String planet = normalizePlanetKey(definition.getPlanetName());
-                List<String> planetRows = rows.computeIfAbsent(planet, key -> new ArrayList<>());
-                for (CustomPlanetDefinition.OreDefinition ore : definition.getOres()) {
-                    String oreState = stateId(ore.getOreBlock());
-                    String replaceState = stateId(ore.getReplaceBlock());
-                    if (oreState == null || replaceState == null) {
-                        AdAstraReborn.LOGGER.warn("Skipped default ore row for custom planet '{}': missing block registry ID.", planet);
-                        continue;
-                    }
-                    planetRows.add(planet + "|" + oreState + "|" + ore.getVeinSize() + "|" + ore.getCountPerChunk() + "|"
-                        + ore.getMinY() + "|" + ore.getMaxY() + "|" + replaceState);
-                }
+        List<CustomPlanetDefinition> builtInDefinitions = BuiltInPlanetRegistry.getDefinitions();
+        List<CustomPlanetDefinition> customDefinitions = CustomPlanetRegistry.getDefinitions();
+        if (!builtInDefinitions.isEmpty() || !customDefinitions.isEmpty()) {
+            for (CustomPlanetDefinition definition : builtInDefinitions) {
+                addDefinitionDefaults(rows, definition);
+            }
+            for (CustomPlanetDefinition definition : customDefinitions) {
+                addDefinitionDefaults(rows, definition);
             }
             return;
         }
 
         // Keep a bootstrap fallback for callers that sync before planet registration.
         addFallbackCustomDefaults(rows);
+    }
+
+    private static void addDefinitionDefaults(Map<String, List<String>> rows, CustomPlanetDefinition definition) {
+        String planet = normalizePlanetKey(definition.getPlanetName());
+        List<String> planetRows = rows.computeIfAbsent(planet, key -> new ArrayList<>());
+        for (CustomPlanetDefinition.OreDefinition ore : definition.getOres()) {
+            String oreState = stateId(ore.getOreBlock());
+            String replaceState = stateId(ore.getReplaceBlock());
+            if (oreState == null || replaceState == null) {
+                AdAstraReborn.LOGGER.warn("Skipped default ore row for planet '{}': missing block registry ID.", planet);
+                continue;
+            }
+            planetRows.add(planet + "|" + oreState + "|" + ore.getVeinSize() + "|" + ore.getCountPerChunk() + "|"
+                + ore.getMinY() + "|" + ore.getMaxY() + "|" + replaceState);
+        }
     }
 
     private static String stateId(IBlockState state) {

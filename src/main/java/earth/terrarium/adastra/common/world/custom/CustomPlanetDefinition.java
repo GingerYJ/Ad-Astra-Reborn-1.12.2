@@ -29,7 +29,6 @@ public final class CustomPlanetDefinition {
     @Nullable
     private final String displayName;
     private final int dimensionId;
-    private final int orbitDimensionId;
     private final String saveFolder;
     private final ResourceLocation biomeId;
     private final IBlockState surfaceBlock;
@@ -42,7 +41,6 @@ public final class CustomPlanetDefinition {
     private final short temperature;
     private final float gravity;
     private final int solarPower;
-    private final int orbitSolarPower;
     private final int tier;
     private final int dayLength;
     private final Vec3d fogColor;
@@ -57,7 +55,6 @@ public final class CustomPlanetDefinition {
         this.planetName = builder.planetName == null ? sanitizeName(builder.id.getPath()) : sanitizeName(builder.planetName);
         this.displayName = builder.displayName;
         this.dimensionId = builder.dimensionId;
-        this.orbitDimensionId = builder.orbitDimensionId;
         this.saveFolder = builder.saveFolder == null ? defaultSaveFolder(builder.id) : builder.saveFolder;
         this.biomeId = builder.biomeId;
         this.surfaceBlock = builder.surfaceBlock;
@@ -70,7 +67,6 @@ public final class CustomPlanetDefinition {
         this.temperature = builder.temperature;
         this.gravity = builder.gravity;
         this.solarPower = builder.solarPower;
-        this.orbitSolarPower = builder.orbitSolarPower;
         this.tier = builder.tier;
         this.dayLength = builder.dayLength;
         this.fogColor = builder.fogColor;
@@ -103,10 +99,6 @@ public final class CustomPlanetDefinition {
 
     public int getDimensionId() {
         return dimensionId;
-    }
-
-    public int getOrbitDimensionId() {
-        return orbitDimensionId;
     }
 
     public String getSaveFolder() {
@@ -155,10 +147,6 @@ public final class CustomPlanetDefinition {
 
     public int getSolarPower() {
         return solarPower;
-    }
-
-    public int getOrbitSolarPower() {
-        return orbitSolarPower;
     }
 
     public int getTier() {
@@ -215,42 +203,12 @@ public final class CustomPlanetDefinition {
         );
     }
 
-    public PlanetDimensionProperties toOrbitDimensionProperties() {
-        return new PlanetDimensionProperties(
-            planetName + "_orbit",
-            orbitDimensionId,
-            saveFolder + "_ORBIT",
-            ForgeRegistries.BIOMES.getValue(biomeId) == null ? Biomes.DEFAULT : ForgeRegistries.BIOMES.getValue(biomeId),
-            Blocks.AIR.getDefaultState(),
-            Blocks.AIR.getDefaultState(),
-            true,
-            false,
-            false,
-            (short) -270,
-            0.0F,
-            orbitSolarPower,
-            tier,
-            dayLength,
-            new Vec3d(0.0D, 0.0D, 0.0D),
-            new Vec3d(0.0D, 0.0D, 0.0D)
-        );
-    }
-
     public static PlanetDimensionProperties fallbackProperties(int dimensionId) {
         return builder(new ResourceLocation(Reference.MOD_ID, "missing_custom_" + dimensionId), dimensionId)
             .saveFolder("DIM_AD_ASTRA_MISSING_CUSTOM_" + dimensionId)
             .build()
             .toDimensionProperties();
     }
-
-    public static PlanetDimensionProperties fallbackOrbitProperties(int orbitDimensionId) {
-        int planetDimensionId = orbitDimensionId - 1;
-        return builder(new ResourceLocation(Reference.MOD_ID, "missing_custom_orbit_" + orbitDimensionId), planetDimensionId)
-            .saveFolder("DIM_AD_ASTRA_MISSING_CUSTOM_ORBIT_" + orbitDimensionId)
-            .build()
-            .toOrbitDimensionProperties();
-    }
-
 
     public static ResourceLocation parseId(String id) {
         if (id == null || id.isEmpty()) {
@@ -262,9 +220,6 @@ public final class CustomPlanetDefinition {
         return new ResourceLocation(Reference.MOD_ID, id);
     }
 
-    public ResourceLocation getOrbitDimensionLocation() {
-        return new ResourceLocation(id.getNamespace(), id.getPath() + "_orbit");
-    }
     public static IBlockState stateFromBlock(Block block, int meta) {
         if (block == null) {
             throw new IllegalArgumentException("block cannot be null.");
@@ -454,7 +409,6 @@ public final class CustomPlanetDefinition {
         @Nullable
         private String displayName;
         private final int dimensionId;
-        private int orbitDimensionId;
         private String saveFolder;
         private ResourceLocation biomeId = new ResourceLocation("minecraft", "plains");
         private IBlockState surfaceBlock = Blocks.GRASS.getDefaultState();
@@ -467,7 +421,6 @@ public final class CustomPlanetDefinition {
         private short temperature;
         private float gravity = 1.0F;
         private int solarPower = 10;
-        private int orbitSolarPower = 10;
         private int tier = 1;
         private int dayLength = DEFAULT_DAY_LENGTH;
         private Vec3d fogColor = new Vec3d(0.0D, 0.0D, 0.0D);
@@ -485,7 +438,6 @@ public final class CustomPlanetDefinition {
             }
             this.id = id;
             this.dimensionId = dimensionId;
-            this.orbitDimensionId = dimensionId + 1;
             this.solarSystem = new ResourceLocation(id.getNamespace(), "solar_system");
         }
 
@@ -538,14 +490,6 @@ public final class CustomPlanetDefinition {
             return this;
         }
 
-        public Builder orbitDimensionId(int orbitDimensionId) {
-            if (orbitDimensionId == 0) {
-                throw new IllegalArgumentException("Orbit dimension id cannot be 0 (overworld).");
-            }
-            this.orbitDimensionId = orbitDimensionId;
-            return this;
-        }
-
         public Builder iconStack(ItemStack iconStack) {
             if (iconStack == null || iconStack.isEmpty()) {
                 throw new IllegalArgumentException("iconStack cannot be empty.");
@@ -569,12 +513,6 @@ public final class CustomPlanetDefinition {
             this.temperature = temperature;
             this.gravity = gravity;
             this.solarPower = solarPower;
-            this.orbitSolarPower = solarPower;
-            return this;
-        }
-
-        public Builder orbitSolarPower(int orbitSolarPower) {
-            this.orbitSolarPower = orbitSolarPower;
             return this;
         }
 

@@ -185,6 +185,14 @@ public class AdAstraJEIPlugin implements IModPlugin {
         addRocket(rockets, ModItems.TIER_5_ROCKET, 5);
         addRocket(rockets, ModItems.TIER_6_ROCKET, 6);
         addRocket(rockets, ModItems.TIER_7_ROCKET, 7);
+        addRocket(rockets, ModItems.TIER_8_ROCKET, 8);
+        addRocket(rockets, ModItems.TIER_9_ROCKET, 9);
+        addRocket(rockets, ModItems.TIER_10_ROCKET, 10);
+        addRocket(rockets, ModItems.TIER_11_ROCKET, 11);
+        addRocket(rockets, ModItems.TIER_12_ROCKET, 12);
+        addRocket(rockets, ModItems.TIER_13_ROCKET, 13);
+        addRocket(rockets, ModItems.TIER_14_ROCKET, 14);
+        addRocket(rockets, ModItems.TIER_15_ROCKET, 15);
         for (ConfigurableRocketItem rocket : ModItems.CONFIGURABLE_ROCKETS) {
             addRocket(rockets, rocket, rocket.getSpec().getTier());
         }

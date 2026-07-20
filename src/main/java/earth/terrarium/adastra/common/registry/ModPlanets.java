@@ -3,7 +3,7 @@ package earth.terrarium.adastra.common.registry;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.constants.PlanetConstants;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
-import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.biome.Biome;
@@ -12,11 +12,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Registers custom Ad Astra planets and their orbit dimensions. */
+/** Registers the code-owned Ad Astra planets beyond the five core planets. */
 public final class ModPlanets {
 
     private static final int FIRST_DIMENSION_ID = ModDimensions.FIRST_PLANET_ID + 5;
-    private static final int FIRST_ORBIT_DIMENSION_ID = ModDimensions.FIRST_ORBIT_ID + 5;
     private static final List<CustomPlanetDefinition> DEFINITIONS = new ArrayList<>();
     private static boolean registered;
 
@@ -66,7 +65,7 @@ public final class ModPlanets {
                 "proxima_centauri_b_diamond_ore", 5, 9)));
 
         for (CustomPlanetDefinition definition : DEFINITIONS) {
-            CustomPlanetRegistry.register(definition);
+            BuiltInPlanetRegistry.register(definition);
         }
         registered = true;
     }
@@ -93,7 +92,6 @@ public final class ModPlanets {
                 ModResourceIds.planet(name), dimensionId)
             .planetName(name)
             .displayName(displayName)
-            .orbitDimensionId(FIRST_ORBIT_DIMENSION_ID + index)
             .biome(biome.getRegistryName())
             .surfaceBlock(surface.getDefaultState())
             .stoneBlock(ModBlocks.getPlanetStone(name).getDefaultState())
@@ -101,7 +99,6 @@ public final class ModPlanets {
             .skyLight(true)
             .canRespawn(true)
             .environment("proxima_centauri_b".equals(name), (short) temperature, gravity, 11)
-            .orbitSolarPower(13)
             .tier(tier)
             .solarSystem(PlanetConstants.SOLAR_SYSTEM)
             .dayLength(24000)

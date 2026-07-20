@@ -60,11 +60,7 @@ public class PacketSyncPlanetDefinitions implements IMessage {
         buf.writeFloat(planet.getGravity());
         buf.writeInt(planet.getSolarPower());
         ByteBufUtils.writeUTF8String(buf, planet.getSolarSystem().toString());
-        Integer orbitDimensionId = planet.getOrbitDimensionId();
-        buf.writeBoolean(orbitDimensionId != null);
-        if (orbitDimensionId != null) {
-            buf.writeInt(orbitDimensionId);
-        }
+        buf.writeBoolean(planet.isSpace());
         buf.writeInt(planet.getTier());
         List<Integer> launchDimensions = planet.getAdditionalLaunchDimensions();
         int count = Math.min(launchDimensions.size(), MAX_ADDITIONAL_LAUNCH_DIMS);
@@ -81,7 +77,7 @@ public class PacketSyncPlanetDefinitions implements IMessage {
         float gravity = buf.readFloat();
         int solarPower = buf.readInt();
         ResourceLocation solarSystem = new ResourceLocation(ByteBufUtils.readUTF8String(buf));
-        Integer orbitDimensionId = buf.readBoolean() ? buf.readInt() : null;
+        boolean space = buf.readBoolean();
         int tier = buf.readInt();
         int additionalCount = Math.min(buf.readInt(), MAX_ADDITIONAL_LAUNCH_DIMS);
         List<Integer> additionalLaunchDimensions = new ArrayList<>(additionalCount);
@@ -95,7 +91,7 @@ public class PacketSyncPlanetDefinitions implements IMessage {
             gravity,
             solarPower,
             solarSystem,
-            orbitDimensionId,
+            space,
             tier,
             additionalLaunchDimensions);
     }

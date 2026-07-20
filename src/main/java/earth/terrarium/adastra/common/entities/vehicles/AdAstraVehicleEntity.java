@@ -231,6 +231,22 @@ public class AdAstraVehicleEntity extends AdAstraPlaceholderEntity {
                     return new ItemStack(ModItems.TIER_6_ROCKET);
                 case 7:
                     return new ItemStack(ModItems.TIER_7_ROCKET);
+                case 8:
+                    return new ItemStack(ModItems.TIER_8_ROCKET);
+                case 9:
+                    return new ItemStack(ModItems.TIER_9_ROCKET);
+                case 10:
+                    return new ItemStack(ModItems.TIER_10_ROCKET);
+                case 11:
+                    return new ItemStack(ModItems.TIER_11_ROCKET);
+                case 12:
+                    return new ItemStack(ModItems.TIER_12_ROCKET);
+                case 13:
+                    return new ItemStack(ModItems.TIER_13_ROCKET);
+                case 14:
+                    return new ItemStack(ModItems.TIER_14_ROCKET);
+                case 15:
+                    return new ItemStack(ModItems.TIER_15_ROCKET);
                 default:
                     return ItemStack.EMPTY;
             }

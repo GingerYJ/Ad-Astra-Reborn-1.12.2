@@ -12,6 +12,7 @@ import earth.terrarium.adastra.common.util.PlanetTravelHelper;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -167,7 +168,7 @@ public class PlanetSelectionGui extends GuiScreen {
         menu = PlanetsMenuProvider.createClientMenu(mc.player, rocketTier, rocketEntityId);
         planets.clear();
         planets.addAll(menu.getAvailablePlanets());
-        selectedPlanet = menu.getCurrentOrbitPlanet();
+        selectedPlanet = menu.getCurrentPlanet();
         if (selectedPlanet != null && !menu.canReach(selectedPlanet)) {
             selectedPlanet = null;
         }
@@ -249,7 +250,7 @@ public class PlanetSelectionGui extends GuiScreen {
                         mc.player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.already_here"), true);
                         return;
                     }
-                    menu.landOnSpaceStation(selectedPlanet, station.getPosition());
+                    menu.landOnSpaceStation(selectedPlanet);
                     mc.displayGuiScreen(null);
                     return;
                 }
@@ -433,7 +434,7 @@ public class PlanetSelectionGui extends GuiScreen {
                 continue;
             }
             drawTexturedButton(BUTTON, BUTTON_HIGHLIGHTED, RIGHT_PANEL_X, y, RIGHT_PANEL_WIDTH, BUTTON_HEIGHT, mouseX, mouseY, true);
-            drawCenteredString(fontRenderer, station.getName(), RIGHT_PANEL_X + RIGHT_PANEL_WIDTH / 2, y + 6, 0xFFFFFF);
+            drawCenteredString(fontRenderer, getSpaceStationLabel(station), RIGHT_PANEL_X + RIGHT_PANEL_WIDTH / 2, y + 6, 0xFFFFFF);
         }
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
         drawSpaceStationRequirementTooltip(mouseX, mouseY);
@@ -464,6 +465,15 @@ public class PlanetSelectionGui extends GuiScreen {
             int color = enough ? 0x9CFF9C : 0xFF7777;
             drawCenteredString(fontRenderer, count, x + 8, y + 17, color);
         }
+    }
+
+    private String getSpaceStationLabel(SpaceStation station) {
+        String name = station == null ? null : station.getName();
+        if (name == null || name.trim().isEmpty() || "space_station".equals(name)) {
+            return I18n.format("text.ad_astra.text.space_station_name");
+        }
+        String translated = I18n.format(name);
+        return translated.equals(name) ? name : translated;
     }
 
     private void drawSpaceStationRequirementTooltip(int mouseX, int mouseY) {
@@ -1260,8 +1270,11 @@ public class PlanetSelectionGui extends GuiScreen {
         if (!translated.equals(adAstraKey)) {
             return translated;
         }
-        // Try to get displayName from CustomPlanetRegistry
-        CustomPlanetDefinition def = CustomPlanetRegistry.getByDimensionId(planet.getDimensionId());
+        // Built-in and third-party definitions are both available here.
+        CustomPlanetDefinition def = BuiltInPlanetRegistry.getByDimensionId(planet.getDimensionId());
+        if (def == null) {
+            def = CustomPlanetRegistry.getByDimensionId(planet.getDimensionId());
+        }
         if (def != null && def.getDisplayName() != null) {
             return def.getDisplayName();
         }

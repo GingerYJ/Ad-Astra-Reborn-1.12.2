@@ -7,6 +7,7 @@ import earth.terrarium.adastra.common.registry.ModResourceIds;
 import earth.terrarium.adastra.common.rocket.ConfigurableRocketRegistry;
 import earth.terrarium.adastra.common.util.PlanetTierOverrideRegistry;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -64,8 +65,8 @@ public final class AdAstraConfig {
         "\u884c\u661f\u7ef4\u5ea6\u4e0e\u706b\u7bad\u9650\u5236\u8bbe\u7f6e\u3002\u6ce8\u518c\u5143\u6570\u636e\u7531\u4ee3\u7801\u7ef4\u62a4\uff0c\u4ec5\u706b\u7bad\u7b49\u7ea7\u53ef\u914d\u7f6e\u3002\u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u3002\n"
             + "Planet dimensions and rocket restrictions. Registration metadata is code-owned; only rocket tiers are configurable. Restart after changes.";
     private static final String PLANET_COMMENT =
-        "\u884c\u661f\u6570\u5b57\u7ef4\u5ea6 ID \u548c\u8f68\u9053 ID \u7531\u4ee3\u7801\u7ef4\u62a4\uff1b\u706b\u7bad\u7b49\u7ea7\u8303\u56f4 0-15\uff0c0 \u8868\u793a\u4e0d\u9650\u5236\u3002\n"
-            + "Numeric planet and orbit IDs are code-owned; rocket tier range: 0-15, with 0 meaning no restriction.";
+        "\u884c\u661f\u8868\u9762\u7ef4\u5ea6 ID \u7531\u4ee3\u7801\u7ef4\u62a4\uff1b\u706b\u7bad\u7b49\u7ea7\u8303\u56f4 0-15\uff0c0 \u8868\u793a\u4e0d\u9650\u5236\u3002\n"
+            + "Numeric surface-dimension IDs are code-owned; rocket tier range: 0-15, with 0 meaning no restriction.";
     private static final String MOBS_COMMENT =
         "\u884c\u661f\u751f\u7269\u751f\u6210\u3001\u751f\u6210\u767d\u540d\u5355\u3001\u6c27\u6c14\u8c41\u514d\u4e0e\u6570\u91cf\u4e0a\u9650\u3002\n"
             + "Planet mob spawning, spawn whitelists, oxygen immunity, and entity caps.";
@@ -762,7 +763,7 @@ public final class AdAstraConfig {
             for (String categoryName : new HashSet<>(dimensionsConfiguration.getCategoryNames())) {
                 if (categoryName.startsWith(CATEGORY_PLANET_PREFIX)) {
                     removeProperties(dimensionsConfiguration, categoryName,
-                        "enabled", "gravityMultiplier", "dimensionId", "orbitDimensionId", "registryId");
+                        "enabled", "gravityMultiplier", "dimensionId", "registryId");
                 }
             }
         }
@@ -1252,7 +1253,16 @@ public final class AdAstraConfig {
                 chinesePlanetName(key),
                 englishPlanetName(key)));
         }
+        for (CustomPlanetDefinition definition : BuiltInPlanetRegistry.getDefinitions()) {
+            addPlanetConfig(entries, definition);
+        }
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
+            addPlanetConfig(entries, definition);
+        }
+        return new ArrayList<>(entries.values());
+    }
+
+    private static void addPlanetConfig(Map<Integer, PlanetConfigEntry> entries, CustomPlanetDefinition definition) {
             String key = normalizePlanetKey(definition.getPlanetName());
             String englishName = definition.getDisplayName();
             if (englishName == null || englishName.trim().isEmpty()) {
@@ -1265,14 +1275,12 @@ public final class AdAstraConfig {
                 definition.getTier(),
                 chinesePlanetName(key),
                 englishName));
-        }
-        return new ArrayList<>(entries.values());
     }
 
     private static String planetCategoryComment(PlanetConfigEntry planet) {
         return planet.chineseName + "\uff08" + planet.englishName + "\uff09\uff1a"
-            + "\u884c\u661f\u6570\u5b57\u7ef4\u5ea6 ID \u548c\u8f68\u9053 ID \u7531\u4ee3\u7801\u7ef4\u62a4\uff1b\u706b\u7bad\u7b49\u7ea7\u8303\u56f4 0-15\uff0c0 \u8868\u793a\u4e0d\u9650\u5236\u3002\n"
-            + planet.englishName + " (" + planet.category + "): Numeric planet and orbit IDs are code-owned; rocket tier range: 0-15, with 0 meaning no restriction.";
+            + "\u884c\u661f\u8868\u9762\u7ef4\u5ea6 ID \u7531\u4ee3\u7801\u7ef4\u62a4\uff1b\u706b\u7bad\u7b49\u7ea7\u8303\u56f4 0-15\uff0c0 \u8868\u793a\u4e0d\u9650\u5236\u3002\n"
+            + planet.englishName + " (" + planet.category + "): Numeric surface-dimension IDs are code-owned; rocket tier range: 0-15, with 0 meaning no restriction.";
     }
 
     private static String planetOreCategoryComment(PlanetConfigEntry planet) {

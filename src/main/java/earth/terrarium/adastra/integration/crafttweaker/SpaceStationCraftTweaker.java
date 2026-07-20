@@ -9,13 +9,13 @@ import crafttweaker.api.oredict.IOreDictEntry;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
+import net.minecraft.item.ItemStack;
+import stanhebben.zenscript.annotations.ZenClass;
+import stanhebben.zenscript.annotations.ZenMethod;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import stanhebben.zenscript.annotations.ZenClass;
-import stanhebben.zenscript.annotations.ZenMethod;
 
 @ZenRegister
 @ZenClass("mods.ad_astra.SpaceStation")
@@ -27,38 +27,38 @@ public final class SpaceStationCraftTweaker {
     }
 
     @ZenMethod
-    public static void setRecipe(String orbit, IIngredient[] ingredients, int[] counts) {
-        CraftTweakerAPI.apply(new SetRecipeAction(orbit, ingredients, counts));
+    public static void setRecipe(IIngredient[] ingredients, int[] counts) {
+        CraftTweakerAPI.apply(new SetRecipeAction(ingredients, counts));
     }
 
     @ZenMethod
-    public static void setRecipe(String orbit, IIngredient[] ingredients) {
-        CraftTweakerAPI.apply(new SetRecipeAction(orbit, ingredients, getIngredientAmounts(ingredients)));
+    public static void setRecipe(IIngredient[] ingredients) {
+        setRecipe(ingredients, getIngredientAmounts(ingredients));
     }
 
     @ZenMethod
-    public static void replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts) {
-        setRecipe(orbit, ingredients, counts);
+    public static void replaceRecipe(IIngredient[] ingredients, int[] counts) {
+        setRecipe(ingredients, counts);
     }
 
     @ZenMethod
-    public static void replaceRecipe(String orbit, IIngredient[] ingredients) {
-        setRecipe(orbit, ingredients);
+    public static void replaceRecipe(IIngredient[] ingredients) {
+        setRecipe(ingredients);
     }
 
     @ZenMethod
-    public static void addRecipe(String orbit, IIngredient[] ingredients, int[] counts) {
-        setRecipe(orbit, ingredients, counts);
+    public static void addRecipe(IIngredient[] ingredients, int[] counts) {
+        setRecipe(ingredients, counts);
     }
 
     @ZenMethod
-    public static void addRecipe(String orbit, IIngredient[] ingredients) {
-        setRecipe(orbit, ingredients);
+    public static void addRecipe(IIngredient[] ingredients) {
+        setRecipe(ingredients);
     }
 
     @ZenMethod
-    public static void removeRecipe(String orbit) {
-        CraftTweakerAPI.apply(new RemoveRecipeAction(orbit));
+    public static void removeRecipe() {
+        CraftTweakerAPI.apply(new RemoveRecipeAction());
     }
 
     @ZenMethod
@@ -77,17 +77,8 @@ public final class SpaceStationCraftTweaker {
         return counts;
     }
 
-    private static ResourceLocation parseOrbit(String orbit) {
-        if (orbit == null || orbit.trim().isEmpty()) {
-            throw new IllegalArgumentException("Orbit must not be empty");
-        }
-        String trimmed = orbit.trim();
-        return trimmed.indexOf(':') >= 0
-            ? new ResourceLocation(trimmed)
-            : new ResourceLocation(Reference.MOD_ID, trimmed);
-    }
-
-    private static List<SpaceStationRecipe.IngredientRequirement> buildRequirements(IIngredient[] ingredients, int[] counts) {
+    private static List<SpaceStationRecipe.IngredientRequirement> buildRequirements(
+        IIngredient[] ingredients, int[] counts) {
         if (ingredients == null || ingredients.length == 0) {
             throw new IllegalArgumentException("Space station recipe must have at least one ingredient");
         }
@@ -163,16 +154,13 @@ public final class SpaceStationCraftTweaker {
     }
 
     private static final class SetRecipeAction implements IAction {
-        private final String orbit;
         private final IIngredient[] ingredients;
         private final int[] counts;
-        private ResourceLocation orbitLocation;
         private List<SpaceStationRecipe.IngredientRequirement> requirements;
         private String invalidReason;
         private boolean prepared;
 
-        private SetRecipeAction(String orbit, IIngredient[] ingredients, int[] counts) {
-            this.orbit = orbit;
+        private SetRecipeAction(IIngredient[] ingredients, int[] counts) {
             this.ingredients = ingredients == null ? null : Arrays.copyOf(ingredients, ingredients.length);
             this.counts = counts == null ? null : Arrays.copyOf(counts, counts.length);
         }
@@ -182,15 +170,15 @@ public final class SpaceStationCraftTweaker {
             if (!prepare()) {
                 return;
             }
-            SpaceStationRecipe existing = RecipeRegistry.findSpaceStationRecipe(orbitLocation);
-            String id = existing == null ? defaultRecipeId(orbitLocation) : existing.getId();
+            SpaceStationRecipe existing = RecipeRegistry.findSpaceStationRecipe();
+            String id = existing == null ? Reference.MOD_ID + ":space_station" : existing.getId();
             String structure = existing == null ? DEFAULT_STRUCTURE : existing.getStructure();
-            RecipeRegistry.replaceSpaceStationRecipe(new SpaceStationRecipe(id, orbitLocation, structure, requirements));
+            RecipeRegistry.replaceSpaceStationRecipe(new SpaceStationRecipe(id, structure, requirements));
         }
 
         @Override
         public String describe() {
-            return "Replacing Ad Astra space station recipe for " + orbit;
+            return "Replacing the Ad Astra global space station recipe";
         }
 
         @Override
@@ -210,7 +198,6 @@ public final class SpaceStationCraftTweaker {
             }
             prepared = true;
             try {
-                orbitLocation = parseOrbit(orbit);
                 requirements = buildRequirements(ingredients, counts);
             } catch (RuntimeException exception) {
                 invalidReason = exception.getMessage();
@@ -220,49 +207,25 @@ public final class SpaceStationCraftTweaker {
     }
 
     private static final class RemoveRecipeAction implements IAction {
-        private final String orbit;
-        private ResourceLocation orbitLocation;
-        private String invalidReason;
-        private boolean prepared;
-
-        private RemoveRecipeAction(String orbit) {
-            this.orbit = orbit;
-        }
 
         @Override
         public void apply() {
-            if (prepare()) {
-                RecipeRegistry.removeSpaceStationRecipe(orbitLocation);
-            }
+            RecipeRegistry.removeSpaceStationRecipe();
         }
 
         @Override
         public String describe() {
-            return "Removing Ad Astra space station recipe for " + orbit;
+            return "Removing the Ad Astra global space station recipe";
         }
 
         @Override
         public boolean validate() {
-            return prepare();
+            return true;
         }
 
         @Override
         public String describeInvalid() {
-            prepare();
-            return invalidReason == null ? "Invalid Ad Astra space station orbit" : invalidReason;
-        }
-
-        private boolean prepare() {
-            if (prepared) {
-                return invalidReason == null;
-            }
-            prepared = true;
-            try {
-                orbitLocation = parseOrbit(orbit);
-            } catch (RuntimeException exception) {
-                invalidReason = exception.getMessage();
-            }
-            return invalidReason == null;
+            return "Invalid Ad Astra global space station recipe";
         }
     }
 
@@ -297,9 +260,5 @@ public final class SpaceStationCraftTweaker {
         public String describeInvalid() {
             return invalidReason == null ? "Invalid Ad Astra space station recipe id" : invalidReason;
         }
-    }
-
-    private static String defaultRecipeId(ResourceLocation orbit) {
-        return Reference.MOD_ID + ":" + orbit.getPath() + "_space_station";
     }
 }

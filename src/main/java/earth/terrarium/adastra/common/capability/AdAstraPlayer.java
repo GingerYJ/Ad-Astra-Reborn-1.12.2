@@ -1,15 +1,12 @@
 package earth.terrarium.adastra.common.capability;
 
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AdAstraPlayer implements IAdAstraPlayer {
 
@@ -17,14 +14,12 @@ public class AdAstraPlayer implements IAdAstraPlayer {
     private float temperature;
     private float gravity;
     private Map<Integer, BlockPos> launchPositions;
-    private Set<SpaceStation> spaceStations;
 
     public AdAstraPlayer() {
         this.oxygenTicks = 0;
         this.temperature = 20.0f;
         this.gravity = 1.0f;
         this.launchPositions = new HashMap<>();
-        this.spaceStations = new HashSet<>();
     }
 
     @Override
@@ -76,28 +71,6 @@ public class AdAstraPlayer implements IAdAstraPlayer {
         return launchPositions.get(dimension);
     }
 
-    @Override
-    public Set<SpaceStation> getSpaceStations() {
-        return spaceStations;
-    }
-
-    @Override
-    public void addSpaceStation(SpaceStation station) {
-        if (station != null) {
-            spaceStations.add(station);
-        }
-    }
-
-    @Override
-    public void removeSpaceStation(SpaceStation station) {
-        spaceStations.remove(station);
-    }
-
-    @Override
-    public boolean hasSpaceStation(SpaceStation station) {
-        return spaceStations.contains(station);
-    }
-
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         nbt.setInteger("OxygenTicks", oxygenTicks);
         nbt.setFloat("Temperature", temperature);
@@ -113,14 +86,6 @@ public class AdAstraPlayer implements IAdAstraPlayer {
             launchPosList.appendTag(posTag);
         }
         nbt.setTag("LaunchPositions", launchPosList);
-
-        NBTTagList stationsList = new NBTTagList();
-        for (SpaceStation station : spaceStations) {
-            NBTTagCompound stationTag = new NBTTagCompound();
-            station.writeToNBT(stationTag);
-            stationsList.appendTag(stationTag);
-        }
-        nbt.setTag("SpaceStations", stationsList);
 
         return nbt;
     }
@@ -141,13 +106,6 @@ public class AdAstraPlayer implements IAdAstraPlayer {
             launchPositions.put(dimension, new BlockPos(x, y, z));
         }
 
-        spaceStations.clear();
-        NBTTagList stationsList = nbt.getTagList("SpaceStations", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0; i < stationsList.tagCount(); i++) {
-            NBTTagCompound stationTag = stationsList.getCompoundTagAt(i);
-            SpaceStation station = new SpaceStation(stationTag);
-            spaceStations.add(station);
-        }
     }
 
     public void copyFrom(AdAstraPlayer other) {
@@ -158,6 +116,5 @@ public class AdAstraPlayer implements IAdAstraPlayer {
         this.temperature = other.temperature;
         this.gravity = other.gravity;
         this.launchPositions = new HashMap<>(other.launchPositions);
-        this.spaceStations = new HashSet<>(other.spaceStations);
     }
 }

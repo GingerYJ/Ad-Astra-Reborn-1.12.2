@@ -27,31 +27,26 @@ public class PlanetConstants {
     public static final float MOON_GRAVITY = 1.622f;
     public static final short MOON_TEMPERATURE = -173;
     public static final int MOON_SOLAR_POWER = 24;
-    public static final int MOON_ORBIT_SOLAR_POWER = 32;
 
     // Mars
     public static final float MARS_GRAVITY = 3.72076f;
     public static final short MARS_TEMPERATURE = -65;
     public static final int MARS_SOLAR_POWER = 12;
-    public static final int MARS_ORBIT_SOLAR_POWER = 24;
 
     // Venus
     public static final float VENUS_GRAVITY = 8.87f;
     public static final short VENUS_TEMPERATURE = 464;
     public static final int VENUS_SOLAR_POWER = 8;
-    public static final int VENUS_ORBIT_SOLAR_POWER = 48;
 
     // Mercury
     public static final float MERCURY_GRAVITY = 3.7f;
     public static final short MERCURY_TEMPERATURE = 167;
     public static final int MERCURY_SOLAR_POWER = 64;
-    public static final int MERCURY_ORBIT_SOLAR_POWER = 72;
 
     // Glacio
     public static final float GLACIO_GRAVITY = 3.721f;
     public static final short GLACIO_TEMPERATURE = -20;
     public static final int GLACIO_SOLAR_POWER = 14;
-    public static final int GLACIO_ORBIT_SOLAR_POWER = 36;
 
     // Temperature thresholds
     public static final int FREEZE_TEMPERATURE = -20;

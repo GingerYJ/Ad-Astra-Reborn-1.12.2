@@ -1,5 +1,6 @@
 package earth.terrarium.adastra.common.world.custom;
 
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DimensionType;
@@ -23,6 +24,17 @@ public final class CustomPlanetRegistry {
     public static synchronized CustomPlanetDefinition register(CustomPlanetDefinition definition) {
         if (definition == null) {
             throw new IllegalArgumentException("Custom planet definition cannot be null.");
+        }
+
+        if (BuiltInPlanetRegistry.contains(definition.getId())
+            || ModDimensions.isBuiltInPlanetId(definition.getPlanetName())) {
+            throw new IllegalArgumentException("Cannot replace built-in planet " + definition.getId() + ".");
+        }
+
+        if (BuiltInPlanetRegistry.containsDimension(definition.getDimensionId())
+            || ModDimensions.isBuiltInDimension(definition.getDimensionId())) {
+            throw new IllegalArgumentException("Custom planet " + definition.getId()
+                + " uses a built-in planet or space station dimension id.");
         }
 
         ResourceLocation indexedId = DIMENSION_INDEX.get(definition.getDimensionId());
@@ -56,16 +68,6 @@ public final class CustomPlanetRegistry {
     public static synchronized CustomPlanetDefinition getByDimensionId(int dimensionId) {
         ResourceLocation id = DIMENSION_INDEX.get(dimensionId);
         return id == null ? null : DEFINITIONS.get(id);
-    }
-
-    @Nullable
-    public static synchronized CustomPlanetDefinition getByOrbitDimensionId(int orbitDimensionId) {
-        for (CustomPlanetDefinition definition : DEFINITIONS.values()) {
-            if (definition.getOrbitDimensionId() == orbitDimensionId) {
-                return definition;
-            }
-        }
-        return null;
     }
 
     public static synchronized List<CustomPlanetDefinition> getDefinitions() {

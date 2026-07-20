@@ -60,7 +60,7 @@ config/ad_astra/external_dimensions.cfg
 
 ### 2. 由 Ad Astra Reborn 创建的新行星
 
-如果你需要一个全新的行星、地形和轨道维度，可以使用：
+如果你需要一个全新的行星、地形和表面维度，可以使用：
 
 ```zenscript
 CustomPlanets.create(...)
@@ -72,7 +72,7 @@ CustomPlanets.create(...)
 .enableDimensionRegistration(true)
 ```
 
-才会请求 Ad Astra Reborn 注册行星维度和轨道维度。
+才会请求 Ad Astra Reborn 注册行星表面维度。
 
 ## 自定义行星
 
@@ -111,12 +111,9 @@ CustomPlanets.create("example:basalt_moon", 1401)
 这个示例会使用：
 
 - 行星维度 ID：`1401`
-- 轨道维度 ID：`1402`
 - 行星存档目录：自动生成
 - 行星资源 ID：`example:basalt_moon`
-- 轨道资源 ID：`example:basalt_moon_orbit`
-
-轨道维度 ID 当前固定为行星维度 ID `+ 1`，脚本 API 没有单独设置轨道 ID 的方法。因此必须同时保证两个 ID 都未被原版或其他 Mod 占用。
+- 空间站维度：所有玩家共享唯一的 `ad_astra:space_station`
 
 ### 创建与查询
 
@@ -160,7 +157,7 @@ if (!CustomPlanets.hasPlanet("example:basalt_moon")) {
 | `.dayLength(int)` | 一天的游戏刻数，必须大于 0 |
 | `.colors(double...)` | 雾 RGB 和天空 RGB，每项通常使用 `0.0` 至 `1.0` |
 | `.addOre(...)` | 添加矿物生成 |
-| `.enableDimensionRegistration(boolean)` | 是否注册新的行星和轨道维度 |
+| `.enableDimensionRegistration(boolean)` | 是否注册新的行星表面维度 |
 | `.register()` | 完成并提交定义，必须最后调用 |
 
 ### 环境参数
@@ -241,7 +238,6 @@ CustomPlanets.create("example:mineral_world", 1401)
     .register();
 
 SpaceStation.setRecipe(
-    "example:mineral_world_orbit",
     [
         <ore:blockIron>,
         <ore:blockGold>,
@@ -408,12 +404,12 @@ PlanetTiers.removePlanetTier(-28);
 
 ### 设置或替换
 
-以下三个方法效果相同，都会设置或替换目标轨道的配方：
+以下三个方法效果相同，都会设置或替换全局空间站配方：
 
 ```zenscript
-SpaceStation.setRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
+SpaceStation.setRecipe(IIngredient[] ingredients, int[] counts);
+SpaceStation.replaceRecipe(IIngredient[] ingredients, int[] counts);
+SpaceStation.addRecipe(IIngredient[] ingredients, int[] counts);
 ```
 
 示例：
@@ -422,7 +418,6 @@ SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
 import mods.ad_astra.SpaceStation;
 
 SpaceStation.setRecipe(
-    "ad_astra:moon_orbit",
     [
         <ore:blockIron>,
         <minecraft:glass>,
@@ -436,7 +431,6 @@ SpaceStation.setRecipe(
 
 ```zenscript
 SpaceStation.setRecipe(
-    "ad_astra:moon_orbit",
     [
         <ore:blockIron> * 32,
         <minecraft:glass> * 64,
@@ -447,25 +441,24 @@ SpaceStation.setRecipe(
 
 规则：
 
-- `orbit` 为空时无效。
 - 不写命名空间时默认使用 `ad_astra`。
 - 材料数组不能为空。
 - 使用 `counts` 时，两个数组长度必须一致。
 - 每个数量必须大于 0。
-- 外部维度没有独立轨道维度，因此不能为 `external_dimensions.cfg` 条目创建空间站配方。
+- 配方不绑定行星或维度，所有玩家使用同一个空间站配方。
 
 ### 删除配方
 
-按轨道删除：
+删除全局空间站配方：
 
 ```zenscript
-SpaceStation.removeRecipe("ad_astra:moon_orbit");
+SpaceStation.removeRecipe();
 ```
 
 按配方 ID 删除：
 
 ```zenscript
-SpaceStation.removeRecipeById("ad_astra:moon_orbit_space_station");
+SpaceStation.removeRecipeById("ad_astra:recipe_space_station");
 ```
 
 ## 排错
@@ -486,12 +479,12 @@ SpaceStation.removeRecipeById("ad_astra:moon_orbit_space_station");
 
 - 是否调用 `.enableDimensionRegistration(true)`。
 - 行星 ID 和行星维度 ID 是否冲突。
-- `dimensionId + 1` 的轨道维度 ID 是否冲突。
+自定义行星只注册表面维度；空间站维度固定为全局 `ad_astra:space_station`。
 - 脚本是否在维度注册阶段之前正常加载。
 
 ### 游戏提示维度 ID 已注册
 
-换一组连续的空闲 ID。例如行星使用 `1401` 时，必须同时确保 `1402` 空闲。
+换一组空闲的行星维度 ID；空间站使用固定的 `ad_astra:space_station` 维度，不需要为行星分配额外维度 ID。
 
 不要用 `CustomPlanets.create()` 接管其他 Mod 已注册的维度；这类目标应写入 `external_dimensions.cfg`。
 
@@ -571,13 +564,13 @@ PlanetTiers.setPlanetTier(int dimensionId, int tier);
 PlanetTiers.removePlanetTier(int dimensionId);
 
 // Space stations
-SpaceStation.setRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.setRecipe(String orbit, IIngredient[] ingredients);
-SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.replaceRecipe(String orbit, IIngredient[] ingredients);
-SpaceStation.addRecipe(String orbit, IIngredient[] ingredients, int[] counts);
-SpaceStation.addRecipe(String orbit, IIngredient[] ingredients);
-SpaceStation.removeRecipe(String orbit);
+SpaceStation.setRecipe(IIngredient[] ingredients, int[] counts);
+SpaceStation.setRecipe(IIngredient[] ingredients);
+SpaceStation.replaceRecipe(IIngredient[] ingredients, int[] counts);
+SpaceStation.replaceRecipe(IIngredient[] ingredients);
+SpaceStation.addRecipe(IIngredient[] ingredients, int[] counts);
+SpaceStation.addRecipe(IIngredient[] ingredients);
+SpaceStation.removeRecipe();
 SpaceStation.removeRecipeById(String id);
 ```
 

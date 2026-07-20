@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles entities falling out of orbit dimensions before vanilla void handling kills them.
+ * Handles entities falling out of the shared space station before vanilla void handling kills them.
  */
 public class SpaceBoundaryHandler {
 
@@ -39,8 +39,8 @@ public class SpaceBoundaryHandler {
             return;
         }
 
-        Integer targetDimension = getSurfaceDimensionForOrbit(world.provider.getDimension());
-        if (targetDimension == null || !DimensionManager.isDimensionRegistered(targetDimension)) {
+        int targetDimension = 0;
+        if (!DimensionManager.isDimensionRegistered(targetDimension)) {
             return;
         }
 
@@ -49,7 +49,7 @@ public class SpaceBoundaryHandler {
             if (!shouldTeleportRootEntity(entity, world)) {
                 continue;
             }
-            teleportEntityFromOrbit(entity, targetDimension);
+            teleportEntityFromSpaceStation(entity, targetDimension);
         }
     }
 
@@ -69,12 +69,12 @@ public class SpaceBoundaryHandler {
             return;
         }
 
-        Integer targetDimension = getSurfaceDimensionForOrbit(world.provider.getDimension());
-        if (targetDimension == null || !DimensionManager.isDimensionRegistered(targetDimension)) {
+        int targetDimension = 0;
+        if (!DimensionManager.isDimensionRegistered(targetDimension)) {
             return;
         }
 
-        teleportEntityFromOrbit(rootEntity, targetDimension);
+        teleportEntityFromSpaceStation(rootEntity, targetDimension);
     }
 
     private boolean shouldTeleportRootEntity(Entity entity, World expectedWorld) {
@@ -93,18 +93,7 @@ public class SpaceBoundaryHandler {
         return root;
     }
 
-    private Integer getSurfaceDimensionForOrbit(int orbitDimension) {
-        for (Map.Entry<Integer, Planet> entry : PlanetApiImpl.snapshotPlanets().entrySet()) {
-            Planet planet = entry.getValue();
-            Integer planetOrbit = planet.getOrbitDimensionId();
-            if (planetOrbit != null && planetOrbit == orbitDimension) {
-                return planet.getDimensionId();
-            }
-        }
-        return null;
-    }
-
-    private Entity teleportEntityFromOrbit(Entity entity, int targetDimension) {
+    private Entity teleportEntityFromSpaceStation(Entity entity, int targetDimension) {
         MinecraftServer server = entity instanceof EntityPlayerMP
             ? ((EntityPlayerMP) entity).getServer()
             : entity.world.getMinecraftServer();
@@ -133,7 +122,7 @@ public class SpaceBoundaryHandler {
         }
 
         for (Entity passenger : passengers) {
-            Entity teleportedPassenger = teleportEntityFromOrbit(passenger, targetDimension);
+            Entity teleportedPassenger = teleportEntityFromSpaceStation(passenger, targetDimension);
             if (teleportedPassenger != null) {
                 teleportedPassenger.startRiding(teleportedEntity, true);
             }

@@ -156,7 +156,7 @@ public class AdAstraStructureWorldGenerator implements IWorldGenerator {
     }
 
     private void generateAdditionalStructures(WorldServer world, int chunkX, int chunkZ) {
-        if (world.provider instanceof AdAstraOrbitWorldProvider) {
+        if (world.provider instanceof AdAstraSpaceStationWorldProvider) {
             return;
         }
 

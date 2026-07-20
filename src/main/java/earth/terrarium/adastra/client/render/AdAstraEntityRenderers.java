@@ -28,6 +28,14 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier4RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier5RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier6RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier7RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier8RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier9RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier10RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier11RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier12RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier13RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier14RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier15RocketEntity;
 import earth.terrarium.adastra.common.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -70,6 +78,22 @@ public final class AdAstraEntityRenderers {
             manager -> new RenderRocket<Tier6RocketEntity>(manager, 6, texture("rocket/tier_6_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(Tier7RocketEntity.class,
             manager -> new RenderRocket<Tier7RocketEntity>(manager, 7, texture("rocket/tier_7_rocket"), 0.7f));
+        RenderingRegistry.registerEntityRenderingHandler(Tier8RocketEntity.class,
+            manager -> new RenderRocket<Tier8RocketEntity>(manager, 8, texture("rocket/tier_8_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier9RocketEntity.class,
+            manager -> new RenderRocket<Tier9RocketEntity>(manager, 9, texture("rocket/tier_9_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier10RocketEntity.class,
+            manager -> new RenderRocket<Tier10RocketEntity>(manager, 10, texture("rocket/tier_10_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier11RocketEntity.class,
+            manager -> new RenderRocket<Tier11RocketEntity>(manager, 11, texture("rocket/tier_11_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier12RocketEntity.class,
+            manager -> new RenderRocket<Tier12RocketEntity>(manager, 12, texture("rocket/tier_12_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier13RocketEntity.class,
+            manager -> new RenderRocket<Tier13RocketEntity>(manager, 13, texture("rocket/tier_13_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier14RocketEntity.class,
+            manager -> new RenderRocket<Tier14RocketEntity>(manager, 14, texture("rocket/tier_14_rocket"), 0.7f, true));
+        RenderingRegistry.registerEntityRenderingHandler(Tier15RocketEntity.class,
+            manager -> new RenderRocket<Tier15RocketEntity>(manager, 15, texture("rocket/tier_15_rocket"), 0.7f, true));
         RenderingRegistry.registerEntityRenderingHandler(ConfigurableRocketEntity.class,
             manager -> new RenderRocket<ConfigurableRocketEntity>(manager, 7, texture("rocket/tier_7_rocket"), 0.7f));
         RenderingRegistry.registerEntityRenderingHandler(LanderEntity.class,

@@ -3,6 +3,7 @@ package earth.terrarium.adastra.common.capability;
 import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketSyncPlayerCapability;
+import earth.terrarium.adastra.common.util.SpaceStationHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,6 +34,7 @@ public class AdAstraCapabilityHandler {
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             syncToClient((EntityPlayerMP) event.player);
+            SpaceStationHelper.syncToClient((EntityPlayerMP) event.player);
         }
     }
 

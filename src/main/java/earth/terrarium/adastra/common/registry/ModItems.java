@@ -40,6 +40,14 @@ import earth.terrarium.adastra.common.entities.vehicles.Tier4RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier5RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier6RocketEntity;
 import earth.terrarium.adastra.common.entities.vehicles.Tier7RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier8RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier9RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier10RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier11RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier12RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier13RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier14RocketEntity;
+import earth.terrarium.adastra.common.entities.vehicles.Tier15RocketEntity;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.init.Items;
@@ -169,14 +177,14 @@ public final class ModItems {
     public static final Item FREEZE_SHARD = registerItem("freeze_shard");
     public static final Item ICE_CHARGE = registerIceCharge();
 
-    public static final Item TIER_8_ROCKET = registerRocket(8, 18000);
-    public static final Item TIER_9_ROCKET = registerRocket(9, 19000);
-    public static final Item TIER_10_ROCKET = registerRocket(10, 20000);
-    public static final Item TIER_11_ROCKET = registerRocket(11, 21000);
-    public static final Item TIER_12_ROCKET = registerRocket(12, 22000);
-    public static final Item TIER_13_ROCKET = registerRocket(13, 23000);
-    public static final Item TIER_14_ROCKET = registerRocket(14, 24000);
-    public static final Item TIER_15_ROCKET = registerRocket(15, 25000);
+    public static final Item TIER_8_ROCKET = prefixedVehicle("tier_8_rocket", Tier8RocketEntity::new);
+    public static final Item TIER_9_ROCKET = prefixedVehicle("tier_9_rocket", Tier9RocketEntity::new);
+    public static final Item TIER_10_ROCKET = prefixedVehicle("tier_10_rocket", Tier10RocketEntity::new);
+    public static final Item TIER_11_ROCKET = prefixedVehicle("tier_11_rocket", Tier11RocketEntity::new);
+    public static final Item TIER_12_ROCKET = prefixedVehicle("tier_12_rocket", Tier12RocketEntity::new);
+    public static final Item TIER_13_ROCKET = prefixedVehicle("tier_13_rocket", Tier13RocketEntity::new);
+    public static final Item TIER_14_ROCKET = prefixedVehicle("tier_14_rocket", Tier14RocketEntity::new);
+    public static final Item TIER_15_ROCKET = prefixedVehicle("tier_15_rocket", Tier15RocketEntity::new);
 
     public static final Item FREEZE_SPAWN_EGG = registerSpawnEgg();
 
@@ -373,7 +381,15 @@ public final class ModItems {
     }
 
     private static Item registerItem(Item item, String name) {
-        item.setRegistryName(ModResourceIds.item(name));
+        ResourceLocation expectedRegistryName = ModResourceIds.item(name);
+        ResourceLocation existingRegistryName = item.getRegistryName();
+        if (existingRegistryName == null) {
+            item.setRegistryName(expectedRegistryName);
+        } else if (!expectedRegistryName.equals(existingRegistryName)) {
+            throw new IllegalArgumentException(
+                "Item " + name + " already has registry name " + existingRegistryName
+                    + ", expected " + expectedRegistryName + ".");
+        }
         item.setTranslationKey(Reference.MOD_ID + "." + ModResourceIds.itemPath(name));
         item.setCreativeTab(AdAstraCreativeTab.INSTANCE);
         INTERNAL_ITEMS.add(item);
@@ -385,25 +401,14 @@ public final class ModItems {
         return registerItem(new IceChargeItem("ice_charge", false), "ice_charge");
     }
 
-    private static Item registerRocket(int tier, int fuelCapacity) {
-        String id = "tier_" + tier + "_rocket";
-        int modelTier = Math.min(Math.max(tier - 3, 5), 12);
-        ConfigurableRocketSpec spec = new ConfigurableRocketSpec(
-            id,
-            "Tier " + tier + " Rocket",
-            tier,
-            fuelCapacity,
-            modelTier,
-            new ResourceLocation(Reference.MOD_ID, "textures/entity/rocket/tier_" + tier + "_rocket.png"),
-            null,
-            "ad_astra:textures/entity/rocket/tier_" + tier + "_rocket.png",
-            true,
-            true);
-        ConfigurableRocketItem item = new ConfigurableRocketItem(spec, false);
-        registerItem(item, id);
-        spec.setItem(item);
-        ConfigurableRocketRegistry.registerBuiltIn(spec);
-        return item;
+    private static Item prefixedVehicle(String name,
+                                        java.util.function.Function<net.minecraft.world.World, ? extends earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity> factory) {
+        Item item = new VehicleItem(
+            name,
+            ModResourceIds.item(name),
+            Reference.MOD_ID + "." + ModResourceIds.itemPath(name),
+            factory);
+        return registerItem(item, name);
     }
 
     private static Item registerSpawnEgg() {

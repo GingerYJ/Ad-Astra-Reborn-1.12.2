@@ -3,7 +3,6 @@ package earth.terrarium.adastra.api.planets;
 import earth.terrarium.adastra.Reference;
 import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ import java.util.List;
  *   <li>Atmospheric properties (oxygen, temperature, gravity)</li>
  *   <li>Solar power generation capability</li>
  *   <li>Solar system membership</li>
- *   <li>Orbit dimension (for space stations)</li>
+ *   <li>Whether this dimension is the shared space station dimension</li>
  *   <li>Technology tier requirement</li>
  * </ul>
  * <p>
@@ -38,8 +37,7 @@ public class Planet {
     private final float gravity;
     private final int solarPower;
     private final ResourceLocation solarSystem;
-    @Nullable
-    private final Integer orbitDimensionId;
+    private final boolean space;
     private final int tier;
     private final List<Integer> additionalLaunchDimensions;
 
@@ -52,7 +50,7 @@ public class Planet {
      * @param gravity The gravity multiplier (1.0 = Earth gravity)
      * @param solarPower The solar power generation multiplier
      * @param solarSystem The solar system this planet belongs to
-     * @param orbitDimensionId The dimension ID of this planet's orbit, or null if this IS an orbit
+     * @param space Whether this dimension represents the shared space station
      * @param tier The technology tier required to reach this planet (1-4)
      * @param additionalLaunchDimensions Additional dimensions from which rockets can launch to this planet
      */
@@ -63,7 +61,7 @@ public class Planet {
         float gravity,
         int solarPower,
         ResourceLocation solarSystem,
-        @Nullable Integer orbitDimensionId,
+        boolean space,
         int tier,
         List<Integer> additionalLaunchDimensions
     ) {
@@ -73,7 +71,7 @@ public class Planet {
         this.gravity = gravity;
         this.solarPower = solarPower;
         this.solarSystem = solarSystem;
-        this.orbitDimensionId = orbitDimensionId;
+        this.space = space;
         this.tier = tier;
         this.additionalLaunchDimensions = additionalLaunchDimensions;
     }
@@ -134,32 +132,12 @@ public class Planet {
     }
 
     /**
-     * Gets the dimension ID of this planet's orbit.
-     * Returns null if this dimension IS an orbit (space station).
+     * Returns whether this dimension is the shared space station rather than a planet surface.
      *
-     * @return The orbit dimension ID, or null if this is an orbit
-     */
-    @Nullable
-    public Integer getOrbitDimensionId() {
-        return orbitDimensionId;
-    }
-
-    /**
-     * Gets the orbit dimension ID, or returns this planet's dimension ID if it has no orbit.
-     *
-     * @return The orbit dimension ID, or this planet's ID
-     */
-    public int getOrbitDimensionIdOrSelf() {
-        return orbitDimensionId != null ? orbitDimensionId : dimensionId;
-    }
-
-    /**
-     * Returns whether this dimension represents space (an orbit) rather than a planet surface.
-     *
-     * @return true if this is a space/orbit dimension, false if it's a planet surface
+     * @return true for the shared space station dimension, false for a planet surface
      */
     public boolean isSpace() {
-        return orbitDimensionId == null;
+        return space;
     }
 
     /**
@@ -202,7 +180,7 @@ public class Planet {
         private float gravity = 1.0f;
         private int solarPower = 10;
         private ResourceLocation solarSystem = new ResourceLocation(Reference.MOD_ID, "solar_system");
-        private Integer orbitDimensionId = null;
+        private boolean space;
         private int tier = 1;
         private List<Integer> additionalLaunchDimensions = java.util.Collections.emptyList();
 
@@ -235,8 +213,8 @@ public class Planet {
             return this;
         }
 
-        public PlanetBuilder orbitDimensionId(Integer orbitDimensionId) {
-            this.orbitDimensionId = orbitDimensionId;
+        public PlanetBuilder space(boolean space) {
+            this.space = space;
             return this;
         }
 
@@ -258,7 +236,7 @@ public class Planet {
                 gravity,
                 solarPower,
                 solarSystem,
-                orbitDimensionId,
+                space,
                 tier,
                 additionalLaunchDimensions
             );

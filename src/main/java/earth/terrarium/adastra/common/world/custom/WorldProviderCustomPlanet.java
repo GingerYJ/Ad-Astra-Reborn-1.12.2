@@ -26,11 +26,16 @@ public class WorldProviderCustomPlanet extends AdAstraWorldProvider {
 
     @Override
     public DimensionType getDimensionType() {
+        DimensionType builtInType = BuiltInPlanetRegistry.getDimensionType(getDimension());
+        if (builtInType != null) {
+            return builtInType;
+        }
         DimensionType type = CustomPlanetRegistry.getDimensionType(getDimension());
         return type == null ? DimensionType.OVERWORLD : type;
     }
 
     private CustomPlanetDefinition getDefinition() {
-        return CustomPlanetRegistry.getByDimensionId(getDimension());
+        CustomPlanetDefinition builtIn = BuiltInPlanetRegistry.getByDimensionId(getDimension());
+        return builtIn == null ? CustomPlanetRegistry.getByDimensionId(getDimension()) : builtIn;
     }
 }

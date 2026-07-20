@@ -28,10 +28,9 @@ public final class RecipeRegistry {
     private static final Map<String, NASAWorkbenchRecipe> NASA_WORKBENCH_RECIPE_OVERRIDES = new HashMap<>();
     private static final Set<String> NASA_WORKBENCH_RECIPE_REMOVED_IDS = new HashSet<>();
     private static final List<ItemStack> NASA_WORKBENCH_RECIPE_REMOVED_OUTPUTS = new ArrayList<>();
-    private static final List<SpaceStationRecipe> SPACE_STATION_RECIPES = new ArrayList<>();
-    private static final Map<ResourceLocation, SpaceStationRecipe> SPACE_STATION_RECIPE_OVERRIDES = new HashMap<>();
-    private static final Set<ResourceLocation> SPACE_STATION_RECIPE_REMOVED_DIMENSIONS = new HashSet<>();
+    private static SpaceStationRecipe SPACE_STATION_RECIPE;
     private static final Set<String> SPACE_STATION_RECIPE_REMOVED_IDS = new HashSet<>();
+    private static boolean SPACE_STATION_RECIPE_REMOVED;
 
     private RecipeRegistry() {
         // Utility class
@@ -329,61 +328,41 @@ public final class RecipeRegistry {
     // ==================== Space Station Recipes ====================
 
     public static void registerSpaceStationRecipe(SpaceStationRecipe recipe) {
-        if (recipe == null || isSpaceStationRecipeRemoved(recipe)) {
+        if (recipe == null || SPACE_STATION_RECIPE_REMOVED || isSpaceStationRecipeRemoved(recipe)) {
             return;
         }
-        SpaceStationRecipe override = SPACE_STATION_RECIPE_OVERRIDES.get(recipe.getDimension());
-        addSpaceStationRecipe(override != null ? override : recipe);
+        SPACE_STATION_RECIPE = recipe;
     }
 
-    public static SpaceStationRecipe findSpaceStationRecipe(ResourceLocation dimension) {
-        if (dimension == null) {
-            return null;
-        }
-        SpaceStationRecipe override = SPACE_STATION_RECIPE_OVERRIDES.get(dimension);
-        if (override != null && !isSpaceStationRecipeRemoved(override)) {
-            return override;
-        }
-        for (SpaceStationRecipe recipe : getEffectiveSpaceStationRecipes()) {
-            if (dimension.equals(recipe.getDimension())) {
-                return recipe;
-            }
-        }
-        return null;
+    public static SpaceStationRecipe findSpaceStationRecipe() {
+        return SPACE_STATION_RECIPE_REMOVED || isSpaceStationRecipeRemoved(SPACE_STATION_RECIPE)
+            ? null : SPACE_STATION_RECIPE;
     }
 
     public static SpaceStationRecipe findSpaceStationRecipeById(String id) {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
-        for (SpaceStationRecipe recipe : getEffectiveSpaceStationRecipes()) {
-            if (id.equals(recipe.getId())) {
-                return recipe;
-            }
-        }
-        return null;
+        SpaceStationRecipe recipe = findSpaceStationRecipe();
+        return recipe != null && id.equals(recipe.getId()) ? recipe : null;
     }
 
     public static SpaceStationRecipe replaceSpaceStationRecipe(SpaceStationRecipe recipe) {
         if (recipe == null) {
             return null;
         }
-        SPACE_STATION_RECIPE_REMOVED_DIMENSIONS.remove(recipe.getDimension());
+        SPACE_STATION_RECIPE_REMOVED = false;
         SPACE_STATION_RECIPE_REMOVED_IDS.remove(recipe.getId());
-        SpaceStationRecipe previous = removeSpaceStationRecipeFromActive(recipe.getDimension());
-        SpaceStationRecipe override = SPACE_STATION_RECIPE_OVERRIDES.put(recipe.getDimension(), recipe);
-        SPACE_STATION_RECIPES.add(recipe);
-        return previous != null ? previous : override;
+        SpaceStationRecipe previous = findSpaceStationRecipe();
+        SPACE_STATION_RECIPE = recipe;
+        return previous;
     }
 
-    public static SpaceStationRecipe removeSpaceStationRecipe(ResourceLocation dimension) {
-        if (dimension == null) {
-            return null;
-        }
-        SPACE_STATION_RECIPE_REMOVED_DIMENSIONS.add(dimension);
-        SpaceStationRecipe override = SPACE_STATION_RECIPE_OVERRIDES.remove(dimension);
-        SpaceStationRecipe removed = removeSpaceStationRecipeFromActive(dimension);
-        return removed != null ? removed : override;
+    public static SpaceStationRecipe removeSpaceStationRecipe() {
+        SpaceStationRecipe removed = findSpaceStationRecipe();
+        SPACE_STATION_RECIPE = null;
+        SPACE_STATION_RECIPE_REMOVED = true;
+        return removed;
     }
 
     public static SpaceStationRecipe removeSpaceStationRecipeById(String id) {
@@ -391,82 +370,27 @@ public final class RecipeRegistry {
             return null;
         }
         SPACE_STATION_RECIPE_REMOVED_IDS.add(id);
-        SpaceStationRecipe override = removeSpaceStationRecipeOverrideById(id);
-        SpaceStationRecipe removed = removeSpaceStationRecipeByIdFromActive(id);
-        return removed != null ? removed : override;
+        SpaceStationRecipe recipe = findSpaceStationRecipe();
+        if (recipe != null && id.equals(recipe.getId())) {
+            SPACE_STATION_RECIPE = null;
+            return recipe;
+        }
+        return null;
     }
 
     public static List<SpaceStationRecipe> getAllSpaceStationRecipes() {
-        return Collections.unmodifiableList(getEffectiveSpaceStationRecipes());
+        SpaceStationRecipe recipe = findSpaceStationRecipe();
+        return recipe == null ? Collections.emptyList() : Collections.singletonList(recipe);
     }
 
     public static void clearSpaceStationRecipes() {
-        SPACE_STATION_RECIPES.clear();
-    }
-
-    private static void addSpaceStationRecipe(SpaceStationRecipe recipe) {
-        removeSpaceStationRecipeFromActive(recipe.getDimension());
-        SPACE_STATION_RECIPES.add(recipe);
-    }
-
-    private static List<SpaceStationRecipe> getEffectiveSpaceStationRecipes() {
-        List<SpaceStationRecipe> recipes = new ArrayList<>(SPACE_STATION_RECIPES);
-        for (SpaceStationRecipe recipe : SPACE_STATION_RECIPE_OVERRIDES.values()) {
-            if (!isSpaceStationRecipeRemoved(recipe) && findSpaceStationRecipeInList(recipes, recipe.getDimension()) == null) {
-                recipes.add(recipe);
-            }
-        }
-        return recipes;
-    }
-
-    private static SpaceStationRecipe findSpaceStationRecipeInList(List<SpaceStationRecipe> recipes, ResourceLocation dimension) {
-        for (SpaceStationRecipe recipe : recipes) {
-            if (dimension.equals(recipe.getDimension())) {
-                return recipe;
-            }
-        }
-        return null;
+        SPACE_STATION_RECIPE = null;
+        SPACE_STATION_RECIPE_REMOVED = false;
+        SPACE_STATION_RECIPE_REMOVED_IDS.clear();
     }
 
     private static boolean isSpaceStationRecipeRemoved(SpaceStationRecipe recipe) {
-        return SPACE_STATION_RECIPE_REMOVED_DIMENSIONS.contains(recipe.getDimension())
-            || SPACE_STATION_RECIPE_REMOVED_IDS.contains(recipe.getId());
-    }
-
-    private static SpaceStationRecipe removeSpaceStationRecipeFromActive(ResourceLocation dimension) {
-        Iterator<SpaceStationRecipe> iterator = SPACE_STATION_RECIPES.iterator();
-        while (iterator.hasNext()) {
-            SpaceStationRecipe recipe = iterator.next();
-            if (dimension.equals(recipe.getDimension())) {
-                iterator.remove();
-                return recipe;
-            }
-        }
-        return null;
-    }
-
-    private static SpaceStationRecipe removeSpaceStationRecipeByIdFromActive(String id) {
-        Iterator<SpaceStationRecipe> iterator = SPACE_STATION_RECIPES.iterator();
-        while (iterator.hasNext()) {
-            SpaceStationRecipe recipe = iterator.next();
-            if (id.equals(recipe.getId())) {
-                iterator.remove();
-                return recipe;
-            }
-        }
-        return null;
-    }
-
-    private static SpaceStationRecipe removeSpaceStationRecipeOverrideById(String id) {
-        Iterator<Map.Entry<ResourceLocation, SpaceStationRecipe>> iterator = SPACE_STATION_RECIPE_OVERRIDES.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<ResourceLocation, SpaceStationRecipe> entry = iterator.next();
-            if (id.equals(entry.getValue().getId())) {
-                iterator.remove();
-                return entry.getValue();
-            }
-        }
-        return null;
+        return recipe == null || SPACE_STATION_RECIPE_REMOVED_IDS.contains(recipe.getId());
     }
 
     // ==================== Global Operations ====================
@@ -494,6 +418,6 @@ public final class RecipeRegistry {
             + OXYGEN_LOADING_RECIPES.size()
             + REFINING_RECIPES.size()
             + NASA_WORKBENCH_RECIPES.size()
-            + SPACE_STATION_RECIPES.size();
+            + (findSpaceStationRecipe() == null ? 0 : 1);
     }
 }

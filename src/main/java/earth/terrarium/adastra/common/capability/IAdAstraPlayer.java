@@ -3,7 +3,6 @@ package earth.terrarium.adastra.common.capability;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Map;
-import java.util.Set;
 
 public interface IAdAstraPlayer {
 
@@ -75,32 +74,4 @@ public interface IAdAstraPlayer {
      */
     BlockPos getLaunchPosition(int dimension);
 
-    /**
-     * Gets the set of space stations owned by this player.
-     *
-     * @return set of owned space stations
-     */
-    Set<SpaceStation> getSpaceStations();
-
-    /**
-     * Adds a space station to the player's ownership.
-     *
-     * @param station space station to add
-     */
-    void addSpaceStation(SpaceStation station);
-
-    /**
-     * Removes a space station from the player's ownership.
-     *
-     * @param station space station to remove
-     */
-    void removeSpaceStation(SpaceStation station);
-
-    /**
-     * Checks if the player owns a specific space station.
-     *
-     * @param station space station to check
-     * @return true if owned, false otherwise
-     */
-    boolean hasSpaceStation(SpaceStation station);
 }

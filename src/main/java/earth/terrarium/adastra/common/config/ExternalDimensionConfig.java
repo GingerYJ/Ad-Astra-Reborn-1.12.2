@@ -2,8 +2,10 @@ package earth.terrarium.adastra.common.config;
 
 import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.Reference;
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.util.PlanetTierOverrideRegistry;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -27,17 +29,17 @@ public final class ExternalDimensionConfig {
 
     private static final String CATEGORY_GENERAL = "general";
     private static final String CATEGORY_DIMENSIONS = "dimensions";
-    private static final int MAX_ROCKET_TIER = 15;
+    private static final int MAX_ROCKET_TIER = 255;
     private static final String ENABLE_COMMENT =
         "\u662f\u5426\u542f\u7528\u5916\u90e8\u7ef4\u5ea6\u63a5\u5165\uff1bfalse \u65f6\u5ffd\u7565\u5217\u8868\u3002\nWhether integration is enabled; false ignores the list.";
     private static final String DIMENSION_LIST_COMMENT =
         "\u683c\u5f0f\uff1a\u7ef4\u5ea6 ID|\u8d44\u6e90 ID|\u6700\u4f4e\u706b\u7bad\u7b49\u7ea7|\u6e29\u5ea6|\u91cd\u529b\u500d\u7387|\u5929\u7a7a\u5149\u7167/\u592a\u9633\u80fd\u503c|\u663e\u793a\u540d\u79f0\uff08\u53ef\u9009\uff09\u3002\n"
             + "\u793a\u4f8b\uff1a-28|galacticraftcore:moon|1|-173|0.166|24|\u94f6\u6cb3\u6708\u7403\u3002\n"
-            + "\u8303\u56f4\uff1a\u706b\u7bad\u7b49\u7ea7 0-15\uff1b\u6e29\u5ea6 -32768~32767\uff1b\u91cd\u529b 0-10\uff1b\u5929\u7a7a\u5149\u7167/\u592a\u9633\u80fd\u503c 0-1024\u3002\n"
+            + "\u8303\u56f4\uff1a\u706b\u7bad\u7b49\u7ea7 0-255\uff1b\u6e29\u5ea6 -32768~32767\uff1b\u91cd\u529b 0-10\uff1b\u5929\u7a7a\u5149\u7167/\u592a\u9633\u80fd\u503c 0-1024\u3002\n"
             + "\u672a\u6ce8\u518c\u7ef4\u5ea6\u5ffd\u7565\u3002\n"
             + "Format: dimension ID|resource ID|minimum rocket tier|temperature|gravity|sky-light/solar-power|display name (optional).\n"
             + "Example: -28|galacticraftcore:moon|1|-173|0.166|24|Galaxy-Moon.\n"
-            + "Ranges: tier 0-15; temperature -32768~32767; gravity 0-10; sky-light/solar-power 0-1024.\n"
+            + "Ranges: tier 0-255; temperature -32768~32767; gravity 0-10; sky-light/solar-power 0-1024.\n"
             + "Unregistered dimensions are ignored.";
     private static final String CATEGORY_GENERAL_COMMENT =
         "\u5916\u90e8\u7ef4\u5ea6\u63a5\u5165\u5f00\u5173\u3002\nExternal-dimension integration toggle.";
@@ -193,6 +195,12 @@ public final class ExternalDimensionConfig {
     }
 
     private static boolean isDimensionRegistered(int dimensionId) {
+        if (ModDimensions.isBuiltInDimension(dimensionId)
+            || BuiltInPlanetRegistry.containsDimension(dimensionId)) {
+            AdAstraReborn.LOGGER.warn(
+                "Ignored external dimension config entry for built-in dimension {}.", dimensionId);
+            return false;
+        }
         if (DimensionManager.isDimensionRegistered(dimensionId)) {
             return true;
         }

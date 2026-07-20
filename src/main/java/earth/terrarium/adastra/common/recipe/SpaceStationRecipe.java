@@ -3,7 +3,6 @@ package earth.terrarium.adastra.common.recipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayList;
@@ -12,12 +11,11 @@ import java.util.List;
 
 /**
  * Recipe implementation for Space Station construction.
- * Requires multiple ingredient stacks to build a space station in orbit.
+ * Requires multiple ingredient stacks to build the global space station.
  */
 public class SpaceStationRecipe {
 
     private final String id;
-    private final ResourceLocation dimension;
     private final String structure;
     private final List<IngredientRequirement> requirements;
 
@@ -25,13 +23,11 @@ public class SpaceStationRecipe {
      * Creates a space station recipe.
      *
      * @param id Recipe identifier
-     * @param dimension Target orbit dimension
      * @param structure Structure NBT name
      * @param requirements List of ingredient requirements with counts
      */
-    public SpaceStationRecipe(String id, ResourceLocation dimension, String structure, List<IngredientRequirement> requirements) {
+    public SpaceStationRecipe(String id, String structure, List<IngredientRequirement> requirements) {
         this.id = id;
-        this.dimension = dimension;
         this.structure = structure;
         this.requirements = new ArrayList<>(requirements);
     }
@@ -43,15 +39,6 @@ public class SpaceStationRecipe {
      */
     public String getId() {
         return id;
-    }
-
-    /**
-     * Gets the target orbit dimension for this space station.
-     *
-     * @return Orbit dimension ResourceLocation
-     */
-    public ResourceLocation getDimension() {
-        return dimension;
     }
 
     /**

@@ -8,8 +8,8 @@ import earth.terrarium.adastra.common.entities.vehicles.LanderEntity;
 import earth.terrarium.adastra.common.entities.vehicles.RocketEntity;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
-import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -76,6 +76,7 @@ public final class PlanetTravelHelper {
             planets.add(planet);
         }
         planets.addAll(ExternalDimensionConfig.getPlanetProperties());
+        planets.addAll(BuiltInPlanetRegistry.getPlanetProperties());
         planets.addAll(CustomPlanetRegistry.getPlanetProperties());
         return planets.toArray(new PlanetDimensionProperties[planets.size()]);
     }
@@ -93,20 +94,11 @@ public final class PlanetTravelHelper {
         if (external != null) {
             return external.toDimensionProperties();
         }
-        PlanetDimensionProperties custom = CustomPlanetRegistry.getPlanetProperties(dimensionId);
-        return custom;
-    }
-
-    public static PlanetDimensionProperties getPlanetByOrbitDimensionId(int orbitDimensionId) {
-        if (orbitDimensionId == ModDimensions.EARTH_ORBIT_ID) {
-            return EARTH_PROPERTIES;
+        PlanetDimensionProperties builtIn = BuiltInPlanetRegistry.getPlanetProperties(dimensionId);
+        if (builtIn != null) {
+            return builtIn;
         }
-        for (PlanetDimensionProperties planet : getPlanets()) {
-            if (getOrbitDimensionId(planet.getDimensionId()) == orbitDimensionId) {
-                return planet;
-            }
-        }
-        return null;
+        return CustomPlanetRegistry.getPlanetProperties(dimensionId);
     }
 
     public static boolean canRocketTierReach(int rocketTier, PlanetDimensionProperties planet) {
@@ -199,7 +191,12 @@ public final class PlanetTravelHelper {
         return true;
     }
 
-    public static boolean landPlayerAtSpaceStation(EntityPlayerMP player, int dimensionId, BlockPos stationPos) {
+    public static boolean landPlayerAtSpaceStation(EntityPlayerMP player, BlockPos stationPos) {
+        int dimensionId = ModDimensions.SPACE_STATION_ID;
+        if (stationPos == null) {
+            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.unavailable"), true);
+            return false;
+        }
         if (!DimensionManager.isDimensionRegistered(dimensionId)) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.planets.unregistered"), true);
             return false;
@@ -243,33 +240,15 @@ public final class PlanetTravelHelper {
         return true;
     }
 
-    public static int getOrbitDimensionId(int planetDimensionId) {
-        if (planetDimensionId == 0) {
-            return ModDimensions.EARTH_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.MOON_ID) {
-            return ModDimensions.MOON_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.MARS_ID) {
-            return ModDimensions.MARS_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.MERCURY_ID) {
-            return ModDimensions.MERCURY_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.VENUS_ID) {
-            return ModDimensions.VENUS_ORBIT_ID;
-        }
-        if (planetDimensionId == ModDimensions.GLACIO_ID) {
-            return ModDimensions.GLACIO_ORBIT_ID;
-        }
-        if (ExternalDimensionConfig.isExternalDimension(planetDimensionId)) {
-            return Integer.MIN_VALUE;
-        }
-        CustomPlanetDefinition custom = CustomPlanetRegistry.getByDimensionId(planetDimensionId);
-        if (custom != null) {
-            return custom.getOrbitDimensionId();
-        }
-        return Integer.MIN_VALUE;
+    /** Returns the single shared space station dimension for a valid surface destination. */
+    public static int getSpaceStationDimensionId(int planetDimensionId) {
+        return getPlanetByDimensionId(planetDimensionId) == null
+            ? Integer.MIN_VALUE
+            : ModDimensions.SPACE_STATION_ID;
+    }
+
+    public static ResourceLocation getSpaceStationDimensionLocation() {
+        return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "space_station");
     }
 
     private static void beginRocketTravel(EntityPlayerMP player, int targetDimensionId) {
@@ -278,33 +257,6 @@ public final class PlanetTravelHelper {
 
     private static void clearRocketTravel() {
         ROCKET_TRAVEL_CONTEXT.remove();
-    }
-
-    public static ResourceLocation getOrbitDimensionLocation(int orbitDimensionId) {
-        if (orbitDimensionId == ModDimensions.EARTH_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "earth_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.MOON_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "moon_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.MARS_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "mars_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.MERCURY_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "mercury_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.VENUS_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "venus_orbit");
-        }
-        if (orbitDimensionId == ModDimensions.GLACIO_ORBIT_ID) {
-            return new ResourceLocation(earth.terrarium.adastra.Reference.MOD_ID, "glacio_orbit");
-        }
-        for (CustomPlanetDefinition custom : CustomPlanetRegistry.getDefinitions()) {
-            if (custom.getOrbitDimensionId() == orbitDimensionId) {
-                return custom.getOrbitDimensionLocation();
-            }
-        }
-        return null;
     }
 
     private static void preloadLandingChunks(WorldServer world, BlockPos center, int radius) {

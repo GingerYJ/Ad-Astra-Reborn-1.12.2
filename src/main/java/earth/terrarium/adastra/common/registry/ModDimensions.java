@@ -4,6 +4,7 @@ import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import earth.terrarium.adastra.common.world.*;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetDimensionRegistrar;
 import net.minecraft.block.Block;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -18,20 +19,16 @@ import java.util.List;
 
 public final class ModDimensions {
 
-    // Keep surface and orbit IDs in separate high ranges to reduce mod conflicts.
+    // Keep the built-in surface IDs and the single shared station ID in high ranges
+    // to reduce mod conflicts.
     public static final int FIRST_PLANET_ID = 108490;
-    public static final int FIRST_ORBIT_ID = 107490;
+    /** The only non-surface dimension owned by Ad Astra. */
+    public static final int SPACE_STATION_ID = 107489;
     public static final int MOON_ID = FIRST_PLANET_ID;
     public static final int MARS_ID = FIRST_PLANET_ID + 1;
     public static final int MERCURY_ID = FIRST_PLANET_ID + 2;
     public static final int VENUS_ID = FIRST_PLANET_ID + 3;
     public static final int GLACIO_ID = FIRST_PLANET_ID + 4;
-    public static final int EARTH_ORBIT_ID = FIRST_ORBIT_ID - 1;
-    public static final int MOON_ORBIT_ID = FIRST_ORBIT_ID;
-    public static final int MARS_ORBIT_ID = FIRST_ORBIT_ID + 1;
-    public static final int MERCURY_ORBIT_ID = FIRST_ORBIT_ID + 2;
-    public static final int VENUS_ORBIT_ID = FIRST_ORBIT_ID + 3;
-    public static final int GLACIO_ORBIT_ID = FIRST_ORBIT_ID + 4;
 
     private static final int DAY = 24000;
 
@@ -66,17 +63,14 @@ public final class ModDimensions {
         true, true, true, (short)-20, 0.25F, 14, 4, DAY,
         new Vec3d(0.58D, 0.72D, 0.9D), new Vec3d(0.34D, 0.48D, 0.68D));
 
-    // ===== Existing Orbit Properties =====
-    public static final PlanetDimensionProperties EARTH_ORBIT_PROPERTIES = orbit("earth_orbit", EARTH_ORBIT_ID, "DIM_AD_ASTRA_EARTH_ORBIT", 1, 32, new Vec3d(0.1D,0.2D,0.4D), new Vec3d(0.05D,0.1D,0.2D));
-    public static final PlanetDimensionProperties MOON_ORBIT_PROPERTIES = orbit("moon_orbit", MOON_ORBIT_ID, "DIM_AD_ASTRA_MOON_ORBIT", 1, 32, MOON_PROPERTIES.getFogColor(), MOON_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties MARS_ORBIT_PROPERTIES = orbit("mars_orbit", MARS_ORBIT_ID, "DIM_AD_ASTRA_MARS_ORBIT", 2, 24, MARS_PROPERTIES.getFogColor(), MARS_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties MERCURY_ORBIT_PROPERTIES = orbit("mercury_orbit", MERCURY_ORBIT_ID, "DIM_AD_ASTRA_MERCURY_ORBIT", 3, 72, MERCURY_PROPERTIES.getFogColor(), MERCURY_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties VENUS_ORBIT_PROPERTIES = orbit("venus_orbit", VENUS_ORBIT_ID, "DIM_AD_ASTRA_VENUS_ORBIT", 3, 48, VENUS_PROPERTIES.getFogColor(), VENUS_PROPERTIES.getSkyColor());
-    public static final PlanetDimensionProperties GLACIO_ORBIT_PROPERTIES = orbit("glacio_orbit", GLACIO_ORBIT_ID, "DIM_AD_ASTRA_GLACIO_ORBIT", 4, 36, GLACIO_PROPERTIES.getFogColor(), GLACIO_PROPERTIES.getSkyColor());
+    // ===== Global Space Station Properties =====
+    public static final PlanetDimensionProperties SPACE_STATION_PROPERTIES = spaceStation(
+        "space_station", SPACE_STATION_ID, "DIM_AD_ASTRA_SPACE_STATION", 1, 32,
+        new Vec3d(0.1D, 0.2D, 0.4D), new Vec3d(0.05D, 0.1D, 0.2D));
 
     // ===== DimensionType instances =====
     public static DimensionType MOON, MARS, MERCURY, VENUS, GLACIO;
-    public static DimensionType EARTH_ORBIT, MOON_ORBIT, MARS_ORBIT, MERCURY_ORBIT, VENUS_ORBIT, GLACIO_ORBIT;
+    public static DimensionType SPACE_STATION;
     private static boolean registered;
 
     private ModDimensions() {}
@@ -89,19 +83,15 @@ public final class ModDimensions {
         MERCURY = reg("mercury", MERCURY_PROPERTIES, WorldProviderMercury.class);
         VENUS = reg("venus", VENUS_PROPERTIES, WorldProviderVenus.class);
         GLACIO = reg("glacio", GLACIO_PROPERTIES, WorldProviderGlacio.class);
-        EARTH_ORBIT = reg("earth_orbit", EARTH_ORBIT_PROPERTIES, WorldProviderEarthOrbit.class);
-        MOON_ORBIT = reg("moon_orbit", MOON_ORBIT_PROPERTIES, WorldProviderMoonOrbit.class);
-        MARS_ORBIT = reg("mars_orbit", MARS_ORBIT_PROPERTIES, WorldProviderMarsOrbit.class);
-        MERCURY_ORBIT = reg("mercury_orbit", MERCURY_ORBIT_PROPERTIES, WorldProviderMercuryOrbit.class);
-        VENUS_ORBIT = reg("venus_orbit", VENUS_ORBIT_PROPERTIES, WorldProviderVenusOrbit.class);
-        GLACIO_ORBIT = reg("glacio_orbit", GLACIO_ORBIT_PROPERTIES, WorldProviderGlacioOrbit.class);
+        SPACE_STATION = reg("space_station", SPACE_STATION_PROPERTIES, WorldProviderSpaceStation.class);
 
         ModPlanets.register();
+        BuiltInPlanetDimensionRegistrar.register();
 
         registered = true;
     }
 
-    /** Returns the registered surface-planet properties, excluding orbit dimensions. */
+    /** Returns the registered surface-planet properties, excluding the space station. */
     public static List<PlanetDimensionProperties> getPlanetProperties() {
         return Collections.unmodifiableList(Arrays.asList(
             MOON_PROPERTIES,
@@ -111,14 +101,16 @@ public final class ModDimensions {
             GLACIO_PROPERTIES));
     }
 
-    /** Returns the orbit dimension paired with a built-in surface planet. */
-    public static int getOrbitDimensionId(String planetName) {
-        if ("moon".equals(planetName)) return MOON_ORBIT_ID;
-        if ("mars".equals(planetName)) return MARS_ORBIT_ID;
-        if ("mercury".equals(planetName)) return MERCURY_ORBIT_ID;
-        if ("venus".equals(planetName)) return VENUS_ORBIT_ID;
-        if ("glacio".equals(planetName)) return GLACIO_ORBIT_ID;
-        return 0;
+    /** Returns whether an ID belongs to a built-in surface planet or the global space station. */
+    public static boolean isBuiltInDimension(int dimensionId) {
+        return dimensionId == MOON_ID || dimensionId == MARS_ID || dimensionId == MERCURY_ID
+            || dimensionId == VENUS_ID || dimensionId == GLACIO_ID
+            || dimensionId == SPACE_STATION_ID;
+    }
+
+    public static boolean isBuiltInPlanetId(String planetName) {
+        return "moon".equals(planetName) || "mars".equals(planetName) || "mercury".equals(planetName)
+            || "venus".equals(planetName) || "glacio".equals(planetName);
     }
 
     private static DimensionType reg(String name, PlanetDimensionProperties p, Class<? extends WorldProvider> cls) {
@@ -132,7 +124,7 @@ public final class ModDimensions {
 
     private static net.minecraft.block.state.IBlockState state(Block block) { return block.getDefaultState(); }
 
-    private static PlanetDimensionProperties orbit(String name, int id, String folder, int tier, int solarPower, Vec3d fog, Vec3d sky) {
+    private static PlanetDimensionProperties spaceStation(String name, int id, String folder, int tier, int solarPower, Vec3d fog, Vec3d sky) {
         return new PlanetDimensionProperties(name, id, folder, Biomes.SKY, state(Blocks.AIR), state(Blocks.AIR), true, true, false, (short)-270, 0.05F, solarPower, tier, DAY, fog, sky);
     }
 }

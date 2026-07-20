@@ -14,6 +14,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
@@ -30,16 +31,27 @@ public class VehicleItem extends Item {
         this(name, factory, true);
     }
 
-    protected VehicleItem(String name, Function<World, ? extends AdAstraVehicleEntity> factory,
-                          boolean registerName) {
+    /** Creates a vehicle with a canonical prefixed registry ID while retaining its tiered item name. */
+    public VehicleItem(String name, ResourceLocation registryName, String translationKey,
+                       Function<World, ? extends AdAstraVehicleEntity> factory) {
         this.factory = factory;
         this.rocketTier = rocketTierOf(name);
-        if (registerName) {
-            setRegistryName(Reference.MOD_ID, name);
-            setTranslationKey(Reference.MOD_ID + "." + name);
+        if (registryName != null) {
+            setRegistryName(registryName);
+        }
+        if (translationKey != null) {
+            setTranslationKey(translationKey);
         }
         setCreativeTab(AdAstraCreativeTab.INSTANCE);
         setMaxStackSize(1);
+    }
+
+    protected VehicleItem(String name, Function<World, ? extends AdAstraVehicleEntity> factory,
+                          boolean registerName) {
+        this(name,
+            registerName ? new ResourceLocation(Reference.MOD_ID, name) : null,
+            registerName ? Reference.MOD_ID + "." + name : null,
+            factory);
     }
 
     @Override

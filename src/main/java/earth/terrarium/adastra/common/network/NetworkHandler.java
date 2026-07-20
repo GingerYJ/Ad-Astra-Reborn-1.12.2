@@ -26,6 +26,7 @@ import earth.terrarium.adastra.common.network.packet.PacketSyncPlanetDefinitions
 import earth.terrarium.adastra.common.network.packet.PacketSyncPlanetData;
 import earth.terrarium.adastra.common.network.packet.PacketSyncPlayerCapability;
 import earth.terrarium.adastra.common.network.packet.PacketSyncRadioStations;
+import earth.terrarium.adastra.common.network.packet.PacketSyncSpaceStation;
 import earth.terrarium.adastra.common.network.packet.PacketSyncVehicle;
 import earth.terrarium.adastra.common.network.packet.PacketVehicleControl;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -47,6 +48,7 @@ public final class NetworkHandler {
         CHANNEL.registerMessage(PacketOpenRadioGui.Handler.class, PacketOpenRadioGui.class, discriminator++, Side.CLIENT);
         CHANNEL.registerMessage(PacketOpenVehicleGui.Handler.class, PacketOpenVehicleGui.class, discriminator++, Side.CLIENT);
         CHANNEL.registerMessage(PacketSyncPlayerCapability.Handler.class, PacketSyncPlayerCapability.class, discriminator++, Side.CLIENT);
+        CHANNEL.registerMessage(PacketSyncSpaceStation.Handler.class, PacketSyncSpaceStation.class, discriminator++, Side.CLIENT);
         CHANNEL.registerMessage(PacketSyncMachine.Handler.class, PacketSyncMachine.class, discriminator++, Side.CLIENT);
         CHANNEL.registerMessage(PacketSyncEnvironment.Handler.class, PacketSyncEnvironment.class, discriminator++, Side.CLIENT);
         CHANNEL.registerMessage(PacketSyncPlanetData.Handler.class, PacketSyncPlanetData.class, discriminator++, Side.CLIENT);

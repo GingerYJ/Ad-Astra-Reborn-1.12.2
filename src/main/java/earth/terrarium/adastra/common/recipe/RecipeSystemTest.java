@@ -130,8 +130,8 @@ public class RecipeSystemTest {
 
         AdAstraReborn.LOGGER.info("Space Station Recipes: {}", RecipeRegistry.getAllSpaceStationRecipes().size());
         for (SpaceStationRecipe recipe : RecipeRegistry.getAllSpaceStationRecipes()) {
-            AdAstraReborn.LOGGER.info("  - {} for dimension {}",
-                recipe.getId(), recipe.getDimension());
+            AdAstraReborn.LOGGER.info("  - {} for the global space station",
+                recipe.getId());
         }
 
         AdAstraReborn.LOGGER.info("=== End Summary ===");

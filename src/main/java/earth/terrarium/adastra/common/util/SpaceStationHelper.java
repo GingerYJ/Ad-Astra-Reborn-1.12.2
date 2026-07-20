@@ -3,27 +3,24 @@ package earth.terrarium.adastra.common.util;
 import earth.terrarium.adastra.AdAstraReborn;
 import earth.terrarium.adastra.Reference;
 import earth.terrarium.adastra.common.blocks.LaunchPadBlock;
-import earth.terrarium.adastra.common.capability.AdAstraCapabilities;
-import earth.terrarium.adastra.common.capability.AdAstraPlayer;
-import earth.terrarium.adastra.common.capability.IAdAstraPlayer;
-import earth.terrarium.adastra.common.capability.SpaceStation;
 import earth.terrarium.adastra.common.entities.vehicles.AdAstraVehicleEntity;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketOpenPlanetSelection;
-import earth.terrarium.adastra.common.network.packet.PacketSyncPlayerCapability;
+import earth.terrarium.adastra.common.network.packet.PacketSyncSpaceStation;
 import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.registry.ModDimensions;
-import earth.terrarium.adastra.common.world.AdAstraOrbitWorldProvider;
+import earth.terrarium.adastra.common.world.AdAstraSpaceStationWorldProvider;
 import earth.terrarium.adastra.common.world.AdAstraStructureBlocks;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
+import earth.terrarium.adastra.common.world.data.GlobalSpaceStationData;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.BlockPos;
@@ -35,8 +32,8 @@ import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.common.DimensionManager;
 
 import java.io.InputStream;
-import java.util.Set;
 
+/** Server-side operations for the single shared space station. */
 public final class SpaceStationHelper {
 
     private static final int CLEARANCE_Y = 14;
@@ -53,37 +50,24 @@ public final class SpaceStationHelper {
             return false;
         }
 
-        int orbitDimensionId = PlanetTravelHelper.getOrbitDimensionId(planetDimensionId);
-        ResourceLocation orbitLocation = PlanetTravelHelper.getOrbitDimensionLocation(orbitDimensionId);
-        if (orbitLocation == null || !DimensionManager.isDimensionRegistered(orbitDimensionId)) {
-            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.unavailable"), true);
-            return false;
-        }
-        SpaceStation existingStation = getOwnedSpaceStationInOrbit(player, orbitDimensionId);
-        if (existingStation != null) {
-            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.orbit_exists"), true);
-            IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-            if (capability != null) {
-                syncCapability(player, capability);
-            }
-            if (isPlayerInSpaceStationArea(player, orbitDimensionId, existingStation.getPosition())) {
-                reopenPlanetSelection(player);
-                return false;
-            }
-            return PlanetTravelHelper.landPlayerAtSpaceStation(player, orbitDimensionId, existingStation.getPosition());
-        }
-
         MinecraftServer server = player.getServer();
         if (server == null) {
             return false;
         }
-        WorldServer targetWorld = server.getWorld(orbitDimensionId);
-        if (targetWorld == null) {
+
+        GlobalSpaceStationData data = GlobalSpaceStationData.get(server.getWorld(0));
+        if (data.isConstructed()) {
+            syncToClient(player, data);
+            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.exists"), true);
+            return landOnSpaceStation(player);
+        }
+
+        if (!DimensionManager.isDimensionRegistered(ModDimensions.SPACE_STATION_ID)) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.unavailable"), true);
             return false;
         }
 
-        SpaceStationRecipe recipe = RecipeRegistry.findSpaceStationRecipe(orbitLocation);
+        SpaceStationRecipe recipe = RecipeRegistry.findSpaceStationRecipe();
         if (recipe == null) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.no_recipe"), true);
             return false;
@@ -93,19 +77,23 @@ public final class SpaceStationHelper {
             return false;
         }
 
+        WorldServer targetWorld = server.getWorld(ModDimensions.SPACE_STATION_ID);
+        if (targetWorld == null) {
+            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.unavailable"), true);
+            return false;
+        }
+
         Template template = loadTemplate(targetWorld, recipe.getStructure());
         if (template == null) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.template_missing"), true);
             return false;
         }
 
-        int chunkX = MathHelper.floor(player.posX) >> 4;
-        int chunkZ = MathHelper.floor(player.posZ) >> 4;
-        BlockPos stationCenter = new BlockPos(chunkX * 16 + 8, AdAstraOrbitWorldProvider.STATION_Y, chunkZ * 16 + 8);
+        BlockPos stationCenter = new BlockPos(0, AdAstraSpaceStationWorldProvider.STATION_Y, 0);
         BlockPos size = template.getSize();
         BlockPos origin = new BlockPos(
             stationCenter.getX() - size.getX() / 2,
-            AdAstraOrbitWorldProvider.STATION_Y,
+            stationCenter.getY(),
             stationCenter.getZ() - size.getZ() / 2);
 
         if (!isClear(targetWorld, origin, size)) {
@@ -123,37 +111,55 @@ public final class SpaceStationHelper {
             .setIgnoreStructureBlock(true)
             .setReplacedBlock(Blocks.STRUCTURE_VOID);
         template.addBlocksToWorld(targetWorld, origin, settings, 2);
-        BlockPos launchPadCenter = new BlockPos(stationCenter.getX(), SPACE_STATION_LAUNCH_PAD_Y, stationCenter.getZ());
-        placeLaunchPad(targetWorld, launchPadCenter);
+        placeLaunchPad(targetWorld, new BlockPos(
+            stationCenter.getX(), SPACE_STATION_LAUNCH_PAD_Y, stationCenter.getZ()));
 
-        String name = new TextComponentTranslation("text.ad_astra.text.space_station_name",
-            getNextStationIndex(player, orbitDimensionId)).getUnformattedText();
-        SpaceStation station = new SpaceStation(name, orbitDimensionId, stationCenter, player.getUniqueID());
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-        if (capability != null) {
-            capability.addSpaceStation(station);
-            syncCapability(player, capability);
-        }
-
-        player.sendMessage(new TextComponentTranslation("message.ad_astra.space_station.constructed", name));
-        return PlanetTravelHelper.landPlayerAtSpaceStation(player, orbitDimensionId, stationCenter);
+        data.construct(stationCenter, "space_station");
+        syncToAll(server, data);
+        player.sendMessage(new TextComponentTranslation("message.ad_astra.space_station.constructed",
+            new TextComponentTranslation("text.ad_astra.text.space_station").getUnformattedText()));
+        return landOnSpaceStation(player);
     }
 
-    public static boolean landOnSpaceStation(EntityPlayerMP player, int orbitDimensionId, BlockPos stationPos) {
-        if (!ownsSpaceStation(player, orbitDimensionId, stationPos)) {
-            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.not_owned"), true);
+    public static boolean landOnSpaceStation(EntityPlayerMP player) {
+        MinecraftServer server = player.getServer();
+        if (server == null) {
             return false;
         }
-        if (isPlayerInSpaceStationArea(player, orbitDimensionId, stationPos)) {
-            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.already_here"), true);
-            reopenPlanetSelection(player);
-            return false;
-        }
-        if (!DimensionManager.isDimensionRegistered(orbitDimensionId)) {
+
+        GlobalSpaceStationData data = GlobalSpaceStationData.get(server.getWorld(0));
+        syncToClient(player, data);
+        if (!data.isConstructed()) {
             player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.unavailable"), true);
             return false;
         }
-        return PlanetTravelHelper.landPlayerAtSpaceStation(player, orbitDimensionId, stationPos);
+
+        BlockPos stationPos = data.getPosition();
+        if (isPlayerInSpaceStationArea(player, stationPos)) {
+            player.sendStatusMessage(new TextComponentTranslation("message.ad_astra.space_station.already_here"), true);
+            reopenPlanetSelection(player, data);
+            return false;
+        }
+        return PlanetTravelHelper.landPlayerAtSpaceStation(player, stationPos);
+    }
+
+    public static void syncToClient(EntityPlayerMP player) {
+        MinecraftServer server = player == null ? null : player.getServer();
+        if (server != null) {
+            syncToClient(player, GlobalSpaceStationData.get(server.getWorld(0)));
+        }
+    }
+
+    public static void syncToClient(EntityPlayerMP player, GlobalSpaceStationData data) {
+        if (player != null && data != null) {
+            NetworkHandler.CHANNEL.sendTo(new PacketSyncSpaceStation(data), player);
+        }
+    }
+
+    private static void syncToAll(MinecraftServer server, GlobalSpaceStationData data) {
+        for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
+            syncToClient(player, data);
+        }
     }
 
     private static Template loadTemplate(WorldServer world, String structure) {
@@ -183,8 +189,7 @@ public final class SpaceStationHelper {
         for (int x = 0; x < size.getX(); x++) {
             for (int z = 0; z < size.getZ(); z++) {
                 for (int y = 0; y < Math.min(size.getY() + CLEARANCE_Y, 32); y++) {
-                    BlockPos pos = origin.add(x, y, z);
-                    if (!world.isAirBlock(pos)) {
+                    if (!world.isAirBlock(origin.add(x, y, z))) {
                         return false;
                     }
                 }
@@ -232,67 +237,14 @@ public final class SpaceStationHelper {
         }
     }
 
-    private static int getNextStationIndex(EntityPlayerMP player, int orbitDimensionId) {
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-        if (capability == null) {
-            return 1;
-        }
-        int count = 0;
-        for (SpaceStation station : capability.getSpaceStations()) {
-            if (station.getDimension() == orbitDimensionId) {
-                count++;
-            }
-        }
-        return count + 1;
-    }
-
-    private static SpaceStation getOwnedSpaceStationInOrbit(EntityPlayerMP player, int orbitDimensionId) {
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-        if (capability == null) {
-            return null;
-        }
-        for (SpaceStation station : capability.getSpaceStations()) {
-            if (station.getDimension() == orbitDimensionId && station.getOwner().equals(player.getUniqueID())) {
-                return station;
-            }
-        }
-        return null;
-    }
-
-    private static boolean ownsSpaceStation(EntityPlayerMP player, int orbitDimensionId, BlockPos stationPos) {
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-        if (capability == null) {
-            return false;
-        }
-        Set<SpaceStation> stations = capability.getSpaceStations();
-        for (SpaceStation station : stations) {
-            if (station.getDimension() == orbitDimensionId
-                && station.getOwner().equals(player.getUniqueID())
-                && sameColumn(station.getPosition(), stationPos)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean sameColumn(BlockPos first, BlockPos second) {
-        return first != null
-            && second != null
-            && first.getX() == second.getX()
-            && first.getZ() == second.getZ();
-    }
-
-    private static boolean isPlayerInSpaceStationArea(EntityPlayerMP player, int orbitDimensionId, BlockPos stationPos) {
-        return player.dimension == orbitDimensionId
+    private static boolean isPlayerInSpaceStationArea(EntityPlayerMP player, BlockPos stationPos) {
+        return player.dimension == ModDimensions.SPACE_STATION_ID
             && Math.abs(player.posX - (stationPos.getX() + 0.5D)) <= SPACE_STATION_AREA_RADIUS
             && Math.abs(player.posZ - (stationPos.getZ() + 0.5D)) <= SPACE_STATION_AREA_RADIUS;
     }
 
-    private static void reopenPlanetSelection(EntityPlayerMP player) {
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-        if (capability != null) {
-            syncCapability(player, capability);
-        }
+    private static void reopenPlanetSelection(EntityPlayerMP player, GlobalSpaceStationData data) {
+        syncToClient(player, data);
         NetworkHandler.CHANNEL.sendTo(new PacketOpenPlanetSelection(Math.max(1, getRocketTier(player))), player);
     }
 
@@ -302,11 +254,5 @@ public final class SpaceStationHelper {
             return ((AdAstraVehicleEntity) riding).getRocketTier();
         }
         return 1;
-    }
-
-    private static void syncCapability(EntityPlayerMP player, IAdAstraPlayer capability) {
-        if (capability instanceof AdAstraPlayer) {
-            NetworkHandler.CHANNEL.sendTo(new PacketSyncPlayerCapability((AdAstraPlayer) capability), player);
-        }
     }
 }

@@ -91,7 +91,23 @@ public final class ConfigurableRocketSpec {
     }
 
     public boolean usesHighTierModel() {
-        return usesHighTierModel;
+        return usesHighTierModel || modelTier >= 8;
+    }
+
+    /** Returns the model definition number used by the high-tier model class. */
+    public int getModelDefinitionTier() {
+        return usesHighTierModel() ? Math.max(5, modelTier - 3) : modelTier;
+    }
+
+    /** Returns the built-in texture associated with the configured appearance tier. */
+    public ResourceLocation getBuiltInTexture() {
+        return builtInTextureForModelTier(modelTier);
+    }
+
+    public static ResourceLocation builtInTextureForModelTier(int modelTier) {
+        int safeModelTier = Math.max(1, Math.min(15, modelTier));
+        return new ResourceLocation(Reference.MOD_ID,
+            "textures/entity/rocket/tier_" + safeModelTier + "_rocket.png");
     }
 
     public ResourceLocation getTexture() {

@@ -1,6 +1,6 @@
 package earth.terrarium.adastra.mixin.common;
 
-import earth.terrarium.adastra.common.world.AdAstraOrbitWorldProvider;
+import earth.terrarium.adastra.common.world.AdAstraSpaceStationWorldProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MinecraftServerMixin {
 
     @Inject(method = "isBlockProtected", at = @At("HEAD"), cancellable = true)
-    private void adastra$allowOrbitStationEditing(World world, BlockPos pos, EntityPlayer player, CallbackInfoReturnable<Boolean> cir) {
-        if (world != null && world.provider instanceof AdAstraOrbitWorldProvider) {
+    private void adastra$allowSpaceStationEditing(World world, BlockPos pos, EntityPlayer player, CallbackInfoReturnable<Boolean> cir) {
+        if (world != null && world.provider instanceof AdAstraSpaceStationWorldProvider) {
             cir.setReturnValue(false);
         }
     }

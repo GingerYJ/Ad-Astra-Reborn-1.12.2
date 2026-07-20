@@ -19,7 +19,6 @@ public final class CustomPlanetDimensionRegistrar {
                 continue;
             }
             int dimensionId = definition.getDimensionId();
-            int orbitDimensionId = definition.getOrbitDimensionId();
 
             // Register planet dimension
             if (CustomPlanetRegistry.getDimensionType(dimensionId) == null
@@ -42,26 +41,6 @@ public final class CustomPlanetDimensionRegistrar {
                     dimensionId);
             }
 
-            // Register orbit dimension
-            if (CustomPlanetRegistry.getDimensionType(orbitDimensionId) == null
-                && !DimensionManager.isDimensionRegistered(orbitDimensionId)) {
-                String orbitSuffix = sanitize(definition.getId().getNamespace() + "_" + definition.getId().getPath() + "_orbit");
-                DimensionType orbitType = DimensionType.register(
-                    Reference.MOD_ID + "_custom_" + orbitSuffix,
-                    "_" + Reference.MOD_ID + "_custom_" + orbitSuffix,
-                    orbitDimensionId,
-                    WorldProviderCustomPlanetOrbit.class,
-                    false);
-                DimensionManager.registerDimension(orbitDimensionId, orbitType);
-                CustomPlanetRegistry.registerDimensionType(orbitDimensionId, orbitType);
-                registered++;
-                AdAstraReborn.LOGGER.info("Registered custom planet orbit dimension {} for {}.", orbitDimensionId, definition.getId());
-            } else if (DimensionManager.isDimensionRegistered(orbitDimensionId)) {
-                AdAstraReborn.LOGGER.warn(
-                    "Custom planet {} requested orbit dimension id {}, but that id is already registered.",
-                    definition.getId(),
-                    orbitDimensionId);
-            }
         }
         return registered;
     }

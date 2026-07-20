@@ -1,7 +1,6 @@
 {
   "dimension": "ad_astra:planet_quaoar",
   "gravity": 0.029,
-  "orbit": "ad_astra:planet_quaoar_orbit",
   "oxygen": false,
   "solar_power": 11,
   "solar_system": "ad_astra:solar_system",

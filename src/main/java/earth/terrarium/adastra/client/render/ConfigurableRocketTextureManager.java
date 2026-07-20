@@ -21,7 +21,7 @@ import java.util.Set;
 public final class ConfigurableRocketTextureManager {
 
     private static final Logger LOGGER = LogManager.getLogger(Reference.MOD_NAME);
-    private static final ResourceLocation FALLBACK = new ResourceLocation(Reference.MOD_ID, "textures/entity/rocket/tier_7_rocket.png");
+    private static final ResourceLocation FALLBACK = ConfigurableRocketSpec.builtInTextureForModelTier(7);
     private static final Set<ResourceLocation> LOADED = new HashSet<>();
     private static final Set<ResourceLocation> FAILED = new HashSet<>();
 
@@ -32,6 +32,7 @@ public final class ConfigurableRocketTextureManager {
         if (spec == null) {
             return FALLBACK;
         }
+        ResourceLocation fallback = spec.getBuiltInTexture();
         if (!spec.hasExternalTextureFile()) {
             return spec.getTexture();
         }
@@ -41,14 +42,14 @@ public final class ConfigurableRocketTextureManager {
             return location;
         }
         if (FAILED.contains(location)) {
-            return FALLBACK;
+            return fallback;
         }
 
         File file = spec.getExternalTextureFile();
         if (file == null || !file.isFile()) {
             LOGGER.warn("Configurable rocket texture file not found: {}", file);
             FAILED.add(location);
-            return FALLBACK;
+            return fallback;
         }
 
         try {
@@ -56,7 +57,7 @@ public final class ConfigurableRocketTextureManager {
             if (image == null) {
                 LOGGER.warn("Configurable rocket texture file is not a readable PNG: {}", file);
                 FAILED.add(location);
-                return FALLBACK;
+                return fallback;
             }
             ITextureObject texture = new DynamicTexture(image);
             Minecraft.getMinecraft().getTextureManager().loadTexture(location, texture);
@@ -65,7 +66,7 @@ public final class ConfigurableRocketTextureManager {
         } catch (Exception exception) {
             LOGGER.warn("Failed to load configurable rocket texture: {}", file, exception);
             FAILED.add(location);
-            return FALLBACK;
+            return fallback;
         }
     }
 }

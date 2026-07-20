@@ -207,26 +207,7 @@ public final class RecipeLoader {
 
     private static int loadSpaceStationRecipes() {
         String[] recipePaths = {
-            "data/ad_astra/machine_recipes/space_station/earth_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/moon_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/mars_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/venus_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/mercury_orbit_space_station.json",
-            "data/ad_astra/machine_recipes/space_station/glacio_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_proxima_centauri_b_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_ceres_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_eris_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_gonggong_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_haumea_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_jupiter_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_makemake_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_neptune_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_orcus_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_pluto_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_quaoar_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_saturn_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_sedna_orbit_space_station.json",
-            "data/ad_astra/recipes/space_station/recipe_uranus_orbit_space_station.json"
+            "data/ad_astra/machine_recipes/space_station/space_station.json"
         };
 
         int count = 0;
@@ -601,10 +582,6 @@ public final class RecipeLoader {
                 new InputStreamReader(stream, StandardCharsets.UTF_8)
             ).getAsJsonObject();
 
-            // Parse dimension
-            String dimensionString = json.get("dimension").getAsString();
-            ResourceLocation dimension = new ResourceLocation(dimensionString);
-
             // Parse structure
             String structure = json.get("structure").getAsString();
 
@@ -642,7 +619,6 @@ public final class RecipeLoader {
 
             SpaceStationRecipe recipe = new SpaceStationRecipe(
                 id,
-                dimension,
                 structure,
                 requirements
             );

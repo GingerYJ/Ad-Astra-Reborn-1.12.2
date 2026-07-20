@@ -26,6 +26,14 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
     private final ModelBase tier5Rocket = new ModelRocket(5);
     private final ModelBase tier6Rocket = new ModelRocket(6);
     private final ModelBase tier7Rocket = new ModelRocket(7);
+    private final ModelBase tier8Rocket = new ModelHighTierRocket(5);
+    private final ModelBase tier9Rocket = new ModelHighTierRocket(6);
+    private final ModelBase tier10Rocket = new ModelHighTierRocket(7);
+    private final ModelBase tier11Rocket = new ModelHighTierRocket(8);
+    private final ModelBase tier12Rocket = new ModelHighTierRocket(9);
+    private final ModelBase tier13Rocket = new ModelHighTierRocket(10);
+    private final ModelBase tier14Rocket = new ModelHighTierRocket(11);
+    private final ModelBase tier15Rocket = new ModelHighTierRocket(12);
     private final ModelBase rover = new ModelRover();
     private final java.util.Map<Integer, ModelBase> configurableRocketModels = new java.util.HashMap<>();
 
@@ -49,6 +57,22 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
             renderRocket(tier6Rocket, texture("rocket/tier_6_rocket"), 0.08f, -0.05f);
         } else if (item == ModItems.TIER_7_ROCKET) {
             renderRocket(tier7Rocket, texture("rocket/tier_7_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_8_ROCKET) {
+            renderRocket(tier8Rocket, texture("rocket/tier_8_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_9_ROCKET) {
+            renderRocket(tier9Rocket, texture("rocket/tier_9_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_10_ROCKET) {
+            renderRocket(tier10Rocket, texture("rocket/tier_10_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_11_ROCKET) {
+            renderRocket(tier11Rocket, texture("rocket/tier_11_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_12_ROCKET) {
+            renderRocket(tier12Rocket, texture("rocket/tier_12_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_13_ROCKET) {
+            renderRocket(tier13Rocket, texture("rocket/tier_13_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_14_ROCKET) {
+            renderRocket(tier14Rocket, texture("rocket/tier_14_rocket"), 0.08f, -0.05f);
+        } else if (item == ModItems.TIER_15_ROCKET) {
+            renderRocket(tier15Rocket, texture("rocket/tier_15_rocket"), 0.08f, -0.05f);
         } else if (item instanceof ConfigurableRocketItem) {
             ConfigurableRocketSpec spec = ((ConfigurableRocketItem) item).getSpec();
             renderRocket(configurableModel(spec), ConfigurableRocketTextureManager.textureFor(spec), spec.getModelTier() >= 4 ? 0.08f : 0.11f, -0.05f);
@@ -65,7 +89,7 @@ public class VehicleItemStackRenderer extends TileEntityItemStackRenderer {
         ModelBase model = configurableRocketModels.get(cacheKey);
         if (model == null) {
             model = spec.usesHighTierModel()
-                ? new ModelHighTierRocket(modelTier)
+                ? new ModelHighTierRocket(spec.getModelDefinitionTier())
                 : new ModelRocket(modelTier);
             configurableRocketModels.put(cacheKey, model);
         }

@@ -3,21 +3,16 @@ package earth.terrarium.adastra.common.capability;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Objects;
-import java.util.UUID;
-
 public class SpaceStation {
 
     private String name;
     private int dimension;
     private BlockPos position;
-    private UUID owner;
 
-    public SpaceStation(String name, int dimension, BlockPos position, UUID owner) {
+    public SpaceStation(String name, int dimension, BlockPos position) {
         this.name = name;
         this.dimension = dimension;
         this.position = position;
-        this.owner = owner;
     }
 
     public SpaceStation(NBTTagCompound nbt) {
@@ -48,21 +43,12 @@ public class SpaceStation {
         this.position = position;
     }
 
-    public UUID getOwner() {
-        return owner;
-    }
-
-    public void setOwner(UUID owner) {
-        this.owner = owner;
-    }
-
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         nbt.setString("Name", name);
         nbt.setInteger("Dimension", dimension);
         nbt.setLong("PosX", position.getX());
         nbt.setLong("PosY", position.getY());
         nbt.setLong("PosZ", position.getZ());
-        nbt.setString("Owner", owner.toString());
         return nbt;
     }
 
@@ -73,7 +59,6 @@ public class SpaceStation {
         long y = nbt.getLong("PosY");
         long z = nbt.getLong("PosZ");
         this.position = new BlockPos(x, y, z);
-        this.owner = UUID.fromString(nbt.getString("Owner"));
     }
 
     @Override
@@ -82,14 +67,13 @@ public class SpaceStation {
         if (obj == null || getClass() != obj.getClass()) return false;
         SpaceStation that = (SpaceStation) obj;
         return dimension == that.dimension &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(position, that.position) &&
-            Objects.equals(owner, that.owner);
+            java.util.Objects.equals(name, that.name) &&
+            java.util.Objects.equals(position, that.position);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, dimension, position, owner);
+        return java.util.Objects.hash(name, dimension, position);
     }
 
     @Override
@@ -98,7 +82,6 @@ public class SpaceStation {
             "name='" + name + '\'' +
             ", dimension=" + dimension +
             ", position=" + position +
-            ", owner=" + owner +
             '}';
     }
 }

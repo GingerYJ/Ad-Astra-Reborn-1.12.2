@@ -45,7 +45,7 @@ Planet registration and metadata:
   - Dimension ID, oxygen, temperature, gravity
   - Solar power generation multiplier
   - Technology tier requirement (1-4)
-  - Orbit dimension ID for space stations
+  - Shared-space flag for the single global space station dimension
   - Builder pattern for easy construction
   - Constants for default planets (MOON_DIM, MARS_DIM, etc.)
 

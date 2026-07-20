@@ -2,7 +2,7 @@
 
 Ad Astra Reborn 是面向 Minecraft 1.12.2 与 Cleanroom Loader 的太空探索模组，提供火箭、行星、轨道、空间站、环境系统、机器、资源生成和整合接口。
 
-Ad Astra Reborn is a space exploration mod for Minecraft 1.12.2 and Cleanroom Loader. It adds rockets, planets, orbits, space stations, environmental systems, machines, resources, world generation, and integration APIs.
+Ad Astra Reborn is a space exploration mod for Minecraft 1.12.2 and Cleanroom Loader. It adds rockets, planets, a shared space station, environmental systems, machines, resources, world generation, and integration APIs.
 
 [中文说明](#中文说明) | [English](#english)
 
@@ -264,7 +264,7 @@ build/libs/
 
 - Tier 1 through tier 7 rockets, launch pads, landers, and rovers.
 - A dynamic star map with zooming, dragging, labels, and orbit visualization.
-- 19 surface planets, paired orbit dimensions, and space-station travel.
+- 19 built-in surface planets, one shared space-station dimension, and space-station travel.
 - Oxygen, temperature, gravity, solar-power, and environmental damage systems.
 - Machines including the NASA Workbench, Compressor, Alloy Smelter, Fuel Refinery, Cryo Freezer, oxygen equipment, generators, and pipes.
 - Planet-specific terrain, ores, resources, caves, and structures.
@@ -305,9 +305,9 @@ Custom planets:
 
 Minecraft 1.12.2 uses integer dimension IDs. Ad Astra assigns them in code:
 
-- Surface IDs: built-in planets `108490`-`108494`, custom planets `108495`-`108508`.
-- Orbit IDs: Earth orbit is `107489`, built-in planet orbits are `107490`-`107494`, and custom planet orbits are `107495`-`107508`.
-- Numeric dimension IDs, orbit IDs, and registry IDs are code-owned and are not written to configuration files.
+- Surface IDs: the 19 built-in planets use `108490`-`108508` (Earth remains the overworld, dimension `0`).
+- The single global space station uses dimension ID `107489`; planets and third-party custom planets do not have orbit dimensions.
+- Numeric dimension IDs and registry IDs are code-owned and are not written to configuration files.
 - Configuration categories are discovered from `ModDimensions` and `CustomPlanetRegistry`; newly registered surface planets receive categories automatically.
 
 ### Configuration Files
@@ -343,7 +343,7 @@ planet_moon {
 }
 ```
 
-Each category contains only `rocketTier`. The valid range is `0-15`; `0` removes the rocket restriction. When omitted, the planet's registration default is used. Dimension IDs, orbit IDs, registry IDs, `enabled`, gravity multipliers, and dedicated save-folder settings are not exposed as user properties.
+Each category contains only `rocketTier`. The valid range is `0-15`; `0` removes the rocket restriction. When omitted, the planet's registration default is used. Dimension IDs, space-station IDs, registry IDs, `enabled`, gravity multipliers, and dedicated save-folder settings are not exposed as user properties.
 
 ### Planet Mob Whitelist
 
@@ -407,7 +407,7 @@ moon|minecraft:iron_ore|8|4|20|60|default
 - Ranges are vein size `1-64`, count per chunk `0-100`, and Y `-80` to `320`.
 - Blocks are resolved when world generation first needs them to tolerate Forge registration order. Invalid blocks or rows are ignored with warnings.
 - Built-in and custom planets use the same parser and generation path, preventing duplicate ore generation.
-- Orbit and external dimensions do not generate planet ores.
+- The space-station and external dimensions do not generate planet ores.
 - `oreGenerationMultiplier` ranges from `0.0` to `10.0`, defaults to `2.0`, and affects new chunks only.
 
 ### External Dimensions

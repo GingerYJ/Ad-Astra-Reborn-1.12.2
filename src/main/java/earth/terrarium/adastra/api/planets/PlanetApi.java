@@ -48,7 +48,7 @@ public interface PlanetApi {
 
     /**
      * Returns true if the given world is a planet (has a surface).
-     * This excludes orbit/space dimensions.
+     * This excludes the shared space station dimension.
      *
      * @param world The world to check
      * @return true if the world is a planet, false otherwise
@@ -64,19 +64,18 @@ public interface PlanetApi {
     boolean isPlanet(int dimensionId);
 
     /**
-     * Returns true if the given world is an orbit/space dimension.
-     * Space dimensions have no surface and are typically used for space stations.
+     * Returns true if the given world is the shared space station dimension.
      *
      * @param world The world to check
-     * @return true if the world is a space/orbit dimension, false otherwise
+     * @return true if the world is the shared space station, false otherwise
      */
     boolean isSpace(World world);
 
     /**
-     * Returns true if the given dimension ID is a space/orbit dimension.
+     * Returns true if the given dimension ID is the shared space station dimension.
      *
      * @param dimensionId The dimension ID to check
-     * @return true if the dimension is a space/orbit dimension, false otherwise
+     * @return true if the dimension is the shared space station, false otherwise
      */
     boolean isSpace(int dimensionId);
 

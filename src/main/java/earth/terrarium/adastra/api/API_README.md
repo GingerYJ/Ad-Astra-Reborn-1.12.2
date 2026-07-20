@@ -194,7 +194,7 @@ In 1.12.2, dimensions are identified by integer IDs:
 - `108493` - Venus
 - `108494` - Glacio
 
-Custom planets should use IDs not conflicting with other mods. Ad Astra reserves surface IDs from `108490` and orbit IDs from `107490`.
+Custom planets should use IDs not conflicting with other mods. Ad Astra reserves surface IDs `108490`-`108508` for its 19 built-in surface planets and uses `107489` for the single global space station. There are no per-planet orbit dimensions.
 
 ### Energy System
 

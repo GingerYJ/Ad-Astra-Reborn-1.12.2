@@ -4,6 +4,7 @@ import earth.terrarium.adastra.common.blocks.AdAstraOreBlock;
 import earth.terrarium.adastra.common.registry.ModBlocks;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import mezz.jei.api.IModRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
@@ -35,7 +36,16 @@ public final class PlanetResourceJeiInfo {
         add(registry, registered, "uranus", new ItemStack(Blocks.PACKED_ICE), false, null);
         add(registry, registered, "uranus", new ItemStack(ModBlocks.BLUE_SLUSHY_ICE), false, null);
 
+        for (CustomPlanetDefinition definition : BuiltInPlanetRegistry.getDefinitions()) {
+            registerPlanetDefinition(registry, registered, definition);
+        }
         for (CustomPlanetDefinition definition : CustomPlanetRegistry.getDefinitions()) {
+            registerPlanetDefinition(registry, registered, definition);
+        }
+    }
+
+    private static void registerPlanetDefinition(IModRegistry registry, Set<String> registered,
+                                                  CustomPlanetDefinition definition) {
             String planet = definition.getPlanetName();
             String displayName = definition.getDisplayName();
             add(registry, registered, planet, stackForState(definition.getSurfaceBlock()), false, displayName);
@@ -49,7 +59,6 @@ public final class PlanetResourceJeiInfo {
             for (CustomPlanetDefinition.FluidLakeDefinition lake : definition.getFluidLakes()) {
                 add(registry, registered, planet, stackForState(lake.getFluidBlock()), false, displayName);
             }
-        }
     }
 
     private static void registerBlock(IModRegistry registry, Set<String> registered, Block block) {

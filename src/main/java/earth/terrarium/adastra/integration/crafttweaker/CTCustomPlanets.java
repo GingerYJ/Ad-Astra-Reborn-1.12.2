@@ -3,7 +3,9 @@ package earth.terrarium.adastra.integration.crafttweaker;
 import crafttweaker.CraftTweakerAPI;
 import crafttweaker.IAction;
 import crafttweaker.annotations.ZenRegister;
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetDefinition;
+import earth.terrarium.adastra.common.world.custom.BuiltInPlanetRegistry;
 import earth.terrarium.adastra.common.world.custom.CustomPlanetRegistry;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
@@ -54,6 +56,12 @@ public final class CTCustomPlanets {
 
         @Override
         public boolean validate() {
+            if (BuiltInPlanetRegistry.contains(definition.getId())
+                || ModDimensions.isBuiltInPlanetId(definition.getPlanetName())
+                || BuiltInPlanetRegistry.containsDimension(definition.getDimensionId())
+                || ModDimensions.isBuiltInDimension(definition.getDimensionId())) {
+                return false;
+            }
             CustomPlanetDefinition existing = CustomPlanetRegistry.getByDimensionId(definition.getDimensionId());
             return existing == null || existing.getId().equals(definition.getId());
         }
@@ -61,7 +69,7 @@ public final class CTCustomPlanets {
         @Override
         public String describeInvalid() {
             return "Cannot register Ad Astra custom planet " + definition.getId()
-                + ": dimension id " + definition.getDimensionId() + " is already used by another custom planet";
+                + ": the ID or surface dimension is reserved by a built-in or another custom planet";
         }
     }
 }

@@ -34,12 +34,7 @@ public class OxygenSystemExtended {
             case ModDimensions.MARS_ID:
             case ModDimensions.MERCURY_ID:
             case ModDimensions.VENUS_ID:
-            case ModDimensions.EARTH_ORBIT_ID:
-            case ModDimensions.MOON_ORBIT_ID:
-            case ModDimensions.MARS_ORBIT_ID:
-            case ModDimensions.MERCURY_ORBIT_ID:
-            case ModDimensions.VENUS_ORBIT_ID:
-            case ModDimensions.GLACIO_ORBIT_ID:
+            case ModDimensions.SPACE_STATION_ID:
                 return false;
             case ModDimensions.GLACIO_ID:
                 return true;

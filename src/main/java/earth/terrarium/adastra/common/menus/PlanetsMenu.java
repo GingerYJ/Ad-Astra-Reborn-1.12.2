@@ -1,7 +1,5 @@
 package earth.terrarium.adastra.common.menus;
 
-import earth.terrarium.adastra.common.capability.AdAstraCapabilities;
-import earth.terrarium.adastra.common.capability.IAdAstraPlayer;
 import earth.terrarium.adastra.common.capability.SpaceStation;
 import earth.terrarium.adastra.common.network.NetworkHandler;
 import earth.terrarium.adastra.common.network.packet.PacketConstructSpaceStation;
@@ -10,13 +8,14 @@ import earth.terrarium.adastra.common.network.packet.PacketLandSpaceStation;
 import earth.terrarium.adastra.common.recipe.RecipeRegistry;
 import earth.terrarium.adastra.common.recipe.SpaceStationRecipe;
 import earth.terrarium.adastra.common.util.PlanetTravelHelper;
+import earth.terrarium.adastra.common.util.SpaceStationClientState;
+import earth.terrarium.adastra.common.registry.ModDimensions;
 import earth.terrarium.adastra.common.world.PlanetDimensionProperties;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,9 +63,9 @@ public class PlanetsMenu extends Container {
 
     public List<PlanetDimensionProperties> getAvailablePlanets() {
         List<PlanetDimensionProperties> planets = new ArrayList<>();
-        PlanetDimensionProperties currentOrbitPlanet = getCurrentOrbitPlanet();
-        if (currentOrbitPlanet != null && isPlanetEnabled(currentOrbitPlanet)) {
-            planets.add(currentOrbitPlanet);
+        PlanetDimensionProperties currentPlanet = getCurrentPlanet();
+        if (currentPlanet != null && isPlanetEnabled(currentPlanet)) {
+            planets.add(currentPlanet);
         }
         if (player != null && player.dimension != 0 && isPlanetEnabled(PlanetTravelHelper.EARTH_PROPERTIES)) {
             addIfMissing(planets, PlanetTravelHelper.EARTH_PROPERTIES);
@@ -79,14 +78,19 @@ public class PlanetsMenu extends Container {
                 addIfMissing(planets, planet);
             }
         }
-        planets.sort(Comparator.comparingInt((PlanetDimensionProperties planet) -> isSamePlanet(planet, currentOrbitPlanet) ? 0 : 1)
+        planets.sort(Comparator.comparingInt((PlanetDimensionProperties planet) -> isSamePlanet(planet, currentPlanet) ? 0 : 1)
             .thenComparingInt(PlanetTravelHelper::getRequiredRocketTier)
             .thenComparing(PlanetDimensionProperties::getName));
         return planets;
     }
 
-    public PlanetDimensionProperties getCurrentOrbitPlanet() {
-        return player == null ? null : PlanetTravelHelper.getPlanetByOrbitDimensionId(player.dimension);
+    public PlanetDimensionProperties getCurrentPlanet() {
+        if (player == null) {
+            return null;
+        }
+        return player.dimension == PlanetTravelHelper.EARTH_PROPERTIES.getDimensionId()
+            ? PlanetTravelHelper.EARTH_PROPERTIES
+            : PlanetTravelHelper.getPlanetByDimensionId(player.dimension);
     }
 
     public boolean canReach(PlanetDimensionProperties planet) {
@@ -102,25 +106,18 @@ public class PlanetsMenu extends Container {
     }
 
     public boolean hasSpaceStation(PlanetDimensionProperties planet) {
-        return !getSpaceStations(planet).isEmpty();
+        return SpaceStationClientState.isConstructed();
     }
 
     public List<SpaceStation> getSpaceStations(PlanetDimensionProperties planet) {
         List<SpaceStation> stations = new ArrayList<>();
-        if (planet == null || player == null) {
+        if (planet == null) {
             return stations;
         }
-        IAdAstraPlayer capability = AdAstraCapabilities.getPlayer(player);
-        if (capability == null) {
-            return stations;
+        SpaceStation station = SpaceStationClientState.getStation();
+        if (station != null && station.getDimension() == ModDimensions.SPACE_STATION_ID) {
+            stations.add(station);
         }
-        int orbitDimensionId = PlanetTravelHelper.getOrbitDimensionId(planet.getDimensionId());
-        for (SpaceStation station : capability.getSpaceStations()) {
-            if (station.getDimension() == orbitDimensionId) {
-                stations.add(station);
-            }
-        }
-        stations.sort(Comparator.comparing(SpaceStation::getName));
         return stations;
     }
 
@@ -128,9 +125,7 @@ public class PlanetsMenu extends Container {
         if (planet == null) {
             return null;
         }
-        int orbitDimensionId = PlanetTravelHelper.getOrbitDimensionId(planet.getDimensionId());
-        ResourceLocation orbitLocation = PlanetTravelHelper.getOrbitDimensionLocation(orbitDimensionId);
-        return orbitLocation == null ? null : RecipeRegistry.findSpaceStationRecipe(orbitLocation);
+        return RecipeRegistry.findSpaceStationRecipe();
     }
 
     public int getOwnedIngredientCount(SpaceStationRecipe.IngredientRequirement requirement) {
@@ -157,9 +152,9 @@ public class PlanetsMenu extends Container {
         }
     }
 
-    public void landOnSpaceStation(PlanetDimensionProperties planet, BlockPos stationPos) {
-        if (planet != null && stationPos != null) {
-            NetworkHandler.CHANNEL.sendToServer(new PacketLandSpaceStation(PlanetTravelHelper.getOrbitDimensionId(planet.getDimensionId()), stationPos));
+    public void landOnSpaceStation(PlanetDimensionProperties planet) {
+        if (planet != null) {
+            NetworkHandler.CHANNEL.sendToServer(new PacketLandSpaceStation());
         }
     }
 

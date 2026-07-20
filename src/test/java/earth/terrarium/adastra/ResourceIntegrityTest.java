@@ -147,6 +147,115 @@ class ResourceIntegrityTest {
         assertTrue(failures.isEmpty(), String.join(System.lineSeparator(), failures));
     }
 
+    @Test
+    void highTierRocketsHaveDedicatedRegistrationsAndAssets() throws IOException {
+        Path root = projectRoot();
+        String entities = read(root.resolve("src/main/java/earth/terrarium/adastra/common/registry/ModEntities.java"));
+        String items = read(root.resolve("src/main/java/earth/terrarium/adastra/common/registry/ModItems.java"));
+
+        for (int tier = 8; tier <= 15; tier++) {
+            String name = "tier_" + tier + "_rocket";
+            String entityClass = "Tier" + tier + "RocketEntity";
+            assertTrue(entities.contains(
+                "TIER_" + tier + "_ROCKET = entity(\"" + name + "\", " + entityClass + ".class"));
+            assertTrue(items.contains(
+                "TIER_" + tier + "_ROCKET = prefixedVehicle(\"" + name + "\", " + entityClass + "::new)"));
+            assertTrue(Files.exists(root.resolve("src/main/resources/assets/ad_astra/models/item/item_" + name + ".json")));
+            assertTrue(Files.exists(root.resolve("src/main/resources/assets/ad_astra/textures/entity/rocket/" + name + ".png")));
+
+            Path entitySource = root.resolve(
+                "src/main/java/earth/terrarium/adastra/common/entities/vehicles/" + entityClass + ".java");
+            String source = read(entitySource);
+            assertTrue(source.contains("super(world, " + tier + ", TIER_" + tier + "_FUEL_CAPACITY"));
+            assertTrue(source.contains("RocketFuelHelper.canFuelRocket(stack, " + tier + ")"));
+        }
+    }
+
+    @Test
+    void additionalPlanetsAreCodeOwnedAndDimensionRegistrationIsSeparate() throws IOException {
+        Path root = projectRoot();
+        String planets = read(root.resolve("src/main/java/earth/terrarium/adastra/common/registry/ModPlanets.java"));
+        String dimensions = read(root.resolve("src/main/java/earth/terrarium/adastra/common/registry/ModDimensions.java"));
+        String builtInRegistry = read(root.resolve(
+            "src/main/java/earth/terrarium/adastra/common/world/custom/BuiltInPlanetRegistry.java"));
+        String[] additionalPlanets = {
+            "ceres", "jupiter", "saturn", "uranus", "neptune", "orcus", "pluto", "haumea",
+            "quaoar", "makemake", "gonggong", "eris", "sedna", "proxima_centauri_b"
+        };
+
+        assertTrue(planets.contains("BuiltInPlanetRegistry.register(definition)"));
+        assertTrue(dimensions.contains("BuiltInPlanetDimensionRegistrar.register()"));
+        assertTrue(builtInRegistry.contains("SURFACE_INDEX"));
+        assertTrue(dimensions.contains("FIRST_PLANET_ID = 108490"));
+        assertTrue(dimensions.contains("SPACE_STATION_ID = 107489"));
+        assertFalse(dimensions.contains("FIRST_ORBIT_ID"));
+        for (String planet : additionalPlanets) {
+            assertTrue(planets.contains("planet(\"" + planet + "\""), "Missing built-in planet " + planet);
+        }
+
+        int codeOwnedSurfaceIds = 0;
+        for (String field : List.of("MOON_PROPERTIES", "MARS_PROPERTIES", "MERCURY_PROPERTIES", "VENUS_PROPERTIES", "GLACIO_PROPERTIES")) {
+            if (dimensions.contains("PlanetDimensionProperties " + field)) {
+                codeOwnedSurfaceIds++;
+            }
+        }
+        assertTrue(codeOwnedSurfaceIds == 5, "Expected the five original built-in planet definitions.");
+    }
+
+    @Test
+    void onlyTheGlobalSpaceStationResourcesRemain() throws IOException {
+        Path resources = projectRoot().resolve("src/main/resources");
+        List<String> legacy = new ArrayList<>();
+        for (Path root : List.of(
+            resources.resolve("assets/ad_astra/planet_renderers"),
+            resources.resolve("data/ad_astra/dimension"),
+            resources.resolve("data/ad_astra/dimension_type"),
+            resources.resolve("data/ad_astra/planets"),
+            resources.resolve("data/ad_astra/machine_recipes/space_station"),
+            resources.resolve("data/ad_astra/recipes/space_station"),
+            resources.resolve("data/ad_astra/advancements/recipes/space_stations/space_station"),
+            resources.resolve("data/ad_astra/worldgen/biome"),
+            resources.resolve("data/ad_astra/worldgen/noise_settings"))) {
+            if (!Files.exists(root)) {
+                continue;
+            }
+            try (Stream<Path> paths = Files.walk(root)) {
+                paths.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).contains("orbit"))
+                    .forEach(path -> legacy.add(resources.relativize(path).toString()));
+            }
+        }
+
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/dimension/space_station.json")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/dimension_type/space_station.json")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/machine_recipes/space_station/space_station.json")));
+        assertTrue(Files.exists(resources.resolve("data/ad_astra/advancements/recipes/space_stations/space_station.json")));
+        assertTrue(legacy.isEmpty(), String.join(System.lineSeparator(), legacy));
+    }
+
+    @Test
+    void configurableRocketsOnlyExposeAdvancedConfigurationRules() throws IOException {
+        Path root = projectRoot();
+        String registry = read(root.resolve(
+            "src/main/java/earth/terrarium/adastra/common/rocket/ConfigurableRocketRegistry.java"));
+        String spec = read(root.resolve(
+            "src/main/java/earth/terrarium/adastra/common/rocket/ConfigurableRocketSpec.java"));
+        String textureManager = read(root.resolve(
+            "src/main/java/earth/terrarium/adastra/client/render/ConfigurableRocketTextureManager.java"));
+
+        assertTrue(registry.contains("MIN_ROCKET_TIER = 16"));
+        assertTrue(registry.contains("MAX_ROCKET_TIER = 255"));
+        assertTrue(registry.contains("MAX_MODEL_TIER = 15"));
+        assertTrue(registry.contains("migrateLegacyRows"));
+        assertTrue(registry.contains("tier_8_rocket"));
+        assertFalse(registry.contains("Ignore the old example row"));
+        assertTrue(registry.contains("rocket_png"));
+        assertTrue(spec.contains("getModelDefinitionTier"));
+        assertTrue(spec.contains("builtInTextureForModelTier"));
+        assertTrue(textureManager.contains("spec.getBuiltInTexture()"));
+        assertTrue(textureManager.contains("return fallback;"));
+    }
+
     private static boolean hasDataZeroAfter(String text, int referenceEnd) {
         int nextObject = text.indexOf('}', referenceEnd);
         int nextResult = text.indexOf("\"result\"", referenceEnd);

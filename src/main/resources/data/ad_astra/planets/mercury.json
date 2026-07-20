@@ -1,7 +1,6 @@
 {
   "dimension": "ad_astra:mercury",
   "gravity": 0.38,
-  "orbit": "ad_astra:mercury_orbit",
   "oxygen": false,
   "solar_power": 64,
   "solar_system": "ad_astra:solar_system",
